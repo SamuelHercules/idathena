@@ -1,0 +1,3 @@
+Lua ini ditranslate oleh Java dari idathena.org
+
+dilarang menghapus file ini sebagai bentuk rasa terimakasih.
