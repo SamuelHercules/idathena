@@ -20,36 +20,36 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 			mes "[Cuir]";
 			mes "Apakah kamu sudah menyelesaikan memburu 50 Alligator ?";
 			next;
-			switch(select("Yes:No:I want to quit")) {
+			switch(select("Ya:Tidak:Saya Mau Berhenti")) {
 			case 1:
 				mes "[Cuir]";
-				mes "Hmm, I don't think you've hunted 50 yet...";
+				mes "Hmm, Saya rasa kamu belum memburu 50 ekor";
 				close;
 			case 2:
 				mes "[Cuir]";
-				mes "Remember, I need help hunting Alligators so go and hunt 50 of them.";
+				mes "Perlu Diingat, Aku butuh bantuan memburu beberapa Alligator dan memburu 50 diantaranya.";
 				close;
 			case 3:
 				mes "[Cuir]";
-				mes "Are you sure that you want to stop hunting?";
-				mes "Any progress that you've made will be erased";
+				mes "Apa kamu yakin mau berhenti?";
+				mes "Semua hal yang kamu lakukan akan dihapus";
 				next;
-				switch(select("Yes:No")) {
+				switch(select("Ya:Tidak")) {
 				case 1:
 					mes "[Cuir]";
-					mes "Ok then, well come back here if you change your mind.";
+					mes "Baiklah, datang lah kemari jika kamu berubah pikiran.";
 					erasequest 60119;
 					close;
 				case 2:
 					mes "[Cuir]";
-					mes "Please kill 50 Alligators.";
+					mes "Tolong bunuh 50 Alligator.";
 					close;
 				}
 			}
 		}
 		else {
 			mes "[Cuir]";
-			mes "Amazing, you did that with speed.";
+			mes "Luar biasa, kamu menyelesaikan hal ini begitu cepat.";
 			getexp 68950,43300;
 			erasequest 60119;
 			close;
@@ -58,38 +58,38 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 	if (checkquest(60120) != -1) {
 		if (checkquest(60120,HUNTING) != 2 ) {
 			mes "[Cuir]";
-			mes "Have you finished hunting the 50 Alligators?";
+			mes "Apakah kamu sudah menyelesaikan memburu 100 Alligator ?";
 			next;
 			switch(select("Yes:No:I want to quit")) {
 			case 1:
 				mes "[Cuir]";
-				mes "Hmm, I don't think you've hunted 100 yet...";
+				mes "Hmm, Saya rasa kamu belum memburu 100 ekor";
 				close;
 			case 2:
 				mes "[Cuir]";
-				mes "Remember, I need help hunting Alligators so go and hunt 100 of them.";
+				mes "Perlu Diingat, Aku butuh bantuan memburu beberapa Alligator dan memburu 100 diantaranya.";
 				close;
 			case 3:
 				mes "[Cuir]";
-				mes "Are you sure that you want to stop hunting?";
-				mes "Any progress that you've made will be erased";
+				mes "Apa kamu yakin mau berhenti?";
+				mes "Semua hal yang kamu lakukan akan dihapus";
 				next;
-				switch(select("Yes:No")) {
+				switch(select("Ya:Tidak")) {
 				case 1:
 					mes "[Cuir]";
-					mes "Ok then, well come back here if you change your mind.";
+					mes "Baiklah, datang lah kemari jika kamu berubah pikiran.";
 					erasequest 60120;
 					close;
 				case 2:
 					mes "[Cuir]";
-					mes "Please kill 100 Alligators.";
+					mes "Tolong bunuh 100 Alligator.";
 					close;
 				}
 			}
 		}
 		else {
 			mes "[Cuir]";
-			mes "Amazing, you did that with speed.";
+			mes "Luar biasa, kamu menyelesaikan hal ini begitu cepat.";
 			getexp 68950,43300;
 			getexp 68950,43300;
 			erasequest 60120;
@@ -99,38 +99,38 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 	if (checkquest(60121) != -1) {
 		if (checkquest(60121,HUNTING) != 2 ) {
 			mes "[Cuir]";
-			mes "Have you finished hunting the 150 Alligators?";
+			mes "Apakah kamu sudah menyelesaikan memburu 150 Alligator";
 			next;
-			switch(select("Yes:No:I want to quit")) {
+			switch(select("Ya:Tidak:Saya Mau Berhenti")) {
 			case 1:
 				mes "[Cuir]";
-				mes "Hmm, I don't think you've hunted 150 yet...";
+				mes Hmm, Saya rasa kamu belum memburu 150 ekor;
 				close;
 			case 2:
 				mes "[Cuir]";
-				mes "Remember, I need help hunting Alligators so go and hunt 150 of them.";
+				mes "Perlu Diingat, Aku butuh bantuan memburu beberapa Alligator dan memburu 150 diantaranya.";
 				close;
 			case 3:
 				mes "[Cuir]";
-				mes "Are you sure that you want to stop hunting?";
-				mes "Any progress that you've made will be erased";
+				mes "Apa kamu yakin mau berhenti?";
+				mes "Semua hal yang kamu lakukan akan dihapus";
 				next;
 				switch(select("Yes:No")) {
 				case 1:
 					mes "[Cuir]";
-					mes "Ok then, well come back here if you change your mind.";
+					mes "Baiklah, datang lah kemari jika kamu berubah pikiran.";
 					erasequest 60121;
 					close;
 				case 2:
 					mes "[Cuir]";
-					mes "Please kill 150 Alligators.";
+					mes "Tolong bunuh 100 Alligator.";
 					close;
 				}
 			}
 		}
 		else {
 			mes "[Cuir]";
-			mes "Amazing, you did that with speed.";
+			mes "Luar biasa, kamu menyelesaikan hal ini begitu cepat.";
 			getexp 68950,43300;
 			getexp 68950,43300;
 			getexp 68950,43300;
@@ -143,40 +143,39 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 		//for maximum level
 		if (BaseLevel < 81) {
 			mes "[Cuir]";
-			mes "You look like a sturdy adventurer!";
+			mes "Kamu Tampak seperti petualang yang tangguh!";
 			next;
 			mes "[Cuir]";
-			mes "I was sent here to minimize the Alligator population but the task is proving to be quite difficult for just me to complete.";
-			mes "How'd you like to help me out?";
+			mes "Aku dikirim disini untuk mengurangi populasi alligator, tetapi tugas ini terlalu sulit untuk kulakukan sendiri.";
+			mes "Apakah kamu mau membantuku?";
 			next;
-			switch(select("Sure:No")) {
+			switch(select("Tentu:Tidak")) {
 			case 1:
 				mes "[Cuir]";
-				mes "You can help me out by either hunting Alligators or by gathering items for me.";
-				mes "Which would you like to do?";
+				mes "Kamu dapat membantuku dengan memburu Alligator ataupun menumpulkan barang untuku.";
+				mes "Apa yang mau kamu lakukan?";
 				next;
-				switch(select("Gather Items:Hunt Alligators:Cancel")) {
+				switch(select("Mengumpulkan Barang:Berburu Alligator:Batal")) {
 				case 1:
 					// Item turn in
 					mes "[Cuir]";
-					mes "If you can bring me ^00CC0020 Anolian Skins^000000. I'll help you get stronger.";
+					mes "Jika Kamu membawakan ^00CC0020 Anolian Skins^000000. Aku dapat membantumu untuk menjadi lebih kuat.";
 					next;
-					switch(select("I have the Anolian Skins:Gators bite!")) {
+					switch(select("Aku memiliki Anolian Skins:Digigit Buaya!")) {
 					case 1:
 						/*
 						if (checkweight(503,10) == 0) {
 							mes "[Cuir]";
-							mes "Hey, it looks like that the weight on";
-							mes "your back will crush you. Come back";
-							mes "after you have lost some weight.";
+							mes "Kelihatanya barang bawaan mu terlalu banyak";
+							mes "Datanglah kembali setelah kamu mengurangi barang bawaaanmu";
 							close;
 						}
 						*/
 						if (countitem(7003) > 19) {
 							mes "[Cuir]";
-							mes "Thank you for the ^00CE0020 Anolian Skins^000000!";
-							mes "I hope you can continue to help me collect these skins.";
-							mes "The armor creators around the world are clamoring for them.";
+							mes "Terima Kasih untuk ^00CE0020 Anolian Skins^000000!";
+							mes "Aku harap kamu mau membantuku untuk mengumpulkan Anolian Skin lagi.";
+							mes "Para pembuat armor dari seluruh dunia mencari ini.";
 							delitem 7003,20; //Anolian_Skin
 							getexp 68950,43300;
 							//getitem 503,10; //Yellow_Potion
@@ -184,59 +183,59 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 						}
 						else {
 							mes "[Cuir]";
-							mes "I know a gator skin when I see it and I don't see ^00CE0020 Anolian Skins^000000.";
+							mes "Aku mengerti Gator Skin ketika aku melihatnya dan aku tidak melihat ^00CE0020 Anolian Skins^000000.";
 							close;
 						}
 					case 2:
 						mes "[Cuir]";
-						mes "I need ^00CE0020 Anolian Skins^000000.";
+						mes "Aku membutuhkan ^00CE0020 Anolian Skins^000000.";
 						close;
 					}
 				case 2:
 					// Kill Count Quest
 					mes "[Cuir]";
-					mes "Ah, ok I think you can help me out by hunting some Alligators.";
-					mes "How many would you like to hunt?";
+					mes "Saya rasa kamu dapat membantuku untuk berburu Aligator.";
+					mes "Berapa banyak yang kamu butuhkan?";
 					next;
 					switch(select("50 Alligators:100 Alligators:150 Alligators")) {
 					case 1:
 						mes "[Cuir]";
-						mes "Come back when you've finished your task and I will give you a small reward.";
+						mes "Datanglah kembali saat kamu menyelesaikan tugas ini, aku akan memberikan sedikit hadiah.";
 						setquest 60119;
 						close;
 					case 2:
 						mes "[Cuir]";
-						mes "Come back when you've finished your task and I will give you a small reward.";
+						mes "Datanglah kembali saat kamu menyelesaikan tugas ini, aku akan memberikan sedikit hadiah.";
 						setquest 60120;
 						close;
 					case 3:
 						mes "[Cuir]";
-						mes "Come back when you've finished your task and I will give you a small reward.";
+						mes "Datanglah kembali saat kamu menyelesaikan tugas ini, aku akan memberikan sedikit hadiah.";
 						setquest 60121;
 						close;
 					}
 				case 3:
 					mes "[Cuir]";
-					mes "If you change your mind, please come back.";
+					mes "Saat kamu berubah pikirian, kembalilah.";
 					close;
 				}
 			case 2:
 				mes "[Cuir]";
-				mes "If you change your mind, please come back.";
+				mes "Saat kamu berubah pikirian, kembalilah.";
 				close;
 			}
 		}
 		else {
 			mes "[Cuir]";
-			mes "You are too powerful for this task, I need the skins in fair condition, not exploded!";
+			mes "Kamu terlalu kuat untuk tugas ini, saya membutuhkan kulit dalam kondisi yang baik, tidak rusak!";
 			next;
 			close;
 		}
 	}
 	else {
 		mes "[Cuir]";
-		mes "You certainly are brave, but bravery turns to foolishness if you continue going East.";
-		mes "Perhaps when you are stronger you and I can do business.";
+		mes "Anda pasti berani, tapi keberanian berubah menjadi kebodohan jika Anda terus pergi ke Timur.";
+		mes "Mungkin ketika kamu jadi lebih kuat, Aku dan kamu bisa membuat sebuah bisnis.";
 		close;
 	}
 }
