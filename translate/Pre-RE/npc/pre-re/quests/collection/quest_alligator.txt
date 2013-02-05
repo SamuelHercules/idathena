@@ -18,7 +18,7 @@ cmd_fild01,362,256,3	script	Cuir#Gator_Hunt	106,{
 	if (checkquest(60119) != -1) {
 		if (checkquest(60119,HUNTING) != 2 ) {
 			mes "[Cuir]";
-			mes "Have you finished hunting the 50 Alligators?";
+			mes "Apakah kamu sudah menyelesaikan memburu 50 Alligator ?";
 			next;
 			switch(select("Yes:No:I want to quit")) {
 			case 1:
