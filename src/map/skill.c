@@ -1446,7 +1446,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 					case ITEMID_MELON_BOMB: //Reduces ASPD and movement speed
 						sc_start4(src,bl,SC_MELON_BOMB,100,skill_lv,20 + joblv,10 + joblv / 2,0,1000 * baselv / 4);
 						break;
-					case ITEMID_BANANA_BOMB: //Reduces LUK and chance to force sit. Must do the force sit success chance first before LUK reduction
+					case ITEMID_BANANA_BOMB: //Reduces LUK and chance to force sit, must do the force sit success chance first before LUK reduction
 						sc_start(src,bl,SC_BANANA_BOMB_SITDOWN,baselv + joblv + sstatus->dex / 6 - tbaselv - tstatus->agi / 4 - tstatus->luk / 5,skill_lv,1000 * joblv / 4);
 						//sc_start(src,bl,SC_BANANA_BOMB,100,skill_lv,77000); //Needs more info
 						break;
@@ -2900,12 +2900,8 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 			break;
 		case SL_STIN:
 		case SL_STUN:
-			if (skill_lv >= 7) {
-				struct status_change *sc = status_get_sc(src);
-
-				if (!(sc && sc->data[SC_SMA]))
-					sc_start(src, src, SC_SMA, 100, skill_lv, skill_get_time(SL_SMA, skill_lv));
-			}
+			if (!(sc && sc->data[SC_SMA]) && skill_lv >= 7)
+				sc_start(src, src, SC_SMA, 100, skill_lv, skill_get_time(SL_SMA, skill_lv));
 			break;
 		case GS_FULLBUSTER:
 			if (sd) //Can't attack nor use items until skill's delay expires [Skotlex]
@@ -2953,6 +2949,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case LG_CANNONSPEAR:
 		case LG_MOONSLASHER:
 		case RL_HAMMER_OF_GOD:
+		case EL_CIRCLE_OF_FIRE:
 			dmg.dmotion = clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, NV_BASIC, -1, DMG_SPLASH);
 			break;
 		case WL_HELLINFERNO:
@@ -2984,7 +2981,6 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case EL_FIRE_WAVE:
 		case EL_FIRE_WAVE_ATK:
 		case EL_FIRE_MANTLE:
-		case EL_CIRCLE_OF_FIRE:
 		case EL_FIRE_ARROW:
 		case EL_ICE_NEEDLE:
 		case EL_WATER_SCREW:
@@ -3079,7 +3075,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 	shadow_flag = skill_check_shadowform(bl, damage, dmg.div_);
 
 	if (!dmg.amotion) { //Instant damage
-		if ((!tsc || (!tsc->data[SC_DEVOTION] && skill_id != CR_REFLECTSHIELD) || skill_id == HW_GRAVITATION) && !shadow_flag)
+		if ((!tsc || (!tsc->data[SC_DEVOTION] && !tsc->data[SC_WATER_SCREEN_OPTION] && skill_id != CR_REFLECTSHIELD) || skill_id == HW_GRAVITATION) && !shadow_flag)
 			status_fix_damage(src, bl, damage, dmg.dmotion); //Deal damage before knockback to allow stuff like firewall + storm gust combo
 		if (!status_isdead(bl) && additional_effects)
 			skill_additional_effect(src, bl, skill_id, skill_lv, dmg.flag, dmg.dmg_lv, tick);
@@ -3100,33 +3096,49 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 			battle_delay_damage(tick, dmg.amotion, src, bl, dmg.flag, skill_id, skill_lv, damage, dmg.dmg_lv, dmg.dmotion, additional_effects);
 	}
 
-	if (tsc && tsc->data[SC_DEVOTION] && skill_id != PA_PRESSURE && skill_id != HW_GRAVITATION) {
-		struct status_change_entry *sce = tsc->data[SC_DEVOTION];
-		struct block_list *d_bl = map_id2bl(sce->val1);
+	if (tsc && skill_id != PA_PRESSURE && skill_id != HW_GRAVITATION) {
+		if (tsc->data[SC_DEVOTION]) {
+			struct status_change_entry *sce_d = tsc->data[SC_DEVOTION];
+			struct block_list *d_bl = map_id2bl(sce_d->val1);
 
-		if (d_bl &&
-			((d_bl->type == BL_MER && ((TBL_MER *)d_bl)->master && ((TBL_MER *)d_bl)->master->bl.id == bl->id) ||
-			(d_bl->type == BL_PC && ((TBL_PC *)d_bl)->devotion[sce->val2] == bl->id)) &&
-			check_distance_bl(bl, d_bl, sce->val3))
-		{
-			if (!rmdamage) {
-				clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
-				status_fix_damage(NULL, d_bl, damage, 0);
+			if (d_bl &&
+				((d_bl->type == BL_MER && ((TBL_MER *)d_bl)->master && ((TBL_MER *)d_bl)->master->bl.id == bl->id) ||
+				(d_bl->type == BL_PC && ((TBL_PC *)d_bl)->devotion[sce_d->val2] == bl->id)) &&
+				check_distance_bl(bl, d_bl, sce_d->val3))
+			{
+				if (!rmdamage) {
+					clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
+					status_fix_damage(NULL, d_bl, damage, 0);
+				} else {
+					bool isDevotRdamage = false;
+
+					if (battle_config.devotion_rdamage && battle_config.devotion_rdamage > rnd()%100)
+						isDevotRdamage = true;
+					//If !isDevotRdamage, reflected magics are done directly on the target not on paladin
+					//This check is only for magical skill
+					//For BF_WEAPON skills types track var rdamage and function battle_calc_return_damage
+					clif_damage(bl, (!isDevotRdamage) ? bl : d_bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
+					status_fix_damage(bl, (!isDevotRdamage) ? bl : d_bl, damage, 0);
+				}
 			} else {
-				bool isDevotRdamage = false;
-
-				if (battle_config.devotion_rdamage && battle_config.devotion_rdamage > rnd()%100)
-					isDevotRdamage = true;
-				//If !isDevotRdamage, reflected magics are done directly on the target not on paladin
-				//This check is only for magical skill
-				//For BF_WEAPON skills types track var rdamage and function battle_calc_return_damage
-				clif_damage(bl, (!isDevotRdamage) ? bl : d_bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
-				status_fix_damage(bl, (!isDevotRdamage) ? bl : d_bl, damage, 0);
+				status_change_end(bl, SC_DEVOTION, INVALID_TIMER);
+				if (!dmg.amotion)
+					status_fix_damage(src, bl, damage, dmg.dmotion);
 			}
-		} else {
-			status_change_end(bl, SC_DEVOTION, INVALID_TIMER);
-			if (!dmg.amotion)
-				status_fix_damage(src, bl, damage, dmg.dmotion);
+		}
+		if (tsc->data[SC_WATER_SCREEN_OPTION]) {
+			struct status_change_entry *sce_e = tsc->data[SC_WATER_SCREEN_OPTION];
+			struct block_list *e_bl = map_id2bl(sce_e->val1);
+
+			if (e_bl) {
+				if (!rmdamage) {
+					clif_damage(e_bl, e_bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
+					status_fix_damage(NULL, e_bl, damage, 0);
+				} else {
+					clif_damage(bl, bl, gettick(), 0, 0, damage, 0, DMG_NORMAL, 0);
+					status_fix_damage(bl, bl, damage, 0);
+				}
+			}
 		}
 	}
 
@@ -9602,11 +9614,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case WM_LULLABY_DEEPSLEEP:
 			if( flag&1 ) { //[(Skill Level x 4) + (Voice Lessons Skill Level x 2) + (Caster Base Level / 15) + (Caster Job Level / 5)] %
-				rate = (4 * skill_lv) + (sd ? pc_checkskill(sd,WM_LESSON) * 2 +
-					(sd->status.job_level > 50 ? 50 : sd->status.job_level) / 5 : 0) +
-					(status_get_lv(src) > 150 ? 150 : status_get_lv(src)) / 15;
-				if( rate > 60 )
-					rate = 60;
+				rate = min(60,4 * skill_lv + (sd ? pc_checkskill(sd,WM_LESSON) * 2 + min(50,sd->status.job_level) / 5 : 0) + min(150,status_get_lv(src)) / 15);
 				if( bl->id == src->id )
 					break;
 				sc_start(src,bl,type,rate,skill_lv,skill_get_time(skill_id,skill_lv));
@@ -9629,10 +9637,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case WM_VOICEOFSIREN:
 			if( flag&1 ) {
-				tick = status_get_lv(bl) / 15 + (dstsd ? dstsd->status.job_level / 10 : 0);
+				tick = status_get_lv(bl) / 12 + (dstsd ? dstsd->status.job_level / 12 : 0);
 				sc_start2(src,bl,type,100,skill_lv,src->id,skill_get_time(skill_id,skill_lv) - (1000 * tick));
 			} else if( sd ) {
-				rate = 6 * skill_lv + 2 * pc_checkskill(sd,WM_LESSON) + sd->status.job_level / 4;
+				rate = 6 * skill_lv + 2 * pc_checkskill(sd,WM_LESSON) + min(50,sd->status.job_level) / 2;
 				if( rnd()%100 < rate ) {
 					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_CHAR|BL_SKILL,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);

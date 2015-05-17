@@ -264,16 +264,21 @@ int battle_delay_damage(unsigned int tick, int amotion, struct block_list *src, 
 	struct delay_damage *dat;
 	struct status_change *sc;
 	struct block_list *d_tbl = NULL;
+	struct block_list *e_tbl = NULL;
 
 	nullpo_ret(src);
 	nullpo_ret(target);
 
 	sc = status_get_sc(target);
 
-	if( sc && sc->data[SC_DEVOTION] && sc->data[SC_DEVOTION]->val1 )
-		d_tbl = map_id2bl(sc->data[SC_DEVOTION]->val1);
+	if( sc ) {
+		if( sc->data[SC_DEVOTION] && sc->data[SC_DEVOTION]->val1 )
+			d_tbl = map_id2bl(sc->data[SC_DEVOTION]->val1);
+		if( sc->data[SC_WATER_SCREEN_OPTION] && sc->data[SC_WATER_SCREEN_OPTION]->val1 )
+			e_tbl = map_id2bl(sc->data[SC_WATER_SCREEN_OPTION]->val1);
+	}
 
-	if( d_tbl && check_distance_bl(target, d_tbl, sc->data[SC_DEVOTION]->val3) &&
+	if( ((d_tbl && check_distance_bl(target, d_tbl, sc->data[SC_DEVOTION]->val3)) || e_tbl) &&
 		damage > 0 && skill_id != PA_PRESSURE && skill_id != CR_REFLECTSHIELD )
 		damage = 0;
 
@@ -287,6 +292,7 @@ int battle_delay_damage(unsigned int tick, int amotion, struct block_list *src, 
 		map_freeblock_unlock();
 		return 0;
 	}
+
 	dat = ers_alloc(delay_damage_ers, struct delay_damage);
 	dat->src_id = src->id;
 	dat->target_id = target->id;
@@ -299,6 +305,7 @@ int battle_delay_damage(unsigned int tick, int amotion, struct block_list *src, 
 	dat->distance = distance_bl(src, target) + (battle_config.snap_dodge ? 10 : AREA_SIZE);
 	dat->additional_effects = additional_effects;
 	dat->src_type = src->type;
+
 	if( src->type != BL_PC && amotion > 1000 )
 		amotion = 1000; //Aegis places a damage-delay cap of 1 sec to non player attacks. [Skotlex]
 
@@ -7317,27 +7324,26 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 				(d_bl->type == BL_PC && ((TBL_PC *)d_bl)->devotion[sce_d->val2] == target->id)) &&
 				check_distance_bl(target,d_bl,sce_d->val3))
 			{
-				clif_damage(d_bl,d_bl,gettick(),0,0,damage,0,DMG_NORMAL,0);
+				clif_damage(d_bl,d_bl,tick,0,0,damage,0,DMG_NORMAL,0);
 				status_fix_damage(NULL,d_bl,damage,0);
 			} else
 				status_change_end(target,SC_DEVOTION,INVALID_TIMER);
 		}
-		if (target->type == BL_PC && (wd.flag&BF_SHORT) && tsc->data[SC_CIRCLE_OF_FIRE_OPTION]) {
+		if (tsc->data[SC_CIRCLE_OF_FIRE_OPTION] && (wd.flag&BF_SHORT) && target->type == BL_PC) {
 			struct elemental_data *ed = ((TBL_PC *)target)->ed;
 
 			if (ed) {
-				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(src),0,-30000,1,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,DMG_SKILL);
+				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(target),0,-30000,1,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,DMG_SKILL);
 				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,tick,wd.flag);
 			}
 		}
-		if (tsc->data[SC_WATER_SCREEN_OPTION] && tsc->data[SC_WATER_SCREEN_OPTION]->val1) {
-			struct block_list *e_bl = map_id2bl(tsc->data[SC_WATER_SCREEN_OPTION]->val1);
+		if (tsc->data[SC_WATER_SCREEN_OPTION]) {
+			struct status_change_entry *sce_e = tsc->data[SC_WATER_SCREEN_OPTION];
+			struct block_list *e_bl = map_id2bl(sce_e->val1);
 
-			if (e_bl && !status_isdead(e_bl)) {
-				clif_damage(src,target,tick,wd.amotion,wd.dmotion,damage,wd.div_,(enum e_damage_type)wd.type,wd.damage2); //Just show damage in target
-				status_damage(target,e_bl,damage,0,clif_damage(e_bl,e_bl,tick,wd.amotion,wd.dmotion,damage,wd.div_,(enum e_damage_type)wd.type,wd.damage2),0);
-				map_freeblock_unlock();
-				return ATK_BLOCK;
+			if (e_bl) {
+				clif_damage(e_bl,e_bl,tick,0,0,damage,0,DMG_NORMAL,0);
+				status_fix_damage(NULL,e_bl,damage,0);
 			}
 		}
 	}
