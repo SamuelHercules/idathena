@@ -4553,35 +4553,32 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			break;
 
 		case NPC_MAGICALATTACK:
-			if (sd && sd->special_state.random_autospell) {
-				int ran = rnd()%5;
-				int sid = 0;
-
-				switch (ran) {
-					case 0: sid = MG_COLDBOLT; break;
-					case 1: sid = MG_FIREBOLT; break;
-					case 2: sid = MG_LIGHTNINGBOLT; break;
-					case 3: sid = WZ_EARTHSPIKE; break;
-					case 4: sid = MG_SOULSTRIKE; break;
-				}
-				skill_attack(BF_MAGIC,src,src,bl,sid,skill_lv,tick,flag);
-			} else {
-				skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
-				sc_start(src,src,status_skill2sc(skill_id),100,skill_lv,skill_get_time(skill_id,skill_lv));
-			}
+			skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
+			sc_start(src,src,status_skill2sc(skill_id),100,skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 
 		case HVAN_CAPRICE: { //[blackhole89]
-				int ran = rnd()%4;
+				int ran = rnd()%(src->type == BL_PC ? 5 : 4);
 				int sid = 0;
 
-				switch (ran) {
-					case 0: sid = MG_COLDBOLT; break;
-					case 1: sid = MG_FIREBOLT; break;
-					case 2: sid = MG_LIGHTNINGBOLT; break;
-					case 3: sid = WZ_EARTHSPIKE; break;
+				if (src->type == BL_PC) { //For CD_In_Mouth (18666)
+					switch (ran) {
+						case 0: sid = MG_COLDBOLT; break;
+						case 1: sid = MG_FIREBOLT; break;
+						case 2: sid = MG_LIGHTNINGBOLT; break;
+						case 3: sid = WZ_EARTHSPIKE; break;
+						case 4: sid = MG_SOULSTRIKE; break;
+					}
+				} else {
+					switch (ran) {
+						case 0: sid = MG_COLDBOLT; break;
+						case 1: sid = MG_FIREBOLT; break;
+						case 2: sid = MG_LIGHTNINGBOLT; break;
+						case 3: sid = WZ_EARTHSPIKE; break;
+					}
+					flag |= SD_LEVEL;
 				}
-				skill_attack(BF_MAGIC,src,src,bl,sid,skill_lv,tick,flag|SD_LEVEL);
+				skill_attack(BF_MAGIC,src,src,bl,sid,skill_lv,tick,flag);
 			}
 			break;
 
