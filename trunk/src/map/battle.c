@@ -7333,7 +7333,7 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 			struct elemental_data *ed = ((TBL_PC *)target)->ed;
 
 			if (ed) {
-				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(target),0,-30000,1,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,DMG_SKILL);
+				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(src),0,-30000,1,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,DMG_SKILL);
 				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,tick,wd.flag);
 			}
 		}
