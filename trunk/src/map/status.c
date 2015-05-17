@@ -4607,17 +4607,17 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 			status->adelay = status->amotion;
 		} else if( bl->type&BL_PC ) {
-			amotion = status_base_amotion_pc(sd,status);
+			amotion = status_base_amotion_pc(sd, status);
 #ifndef RENEWAL_ASPD
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
 
 			if( status->aspd_rate != 1000 )
 				amotion = amotion * status->aspd_rate / 1000;
 #else
-			//aspd = baseaspd + floor(sqrt((agi^2/2) + (dex^2/5))/4 + (potskillbonus*agi/200))
+			//ASPD = BaseASPD + floor(sqrt((AGI^2/2) + (DEX^2/5))/4 + (PotSkillBonus*Agi/200))
 			amotion -= (int)floor(sqrt((pow((float)status->agi, 2) / 2) + (pow((float)status->dex, 2) / 5)) / 4 + (float)(status_calc_aspd(bl, sc, 1) * status->agi) / 200) * 10;
 
-			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) //RE aspd percertage modifier
+			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) //RE ASPD percertage modifier
 				amotion -= (amotion - pc_maxaspd(sd)) * (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) / 100;
 
 			if( status->aspd_rate != 1000 ) //Absolute percentage modifier
@@ -9573,6 +9573,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_CIRCLE_OF_FIRE_OPTION:
 				val2 = 300;
 				break;
+			case SC_WATER_SCREEN_OPTION:
+				tick_time = 10000;
+				break;
 			case SC_FIRE_CLOAK_OPTION:
 			case SC_WATER_DROP_OPTION:
 			case SC_WIND_CURTAIN_OPTION:
@@ -12199,6 +12202,11 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			} else if( bl->type == BL_ELEM )
 				elemental_change_mode(BL_CAST(BL_ELEM,bl),MAX_ELESKILLTREE);
 			break;
+
+		case SC_WATER_SCREEN_OPTION:
+			status_heal(bl,1000,0,2);
+			sc_timer_next(10000 + tick,status_change_timer,bl->id,data);
+			return 0;
 
 		case SC_STOMACHACHE:
 			if( --(sce->val4) >= 0 ) {
