@@ -4544,7 +4544,7 @@ BUILDIN_FUNC(menu)
 		 * Menus beyond this length crash the client (see bugreport:6402)
 		 */
 		if( StringBuf_Length(&buf) >= 2047 ) {
-			struct npc_data * nd = map_id2nd(st->oid);
+			struct npc_data *nd = map_id2nd(st->oid);
 			char *menu;
 
 			CREATE(menu, char, 2048);
@@ -4644,7 +4644,7 @@ BUILDIN_FUNC(select)
 		 * menus beyond this length crash the client (see bugreport:6402)
 		 */
 		if( StringBuf_Length(&buf) >= 2047 ) {
-			struct npc_data * nd = map_id2nd(st->oid);
+			struct npc_data *nd = map_id2nd(st->oid);
 			char *menu;
 			CREATE(menu, char, 2048);
 			safestrncpy(menu, StringBuf_Value(&buf), 2047);
@@ -4721,7 +4721,7 @@ BUILDIN_FUNC(prompt)
 		 * Menus beyond this length crash the client (see bugreport:6402)
 		 */
 		if( StringBuf_Length(&buf) >= 2047 ) {
-			struct npc_data * nd = map_id2nd(st->oid);
+			struct npc_data *nd = map_id2nd(st->oid);
 			char *menu;
 
 			CREATE(menu, char, 2048);
@@ -9200,7 +9200,7 @@ BUILDIN_FUNC(areamonster)
  *------------------------------------------*/
  static int buildin_killmonster_sub_strip(struct block_list *bl,va_list ap)
 { //Same fix but with killmonster instead - stripping events from mobs
-	TBL_MOB* md = (TBL_MOB *)bl;
+	TBL_MOB *md = (TBL_MOB *)bl;
 	char *event = va_arg(ap, char *);
 	int allflag = va_arg(ap, int);
 
@@ -9220,7 +9220,7 @@ BUILDIN_FUNC(areamonster)
 
 static int buildin_killmonster_sub(struct block_list *bl,va_list ap)
 {
-	TBL_MOB* md = (TBL_MOB *)bl;
+	TBL_MOB *md = (TBL_MOB *)bl;
 	char *event = va_arg(ap, char *);
 	int allflag = va_arg(ap, int);
 
@@ -9376,7 +9376,7 @@ BUILDIN_FUNC(donpcevent)
 	const char *event = script_getstr(st,2);
 	check_event(st,event);
 	if( !npc_event_do(event) ) {
-		struct npc_data * nd = map_id2nd(st->oid);
+		struct npc_data *nd = map_id2nd(st->oid);
 		ShowDebug("NPCEvent '%s' not found! (source: %s)\n",event,nd?nd->name:"Unknown");
 		script_pushint(st,0);
 	} else
@@ -13374,7 +13374,7 @@ BUILDIN_FUNC(getmercinfo)
 {
 	int type;
 	struct map_session_data *sd;
-	struct mercenary_data* md;
+	struct mercenary_data *md;
 
 	type = script_getnum(st,2);
 	if( script_hasdata(st,3) ) {
@@ -16028,7 +16028,7 @@ BUILDIN_FUNC(rid2name)
 
 	if( (bl = map_id2bl(rid)) ) {
 		switch( bl->type ) {
-			case BL_MOB: script_pushstrcopy(st,((TBL_MOB*)bl)->name); break;
+			case BL_MOB: script_pushstrcopy(st,((TBL_MOB *)bl)->name); break;
 			case BL_PC:  script_pushstrcopy(st,((TBL_PC *)bl)->status.name); break;
 			case BL_NPC: script_pushstrcopy(st,((TBL_NPC *)bl)->exname); break;
 			case BL_PET: script_pushstrcopy(st,((TBL_PET *)bl)->pet.name); break;
@@ -18165,7 +18165,7 @@ BUILDIN_FUNC(setfont)
 
 static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 {
-	TBL_MOB* md		= (TBL_MOB*)bl;
+	TBL_MOB *md		= (TBL_MOB *)bl;
 	struct block_list *tbl;
 	int mobid		= va_arg(ap,int);
 	uint16 skill_id	= va_arg(ap,int);

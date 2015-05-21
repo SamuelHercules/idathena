@@ -6275,7 +6275,7 @@ ACMD_FUNC(mobsearch)
 
 	it = mapit_geteachmob();
 	for(;;) {
-		TBL_MOB* md = (TBL_MOB*)mapit_next(it);
+		TBL_MOB *md = (TBL_MOB *)mapit_next(it);
 		if( md == NULL )
 			break;// no more mobs
 
@@ -7065,7 +7065,7 @@ ACMD_FUNC(showmobs)
 
 	it = mapit_geteachmob();
 	for (;;) {
-		TBL_MOB* md = (TBL_MOB*)mapit_next(it);
+		TBL_MOB *md = (TBL_MOB *)mapit_next(it);
 
 		if (md == NULL)
 			break; // No more mobs

@@ -693,7 +693,7 @@ int mob_spawn_guardian(const char *mapname, short x, short y, const char *mobnam
 		g = guild_search(gc->guild_id);
 
 	if (has_index && gc->guardian[guardian].id) { //Check if guardian already exists, refuse to spawn if so.
-		struct mob_data *md2 = (TBL_MOB*)map_id2bl(gc->guardian[guardian].id);
+		struct mob_data *md2 = (TBL_MOB *)map_id2bl(gc->guardian[guardian].id);
 
 		if (md2 && md2->bl.type == BL_MOB && md2->guardian_data && md2->guardian_data->number == guardian) {
 			ShowError("mob_spawn_guardian: Attempted to spawn guardian in position %d which already has a guardian (castle map %s)\n", guardian, map[m].name);
@@ -1965,10 +1965,10 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			}
 			break;
 		case BL_ELEM: {
-				struct elemental_data *ele = (TBL_ELEM *)src;
+				struct elemental_data *ed = (TBL_ELEM *)src;
 
-				if( ele->master )
-					char_id = ele->master->status.char_id;
+				if( ed->master )
+					char_id = ed->master->status.char_id;
 				if( damage )
 					md->attacked_id = src->id;
 			}

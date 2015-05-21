@@ -1153,7 +1153,7 @@ int unit_warp(struct block_list *bl,short m,short x,short y,clr_type type)
 
 	switch (bl->type) {
 		case BL_MOB:
-			if (map[bl->m].flag.monster_noteleport && ((TBL_MOB*)bl)->master_id == 0)
+			if (map[bl->m].flag.monster_noteleport && ((TBL_MOB *)bl)->master_id == 0)
 				return 1;
 			if (m != bl->m && map[m].flag.nobranch && battle_config.mob_warp&4 && !(((TBL_MOB *)bl)->master_id))
 				return 1;
@@ -1392,7 +1392,7 @@ int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int 
 		return 0;
 
 	if (type) {
-		if (bl->type == BL_MOB && (((TBL_MOB*)bl)->status.mode&MD_BOSS))
+		if (bl->type == BL_MOB && (((TBL_MOB *)bl)->status.mode&MD_BOSS))
 			return 0; //Bosses can ignore skill induced walkdelay (but not damage induced)
 		if (DIFF_TICK(ud->canmove_tick, tick + delay) > 0)
 			return 0; //Make sure walk delay is not decreased
@@ -1799,7 +1799,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	clif_skillcasting(src, src->id, target_id, 0, 0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 
 	if( sd && target->type == BL_MOB ) {
-		TBL_MOB *md = ((TBL_MOB*)target);
+		TBL_MOB *md = ((TBL_MOB *)target);
 
 		mobskill_event(md, src, tick, -1); //Cast targetted skill event
 		if( (tstatus->mode&(MD_CASTSENSOR_IDLE|MD_CASTSENSOR_CHASE)) && battle_check_target(target, src, BCT_ENEMY) > 0 ) {
@@ -2413,7 +2413,7 @@ static int unit_attack_timer_sub(struct block_list *src, int tid, unsigned int t
 		return 0;
 
 	if( src->m != target->m ) {
-		if( src->type == BL_MOB && mob_warpchase((TBL_MOB*)src,target) )
+		if( src->type == BL_MOB && mob_warpchase((TBL_MOB *)src,target) )
 			return 1; //Follow up
 		return 0;
 	}
@@ -2595,7 +2595,7 @@ int unit_skillcastcancel(struct block_list *bl, uint8 type)
 	}
 
 	if (bl->type == BL_MOB)
-		((TBL_MOB*)bl)->skill_idx = -1;
+		((TBL_MOB *)bl)->skill_idx = -1;
 
 	clif_skillcastcancel(bl);
 	return 1;
@@ -2651,7 +2651,7 @@ int unit_changeviewsize(struct block_list *bl,short size)
 	if (bl->type == BL_PC)
 		((TBL_PC *)bl)->state.size = size;
 	else if (bl->type == BL_MOB)
-		((TBL_MOB*)bl)->special_state.size = size;
+		((TBL_MOB *)bl)->special_state.size = size;
 	else
 		return 0;
 	if (size != 0)

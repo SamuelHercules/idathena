@@ -790,10 +790,10 @@ struct map_session_data *map_charid2sd(int charid);
 struct map_session_data *map_id2sd(int id);
 struct mob_data *map_id2md(int id);
 struct npc_data* map_id2nd(int id);
-struct homun_data* map_id2hd(int id);
-struct mercenary_data* map_id2mc(int id);
-struct pet_data* map_id2pd(int id);
-struct elemental_data* map_id2ed(int id);
+struct homun_data *map_id2hd(int id);
+struct mercenary_data *map_id2mc(int id);
+struct pet_data *map_id2pd(int id);
+struct elemental_data *map_id2ed(int id);
 struct chat_data *map_id2cd(int id);
 struct block_list *map_id2bl(int id);
 bool map_blid_exists(int id);
@@ -814,8 +814,8 @@ void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...);
 void map_foreachregen(int (*func)(struct block_list *bl, va_list args), ...);
 void map_foreachiddb(int (*func)(struct block_list *bl, va_list args), ...);
 struct map_session_data *map_nick2sd(const char *);
-struct mob_data * map_getmob_boss(int16 m);
-struct mob_data * map_id2boss(int id);
+struct mob_data *map_getmob_boss(int16 m);
+struct mob_data *map_id2boss(int id);
 
 // reload config file looking only for npcs
 void map_reloadnpc(bool clear);

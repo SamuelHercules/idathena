@@ -2810,7 +2810,7 @@ int intif_parse_elemental_received(int fd)
 		return 0;
 	}
 
-	elemental_data_received((struct s_elemental*)RFIFOP(fd,5), RFIFOB(fd,4));
+	elemental_data_received((struct s_elemental *)RFIFOP(fd,5), RFIFOB(fd,4));
 	return 1;
 }
 

@@ -1628,6 +1628,7 @@ void pc_calc_skilltree(struct map_session_data *sd)
 				case WL_SUMMON_ATK_WIND:
 				case WL_SUMMON_ATK_WATER:
 				case WL_SUMMON_ATK_GROUND:
+				case NC_MAGMA_ERUPTION_DOTDAMAGE:
 				case LG_OVERBRAND_BRANDISH:
 				case LG_OVERBRAND_PLUSATK:
 				case WM_SEVERE_RAINSTORM_MELEE:

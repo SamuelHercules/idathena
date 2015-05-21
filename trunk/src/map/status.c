@@ -1171,35 +1171,36 @@ void initChangeTables(void) {
 	StatusDisplayType[SC_DECORATION_OF_MUSIC] = true;
 
 	//StatusChangeState (SCS_) NOMOVE
-	StatusChangeStateTable[SC_ANKLE]               |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_AUTOCOUNTER]         |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_TRICKDEAD]           |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_BLADESTOP]           |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_BLADESTOP_WAIT]      |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_GOSPEL]              |= SCS_NOMOVE|SCS_NOMOVECOND;
-	StatusChangeStateTable[SC_BASILICA]            |= SCS_NOMOVE|SCS_NOMOVECOND;
-	StatusChangeStateTable[SC_STOP]                |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_CLOSECONFINE]        |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_CLOSECONFINE2]       |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_TINDER_BREAKER]      |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_TINDER_BREAKER2]     |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_MADNESSCANCEL]       |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_GRAVITATION]         |= SCS_NOMOVE|SCS_NOMOVECOND;
-	StatusChangeStateTable[SC_ELECTRICSHOCKER]     |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_BITE]                |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_THORNSTRAP]          |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_MAGNETICFIELD]       |= SCS_NOMOVE|SCS_NOMOVECOND;
-	StatusChangeStateTable[SC__MANHOLE]            |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_FALLENEMPIRE]        |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_VACUUM_EXTREME]      |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_CURSEDCIRCLE_ATKER]  |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_CURSEDCIRCLE_TARGET] |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_NETHERWORLD]         |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_CAMOUFLAGE]          |= SCS_NOMOVE|SCS_NOMOVECOND;
-	StatusChangeStateTable[SC_MEIKYOUSISUI]        |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_KAGEHUMI]            |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_PARALYSIS]           |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_KINGS_GRACE]         |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_ANKLE]                |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_AUTOCOUNTER]          |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_TRICKDEAD]            |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_BLADESTOP]            |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_BLADESTOP_WAIT]       |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_GOSPEL]               |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC_BASILICA]             |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC_STOP]                 |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_CLOSECONFINE]         |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_CLOSECONFINE2]        |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_TINDER_BREAKER]       |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_TINDER_BREAKER2]      |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_MADNESSCANCEL]        |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_GRAVITATION]          |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC_DEATHBOUND_POSTDELAY] |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_ELECTRICSHOCKER]      |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_BITE]                 |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_THORNSTRAP]           |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_MAGNETICFIELD]        |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC__MANHOLE]             |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_FALLENEMPIRE]         |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_VACUUM_EXTREME]       |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_CURSEDCIRCLE_ATKER]   |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_CURSEDCIRCLE_TARGET]  |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_NETHERWORLD]          |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_CAMOUFLAGE]           |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC_MEIKYOUSISUI]         |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_KAGEHUMI]             |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_PARALYSIS]            |= SCS_NOMOVE;
+	StatusChangeStateTable[SC_KINGS_GRACE]          |= SCS_NOMOVE;
 
 	//StatusChangeState (SCS_) NOPICKUPITEMS
 	StatusChangeStateTable[SC_HIDING]              |= SCS_NOPICKITEM;
@@ -1218,7 +1219,6 @@ void initChangeTables(void) {
 	StatusChangeStateTable[SC_SILENCE]             |= SCS_NOCAST;
 	StatusChangeStateTable[SC_STEELBODY]           |= SCS_NOCAST;
 	StatusChangeStateTable[SC_BERSERK]             |= SCS_NOCAST;
-	StatusChangeStateTable[SC_DEATHBOUND]          |= SCS_NOCAST;
 	StatusChangeStateTable[SC_OBLIVIONCURSE]       |= SCS_NOCAST;
 	StatusChangeStateTable[SC__SHADOWFORM]         |= SCS_NOCAST;
 	StatusChangeStateTable[SC__INVISIBILITY]       |= SCS_NOCAST;
@@ -1555,15 +1555,15 @@ int status_damage(struct block_list *src, struct block_list *target, int64 in_hp
 		clif_skill_nodamage(target,target,ALL_RESURRECTION,1,1);
 		sc_start(src,target,status_skill2sc(PR_KYRIE),100,10,time);
 		if (target->type == BL_MOB)
-			((TBL_MOB*)target)->state.rebirth = 1;
+			((TBL_MOB *)target)->state.rebirth = 1;
 		return (int)(hp + sp);
 	}
 
 	//Ensure the monster has not already rebirthed before doing so
-	if (target->type == BL_MOB && sc && sc->data[SC_REBIRTH] && !((TBL_MOB*) target)->state.rebirth) {
+	if (target->type == BL_MOB && sc && sc->data[SC_REBIRTH] && !((TBL_MOB *) target)->state.rebirth) {
 		status_revive(target,sc->data[SC_REBIRTH]->val2,0);
 		status_change_clear(target,0);
-		((TBL_MOB*)target)->state.rebirth = 1;
+		((TBL_MOB *)target)->state.rebirth = 1;
 		return (int)(hp + sp);
 	}
 
@@ -1765,7 +1765,7 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
 		clif_resurrection(bl, 1);
 	switch (bl->type) {
 		case BL_PC:  pc_revive((TBL_PC *)bl, hp, sp); break;
-		case BL_MOB: mob_revive((TBL_MOB*)bl, hp); break;
+		case BL_MOB: mob_revive((TBL_MOB *)bl, hp); break;
 		case BL_HOM: hom_revive((TBL_HOM *)bl, hp, sp); break;
 	}
 	return 1;
@@ -1782,7 +1782,7 @@ int status_fixed_revive(struct block_list *bl, unsigned int per_hp, unsigned int
 
 	status = status_get_status_data(bl);
 	if (status == &dummy_status)
-		return 0; //Invalid target.
+		return 0; //Invalid target
 
 	hp = per_hp;
 	sp = per_sp;
@@ -1800,11 +1800,11 @@ int status_fixed_revive(struct block_list *bl, unsigned int per_hp, unsigned int
 	status->hp += hp;
 	status->sp += sp;
 
-	if (bl->prev) //Animation only if character is already on a map.
+	if (bl->prev) //Animation only if character is already on a map
 		clif_resurrection(bl, 1);
 	switch (bl->type) {
 		case BL_PC:  pc_revive((TBL_PC *)bl, hp, sp); break;
-		case BL_MOB: mob_revive((TBL_MOB*)bl, hp); break;
+		case BL_MOB: mob_revive((TBL_MOB *)bl, hp); break;
 		case BL_HOM: hom_revive((TBL_HOM *)bl, hp, sp); break;
 	}
 	return 1;
@@ -2022,7 +2022,7 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 
 	switch( src->type ) {
 		case BL_MOB:
-			view_range = ((TBL_MOB*)src)->min_chase;
+			view_range = ((TBL_MOB *)src)->min_chase;
 			break;
 		case BL_PET:
 			view_range = ((TBL_PET *)src)->db->range2;
@@ -2272,8 +2272,8 @@ void status_get_matk_sub(struct block_list *bl, int flag, unsigned short *matk_m
 			*matk_max += 130 * ((TBL_MER *)bl)->battle_status.rhw.atk2 / 100;
 			break;
 		case BL_MOB:
-			*matk_min += 70 * ((TBL_MOB*)bl)->status.rhw.atk2 / 100;
-			*matk_max += 130 * ((TBL_MOB*)bl)->status.rhw.atk2 / 100;
+			*matk_min += 70 * ((TBL_MOB *)bl)->status.rhw.atk2 / 100;
+			*matk_max += 130 * ((TBL_MOB *)bl)->status.rhw.atk2 / 100;
 			break;
 		case BL_HOM:
 			*matk_min += (status_get_homint(bl) + status_get_homdex(bl)) / 5;
@@ -6364,7 +6364,7 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
  */
 static unsigned short status_calc_dmotion(struct block_list *bl, struct status_change *sc, int dmotion)
 {
-	if(bl->type == BL_MOB && (((TBL_MOB*)bl)->status.mode&MD_BOSS))
+	if(bl->type == BL_MOB && (((TBL_MOB *)bl)->status.mode&MD_BOSS))
 		return 0; //It has been confirmed on official servers that mvp mobs have no dmotion even without endure
 	if(!sc || !sc->count || map_flag_gvg2(bl->m) || map[bl->m].flag.battleground)
 		return (unsigned short)cap_value(dmotion,0,USHRT_MAX);
@@ -6534,7 +6534,7 @@ const char *status_get_name(struct block_list *bl) {
 
 	switch (bl->type) {
 		case BL_PC:  return ((TBL_PC *)bl)->fakename[0] != '\0' ? ((TBL_PC *)bl)->fakename : ((TBL_PC *)bl)->status.name;
-		case BL_MOB: return ((TBL_MOB*)bl)->name;
+		case BL_MOB: return ((TBL_MOB *)bl)->name;
 		case BL_PET: return ((TBL_PET *)bl)->pet.name;
 		case BL_HOM: return ((TBL_HOM *)bl)->homunculus.name;
 		//case BL_MER: //They only have database names which are global, not specific to GID
@@ -6555,7 +6555,7 @@ int status_get_class(struct block_list *bl) {
 
 	switch( bl->type ) {
 		case BL_PC:  return ((TBL_PC *)bl)->status.class_;
-		case BL_MOB: return ((TBL_MOB*)bl)->vd->class_; //Class used on all code should be the view class of the mob.
+		case BL_MOB: return ((TBL_MOB *)bl)->vd->class_; //Class used on all code should be the view class of the mob.
 		case BL_PET: return ((TBL_PET *)bl)->pet.class_;
 		case BL_HOM: return ((TBL_HOM *)bl)->homunculus.class_;
 		case BL_MER: return ((TBL_MER *)bl)->mercenary.class_;
@@ -6576,7 +6576,7 @@ int status_get_lv(struct block_list *bl) {
 
 	switch (bl->type) {
 		case BL_PC:  return ((TBL_PC *)bl)->status.base_level;
-		case BL_MOB: return ((TBL_MOB*)bl)->level;
+		case BL_MOB: return ((TBL_MOB *)bl)->level;
 		case BL_PET: return ((TBL_PET *)bl)->pet.level;
 		case BL_HOM: return ((TBL_HOM *)bl)->homunculus.level;
 		case BL_MER: return ((TBL_MER *)bl)->db->lv;
@@ -6606,7 +6606,7 @@ struct status_data *status_get_status_data(struct block_list *bl)
 
 	switch (bl->type) {
 		case BL_PC:  return &((TBL_PC *)bl)->battle_status;
-		case BL_MOB: return &((TBL_MOB*)bl)->status;
+		case BL_MOB: return &((TBL_MOB *)bl)->status;
 		case BL_PET: return &((TBL_PET *)bl)->status;
 		case BL_HOM: return &((TBL_HOM *)bl)->battle_status;
 		case BL_MER: return &((TBL_MER *)bl)->battle_status;
@@ -6623,7 +6623,7 @@ struct status_data *status_get_base_status(struct block_list *bl)
 
 	switch (bl->type) {
 		case BL_PC:  return &((TBL_PC *)bl)->base_status;
-		case BL_MOB: return (((TBL_MOB*)bl)->base_status ? ((TBL_MOB*)bl)->base_status : &((TBL_MOB*)bl)->db->status);
+		case BL_MOB: return (((TBL_MOB *)bl)->base_status ? ((TBL_MOB *)bl)->base_status : &((TBL_MOB *)bl)->db->status);
 		case BL_PET: return &((TBL_PET *)bl)->db->status;
 		case BL_HOM: return &((TBL_HOM *)bl)->base_status;
 		case BL_MER: return &((TBL_MER *)bl)->base_status;
@@ -6664,7 +6664,7 @@ int status_get_party_id(struct block_list *bl) {
 				return ((TBL_PET *)bl)->master->status.party_id;
 			break;
 		case BL_MOB: {
-				struct mob_data *md = (TBL_MOB*)bl;
+				struct mob_data *md = (TBL_MOB *)bl;
 
 				if (md->master_id > 0) {
 					struct map_session_data *msd = map_id2sd(md->master_id);
@@ -6820,7 +6820,7 @@ struct view_data* status_get_viewdata(struct block_list *bl)
 
 	switch (bl->type) {
 		case BL_PC:  return &((TBL_PC *)bl)->vd;
-		case BL_MOB: return ((TBL_MOB*)bl)->vd;
+		case BL_MOB: return ((TBL_MOB *)bl)->vd;
 		case BL_PET: return &((TBL_PET *)bl)->vd;
 		case BL_NPC: return ((TBL_NPC *)bl)->vd;
 		case BL_HOM: return ((TBL_HOM *)bl)->vd;
@@ -6905,7 +6905,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 			}
 			break;
 		case BL_MOB: {
-				TBL_MOB* md = (TBL_MOB*)bl;
+				TBL_MOB *md = (TBL_MOB *)bl;
 				if (vd)
 					md->vd = vd;
 				else
@@ -6971,7 +6971,7 @@ struct status_change *status_get_sc(struct block_list *bl) {
 	if (bl) {
 		switch (bl->type) {
 			case BL_PC:  return &((TBL_PC *)bl)->sc;
-			case BL_MOB: return &((TBL_MOB*)bl)->sc;
+			case BL_MOB: return &((TBL_MOB *)bl)->sc;
 			case BL_NPC: return &((TBL_NPC *)bl)->sc;
 			case BL_HOM: return &((TBL_HOM *)bl)->sc;
 			case BL_MER: return &((TBL_MER *)bl)->sc;
@@ -8628,7 +8628,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				//val4&1 signals the presence of a wall
 				//val4&2 makes cloak not end on normal attacks [Skotlex]
 				//val4&4 makes cloak not end on using skills
-				if( bl->type == BL_PC || (bl->type == BL_MOB && ((TBL_MOB*)bl)->special_state.clone) ) //Standard cloaking
+				if( bl->type == BL_PC || (bl->type == BL_MOB && ((TBL_MOB *)bl)->special_state.clone) ) //Standard cloaking
 					val4 |= battle_config.pc_cloak_check_type&7;
 				else
 					val4 |= battle_config.monster_cloak_check_type&7;
@@ -8813,7 +8813,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					struct block_list *src = map_id2bl(val3);
 
 					if( src )
-						mob_log_damage((TBL_MOB*)bl,src,status->hp - 1);
+						mob_log_damage((TBL_MOB *)bl,src,status->hp - 1);
 				}
 				status_zap(bl,status->hp - 1,(val2 ? 0 : status->sp));
 				return 1;
@@ -9863,7 +9863,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				tick = -1;
 				break;
 			default:
-				if( calc_flag == SCB_NONE && StatusIconChangeTable[type] == SI_BLANK && !StatusSkillChangeTable[type] ) {
+				if( calc_flag == SCB_NONE && StatusIconChangeTable[type] == SI_BLANK &&
+					!StatusSkillChangeTable[type] && !StatusChangeStateTable[type] ) {
 					switch( type ) {
 						case SC_XMAS:
 						case SC_SUMMER:
@@ -9871,7 +9872,6 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 						case SC_KSPROTECTED:
 						case SC_HANBOK:
 						case SC_OKTOBERFEST:
-						case SC_DEATHBOUND_POSTDELAY:
 							break; //Avoid the warning, because this status has no skill associated and all values already store in it
 						default:
 							ShowError("Unknown Status Change [%d]\n",type);
@@ -10612,7 +10612,6 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				case SC_FREEZE:
 				case SC_STUN:
 				case SC_SLEEP:
-				case SC_BURNING:
 				case SC_WHITEIMPRISON:
 					if (sce->val1) {
 						//Removing the 'level' shouldn't affect anything in the code
@@ -11492,7 +11491,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 						struct block_list *src = map_id2bl(sce->val2);
 
 						if( src )
-							mob_log_damage((TBL_MOB*)bl,src,sce->val4);
+							mob_log_damage((TBL_MOB *)bl,src,sce->val4);
 					}
 					map_freeblock_lock();
 					if( status->hp >= max(status->max_hp>>2,sce->val4) ) //Stop damaging after 25% HP left
@@ -11850,8 +11849,9 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		case SC_BURNING:
 			if( --(sce->val4) >= 0 ) {
 				struct block_list *src = map_id2bl(sce->val3);
-				int damage = 1000 + 3 * status_get_max_hp(bl) / 100; //Deals fixed (1000 + 3% * MaxHP)
+				int64 damage = 3 * status_get_max_hp(bl) / 100; //Deals fixed (1000 + 3% * MaxHP)
 
+				damage += battle_attr_fix(NULL,bl,sce->val2,ELE_FIRE,status->def_ele,status->ele_lv);
 				map_freeblock_lock();
 				status_damage(src,bl,damage,0,clif_damage(bl,bl,tick,status_get_amotion(bl),1,damage,0,DMG_NORMAL,0),0);
 				unit_skillcastcancel(bl,2);

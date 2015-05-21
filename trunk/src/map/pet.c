@@ -975,7 +975,7 @@ static int pet_ai_hard(int tid, unsigned int tick, int id, intptr_t data)
 
 static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 {
-	struct pet_data* pd;
+	struct pet_data *pd;
 	struct flooritem_data *fitem = (struct flooritem_data *)bl;
 	struct block_list **target;
 	int sd_charid = 0;
