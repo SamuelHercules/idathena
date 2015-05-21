@@ -1117,7 +1117,7 @@ static int clif_spawn_unit(struct block_list *bl, unsigned char *buffer) {
 	if( bl->type == BL_MOB ) {
 		WBUFL(buf,64) = status_get_max_hp(bl);
 		WBUFL(buf,68) = status_get_hp(bl);
-		WBUFB(buf,72) = (((TBL_MOB*)bl)->spawn && ((TBL_MOB*)bl)->spawn->state.boss) ? 1 : 0;
+		WBUFB(buf,72) = (((TBL_MOB *)bl)->spawn && ((TBL_MOB *)bl)->spawn->state.boss) ? 1 : 0;
 	} else {
 		WBUFL(buf,64) = -1;
 		WBUFL(buf,68) = -1;
@@ -1177,7 +1177,7 @@ static int clif_idle_unit(struct block_list *bl, unsigned char *buffer) {
 	if( bl->type == BL_MOB ) {
 		WBUFL(buf,65) = status_get_max_hp(bl);
 		WBUFL(buf,69) = status_get_hp(bl);
-		WBUFB(buf,73) = (((TBL_MOB*)bl)->spawn && ((TBL_MOB*)bl)->spawn->state.boss) ? 1 : 0;
+		WBUFB(buf,73) = (((TBL_MOB *)bl)->spawn && ((TBL_MOB *)bl)->spawn->state.boss) ? 1 : 0;
 	} else {
 		WBUFL(buf,65) = -1;
 		WBUFL(buf,69) = -1;
@@ -1352,7 +1352,7 @@ static int clif_walking_unit(struct block_list *bl, struct unit_data* ud, unsign
 	if( bl->type == BL_MOB ) {
 		WBUFL(buf,71) = status_get_max_hp(bl);
 		WBUFL(buf,75) = status_get_hp(bl);
-		WBUFB(buf,79) = (((TBL_MOB*)bl)->spawn && ((TBL_MOB*)bl)->spawn->state.boss) ? 1 : 0;
+		WBUFB(buf,79) = (((TBL_MOB *)bl)->spawn && ((TBL_MOB *)bl)->spawn->state.boss) ? 1 : 0;
 	} else {
 		WBUFL(buf,71) = -1;
 		WBUFL(buf,75) = -1;
@@ -7622,7 +7622,7 @@ void clif_sendegg(struct map_session_data *sd)
 ///     5 = hairstyle
 ///
 /// If sd is null, the update is sent to nearby objects, otherwise it is sent only to that player.
-void clif_send_petdata(struct map_session_data *sd, struct pet_data* pd, int type, int param)
+void clif_send_petdata(struct map_session_data *sd, struct pet_data *pd, int type, int param)
 {
 	uint8 buf[16];
 	nullpo_retv(pd);

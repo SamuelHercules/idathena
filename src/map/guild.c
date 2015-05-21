@@ -1209,7 +1209,7 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 				continue;
 			// Update permanent guardians
 			for(i = 0; i < ARRAYLENGTH(gc->guardian); ++i) {
-				TBL_MOB* md = (gc->guardian[i].id ? map_id2md(gc->guardian[i].id) : NULL);
+				TBL_MOB *md = (gc->guardian[i].id ? map_id2md(gc->guardian[i].id) : NULL);
 
 				if(md == NULL || md->guardian_data == NULL)
 					continue;
@@ -1217,7 +1217,7 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 			}
 			// Update temporary guardians
 			for(i = 0; i < gc->temp_guardians_max; ++i) {
-				TBL_MOB* md = (gc->temp_guardians[i] ? map_id2md(gc->temp_guardians[i]) : NULL);
+				TBL_MOB *md = (gc->temp_guardians[i] ? map_id2md(gc->temp_guardians[i]) : NULL);
 
 				if(md == NULL || md->guardian_data == NULL)
 					continue;

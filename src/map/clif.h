@@ -711,7 +711,7 @@ void clif_catch_process(struct map_session_data *sd);
 void clif_pet_roulette(struct map_session_data *sd,int data);
 void clif_sendegg(struct map_session_data *sd);
 void clif_send_petstatus(struct map_session_data *sd);
-void clif_send_petdata(struct map_session_data *sd, struct pet_data* pd, int type, int param);
+void clif_send_petdata(struct map_session_data *sd, struct pet_data *pd, int type, int param);
 #define clif_pet_equip(sd, pd) clif_send_petdata(sd, pd, 3, (pd)->vd.head_bottom)
 #define clif_pet_equip_area(pd) clif_send_petdata(NULL, pd, 3, (pd)->vd.head_bottom)
 #define clif_pet_performance(pd, param) clif_send_petdata(NULL, pd, 4, param)

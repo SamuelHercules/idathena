@@ -770,7 +770,7 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
  * ATK may be MISS, BLOCKED FAIL, reduc, increase, end status.
  * After this we apply bg/gvg reduction
  *------------------------------------------*/
-int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,uint16 skill_id,uint16 skill_lv)
+int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct Damage *d, int64 damage, uint16 skill_id, uint16 skill_lv)
 {
 	struct map_session_data *sd = NULL;
 	struct status_change *sc;
@@ -1183,6 +1183,15 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 		if( (sce = sc->data[SC_MAGMA_FLOW]) && rnd()%100 <= sce->val2 )
 			skill_castend_nodamage_id(bl,bl,MH_MAGMA_FLOW,sce->val1,gettick(),flag|2);
+
+		if( (sce = sc->data[SC_CIRCLE_OF_FIRE_OPTION]) ) {
+			struct elemental_data *ed = ((TBL_PC *)bl)->ed;
+
+			if( ed ) {
+				skill_castend_nodamage_id(bl,bl,EL_CIRCLE_OF_FIRE,sce->val1,gettick(),flag|2);
+				elemental_clean_single_effect(ed,EL_CIRCLE_OF_FIRE); //Lasts one hit
+			}
+		}
 
 		if( damage > 0 && (sce = sc->data[SC_STONEHARDSKIN]) && (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) ) {
 			sce->val2 -= (int)cap_value(damage,INT_MIN,INT_MAX);
@@ -2013,8 +2022,8 @@ static int battle_skill_damage(struct block_list *src, struct block_list *target
 }
 #endif
 
-struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,uint16 skill_id,uint16 skill_lv,int mflag);
-struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,uint16 skill_id,uint16 skill_lv,int mflag);
+struct Damage battle_calc_magic_attack(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int mflag);
+struct Damage battle_calc_misc_attack(struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, int mflag);
 
 /*=======================================================
  * Should infinite defense be applied on target? (plant)
@@ -3657,6 +3666,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			if(i > 2)
 				skillratio = skillratio * 75 / 100;
 			break;
+		case NC_MAGMA_ERUPTION_DOTDAMAGE:
+			skillratio += 350 + 50 * skill_lv;
+			break;
 		case SC_FATALMENACE:
 			skillratio += 100 * skill_lv;
 			RE_LVL_DMOD(100);
@@ -4795,40 +4807,6 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 	int skill_damage = 0;
 #endif
 
-	//Reject Sword bugreport:4493 by Daegaladh
-	if(wd.damage && tsc && tsc->data[SC_REJECTSWORD] &&
-		(src->type != BL_PC ||
-		(((TBL_PC *)src)->weapontype1 == W_DAGGER ||
-		((TBL_PC *)src)->weapontype1 == W_1HSWORD ||
-		((TBL_PC *)src)->status.weapon == W_2HSWORD)) &&
-		rnd()%100 < tsc->data[SC_REJECTSWORD]->val2)
-	{
-		ATK_RATER(wd.damage,50);
-		status_fix_damage(target,src,wd.damage,clif_damage(target,src,gettick(),0,0,wd.damage,0,DMG_NORMAL,0));
-		clif_skill_nodamage(target,target,ST_REJECTSWORD,tsc->data[SC_REJECTSWORD]->val1,1);
-		if(--(tsc->data[SC_REJECTSWORD]->val3) <= 0)
-			status_change_end(target,SC_REJECTSWORD,INVALID_TIMER);
-	}
-
-	if(tsc && tsc->data[SC_CRESCENTELBOW] && !is_boss(src) && wd.flag&BF_SHORT &&
-		rnd()%100 < tsc->data[SC_CRESCENTELBOW]->val2) {
-		//ATK [{(Target's HP / 100) x Skill Level} x Caster's Base Level / 125] % + [Received damage x {1 + (Skill Level x 0.2)}]
-		int64 rdamage = 0;
-		int ratio = (status_get_hp(src) / 100) * tsc->data[SC_CRESCENTELBOW]->val1 * status_get_lv(target) / 125;
-
-		if(ratio > 5000)
-			ratio = 5000; //Maximum of 5000% ATK
-		rdamage = battle_calc_base_damage(target,tstatus,&tstatus->rhw,tsc,sstatus->size,tsd,skill_id,0);
-		rdamage = rdamage * ratio / 100 + wd.damage * (10 + tsc->data[SC_CRESCENTELBOW]->val1 * 20 / 10) / 10;
-		skill_blown(target,src,skill_get_blewcount(SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1),unit_getdir(src),0);
-		clif_skill_damage(target,src,gettick(),status_get_amotion(src),0,rdamage,
-			1,SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1,DMG_SKILL); //This is how official does
-		clif_damage(src,target,gettick(),status_get_amotion(src) + 1000,0,rdamage / 10,1,DMG_NORMAL,0);
-		status_damage(target,src,rdamage,0,0,0);
-		status_damage(src,target,rdamage / 10,0,0,1);
-		status_change_end(target,SC_CRESCENTELBOW,INVALID_TIMER);
-	}
-
 	if(sc) {
 		if(sc->data[SC_FUSION]) { //SC_FUSION hp penalty [Komurka]
 			int hp = sstatus->max_hp;
@@ -4843,6 +4821,62 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 		}
 		if(sc->data[SC_CAMOUFLAGE] && !skill_id)
 			status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
+	}
+
+	if(wd.damage && tsc) {
+		int64 rdamage = 0;
+
+		if(tsc->data[SC_REJECTSWORD] &&
+			(src->type != BL_PC ||
+			(((TBL_PC *)src)->weapontype1 == W_DAGGER ||
+			((TBL_PC *)src)->weapontype1 == W_1HSWORD ||
+			((TBL_PC *)src)->status.weapon == W_2HSWORD)) &&
+			rnd()%100 < tsc->data[SC_REJECTSWORD]->val2)
+		{ //Reject Sword bugreport:4493 by Daegaladh
+			ATK_RATER(wd.damage,50);
+			clif_skill_nodamage(target,target,ST_REJECTSWORD,tsc->data[SC_REJECTSWORD]->val1,1);
+			status_fix_damage(target,src,wd.damage,clif_damage(target,src,gettick(),0,0,wd.damage,0,DMG_NORMAL,0));
+			if(--(tsc->data[SC_REJECTSWORD]->val3) <= 0)
+				status_change_end(target,SC_REJECTSWORD,INVALID_TIMER);
+		}
+		if(wd.flag&BF_SHORT && !is_boss(src)) {
+			if(tsc->data[SC_DEATHBOUND]) {
+				uint8 dir = map_calc_dir(target,src->x,src->y), t_dir = unit_getdir(target);
+
+				if(distance_bl(src,target) <= 0 || !map_check_dir(dir,t_dir)) {
+					rdamage = min(wd.damage,status_get_max_hp(target)) * tsc->data[SC_DEATHBOUND]->val2 / 100; //Amplify damage
+					wd.damage = rdamage * 30 / 100; //Player receives 30% of the amplified damage
+					rdamage = rdamage * 70 / 100; //Target receives 70% of the amplified damage [Rytech]
+					clif_skill_damage(src,target,gettick(),status_get_amotion(src),0,-30000,1,RK_DEATHBOUND,tsc->data[SC_DEATHBOUND]->val1,DMG_SKILL);
+					skill_blown(target,src,skill_get_blewcount(RK_DEATHBOUND,tsc->data[SC_DEATHBOUND]->val1),unit_getdir(src),0);
+					status_fix_damage(target,src,rdamage,clif_damage(target,src,gettick(),0,0,rdamage,0,DMG_NORMAL,0));
+					status_change_end(target,SC_DEATHBOUND,INVALID_TIMER);
+					status_change_end(target,SC_DEATHBOUND_POSTDELAY,INVALID_TIMER);
+				}
+			}
+			if(tsc->data[SC_CRESCENTELBOW] && rnd()%100 < tsc->data[SC_CRESCENTELBOW]->val2) {
+				//ATK [{(Target's HP / 100) x Skill Level} x Caster's Base Level / 125] % + [Received damage x {1 + (Skill Level x 0.2)}]
+				int ratio = min(status_get_hp(src) / 100 * tsc->data[SC_CRESCENTELBOW]->val1 * status_get_lv(target) / 125,5000); //Maximum of 5000% ATK
+
+#ifdef RENEWAL
+				if(tsd) {
+					struct Damage d = battle_calc_damage_parts(wd,target,src,skill_id,skill_lv);
+
+					rdamage = d.statusAtk + d.weaponAtk + d.equipAtk + d.masteryAtk;
+				} else
+					rdamage = battle_calc_base_damage(target,tstatus,&tstatus->rhw,tsc,sstatus->size,tsd,skill_id,0);
+#else
+				rdamage = battle_calc_base_damage(target,tstatus,&tstatus->rhw,tsc,sstatus->size,tsd,skill_id,0);
+#endif
+				rdamage = rdamage * ratio / 100 + wd.damage * (10 + tsc->data[SC_CRESCENTELBOW]->val1 * 20 / 10) / 10;
+				ATK_ADD(wd.damage,wd.damage2,rdamage / 10);
+				clif_skill_damage(target,src,gettick(),status_get_amotion(src),0,rdamage,
+					1,SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1,DMG_SKILL); //This is how official does
+				skill_blown(target,src,skill_get_blewcount(SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1),unit_getdir(src),0);
+				status_damage(target,src,rdamage,0,0,0);
+				status_change_end(target,SC_CRESCENTELBOW,INVALID_TIMER);
+			}
+		}
 	}
 
 	switch(skill_id) {
@@ -5143,6 +5177,9 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			switch(skill_id) {
 				case AB_DUPLELIGHT_MELEE:
 					skill = AB_DUPLELIGHT;
+					break;
+				case NC_MAGMA_ERUPTION_DOTDAMAGE:
+					skill = NC_MAGMA_ERUPTION;
 					break;
 				case LG_OVERBRAND_BRANDISH:
 				case LG_OVERBRAND_PLUSATK:
@@ -5539,7 +5576,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		case EL_FIRE_MANTLE:
 			if(tstatus->def_ele == ELE_FIRE || battle_check_undead(tstatus->race, tstatus->def_ele))
 				ad.blewcount = 0; //No knockback
-			//Fall through
+		//Fall through
 		case NJ_KAENSIN:
 		case PR_SANCTUARY:
 			ad.dmotion = 0; //No flinch animation
@@ -6529,7 +6566,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			nk |= NK_NO_ELEFIX|NK_IGNORE_FLEE|NK_NO_CARDFIX_DEF;
 			break;
 		case NC_MAGMA_ERUPTION:
-			md.damage = 1200 + 400 * skill_lv;
+			md.damage = 800 + 200 * skill_lv;
 			break;
 		case WM_SOUND_OF_DESTRUCTION:
 			md.damage = 1000 * skill_lv + sstatus->int_ * (sd ? pc_checkskill(sd,WM_LESSON) : 1);
@@ -6825,25 +6862,6 @@ int64 battle_calc_return_damage(struct block_list *bl, struct block_list *src, i
 				rdamage = max(rdamage,1);
 #endif
 			}
-			if( (sce = sc->data[SC_DEATHBOUND]) &&
-#ifdef RENEWAL
-				skill_id != WS_CARTTERMINATION &&
-#endif
-				!is_boss(src) )
-			{
-				uint8 dir = map_calc_dir(bl,src->x,src->y), t_dir = unit_getdir(bl);
-
-				if( distance_bl(src,bl) <= 0 || !map_check_dir(dir,t_dir) ) {
-					int64 rd1 = 0;
-
-					rd1 = min(damage,status_get_max_hp(bl)) * sce->val2 / 100; //Amplify damage
-					damage = rd1 * 30 / 100; //Player receives 30% of the amplified damage
-					clif_skill_damage(src,bl,gettick(),status_get_amotion(src),0,-30000,1,RK_DEATHBOUND,sce->val1,DMG_SKILL);
-					skill_blown(bl,src,skill_get_blewcount(RK_DEATHBOUND,sce->val1),unit_getdir(src),0);
-					status_change_end(bl,SC_DEATHBOUND,INVALID_TIMER);
-					rdamage += rd1 * 70 / 100; //Target receives 70% of the amplified damage [Rytech]
-				}
-			}
 			if( (sce = sc->data[SC_REFLECTDAMAGE]) &&
 #ifdef RENEWAL
 				skill_id != WS_CARTTERMINATION &&
@@ -6887,8 +6905,8 @@ int64 battle_calc_return_damage(struct block_list *bl, struct block_list *src, i
 #endif
 	}
 
-	if( sc && sc->data[SC_KYOMU] && !sc->data[SC_DEATHBOUND] )
-		rdamage = 0; //Nullify reflecting ability
+	if( sc && sc->data[SC_KYOMU] )
+		return 0; //Nullify reflecting ability
 
 	return rdamage;
 }
@@ -7019,7 +7037,7 @@ int battle_damage_area(struct block_list *bl, va_list ap) {
 	dmotion = va_arg(ap, int);
 	damage = va_arg(ap, int);
 
-	if( bl->type == BL_MOB && ((TBL_MOB*)bl)->mob_id == MOBID_EMPERIUM )
+	if( bl->type == BL_MOB && ((TBL_MOB *)bl)->mob_id == MOBID_EMPERIUM )
 		return 0;
 	if( bl->id != src->id && battle_check_target(src, bl, BCT_ENEMY) > 0 ) {
 		map_freeblock_lock();
@@ -7329,14 +7347,6 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 			} else
 				status_change_end(target,SC_DEVOTION,INVALID_TIMER);
 		}
-		if (tsc->data[SC_CIRCLE_OF_FIRE_OPTION] && (wd.flag&BF_SHORT) && target->type == BL_PC) {
-			struct elemental_data *ed = ((TBL_PC *)target)->ed;
-
-			if (ed) {
-				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(src),0,-30000,1,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,DMG_SKILL);
-				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,tick,wd.flag);
-			}
-		}
 		if (tsc->data[SC_WATER_SCREEN_OPTION]) {
 			struct status_change_entry *sce_e = tsc->data[SC_WATER_SCREEN_OPTION];
 			struct block_list *e_bl = map_id2bl(sce_e->val1);
@@ -7499,8 +7509,8 @@ struct block_list *battle_get_master(struct block_list *src)
 					src = (struct block_list *)((TBL_PET *)src)->master;
 				break;
 			case BL_MOB:
-				if (((TBL_MOB*)src)->master_id)
-					src = map_id2bl(((TBL_MOB*)src)->master_id);
+				if (((TBL_MOB *)src)->master_id)
+					src = map_id2bl(((TBL_MOB *)src)->master_id);
 				break;
 			case BL_HOM:
 				if (((TBL_HOM *)src)->master)
@@ -7724,8 +7734,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 				}
 				//Status changes that prevent traps from triggering
 				if( tsc && tsc->count && skill_get_inf2(su->group->skill_id)&INF2_TRAP )
-					if( tsc->data[SC_SIGHTBLASTER] &&
-						tsc->data[SC_SIGHTBLASTER]->val2 > 0 && tsc->data[SC_SIGHTBLASTER]->val4%2 == 0 )
+					if( tsc->data[SC_SIGHTBLASTER] && tsc->data[SC_SIGHTBLASTER]->val2 > 0 && tsc->data[SC_SIGHTBLASTER]->val4%2 == 0 )
 						return -1;
 			}
 			break;
@@ -7763,10 +7772,9 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 				if( !((agit_flag || agit2_flag) && map[m].flag.gvg_castle) &&
 					md->guardian_data && (md->guardian_data->g || md->guardian_data->castle->guild_id) )
 					return 0; //Disable guardians/emperium owned by Guilds on non-woe times
-
 				if( !md->special_state.ai ) { //Normal mobs
-					if( (target->type == BL_MOB && t_bl->type == BL_PC && (((TBL_MOB *)target)->special_state.ai != AI_ZANZOU && ((TBL_MOB *)target)->special_state.ai != AI_ATTACK)) ||
-						(t_bl->type == BL_MOB && !((TBL_MOB *)t_bl)->special_state.ai) )
+					if( (target->type == BL_MOB && t_bl->type == BL_PC && (((TBL_MOB *)target)->special_state.ai != AI_ZANZOU &&
+						((TBL_MOB *)target)->special_state.ai != AI_ATTACK)) || (t_bl->type == BL_MOB && !((TBL_MOB *)t_bl)->special_state.ai) )
 						state |= BCT_PARTY; //Normal mobs with no ai are friends
 					else
 						state |= BCT_ENEMY; //However, all else are enemies

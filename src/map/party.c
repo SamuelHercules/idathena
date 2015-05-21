@@ -1025,7 +1025,7 @@ int party_exp_share(struct party_data* p, struct block_list *src, unsigned int b
 
 	for (i = 0; i < c; i++) {
 #ifdef RENEWAL_EXP
-		if (!(src && src->type == BL_MOB && ((TBL_MOB*)src)->db->mexp)) {
+		if (!(src && src->type == BL_MOB && ((TBL_MOB *)src)->db->mexp)) {
 			TBL_MOB *md = BL_CAST(BL_MOB, src);
 			int rate = 0;
 

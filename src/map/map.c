@@ -1738,7 +1738,7 @@ void map_addiddb(struct block_list *bl)
 	}
 	else if( bl->type == BL_MOB )
 	{
-		TBL_MOB* md = (TBL_MOB*)bl;
+		TBL_MOB *md = (TBL_MOB *)bl;
 		idb_put(mobid_db,bl->id,bl);
 
 		if( md->state.boss )
@@ -1938,32 +1938,32 @@ struct map_session_data *map_id2sd(int id) {
 	return (struct map_session_data *)idb_get(pc_db,id);
 }
 
-struct mob_data * map_id2md(int id) {
+struct mob_data *map_id2md(int id) {
 	if (id <= 0) return NULL;
 	return (struct mob_data *)idb_get(mobid_db,id);
 }
 
-struct npc_data * map_id2nd(int id) {
+struct npc_data *map_id2nd(int id) {
 	struct block_list *bl = map_id2bl(id);
 	return BL_CAST(BL_NPC, bl);
 }
 
-struct homun_data* map_id2hd(int id) {
+struct homun_data *map_id2hd(int id) {
 	struct block_list *bl = map_id2bl(id);
 	return BL_CAST(BL_HOM, bl);
 }
 
-struct mercenary_data* map_id2mc(int id) {
+struct mercenary_data *map_id2mc(int id) {
 	struct block_list *bl = map_id2bl(id);
 	return BL_CAST(BL_MER, bl);
 }
 
-struct pet_data* map_id2pd(int id) {
+struct pet_data *map_id2pd(int id) {
 	struct block_list *bl = map_id2bl(id);
 	return BL_CAST(BL_PET, bl);
 }
 
-struct elemental_data* map_id2ed(int id) {
+struct elemental_data *map_id2ed(int id) {
 	struct block_list *bl = map_id2bl(id);
 	return BL_CAST(BL_ELEM, bl);
 }
@@ -1981,13 +1981,13 @@ const char *map_charid2nick(int charid)
 
 	sd = map_charid2sd(charid);
 	if( sd )
-		return sd->status.name;// character is online, return it's name
+		return sd->status.name; //Character is online, return it's name
 
 	p = idb_ensure(nick_db, charid, create_charid2nick);
 	if( *p->nick )
-		return p->nick;// name in nick_db
+		return p->nick; //Name in nick_db
 
-	chrif_searchcharid(charid);// request the name
+	chrif_searchcharid(charid); //Request the name
 	return NULL;
 }
 
@@ -2065,7 +2065,7 @@ bool map_blid_exists( int id ) {
 /*==========================================
  * Convex Mirror
  *------------------------------------------*/
-struct mob_data * map_getmob_boss(int16 m)
+struct mob_data *map_getmob_boss(int16 m)
 {
 	DBIterator *iter;
 	struct mob_data *md = NULL;
@@ -2083,7 +2083,7 @@ struct mob_data * map_getmob_boss(int16 m)
 	return (found) ? md : NULL;
 }
 
-struct mob_data * map_id2boss(int id)
+struct mob_data *map_id2boss(int id)
 {
 	if (id <= 0) return NULL;
 	return (struct mob_data *)idb_get(bossid_db,id);

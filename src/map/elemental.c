@@ -143,8 +143,7 @@ int elemental_create(struct map_session_data *sd, int class_, unsigned int lifet
 
 	ele.life_time = lifetime;
 
-	// Request Char Server to create this elemental
-	intif_elemental_create(&ele);
+	intif_elemental_create(&ele); //Request Char Server to create this elemental
 
 	return 1;
 }
