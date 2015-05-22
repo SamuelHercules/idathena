@@ -1071,7 +1071,7 @@ int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd)
  *------------------------------------------*/
 int pet_skill_bonus_timer(int tid, unsigned int tick, int id, intptr_t data)
 {
-	struct map_session_data *sd=map_id2sd(id);
+	struct map_session_data *sd = map_id2sd(id);
 	struct pet_data *pd;
 	int bonus;
 	int timer = 0;
@@ -1113,24 +1113,23 @@ int pet_skill_bonus_timer(int tid, unsigned int tick, int id, intptr_t data)
  *------------------------------------------*/
 int pet_recovery_timer(int tid, unsigned int tick, int id, intptr_t data)
 {
-	struct map_session_data *sd=map_id2sd(id);
+	struct map_session_data *sd = map_id2sd(id);
 	struct pet_data *pd;
 
-	if(sd == NULL || sd->pd == NULL || sd->pd->recovery == NULL)
+	if (sd == NULL || sd->pd == NULL || sd->pd->recovery == NULL)
 		return 1;
 
 	pd = sd->pd;
 
-	if(pd->recovery->timer != tid) {
+	if (pd->recovery->timer != tid) {
 		ShowError("pet_recovery_timer %d != %d\n",pd->recovery->timer,tid);
 		return 0;
 	}
 
-	if(sd->sc.data[pd->recovery->type]) { //Display a heal animation?
-		//Detoxify is chosen for now
-		clif_skill_nodamage(&pd->bl,&sd->bl,TF_DETOXIFY,1,1);
-		status_change_end(&sd->bl, pd->recovery->type, INVALID_TIMER);
-		clif_emotion(&pd->bl, E_OK);
+	if (sd->sc.data[pd->recovery->type]) { //Display a heal animation?
+		clif_skill_nodamage(&pd->bl,&sd->bl,TF_DETOXIFY,1,1); //Detoxify is chosen for now
+		status_change_end(&sd->bl,pd->recovery->type,INVALID_TIMER);
+		clif_emotion(&pd->bl,E_OK);
 	}
 
 	pd->recovery->timer = INVALID_TIMER;
@@ -1139,26 +1138,26 @@ int pet_recovery_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 int pet_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
 {
-	struct map_session_data *sd=map_id2sd(id);
+	struct map_session_data *sd = map_id2sd(id);
 	struct status_data *status;
 	struct pet_data *pd;
 	unsigned int rate = 100;
 
-	if(sd == NULL || sd->pd == NULL || sd->pd->s_skill == NULL)
+	if (sd == NULL || sd->pd == NULL || sd->pd->s_skill == NULL)
 		return 1;
 
 	pd = sd->pd;
 
-	if(pd->s_skill->timer != tid) {
+	if (pd->s_skill->timer != tid) {
 		ShowError("pet_heal_timer %d != %d\n",pd->s_skill->timer,tid);
 		return 0;
 	}
 
 	status = status_get_status_data(&sd->bl);
 
-	if(pc_isdead(sd) ||
-		(rate = get_percentage(status->sp, status->max_sp)) > pd->s_skill->sp ||
-		(rate = get_percentage(status->hp, status->max_hp)) > pd->s_skill->hp ||
+	if (pc_isdead(sd) ||
+		(rate = get_percentage(status->sp,status->max_sp)) > pd->s_skill->sp ||
+		(rate = get_percentage(status->hp,status->max_hp)) > pd->s_skill->hp ||
 		(rate = (pd->ud.skilltimer != INVALID_TIMER))) //Another skill is in effect
 	{ //Wait (how long? 1 sec for every 10% of remaining)
 		pd->s_skill->timer = add_timer(gettick() + (rate > 10 ? rate : 10) * 100,pet_heal_timer,sd->bl.id,0);
@@ -1167,7 +1166,7 @@ int pet_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
 	pet_stop_attack(pd);
 	pet_stop_walking(pd,1);
 	clif_skill_nodamage(&pd->bl,&sd->bl,AL_HEAL,pd->s_skill->lv,1);
-	status_heal(&sd->bl, pd->s_skill->lv,0, 0);
+	status_heal(&sd->bl,pd->s_skill->lv,0,0);
 	pd->s_skill->timer = add_timer(tick + pd->s_skill->delay * 1000,pet_heal_timer,sd->bl.id,0);
 	return 0;
 }
@@ -1177,17 +1176,17 @@ int pet_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
  *------------------------------------------*/
 int pet_skill_support_timer(int tid, unsigned int tick, int id, intptr_t data)
 {
-	struct map_session_data *sd=map_id2sd(id);
+	struct map_session_data *sd = map_id2sd(id);
 	struct pet_data *pd;
 	struct status_data *status;
 	short rate = 100;
 
-	if(sd == NULL || sd->pd == NULL || sd->pd->s_skill == NULL)
+	if (sd == NULL || sd->pd == NULL || sd->pd->s_skill == NULL)
 		return 1;
 
 	pd = sd->pd;
 
-	if(pd->s_skill->timer != tid) {
+	if (pd->s_skill->timer != tid) {
 		ShowError("pet_skill_support_timer %d != %d\n",pd->s_skill->timer,tid);
 		return 0;
 	}
@@ -1199,9 +1198,9 @@ int pet_skill_support_timer(int tid, unsigned int tick, int id, intptr_t data)
 		return 0;
 	}
 
-	if(pc_isdead(sd) ||
-		(rate = get_percentage(status->sp, status->max_sp)) > pd->s_skill->sp ||
-		(rate = get_percentage(status->hp, status->max_hp)) > pd->s_skill->hp ||
+	if (pc_isdead(sd) ||
+		(rate = get_percentage(status->sp,status->max_sp)) > pd->s_skill->sp ||
+		(rate = get_percentage(status->hp,status->max_hp)) > pd->s_skill->hp ||
 		(rate = (pd->ud.skilltimer != INVALID_TIMER))) //Another skill is in effect
 	{ //Wait (how long? 1 sec for every 10% of remaining)
 		pd->s_skill->timer = add_timer(tick + (rate > 10 ? rate : 10) * 100,pet_skill_support_timer,sd->bl.id,0);

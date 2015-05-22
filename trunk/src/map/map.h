@@ -346,12 +346,12 @@ enum auto_trigger_flag {
 };
 
 struct block_list {
-	struct block_list *next,*prev;
+	struct block_list *next, *prev;
 	int id;
-	int16 m,x,y;
+	int16 m, x, y;
 	enum bl_type type;
+	int64 damage; //For handling SR_TIGERCANNON splash damage [exneval]
 };
-
 
 // Mob List Held in memory for Dynamic Mobs [Wizputer]
 // Expanded to specify all mob-related spawn data by [Skotlex]
