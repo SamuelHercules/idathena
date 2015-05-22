@@ -1671,20 +1671,19 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 		atkmax = min(UINT16_MAX, (int)(atkmax + variance));
 	}
 
-	if (skill_id != SR_TIGERCANNON) {
-		if (!(sc && sc->data[SC_MAXIMIZEPOWER])) {
-			if (atkmax > atkmin)
-				atkmax = atkmin + rnd()%(atkmax - atkmin + 1);
-			else
-				atkmax = atkmin;
-		}
-		if ((index = sd->equip_index[EQI_HAND_R]) >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON &&
-			(refine = sd->status.inventory[index].refine) < 16 && refine) {
-			int r = refine_info[sd->inventory_data[index]->wlv].randombonus_max[refine + (4 - sd->inventory_data[index]->wlv)] / 100;
+	if (!(sc && sc->data[SC_MAXIMIZEPOWER])) {
+		if (atkmax > atkmin)
+			atkmax = atkmin + rnd()%(atkmax - atkmin + 1);
+		else
+			atkmax = atkmin;
+	}
 
-			if (r)
-				atkmax += (rnd()%100)%r + 1;
-		}
+	if ((index = sd->equip_index[EQI_HAND_R]) >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON &&
+		(refine = sd->status.inventory[index].refine) < 16 && refine) {
+		int r = refine_info[sd->inventory_data[index]->wlv].randombonus_max[refine + (4 - sd->inventory_data[index]->wlv)] / 100;
+
+		if (r)
+			atkmax += (rnd()%100)%r + 1;
 	}
 
 	damage = atkmax;
@@ -1759,7 +1758,7 @@ static int64 battle_calc_base_damage(struct block_list *src, struct status_data 
 		}
 	}
 
-	if((sc && sc->data[SC_MAXIMIZEPOWER]) || skill_id == SR_TIGERCANNON)
+	if(sc && sc->data[SC_MAXIMIZEPOWER])
 		atkmin = atkmax;
 
 	//Weapon Damage calculation
@@ -2593,8 +2592,8 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 	int nk = battle_skill_get_damage_properties(skill_id, wd.miscflag);
 
 	if(!(nk&NK_NO_ELEFIX)) { //Elemental attribute fix
-		//Non-pc physical melee attacks (mob, pet, homun) are "non elemental", they deal 100% to all target elements
-		//However the "non elemental" attacks still get reduced by "Neutral resistance"
+		//Non-pc physical melee attacks (mob, pet, homun) are "no elemental", they deal 100% to all target elements
+		//However the "no elemental" attacks still get reduced by "Neutral resistance"
 		//Also non-pc units have only a defending element, but can inflict elemental attacks using skills [exneval]
 		if(battle_config.attack_attr_none&src->type && ((!skill_id && !right_element) ||
 			(skill_id && (element == -1 || !right_element))) && (wd.flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON))
@@ -2605,6 +2604,7 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 				case RA_CLUSTERBOMB:
 				case RA_FIRINGTRAP:
 				case RA_ICEBOUNDTRAP:
+				case SR_TIGERCANNON:
 				case SR_GATEOFHELL:
 				case KO_BAKURETSU:
 					wd.damage = battle_attr_fix(src, target, wd.damage, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
@@ -4124,12 +4124,6 @@ static int64 battle_calc_skill_constant_addition(struct Damage wd,struct block_l
 			else //Mobs
 				atk += status_get_lv(target) * 50;
 			break;
-		case SR_TIGERCANNON:
-			if(wd.miscflag&4)
-				atk = skill_lv * 500 + status_get_lv(target) * 40;
-			else
-				atk = skill_lv * 240 + status_get_lv(target) * 40;
-			break;
 	}
 	return atk;
 }
@@ -4735,7 +4729,7 @@ struct block_list *battle_check_devotion(struct block_list *bl) {
  *	Initial refactoring by Baalberith
  *	Refined and optimized by helvetica
  */
-struct Damage battle_calc_attack_gvg_bg(struct Damage wd, struct block_list *src,struct block_list *target,uint16 skill_id,uint16 skill_lv)
+struct Damage battle_calc_attack_gvg_bg(struct Damage wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv)
 {
 	if( wd.damage + wd.damage2 ) { //There is a total damage value
 		if( src != target && //Don't reflect your own damage (Grand Cross)
@@ -5225,25 +5219,11 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 	} else if(wd.div_ < 0)
 		wd.div_ *= -1;
 
-	switch(skill_id) { //Damage disregard acurracy check
-		case HW_MAGICCRASHER:
-			if(sd) {
-				short index = sd->equip_index[EQI_HAND_R];
+	if(skill_id == HW_MAGICCRASHER && sd) { //Damage disregard acurracy check
+		short index = sd->equip_index[EQI_HAND_R];
 
-				if(index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
-					ATK_ADD(wd.damage, wd.damage2, sd->status.inventory[index].refine);
-			}
-			break;
-		case SR_GATEOFHELL: {
-				struct status_data *sstatus = status_get_status_data(src);
-
-				ATK_ADD(wd.damage, wd.damage2, sstatus->max_hp - status_get_hp(src));
-				if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) {
-					ATK_ADD(wd.damage, wd.damage2, (sstatus->max_sp * (1 + skill_lv * 2 / 10)) + 40 * status_get_lv(src));
-				} else
-					ATK_ADD(wd.damage, wd.damage2, (sstatus->sp * (1 + skill_lv * 2 / 10)) + 10 * status_get_lv(src));
-			}
-			break;
+		if(index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+			ATK_ADD(wd.damage, wd.damage2, sd->status.inventory[index].refine);
 	}
 
 	if(wd.damage + wd.damage2) { //Check if attack ignores DEF
@@ -5378,6 +5358,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 				case RA_CLUSTERBOMB:
 				case RA_FIRINGTRAP:
 				case RA_ICEBOUNDTRAP:
+				case SR_TIGERCANNON:
 				case SR_GATEOFHELL:
 				case GN_FIRE_EXPANSION_ACID:
 				case KO_BAKURETSU:
@@ -5411,12 +5392,33 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 	}
 #endif
 
-	//Shield refine bonus applies after cards and elements
-	if(sd && (skill_id == CR_SHIELDBOOMERANG || skill_id == PA_SHIELDCHAIN)) {
-		short index = sd->equip_index[EQI_HAND_L];
+	switch(skill_id) {
+		case CR_SHIELDBOOMERANG:
+		case PA_SHIELDCHAIN:
+			if(sd) { //Shield refine bonus applies after cards and elements
+				short index = sd->equip_index[EQI_HAND_L];
 
-		if(index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
-			ATK_ADD(wd.damage, wd.damage2, 10 * sd->status.inventory[index].refine);
+				if(index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
+					ATK_ADD(wd.damage, wd.damage2, 10 * sd->status.inventory[index].refine);
+			}
+			break;
+		//Fixed damage and no elemental [exneval]
+		case SR_TIGERCANNON:
+			if(wd.miscflag&4) {
+				ATK_ADD(wd.damage, wd.damage2, skill_lv * 500 + status_get_lv(target) * 40);
+			} else
+				ATK_ADD(wd.damage, wd.damage2, skill_lv * 240 + status_get_lv(target) * 40);
+			break;
+		case SR_GATEOFHELL: {
+				struct status_data *sstatus = status_get_status_data(src);
+
+				ATK_ADD(wd.damage, wd.damage2, sstatus->max_hp - status_get_hp(src));
+				if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) {
+					ATK_ADD(wd.damage, wd.damage2, sstatus->max_sp * (1 + skill_lv * 2 / 10) + 40 * status_get_lv(src));
+				} else
+					ATK_ADD(wd.damage, wd.damage2, sstatus->sp * (1 + skill_lv * 2 / 10) + 10 * status_get_lv(src));
+			}
+			break;
 	}
 
 	//Perform multihit calculations
@@ -5425,9 +5427,16 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 #endif
 	DAMAGE_DIV_FIX(wd.damage, wd.div_);
 
-	//Only do 1 dmg to plant, no need to calculate rest
-	if(target_has_infinite_defense(target, skill_id, wd.flag))
-		return battle_calc_attack_plant(wd, src, target, skill_id, skill_lv);
+	switch(skill_id) {
+		case SR_TIGERCANNON:
+			if(wd.miscflag&8)
+				break; //Splash Tiger Cannon attack plant will be calculated later [exneval]
+		//Fall through
+		default: //Only do 1 dmg to plant, no need to calculate rest
+			if(target_has_infinite_defense(target, skill_id, wd.flag))
+				return battle_calc_attack_plant(wd, src, target, skill_id, skill_lv);
+			break;
+	}
 
 	wd = battle_calc_attack_left_right_hands(wd, src, target, skill_id, skill_lv);
 
@@ -5448,6 +5457,10 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
  		case RA_ICEBOUNDTRAP:
 		case SO_VARETYR_SPEAR:
 			return wd; //Do GVG fix later
+		case SR_TIGERCANNON:
+			if(wd.miscflag&8)
+				break; //Splash Tiger Cannon GVG fix will be calculated later [exneval]
+		//Fall through
 		default:
 			wd = battle_calc_attack_gvg_bg(wd, src, target, skill_id, skill_lv);
 			break;
@@ -5457,8 +5470,16 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 
 	if(!skill_id && sc && (sc->data[SC_CRUSHSTRIKE] || sc->data[SC_EXEEDBREAK] || sc->data[SC_SPELLFIST]))
 		return wd; //Reflected later
-	else //Skill reflect gets calculated after all attack modifier
-		battle_do_reflect(BF_WEAPON, &wd, src, target, skill_id, skill_lv); //WIP [lighta]
+
+	switch(skill_id) { //Skill reflect gets calculated after all attack modifier
+		case SR_TIGERCANNON:
+			if(wd.miscflag&8)
+				break; //Splash Tiger Cannon will be reflected later [exneval]
+		//Fall through
+		default:
+			battle_do_reflect(BF_WEAPON, &wd, src, target, skill_id, skill_lv); //WIP [lighta]
+			break;
+	}
 
 	return wd;
 }

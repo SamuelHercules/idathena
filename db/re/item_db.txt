@@ -1970,7 +1970,7 @@
 2871,Brazilian_Emblem,Brazilian Emblem,4,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,60,0,0,{ bonus2 bAddClass,Class_All,3; bonus bMatkRate,3; bonus bMaxHP,50; bonus bMaxSP,20; },{},{}
 2872,G_Honor_Certificate,G Honor Certificate,4,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{},{},{}
 2873,Cat_Hand_Glove,Cat Hand Glove,4,20,,100,,5,,1,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus bAgi,1; bonus bVit,1; bonus bDex,1; bonus bLuk,1; },{},{}
-2874,Buffalo_Horn,Buffalo Horn,4,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,10,0,0,{},{},{}
+2874,Buffalo_Horn,Buffalo Horn,4,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,10,0,0,{ bonus bAspd,1; },{},{}
 2875,RO_Appreciation_Ring,RO Appreciation Ring,4,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddClass,Class_All,5; bonus bMatkRate,5; },{},{}
 2876,Necklace_Spica,Necklace Spica,4,20,,200,,1,,0,0xFFFFFFFF,63,2,136,,10,0,0,{ bonus bMdef,1; },{},{}
 2877,Glove_Sabik,Glove Sabik,4,20,,200,,1,,0,0xFFFFFFFF,63,2,136,,10,0,0,{ bonus bMdef,1; },{},{}
@@ -6924,7 +6924,7 @@
 13116,Novice_Revolver,Novice Revolver,5,0,,500,20,,7,0,0x41000000,63,2,34,1,1,0,17,{ bonus bHit,-5; },{},{}
 13118,Spark_Light,Spark Light,5,1,,100,0,,9,0,0x41000000,63,2,34,1,1,1,17,{},{},{}
 13119,Spark_Of_Freedom,Spark Of Freedom,5,1,,100,100,,9,2,0x41000000,63,2,34,3,1,1,17,{},{},{}
-13120,Heaven's_Feather_and_Hell's_Fire,Heaven's Feather & Hell's Fire,5,1200000,,800,150,,9,1,0x41000000,63,2,34,3,99,1,17,{ bonus2 bSkillAtk,"GS_DESPERADO",20; bonus2 bSkillAtk,"RL_FALLEN_ANGEL",20; },{},{}
+13120,Heaven's_Feather_and_Hell's_Fire,Heaven's Feather & Hell's Fire,5,1200000,,800,150,,9,1,0x41000000,63,2,34,3,99,1,17,{ bonus2 bSkillAtk,"GS_DESPERADO",20; bonus2 bSkillAtk,"RL_FALLEN_ANGEL",20; bonus2 bAddEff,Eff_Burning,100; },{},{}
 13122,Altea_and_Ares,Altea & Ares,5,1450000,,1000,200,,9,0,0x40000000,63,2,34,3,140,1,17,{ bonus bHit,5; bonus bDelayrate,10; bonus bLongAtkRate,30; },{},{}
 13124,Altea_and_Ares_,Altea & Ares,5,10,,1000,200,,9,1,0x40000000,63,2,34,3,140,1,17,{ bonus bHit,5; bonus bDelayrate,10; bonus bLongAtkRate,30; },{},{}
 13125,Metal_Revolver,Metal Revolver,5,0,,0,30,,7,1,0x41000000,63,2,34,3,1,0,17,{ bonus bBaseAtk,getrefine(); bonus bLongAtkRate,1; if (BaseLevel >= 20 && BaseLevel <= 120) { bonus bBaseAtk,3*(BaseLevel/10); } },{},{}

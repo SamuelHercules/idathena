@@ -2001,7 +2001,7 @@ REPLACE INTO `item_db_re` VALUES (2870,'Tw_8th_Anni_Ring','Tw 8th Anni Ring',4,0
 REPLACE INTO `item_db_re` VALUES (2871,'Brazilian_Emblem','Brazilian Emblem',4,20,NULL,100,NULL,0,NULL,1,0xFFFFFFFF,63,2,136,NULL,'60',0,0,'bonus2 bAddClass,Class_All,3; bonus bMatkRate,3; bonus bMaxHP,50; bonus bMaxSP,20;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2872,'G_Honor_Certificate','G Honor Certificate',4,0,NULL,0,NULL,0,NULL,0,0xFFFFFFFF,63,2,136,NULL,'1',0,0,NULL,NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2873,'Cat_Hand_Glove','Cat Hand Glove',4,20,NULL,100,NULL,5,NULL,1,0xFFFFFFFF,63,2,136,NULL,'1',0,0,'bonus bAgi,1; bonus bVit,1; bonus bDex,1; bonus bLuk,1;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (2874,'Buffalo_Horn','Buffalo Horn',4,20,NULL,100,NULL,0,NULL,1,0xFFFFFFFF,63,2,136,NULL,'10',0,0,NULL,NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (2874,'Buffalo_Horn','Buffalo Horn',4,20,NULL,100,NULL,0,NULL,1,0xFFFFFFFF,63,2,136,NULL,'10',0,0,'bonus bAspd,1;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2875,'RO_Appreciation_Ring','RO Appreciation Ring',4,20,NULL,100,NULL,0,NULL,1,0xFFFFFFFF,63,2,136,NULL,'0',0,0,'bonus2 bAddClass,Class_All,5; bonus bMatkRate,5;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2876,'Necklace_Spica','Necklace Spica',4,20,NULL,200,NULL,1,NULL,0,0xFFFFFFFF,63,2,136,NULL,'10',0,0,'bonus bMdef,1;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2877,'Glove_Sabik','Glove Sabik',4,20,NULL,200,NULL,1,NULL,0,0xFFFFFFFF,63,2,136,NULL,'10',0,0,'bonus bMdef,1;',NULL,NULL);
@@ -6955,7 +6955,7 @@ REPLACE INTO `item_db_re` VALUES (13115,'Upg_Revolver','Upg Revolver',5,20,NULL,
 REPLACE INTO `item_db_re` VALUES (13116,'Novice_Revolver','Novice Revolver',5,0,NULL,500,'20',NULL,7,0,0x41000000,63,2,34,1,'1',0,17,'bonus bHit,-5;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (13118,'Spark_Light','Spark Light',5,1,NULL,100,'0',NULL,9,0,0x41000000,63,2,34,1,'1',1,17,NULL,NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (13119,'Spark_Of_Freedom','Spark Of Freedom',5,1,NULL,100,'100',NULL,9,2,0x41000000,63,2,34,3,'1',1,17,NULL,NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (13120,'Heaven\'s_Feather_and_Hell\'s_Fire','Heaven\'s Feather & Hell\'s Fire',5,1200000,NULL,800,'150',NULL,9,1,0x41000000,63,2,34,3,'99',1,17,'bonus2 bSkillAtk,"GS_DESPERADO",20; bonus2 bSkillAtk,"RL_FALLEN_ANGEL",20;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (13120,'Heaven\'s_Feather_and_Hell\'s_Fire','Heaven\'s Feather & Hell\'s Fire',5,1200000,NULL,800,'150',NULL,9,1,0x41000000,63,2,34,3,'99',1,17,'bonus2 bSkillAtk,"GS_DESPERADO",20; bonus2 bSkillAtk,"RL_FALLEN_ANGEL",20; bonus2 bAddEff,Eff_Burning,100;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (13122,'Altea_and_Ares','Altea & Ares',5,1450000,NULL,1000,'200',NULL,9,0,0x40000000,63,2,34,3,'140',1,17,'bonus bHit,5; bonus bDelayrate,10; bonus bLongAtkRate,30;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (13124,'Altea_and_Ares_','Altea & Ares',5,10,NULL,1000,'200',NULL,9,1,0x40000000,63,2,34,3,'140',1,17,'bonus bHit,5; bonus bDelayrate,10; bonus bLongAtkRate,30;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (13125,'Metal_Revolver','Metal Revolver',5,0,NULL,0,'30',NULL,7,1,0x41000000,63,2,34,3,'1',0,17,'bonus bBaseAtk,getrefine(); bonus bLongAtkRate,1; if (BaseLevel >= 20 && BaseLevel <= 120) { bonus bBaseAtk,3*(BaseLevel/10); }',NULL,NULL);

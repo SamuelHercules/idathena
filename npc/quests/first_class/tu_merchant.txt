@@ -3,26 +3,27 @@
 //===== By: ==================================================
 //= Fix up by Jukka
 //===== Current Version: =====================================
-//= 2.0
+//= 3.0
 //===== Compatible With: =====================================
 //= rAthena SVN
 //===== Description: =========================================
 //= [Official Conversion]
 //= Merchant training quest.
 //===== Additional Comments: =================================
-//= 1.0 Fully working
-//= 1.1 Fixed bugs, optimized [Lupus]
-//= 1.2 fixed Weight check
+//= 1.0 Fully working.
+//= 1.1 Fixed bugs, optimized. [Lupus]
+//= 1.2 Fixed Weight check.
 //= 1.2 Fixed experience gains to match upcoming rate adjustments. [SinSloth]
 //= 1.3 Misc. updates. [L0ne_W0lf]
 //= 2.0 Clean-up. [Capuche]
+//= 3.0 Removed quest commands. [exneval]
 //============================================================
 
 // Guarnien
 //============================================================
 alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 	mes "[Guarnien]";
-	if(Class != Job_Merchant){
+	if(Class != Job_Merchant) {
 		mes "Hello stranger.";
 		mes "I wish I could";
 		mes "offer you help";
@@ -30,14 +31,14 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		next;
 		mes "[Guarnien]";
 		mes "However, what I have to teach would only benefit Merchants. Trading and money making are my areas of expertise. If you have any Merchant friends, send them to me.";
-		if(Class == Job_Merchant_High){
+		if(Class == Job_Merchant_High) {
 			next;
 			mes "[Guarnien]";
 			mes "Technically, yes, you're a Merchant, but I know an expert when I see one. You've been through the Merchant life before, I can tell!";
 		}
 		close;
 	}
-	switch(tu_merchant){
+	switch(tu_merchant) {
 	case 17:
 		mes "We can't even begin";
 		mes "to fathom the number";
@@ -79,10 +80,10 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "increase by one.";
 			next;
 			mes "[Guarnien]";
-			if((.@chk_vend > 3) && (.@chk_vend < 10)){
+			if((.@chk_vend > 3) && (.@chk_vend < 10)) {
 				mes "But I see that you must already know that, huh? Well, seeing as you're so clever, I think you've earned this little prize~";
 				getexp 186,60;
-			} else if(.@chk_vend == 10){
+			} else if(.@chk_vend == 10) {
 				mes "But it looks like I just put my foot in my mouth. I'm sorry, I didn't notice that you already mastered the Vending skill...";
 				next;
 				mes "[Guarnien]";
@@ -95,11 +96,8 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			} else {
 				mes "For your final assignment, I will ask you to learn the Vending skill up to Skill Level 4. Of course, once you do, I'll give you a little reward. I'll be waiting, so do your best~";
 				tu_merchant = 16;
-				erasequest 8239;
-				setquest 8240;
 				close;
 			}
-			completequest 8239;
 		}
 		else {
 			mes "So...";
@@ -108,11 +106,11 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "about Vending?";
 			next;
 			mes "[Guarnien]";
-			if((.@chk_vend > 3) && (.@chk_vend < 10)){
+			if((.@chk_vend > 3) && (.@chk_vend < 10)) {
 				mes "Excellent!";
 				mes "You've taught yourself well. Here, you've earned this little reward~";
 				getexp 186,43;
-			} else if(.@chk_vend == 10){
+			} else if(.@chk_vend == 10) {
 				mes "Oh, I see that you're very serious about being a Merchant. I'm proud that you've managed to master this skill! Here, you deserve this reward!";
 				getexp 199,69;
 			} else {
@@ -121,7 +119,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "of the defining characteristics of being a Merchant!";
 				close;
 			}
-			completequest 8240;
 		}
 		tu_merchant = 17;
 		next;
@@ -163,15 +160,14 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "the level of the Push Cart skill, your movement speed will slowly be restored. With Push Cart Level 10, a PushCart won't slow you";
 			mes "down at all!";
 			next;
-			erasequest 8237;
 			.@chk_cart = getskilllv("MC_PUSHCART");
 			mes "[Guarnien]";
-			if(.@chk_cart > 3 && .@chk_cart < 10){
+			if(.@chk_cart > 3 && .@chk_cart < 10) {
 				mes "Ah, and I see that you've been focusing on learning Push Cart. Although you might still have a problem with your movement";
 				mes "speed, it shouldn't be a big deal.";
 				mes "Well done~";
 				getexp 162,52;
-			} else if(.@chk_cart == 10){
+			} else if(.@chk_cart == 10) {
 				mes "Wonderful! You've already";
 				mes "mastered the Push Cart skill.";
 				mes "You truly deserve a little bit of a reward~";
@@ -183,10 +179,8 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "you do that, I can go on to";
 				mes "my next lecture.";
 				tu_merchant = 14;
-				setquest 8238;
 				close;
 			}
-			setquest 8239;
 		}
 		else {
 			mes "So, have you";
@@ -194,14 +188,14 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "to Level 4 like I asked?";
 			next;
 			mes "[Guarnien]";
-			if(.@chk_cart > 3 && .@chk_cart < 10){
+			if(.@chk_cart > 3 && .@chk_cart < 10) {
 				mes "Well done~";
 				mes "You've been a very";
 				mes "cooperative student.";
 				mes "You deserve a little";
 				mes "reward for your effort~";
 				getexp 162,52;
-			} else if(.@chk_cart == 10){
+			} else if(.@chk_cart == 10) {
 				mes "Excellent!";
 				mes "You've actually went above and beyond mastered the Push Cart skill. Great work!";
 				getexp 186,60;
@@ -212,8 +206,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "Cart skill. I hope that helps.";
 				close;
 			}
-			erasequest 8238;
-			setquest 8239;
 		}
 		tu_merchant = 15;
 		next;
@@ -237,18 +229,16 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "Over Charge allows you to sell items to NPC shops for more Zeny. The higher your Over Charge Skill Level, the more Zeny you'll receive for items sold to NPCs.";
 			next;
 			mes "[Guarnien]";
-			erasequest 8235;
 			.@chk_over = getskilllv("MC_OVERCHARGE");
-			if(.@chk_over > 3 && .@chk_over < 10){
+			if(.@chk_over > 3 && .@chk_over < 10) {
 				mes "Ah, you've already learned Level 4 Over Charge. Perfect! Let me give you a little reward~";
 				getexp 126,27;
-			} else if(.@chk_over == 10){
+			} else if(.@chk_over == 10) {
 				mes "Amazing! You've already mastered the Over Charge skill! You must have wanted this reward badly~";
 				getexp 142,33;
 			} else {
 				mes "Personally, I think you should learn this skill for sure! For your next assignment, learn Over Charge up to Level 4. It shouldn't be too difficult to do.";
 				tu_merchant = 12;
-				setquest 8236;
 				next;
 				mes "[Guarnien]";
 				mes "Once you do that,";
@@ -257,7 +247,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "Do your best~";
 				close;
 			}
-			setquest 8237;
 		}
 		else {
 			mes "So...";
@@ -266,14 +255,14 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "^871F78Over Charge^000000 skill?";
 			next;
 			mes "[Guarnien]";
-			if(.@chk_over > 3 && .@chk_over < 10){
+			if(.@chk_over > 3 && .@chk_over < 10) {
 				mes "Nice work!";
 				mes "I can tell that";
 				mes "you've done just";
 				mes "as I asked. Please,";
 				mes "take this little reward~";
 				getexp 126,27;
-			} else if(.@chk_over == 10){
+			} else if(.@chk_over == 10) {
 				mes "Whoa...";
 				mes "You actually";
 				mes "mastered Over Charge?";
@@ -286,8 +275,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "There's no rush, but I won't be able to lecture on anything until you finish this little task.";
 				close;
 			}
-			erasequest 8236;
-			setquest 8237;
 		}
 		tu_merchant = 13;
 		next;
@@ -319,7 +306,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		mes "Let me see those";
 		mes "Red Potions. Ah, it seems you researched the market and bought the cheapest ones! Great work!";
 		tu_merchant = 11;
-		changequest 8234,8235;
 		getexp 112,22;
 		next;
 		mes "[Guarnien]";
@@ -357,7 +343,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		mes "some reason --to send you there right now. Get ready...!";
 		next;
 		tu_merchant = rand(6,8);
-		changequest 8233,8234;
 		warp "prontera",155,46;
 		end;
 	case 3:
@@ -377,7 +362,7 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "mastered at ^871F78Level 10^000000. The higher the skill level, the less you have to pay for items at NPC shops.";
 			next;
 			mes "[Guarnien]";
-			if(.@chk_disc > 3 && .@chk_disc < 10){
+			if(.@chk_disc > 3 && .@chk_disc < 10) {
 				mes "Oooh, good work.";
 				mes "I see that you've";
 				mes "raised your Discount";
@@ -385,7 +370,7 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "Here, take this";
 				mes "small reward~";
 				getexp 83,11;
-			} else if(.@chk_disc == 10){
+			} else if(.@chk_disc == 10) {
 				mes "Incredible!";
 				mes "You've actually mastered the Discount skill! You're such a great student. You deserve a bit of a reward!";
 				getexp 97,18;
@@ -399,23 +384,19 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "[Guarnien]";
 				mes "Still, you can't ignore the fact that bargaining is an essential skill for a Merchant! Come back to me when you're ready~";
 				tu_merchant = 4;
-				erasequest 8231;
-				setquest 8232;
 				close;
 			}
-			erasequest 8231;
-			setquest 8233;
 		}
 		else {
 			mes "So, how is it going with learning the Discount skill? Like I always say, if you can't make a bargain, you can't be a Merchant!";
 			next;
 			mes "[Guarnien]";
-			if(.@chk_disc > 3 && .@chk_disc < 10){
+			if(.@chk_disc > 3 && .@chk_disc < 10) {
 				mes "Ah, you've learned";
 				mes "how to use the Discount skill";
 				mes "well enough. Good, here's a little reward for your hard work~";
 				getexp 83,11;
-			} else if(.@chk_disc == 10){
+			} else if(.@chk_disc == 10) {
 				mes "Incredible!";
 				mes "You've actually mastered the Discount skill! You're such a great student. You deserve a bit of a reward!";
 				getexp 97,18;
@@ -424,8 +405,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 				mes "Well, you should be able to reach that goal soon. After all, it's one of the basics of being a Merchant!";
 				close;
 			}
-			erasequest 8232;
-			setquest 8233;
 		}
 		tu_merchant = 5;
 		next;
@@ -446,14 +425,12 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		next;
 		mes "[Guarnien]";
 		.@chk_mam = getskilllv("MC_MAMMONITE");
-		if(.@chk_mam > 3 && .@chk_mam < 10){
+		if(.@chk_mam > 3 && .@chk_mam < 10) {
 			mes "Ah, I see that you've already tried this skill. How much money have you wasted using Mammonite? Not too much, I hope.";
 			next;
 			mes "[Guarnien]";
 			mes "Well, since you're still green, I feel awfully sorry if you've wasted Zeny. Why don't you take this as compensation?";
 			tu_merchant = 3;
-			erasequest 8230;
-			setquest 8231;
 			getexp 70,12;
 			next;
 			mes "[Guarnien]";
@@ -462,8 +439,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		} else {
 			mes "Okay. Now I think we're ready for me to discuss the ^871F78Discount^000000 skill. Come back when you'd like me to tell you more about it, okay?";
 			tu_merchant = 3;
-			erasequest 8230;
-			setquest 8231;
 			close;
 		}
 	case 1:
@@ -475,7 +450,7 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		next;
 		mes "[Guarnien]";
 		.@chk_soji = getskilllv("MC_INCCARRY");
-		if(.@chk_soji > 3 && .@chk_soji < 10){
+		if(.@chk_soji > 3 && .@chk_soji < 10) {
 			mes "Ah. I can tell that you have. Not bad! By now you should be able to learn the ^871F78Discount^000000 skill, but I'll teach you about that later.";
 			next;
 			mes "[Guarnien]";
@@ -487,12 +462,10 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "[Guarnien]";
 			mes "This skill works exactly like a ^871F78Magnifier^000000, so you won't have to spend any Zeny on them. Also, this skill is mastered at ^871F78Level 1^000000.";
 			next;
-			if(getskilllv("MC_IDENTIFY")){
+			if(getskilllv("MC_IDENTIFY")) {
 				mes "[Guarnien]";
 				mes "I see in your eyes that you've already learned to appraise items. Haha, although having that knowledge is reward in itself, let me give you something extra!";
 				tu_merchant = 2;
-				erasequest 8229;
-				setquest 8230;
 				getexp 58,11;
 				getitem 1351,1; //Battle_Axe
 				next;
@@ -510,16 +483,13 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 		mes "Alright, next time";
 		mes "I'll talk about the Mammonite skill. For now, let me take a little bit of a break from all of this arduous lecture. ^666666*Whew!*^000000";
 		tu_merchant = 2;
-		erasequest 8229;
-		setquest 8230;
 		close;
 	}
 	mes "You've just started out as a Merchant, haven't you? How would you like to learn the fundamentals of business from an experienced colleague?";
 	next;
-	if (select("Sure!:I'll make it on my own!") == 1){
-		if(getskilllv("MC_INCCARRY") < 4){
+	if (select("Sure!:I'll make it on my own!") == 1) {
+		if(getskilllv("MC_INCCARRY") < 4) {
 			tu_merchant = 1;
-			setquest 8229;
 			mes "[Guarnien]";
 			mes callfunc("F_Sex","Atta girl~!","Atta boy~!");
 			mes "But first things first!";
@@ -552,11 +522,9 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "This skill works exactly like a ^871F78Magnifier^000000, so you won't have to spend any Zeny on them. Also, this skill is mastered at ^871F78Level 1^000000.";
 			next;
 			mes "[Guarnien]";
-			if(getskilllv("MC_IDENTIFY")){
+			if(getskilllv("MC_IDENTIFY")) {
 				mes "I see in your eyes that you've already learned to appraise items. Haha, although having that knowledge is reward in itself, let me give you something extra!";
 				tu_merchant = 2;
-				erasequest 8229;
-				setquest 8230;
 				getexp 58,11;
 				getitem 1351,1; //Battle_Axe
 				next;
@@ -575,8 +543,6 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 			mes "skill later. I always manage";
 			mes "to forget about that!";
 			tu_merchant = 2;
-			erasequest 8229;
-			setquest 8230;
 			close;
 		}
 	} else {
@@ -596,7 +562,7 @@ alberta_in,70,51,5	script	Guarnien	4W_M_02,{
 prontera,66,111,3	script	Sagle	4_KID01,{
 	mes "[Sagle]";
 	if (tu_merchant == 6)
-		callsub L_Potions, 390,9;// <Zeny cost>, <next 'tu_merchant' value>
+		callsub L_Potions, 390,9; //<Zeny cost>, <next 'tu_merchant' value>
 	else if (tu_merchant == 7)
 		callsub L_Potions, 410,10;
 	else if (tu_merchant == 8)
@@ -623,12 +589,12 @@ L_Potions:
 	mes "[Sagle]";
 	mes "I will sell you 10 Red Potions for ^871F78"+ .@cost +" zeny^000000. You'd better get them now while they're still here!";
 	next;
-	switch(select("Buy:Cancel")){
+	switch(select("Buy:Cancel")) {
 	case 1:
 		mes "[Sagle]";
 		mes "Excellent!";
 		mes "You certainly have an eye for bargains. Here you go, 10 Red Potions fresh from the... Potioner...";
-		if(Zeny < .@cost){
+		if(Zeny < .@cost) {
 			next;
 			mes "[Sagle]";
 			mes "Whoa, hold on!";
@@ -639,7 +605,7 @@ L_Potions:
 			mes "Zeny, alright?";
 			close;
 		}
-		if(MaxWeight - Weight < 71){
+		if(MaxWeight - Weight < 71) {
 			next;
 			mes "[Sagle]";
 			mes "Whoa, hold on!";
@@ -666,7 +632,7 @@ L_Potions:
 prontera,93,330,3	script	Kellion	4W_M_01,{
 	mes "[Kellion]";
 	if (tu_merchant == 6)
-		callsub L_Potions, 400,10;// <Zeny cost>, <next 'tu_merchant' value>
+		callsub L_Potions, 400,10; //<Zeny cost>, <next 'tu_merchant' value>
 	else if (tu_merchant == 7)
 		callsub L_Potions, 390,9;
 	else if (tu_merchant == 8)
@@ -689,20 +655,20 @@ L_Potions:
 	mes "10 Red Potions for "+ .@cost +" Zeny.";
 	mes "Would you like some?";
 	next;
-	switch(select("Buy:Cancel")){
+	switch(select("Buy:Cancel")) {
 	case 1:
 		mes "[Kellion]";
 		mes "Good choice~";
 		mes "Thank you for";
 		mes "using my shop.";
-		if(Zeny < .@cost){
+		if(Zeny < .@cost) {
 			next;
 			mes "[Kellion]";
 			mes "Ooops!";
 			mes "I'm sorry, but you don't have enough Zeny. I've got to stay in business somehow, you know?";
 			close;
 		}
-		if(MaxWeight - Weight < 71){
+		if(MaxWeight - Weight < 71) {
 			next;
 			mes "[Kellion]";
 			mes "...Huh?";
@@ -728,7 +694,7 @@ L_Potions:
 prt_in,169,11,3	script	Aigie	4_F_03,{
 	mes "[Aigie]";
 	if (tu_merchant == 6)
-		callsub L_Potions, 340,10;// <Zeny cost>, <next 'tu_merchant' value>
+		callsub L_Potions, 340,10; //<Zeny cost>, <next 'tu_merchant' value>
 	else if (tu_merchant == 7)
 		callsub L_Potions, 420,10;
 	else if (tu_merchant == 8)
@@ -749,20 +715,20 @@ L_Potions:
 	mes "to buy 10 Red Potions";
 	mes "for "+ .@cost +" Zeny, kind adventurer?";
 	next;
-	switch(select("Buy:Cancel")){
+	switch(select("Buy:Cancel")) {
 	case 1:
 		mes "[Aigie]";
 		mes "Thank you so much.";
 		mes "Now I can finally";
 		mes "afford food again...";
-		if(Zeny < .@cost){
+		if(Zeny < .@cost) {
 			next;
 			mes "[Aigie]";
 			mes "Wait, wait!";
 			mes "I am sorry, but you don't have enough money. Would you please get some more Zeny before coming back?";
 			close;
 		}
-		if(MaxWeight - Weight < 71){
+		if(MaxWeight - Weight < 71) {
 			next;
 			mes "[Aigie]";
 			mes "Wait, wait!";
@@ -789,7 +755,7 @@ L_Potions:
 prontera,247,129,3	script	Jayon	4_M_03,{
 	mes "[Jayon]";
 	if (tu_merchant == 6)
-		callsub L_Potions, 410,10;// <Zeny cost>, <next 'tu_merchant' value>
+		callsub L_Potions, 410,10; //<Zeny cost>, <next 'tu_merchant' value>
 	else if (tu_merchant == 7)
 		callsub L_Potions, 400,10;
 	else if (tu_merchant == 8)
@@ -806,7 +772,7 @@ L_Potions:
 	.@cost = getarg(0);
 	mes "If you've checked out the market for Red Potions, you know that my price is the best. I'm offering 10 Red Potions for only "+ .@cost +" Zeny!";
 	next;
-	switch(select("Buy:Cancel")){
+	switch(select("Buy:Cancel")) {
 	case 1:
 		mes "[Jayon]";
 		mes "Heh heh...!";
@@ -815,7 +781,7 @@ L_Potions:
 		mes "stuff. You're a";
 		mes "Merchant yourself,";
 		mes "aren't you?";
-		if(Zeny < .@cost){
+		if(Zeny < .@cost) {
 			next;
 			mes "[Jayon]";
 			mes "But sorry buddy.";
@@ -824,7 +790,7 @@ L_Potions:
 			mes "if you want these potions.";
 			close;
 		}
-		if(MaxWeight - Weight < 71){
+		if(MaxWeight - Weight < 71) {
 			next;
 			mes "[Jayon]";
 			mes "But sorry buddy. I can't let you carry more than you can handle.";
@@ -852,7 +818,7 @@ L_Potions:
 prt_in,251,129,3	script	Maos	4_M_SEAMAN,{
 	mes "[Maos]";
 	if (tu_merchant == 6)
-		callsub L_Potions, 400,10;// <Zeny cost>, <next 'tu_merchant' value>
+		callsub L_Potions, 400,10; //<Zeny cost>, <next 'tu_merchant' value>
 	else if (tu_merchant == 7)
 		callsub L_Potions, 340,10;
 	else if (tu_merchant == 8)
@@ -878,18 +844,18 @@ L_Potions:
 	mes "I'll sell them to you";
 	mes "for the low price of "+ .@cost +" Zeny~";
 	next;
-	switch(select("Buy:Cancel")){
+	switch(select("Buy:Cancel")) {
 	case 1:
 		mes "[Maos]";
 		mes "Excellent choice!";
 		mes "Good products at affordable prices! That's my ethic as a merchant.";
-		if(Zeny < .@cost){
+		if(Zeny < .@cost) {
 			next;
 			mes "[Maos]";
 			mes "Ooh, but you don't even have enough Zeny to purchase these potions. I'm sorry, but I can't sell these just to lose money, you know?";
 			close;
 		}
-		if(MaxWeight - Weight < 71){
+		if(MaxWeight - Weight < 71) {
 			next;
 			mes "[Maos]";
 			mes "Ooh, but it doesn't look like you've got enough inventory space to carry any more items.";

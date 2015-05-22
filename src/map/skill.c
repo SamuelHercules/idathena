@@ -2844,10 +2844,37 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 
 	damage = dmg.damage + dmg.damage2;
 
-	if ((skill_id == AL_INCAGI || skill_id == AL_BLESSING ||
-		skill_id == CASH_BLESSING || skill_id == CASH_INCAGI ||
-		skill_id == MER_INCAGI || skill_id == MER_BLESSING) && tsd->sc.data[SC_CHANGEUNDEAD])
-		damage = 1;
+	switch (skill_id) {
+		case AL_INCAGI:
+		case CASH_INCAGI:
+		case MER_INCAGI:
+		case AL_BLESSING:
+		case CASH_BLESSING:
+		case MER_BLESSING:
+			if (tsd && tsd->sc.data[SC_CHANGEUNDEAD])
+				damage = 1;
+			break;
+		case SR_TIGERCANNON:
+			if (skill_area_temp[1] == bl->id)
+				dsrc->damage = damage;
+			else {
+				dmg.damage = battle_attr_fix(src, bl, dsrc->damage, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
+				if (!dmg.damage) {
+					if (dmg.miscflag&4)
+						dmg.damage = skill_lv * 500 + status_get_lv(bl) * 40;
+					else
+						dmg.damage = skill_lv * 240 + status_get_lv(bl) * 40;
+				}
+				if (target_has_infinite_defense(bl, skill_id, dmg.flag))
+					dmg = battle_calc_attack_plant(dmg, src, bl, skill_id, skill_lv);
+				else {
+					dmg = battle_calc_attack_gvg_bg(dmg, src, bl, skill_id, skill_lv);
+					battle_do_reflect(BF_WEAPON, &dmg, src, bl, skill_id, skill_lv);
+				}
+				damage = dmg.damage;
+			}
+			break;
+	}
 
 	if (damage && tsc && tsc->data[SC_GENSOU] && dmg.flag&BF_MAGIC) {
 		struct block_list *nbl = battle_getenemyarea(bl, bl->x, bl->y, 2, BL_CHAR, bl->id);
@@ -2953,6 +2980,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case RK_IGNITIONBREAK:
 		case LG_CANNONSPEAR:
 		case LG_MOONSLASHER:
+		case SR_TIGERCANNON:
 		case RL_HAMMER_OF_GOD:
 		case EL_CIRCLE_OF_FIRE:
 			dmg.dmotion = clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, NV_BASIC, -1, DMG_SPLASH);
@@ -3741,7 +3769,10 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					if (src->type == BL_PC) {
 						if (distance_xy(src->x,src->y,target->x,target->y) >= 3)
 							break;
-						skill_castend_damage_id(src,target,skl->skill_id,pc_checkskill(((TBL_PC *)src),skl->skill_id),tick,0);
+						if (skl->skill_id == SR_TIGERCANNON)
+							skill_castend_nodamage_id(src,target,skl->skill_id,pc_checkskill(((TBL_PC *)src),skl->skill_id),tick,skl->flag);
+						else
+							skill_castend_damage_id(src,target,skl->skill_id,pc_checkskill(((TBL_PC *)src),skl->skill_id),tick,0);
 					}
 					break;
 				case SC_ESCAPE:
@@ -4123,16 +4154,13 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 				case 4: flag |= BREAK_WAIST; break;
 				case 5: flag |= BREAK_NECK; break;
 			}
-			//@TODO: Is there really no cleaner way to do this?
-			sc = status_get_sc(bl);
-			if (sc)
-				sc->jb_flag = flag;
+			if (tsc) //@TODO: Is there really no cleaner way to do this?
+				tsc->jb_flag = flag;
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			break;
 
-		case MO_COMBOFINISH:
+		case MO_COMBOFINISH: //Becomes a splash attack when Soul Linked
 			if (!(flag&1) && sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_MONK) {
-				//Becomes a splash attack when Soul Linked
 				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,
 					skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
 			} else
@@ -4316,6 +4344,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 		case LG_MOONSLASHER:
 		case LG_EARTHDRIVE:
 		case SR_SKYNETBLOW:
+		case SR_TIGERCANNON:
 		case SR_RAMPAGEBLASTER:
 		case SR_WINDMILL:
 		case SR_RIDEINLIGHTNING:
@@ -4351,6 +4380,15 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 				if (skill_id == MG_FIREBALL)
 					sflag |= distance_xy(bl->x,bl->y,skill_area_temp[4],skill_area_temp[5]);
 #endif
+				if (skill_id == SR_TIGERCANNON) {
+					if (skill_area_temp[1] != bl->id) {
+						if (flag&4)
+							skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,sflag|4|8);
+						else
+							skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,sflag|8);
+					}
+					break;
+				}
 				heal = (int)skill_attack(skill_get_type(skill_id),src,src,bl,skill_id,skill_lv,tick,sflag);
 				if (skill_id == NPC_VAMPIRE_GIFT && heal > 0) {
 					clif_skill_nodamage(NULL,src,AL_HEAL,heal,1);
@@ -4495,7 +4533,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 
 		case KN_SPEARSTAB:
 			if (flag&1) {
-				if (bl->id == skill_area_temp[1])
+				if (skill_area_temp[1] == bl->id)
 					break;
 				if (skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,SD_ANIMATION))
 					skill_blown(src,bl,skill_area_temp[2],-1,0);
@@ -5097,28 +5135,8 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 				status_change_end(bl,SC_HIDING,INVALID_TIMER);
 				status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
 			} else {
-				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
 				clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
-			}
-			break;
-
-		case SR_TIGERCANNON:
-			if (flag&1)
-				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
-			else {
-				int hpcost = 10 + 2 * skill_lv,
-					spcost = 5 + 1 * skill_lv;
-
-				if (!status_charge(src,status_get_max_hp(src) * hpcost / 100,status_get_max_sp(src) * spcost / 100)) {
-					if (sd)
-						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
-					break;
-				}
-				if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE)
-					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1|4,skill_castend_damage_id);
-				else
-					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
-				status_zap(src,hpcost,spcost);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
 			}
 			break;
 
@@ -5345,7 +5363,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 		case 0: //No skill - basic/normal attack
 			if (sd) {
 				if (flag&3) {
-					if (bl->id != skill_area_temp[1])
+					if (skill_area_temp[1] != bl->id)
 						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,SD_LEVEL|flag);
 				} else {
 					skill_area_temp[1] = bl->id;
@@ -9027,7 +9045,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( status_isimmune(bl) || !tsc )
 				break; //Doesn't send failure packet if it fails on defense
 			if( flag&1 ) {
-				if( bl->id == skill_area_temp[1] )
+				if( skill_area_temp[1] == bl->id )
 					break; //Already work on this target
 				if( tsc->data[SC_STONE] )
 					status_change_end(bl,SC_STONE,INVALID_TIMER);
@@ -9103,10 +9121,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case WL_READING_SB:
 			if( sd ) {
-				struct status_change *sc = status_get_sc(bl);
-
 				for( i = SC_SPELLBOOK1; i <= SC_MAXSPELLBOOK; i++ )
-					if( !(sc && sc->data[i]) )
+					if( !(tsc && tsc->data[i]) )
 						break;
 				if( i == SC_MAXSPELLBOOK ) {
 					clif_skill_fail(sd,WL_READING_SB,USESKILL_FAIL_SPELLBOOK_READING,0,0);
@@ -9483,6 +9499,25 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
 			break;
 
+		case SR_TIGERCANNON:
+			clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
+			skill_area_temp[1] = bl->id;
+			if( flag&2 ) { //For SR_FLASHCOMBO
+				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+			} else {
+				struct status_change *sc = status_get_sc(src);
+
+				if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) {
+					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag|4);
+					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1|4,skill_castend_damage_id);
+				} else {
+					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
+					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+				}
+			}
+			break;
+
 		case SR_CURSEDCIRCLE:
 			if( flag&1 ) {
 				if( sc_start2(src,bl,type,100,skill_lv,src->id,skill_get_time(skill_id,skill_lv))) {
@@ -9577,9 +9612,12 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				if( sd )
 					sd->ud.attackabletime = sd->canuseitem_tick = sd->ud.canact_tick;
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,
-					sc_start2(src,bl,type,100,skill_lv,bl->id,skill_get_time(skill_id,skill_lv)));
-				for( i = 0; i < ARRAYLENGTH(combo); i++ )
+					sc_start2(src,src,type,100,skill_lv,bl->id,skill_get_time(skill_id,skill_lv)));
+				for( i = 0; i < ARRAYLENGTH(combo); i++ ) {
+					if( combo[i] == SR_TIGERCANNON )
+						flag |= 2;
 					skill_addtimerskill(src,tick + 500 * i,bl->id,0,0,combo[i],skill_lv,BF_WEAPON,flag|SD_LEVEL);
+				}
 			}
 			break;
 
@@ -15477,7 +15515,10 @@ bool skill_check_condition_castend(struct map_session_data *sd, uint16 skill_id,
 	require = skill_get_requirement(sd,skill_id,skill_lv);
 
 	if( require.hp > 0 && status->hp <= (unsigned int)require.hp ) {
-		clif_skill_fail(sd,skill_id,USESKILL_FAIL_HP_INSUFFICIENT,0,0);
+		if( skill_id == SR_TIGERCANNON )
+			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
+		else
+			clif_skill_fail(sd,skill_id,USESKILL_FAIL_HP_INSUFFICIENT,0,0);
 		return false;
 	}
 
