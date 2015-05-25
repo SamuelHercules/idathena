@@ -10085,7 +10085,7 @@ BUILDIN_FUNC(sc_start)
 	if(tick == 0 && val1 > 0 && type > SC_NONE && type < SC_MAX && status_sc2skill(type) != 0)
 		tick = skill_get_time(status_sc2skill(type), val1);
 
-	if(potion_flag == 1 && potion_target) { //skill.c set the flags before running the script, this is a potion-pitched effect.
+	if(potion_flag == 1 && potion_target) { //skill.c set the flags before running the script, this is a potion-pitched effect
 		bl = map_id2bl(potion_target);
 		tick /= 2; //Thrown potions only last half.
 		val4 = 1; //Mark that this was a thrown sc_effect

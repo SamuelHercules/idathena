@@ -7900,9 +7900,7 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 			hp += (int)(hp * sd->sc.data[SC_MTF_PUMPKIN]->val1 / 100.);
 	}
 	if(sp) {
-		bonus = 100 + (sd->battle_status.int_<<1)
-			+ pc_checkskill(sd,MG_SRECOVERY) * 10
-			+ pc_checkskill(sd,AM_LEARNINGPOTION) * 5;
+		bonus = 100 + (sd->battle_status.int_<<1) + pc_checkskill(sd,MG_SRECOVERY) * 10 + pc_checkskill(sd,AM_LEARNINGPOTION) * 5;
 		if(potion_flag > 1)
 			bonus += bonus * (potion_flag - 1) * 50 / 100;
 		tmp = sp * bonus / 100;

@@ -2676,7 +2676,7 @@ int16 map_mapindex2mapid(unsigned short mapindex)
 /*==========================================
  * Switching Ip, port ? (like changing map_server) get ip/port from map_name
  *------------------------------------------*/
-int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port)
+int map_mapname2ipport(unsigned short name, uint32 *ip, uint16* port)
 {
 	struct map_data_other_server *mdos;
 

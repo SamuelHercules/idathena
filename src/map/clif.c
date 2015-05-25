@@ -12932,7 +12932,7 @@ void clif_parse_PurchaseReq(int fd, struct map_session_data *sd)
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
 	int len = (int)RFIFOW(fd,info->pos[0]) - 8;
 	int id = (int)RFIFOL(fd,info->pos[1]);
-	const uint8 *data = (uint8*)RFIFOP(fd,info->pos[2]);
+	const uint8 *data = (uint8 *)RFIFOP(fd,info->pos[2]);
 
 	vending_purchasereq(sd, id, sd->vended_id, data, len / 4);
 
@@ -12949,7 +12949,7 @@ void clif_parse_PurchaseReq2(int fd, struct map_session_data *sd)
 	int len = (int)RFIFOW(fd,info->pos[0]) - 12;
 	int aid = (int)RFIFOL(fd,info->pos[1]);
 	int uid = (int)RFIFOL(fd,info->pos[2]);
-	const uint8 *data = (uint8*)RFIFOP(fd,info->pos[3]);
+	const uint8 *data = (uint8 *)RFIFOP(fd,info->pos[3]);
 
 	vending_purchasereq(sd, aid, uid, data, len/4);
 
@@ -12970,7 +12970,7 @@ void clif_parse_OpenVending(int fd, struct map_session_data *sd)
 	struct s_packet_db *info = &packet_db[sd->packet_ver][cmd];
 	short len = (short)RFIFOW(fd,info->pos[0]);
 	const char *message = (char *)RFIFOP(fd,info->pos[1]);
-	const uint8 *data = (uint8*)RFIFOP(fd,info->pos[3]);
+	const uint8 *data = (uint8 *)RFIFOP(fd,info->pos[3]);
 
 	if( cmd == 0x12f ) { //(CZ_REQ_OPENSTORE)
 		len -= 84;

@@ -802,7 +802,7 @@ bool map_blid_exists(int id);
 const char *map_mapid2mapname(int m);
 int16 map_mapindex2mapid(unsigned short mapindex);
 int16 map_mapname2mapid(const char *name);
-int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
+int map_mapname2ipport(unsigned short name, uint32 *ip, uint16* port);
 int map_setipport(unsigned short map, uint32 ip, uint16 port);
 int map_eraseipport(unsigned short map, uint32 ip, uint16 port);
 int map_eraseallipport(void);
@@ -826,14 +826,15 @@ enum e_mapitflags
 	MAPIT_NORMAL = 0,
 //	MAPIT_PCISPLAYING = 1,// Unneeded as pc_db/id_db will only hold auth'ed, active players.
 };
+
 struct s_mapiterator;
-struct s_mapiterator *  mapit_alloc(enum e_mapitflags flags, enum bl_type types);
-void                    mapit_free(struct s_mapiterator *mapit);
-struct block_list *     mapit_first(struct s_mapiterator *mapit);
-struct block_list *     mapit_last(struct s_mapiterator *mapit);
-struct block_list *     mapit_next(struct s_mapiterator *mapit);
-struct block_list *     mapit_prev(struct s_mapiterator *mapit);
-bool                    mapit_exists(struct s_mapiterator *mapit);
+struct s_mapiterator *mapit_alloc(enum e_mapitflags flags, enum bl_type types);
+void mapit_free(struct s_mapiterator *mapit);
+struct block_list *mapit_first(struct s_mapiterator *mapit);
+struct block_list *mapit_last(struct s_mapiterator *mapit);
+struct block_list *mapit_next(struct s_mapiterator *mapit);
+struct block_list *mapit_prev(struct s_mapiterator *mapit);
+bool mapit_exists(struct s_mapiterator *mapit);
 #define mapit_getallusers() mapit_alloc(MAPIT_NORMAL,BL_PC)
 #define mapit_geteachpc()   mapit_alloc(MAPIT_NORMAL,BL_PC)
 #define mapit_geteachmob()  mapit_alloc(MAPIT_NORMAL,BL_MOB)
