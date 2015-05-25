@@ -27,9 +27,9 @@ struct Sql
 {
 	StringBuf buf;
 	MYSQL handle;
-	MYSQL_RES* result;
+	MYSQL_RES *result;
 	MYSQL_ROW row;
-	unsigned long* lengths;
+	unsigned long *lengths;
 	int keepalive;
 };
 
@@ -39,7 +39,7 @@ struct Sql
 // Takes care of the possible size missmatch between uint32 and unsigned long.
 struct s_column_length
 {
-	uint32* out_length;
+	uint32 *out_length;
 	unsigned long length;
 };
 typedef struct s_column_length s_column_length;
@@ -51,8 +51,8 @@ struct SqlStmt
 {
 	StringBuf buf;
 	MYSQL_STMT* stmt;
-	MYSQL_BIND* params;
-	MYSQL_BIND* columns;
+	MYSQL_BIND *params;
+	MYSQL_BIND *columns;
 	s_column_length* column_lengths;
 	size_t max_params;
 	size_t max_columns;
@@ -113,7 +113,7 @@ int Sql_Connect(Sql *self, const char *user, const char *passwd, const char *hos
 
 
 /// Retrieves the timeout of the connection.
-int Sql_GetTimeout(Sql *self, uint32* out_timeout)
+int Sql_GetTimeout(Sql *self, uint32 *out_timeout)
 {
 	if( self && out_timeout && SQL_SUCCESS == Sql_Query(self, "SHOW VARIABLES LIKE 'wait_timeout'") )
 	{
@@ -456,7 +456,7 @@ static enum enum_field_types Sql_P_SizeToMysqlIntType(int sz)
 /// Binds a parameter/result.
 ///
 /// @private
-static int Sql_P_BindSqlDataType(MYSQL_BIND* bind, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, unsigned long* out_length, int8* out_is_null)
+static int Sql_P_BindSqlDataType(MYSQL_BIND *bind, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, unsigned long *out_length, int8 *out_is_null)
 {
 	memset(bind, 0, sizeof(MYSQL_BIND));
 	switch( buffer_type )
@@ -572,9 +572,9 @@ static void Sql_P_ShowDebugMysqlFieldInfo(const char *prefix, enum enum_field_ty
 /// @private
 static void SqlStmt_P_ShowDebugTruncatedColumn(SqlStmt* self, size_t i)
 {
-	MYSQL_RES* meta;
+	MYSQL_RES *meta;
 	MYSQL_FIELD* field;
-	MYSQL_BIND* column;
+	MYSQL_BIND *column;
 
 	meta = mysql_stmt_result_metadata(self->stmt);
 	field = mysql_fetch_field_direct(meta, (unsigned int)i);
@@ -709,7 +709,7 @@ int SqlStmt_BindParam(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, v
 			self->max_params = count;
 			RECREATE(self->params, MYSQL_BIND, count);
 		}
-		memset(self->params, 0, count*sizeof(MYSQL_BIND));
+		memset(self->params, 0, count * sizeof(MYSQL_BIND));
 		for( i = 0; i < count; ++i )
 			self->params[i].buffer_type = MYSQL_TYPE_NULL;
 		self->bind_params = true;
@@ -772,7 +772,7 @@ size_t SqlStmt_NumColumns(SqlStmt* self)
 
 
 /// Binds the result of a column to a buffer.
-int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, uint32* out_length, int8* out_is_null)
+int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, uint32 *out_length, int8 *out_is_null)
 {
 	if( self == NULL )
 		return SQL_ERROR;
@@ -798,8 +798,8 @@ int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, 
 			RECREATE(self->columns, MYSQL_BIND, cols);
 			RECREATE(self->column_lengths, s_column_length, cols);
 		}
-		memset(self->columns, 0, cols*sizeof(MYSQL_BIND));
-		memset(self->column_lengths, 0, cols*sizeof(s_column_length));
+		memset(self->columns, 0, cols * sizeof(MYSQL_BIND));
+		memset(self->column_lengths, 0, cols * sizeof(s_column_length));
 		for( i = 0; i < cols; ++i )
 			self->columns[i].buffer_type = MYSQL_TYPE_NULL;
 		self->bind_columns = true;
@@ -863,7 +863,7 @@ int SqlStmt_NextRow(SqlStmt* self)
 		cols = SqlStmt_NumColumns(self);
 		for( i = 0; i < cols; ++i )
 		{
-			MYSQL_BIND* column = &self->columns[i];
+			MYSQL_BIND *column = &self->columns[i];
 
 			column->error = &truncated;
 			mysql_stmt_fetch_column(self->stmt, column, (unsigned int)i, 0);
@@ -890,7 +890,7 @@ int SqlStmt_NextRow(SqlStmt* self)
 	for( i = 0; i < cols; ++i )
 	{
 		unsigned long length = self->column_lengths[i].length;
-		MYSQL_BIND* column = &self->columns[i];
+		MYSQL_BIND *column = &self->columns[i];
 
 #if !defined(MYSQL_DATA_TRUNCATED)
 		// MySQL 4.1/(below?) returns success even if data is truncated, so we test truncation manually [FlavioJS]

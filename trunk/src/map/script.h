@@ -8,7 +8,7 @@
 
 struct map_session_data;
 
-extern int potion_flag; //For use on Alchemist improved potions/Potion Pitcher. [Skotlex]
+extern int potion_flag; //For use on Alchemist improved potions/Potion Pitcher [Skotlex]
 extern int potion_hp, potion_per_hp, potion_sp, potion_per_sp;
 extern int potion_target;
 

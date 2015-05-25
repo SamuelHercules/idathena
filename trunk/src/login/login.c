@@ -1131,7 +1131,7 @@ int mmo_auth(struct login_session_data* sd, bool isServer) {
 		char r_ip[16];
 		char ip_dnsbl[256];
 		char *dnsbl_serv;
-		uint8 *sin_addr = (uint8*)&session[sd->fd]->client_addr;
+		uint8 *sin_addr = (uint8 *)&session[sd->fd]->client_addr;
 
 		sprintf(r_ip, "%u.%u.%u.%u", sin_addr[0], sin_addr[1], sin_addr[2], sin_addr[3]);
 

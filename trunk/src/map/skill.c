@@ -7078,7 +7078,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				}
 
 				//Attempts to strip at rate i and duration dur
-				if((i = skill_strip_equip(src,bl,pos,i,skill_lv,dur)) && skill_id != ST_FULLSTRIP && skill_id != GC_WEAPONCRUSH)
+				if((i = skill_strip_equip(src,bl,pos,i,skill_lv,dur)) || (skill_id != ST_FULLSTRIP && skill_id != GC_WEAPONCRUSH))
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,i);
 
 				if(sd && !i) //Nothing stripped
@@ -10146,11 +10146,11 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							break;
 						case ITEMID_EN_WHITE_POTZ_TO_THROW: //Natural HP Recovery +20% and heals 1000 HP
 							sc_start(src,bl,SC_EXTRACT_WHITE_POTION_Z,100,20,500000);
-							status_heal(bl,1000,0,0);
+							pc_itemheal((TBL_PC *)bl,ITEMID_EN_WHITE_POTZ_TO_THROW,1000,0);
 							break;
 						case ITEMID_VITATA500_TO_THROW: //Natural SP Recovery +20%, MaxSP +5%, and recovers 200 SP
 							sc_start2(src,bl,SC_VITATA_500,100,20,5,500000);
-							status_heal(bl,0,200,0);
+							pc_itemheal((TBL_PC *)bl,ITEMID_VITATA500_TO_THROW,0,200);
 							break;
 						case ITEMID_EN_CEL_JUICE_TO_THROW: //ASPD +10%
 							sc_start(src,bl,SC_EXTRACT_SALAMINE_JUICE,100,10,500000);
@@ -18806,6 +18806,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 					case ITEMID_RED_SLIM_POTION:
 					case ITEMID_ANODYNE:
 					case ITEMID_ALOEBERA:
+					//Fall through
 					default:
 						break;
 				}
