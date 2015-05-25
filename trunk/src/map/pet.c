@@ -700,7 +700,7 @@ int pet_equipitem(struct map_session_data *sd,int index)
 
 	pc_delitem(sd,index,1,0,0,LOG_TYPE_OTHER);
 	pd->pet.equip = nameid;
-	status_set_viewdata(&pd->bl, pd->pet.class_); //Updates view_data.
+	status_set_viewdata(&pd->bl, pd->pet.class_); //Updates view_data
 	clif_pet_equip_area(pd);
 	if (battle_config.pet_equip_required) { //Skotlex: start support timers if need
 		unsigned int tick = gettick();

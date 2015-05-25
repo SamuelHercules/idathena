@@ -6805,7 +6805,7 @@ int status_isimmune(struct block_list *bl)
 	return 0;
 }
 
-struct view_data* status_get_viewdata(struct block_list *bl)
+struct view_data *status_get_viewdata(struct block_list *bl)
 {
 	nullpo_retr(NULL,bl);
 
@@ -6823,7 +6823,7 @@ struct view_data* status_get_viewdata(struct block_list *bl)
 
 void status_set_viewdata(struct block_list *bl, int class_)
 {
-	struct view_data* vd;
+	struct view_data *vd;
 
 	nullpo_retv(bl);
 
@@ -6843,6 +6843,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 	switch (bl->type) {
 		case BL_PC: {
 				TBL_PC *sd = (TBL_PC *)bl;
+
 				if (pcdb_checkid(class_)) {
 					if (sd->sc.option&OPTION_RIDING) {
 						switch (class_) { //Adapt class to a Mounted one.
@@ -6897,6 +6898,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 			break;
 		case BL_MOB: {
 				TBL_MOB *md = (TBL_MOB *)bl;
+
 				if (vd)
 					md->vd = vd;
 				else
@@ -6904,7 +6906,8 @@ void status_set_viewdata(struct block_list *bl, int class_)
 			}
 			break;
 		case BL_PET: {
-				TBL_PET* pd = (TBL_PET *)bl;
+				TBL_PET *pd = (TBL_PET *)bl;
+
 				if (vd) {
 					memcpy(&pd->vd,vd,sizeof(struct view_data));
 					if (!pcdb_checkid(vd->class_)) {
@@ -6920,7 +6923,8 @@ void status_set_viewdata(struct block_list *bl, int class_)
 			}
 			break;
 		case BL_NPC: {
-				TBL_NPC* nd = (TBL_NPC *)bl;
+				TBL_NPC *nd = (TBL_NPC *)bl;
+
 				if (vd)
 					nd->vd = vd;
 				else

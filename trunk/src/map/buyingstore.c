@@ -140,7 +140,7 @@ int8 buyingstore_create(struct map_session_data *sd, int zenylimit, unsigned cha
 	for( i = 0; i < count; i++ ) { // itemlist: <name id>.W <amount>.W <price>.L
 		unsigned short nameid, amount;
 		int price, idx;
-		struct item_data* id;
+		struct item_data *id;
 
 		nameid = RBUFW(itemlist,i * 8 + 0);
 		amount = RBUFW(itemlist,i * 8 + 2);
@@ -475,7 +475,7 @@ bool buyingstore_search(struct map_session_data *sd, unsigned short nameid)
 bool buyingstore_searchall(struct map_session_data *sd, const struct s_search_store_search *s)
 {
 	unsigned int i, idx;
-	struct s_buyingstore_item* it;
+	struct s_buyingstore_item *it;
 
 	nullpo_retr(false, sd);
 

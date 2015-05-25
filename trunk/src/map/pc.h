@@ -256,7 +256,7 @@ struct map_session_data {
 	struct mmo_charstatus status;
 	struct registry save_reg;
 	
-	struct item_data* inventory_data[MAX_INVENTORY]; //Direct pointers to itemdb entries (faster than doing item_id lookups)
+	struct item_data *inventory_data[MAX_INVENTORY]; //Direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[EQI_MAX];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num,cart_weight_max;

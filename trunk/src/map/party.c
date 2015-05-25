@@ -31,7 +31,7 @@
 #include <string.h>
 
 
-static DBMap *party_db; // int party_id -> struct party_data* (releases data)
+static DBMap *party_db; // int party_id -> struct party_data *(releases data)
 static DBMap *party_booking_db; // int char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
 static unsigned long party_booking_nextid = 1;
 
@@ -57,7 +57,7 @@ static void party_fill_member(struct party_member* member, struct map_session_da
 
 /// Get the member_id of a party member.
 /// Return -1 if not in party.
-int party_getmemberid(struct party_data* p, struct map_session_data *sd)
+int party_getmemberid(struct party_data *p, struct map_session_data *sd)
 {
 	int member_id;
 	nullpo_retr(-1, p);
@@ -124,7 +124,7 @@ void do_init_party(void)
 }
 
 /// Party data lookup using party id.
-struct party_data* party_search(int party_id)
+struct party_data *party_search(int party_id)
 {
 	if(!party_id)
 		return NULL;
@@ -132,9 +132,9 @@ struct party_data* party_search(int party_id)
 }
 
 /// Party data lookup using party name.
-struct party_data* party_searchname(const char *str)
+struct party_data *party_searchname(const char *str)
 {
-	struct party_data* p;
+	struct party_data *p;
 
 	DBIterator *iter = db_iterator(party_db);
 	for( p = dbi_first(iter); dbi_exists(iter); p = dbi_next(iter) ) {
@@ -265,7 +265,7 @@ static void party_check_state(struct party_data *p)
 
 int party_recv_info(struct party* sp, int char_id)
 {
-	struct party_data* p;
+	struct party_data *p;
 	struct party_member* member;
 	struct map_session_data *sd;
 	int removed[MAX_PARTY]; // Member_id in old data
@@ -442,7 +442,7 @@ int party_reply_invite(struct map_session_data *sd,int party_id,int flag)
 /// - Player must be authed/active and belong to a party before calling this method
 void party_member_joined(struct map_session_data *sd)
 {
-	struct party_data* p = party_search(sd->status.party_id);
+	struct party_data *p = party_search(sd->status.party_id);
 	int i;
 
 	if (!p) {
@@ -589,7 +589,7 @@ int party_leave(struct map_session_data *sd)
 int party_member_withdraw(int party_id, int account_id, int char_id)
 {
 	struct map_session_data *sd = map_id2sd(account_id);
-	struct party_data* p = party_search(party_id);
+	struct party_data *p = party_search(party_id);
 
 	if( p ) {
 		int i;
@@ -634,7 +634,7 @@ int party_member_withdraw(int party_id, int account_id, int char_id)
 /// Invoked (from char-server) when a party is disbanded.
 int party_broken(int party_id)
 {
-	struct party_data* p;
+	struct party_data *p;
 	int i;
 
 	p = party_search(party_id);
@@ -772,7 +772,7 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 int party_recv_movemap(int party_id, int account_id, int char_id, unsigned short map, int online, int lv)
 {
 	struct party_member* m;
-	struct party_data* p;
+	struct party_data *p;
 	int i;
 
 	p = party_search(party_id);
@@ -985,7 +985,7 @@ int party_send_xy_clear(struct party_data *p)
 }
 
 //Exp share and added zeny share [Valaris]
-int party_exp_share(struct party_data* p, struct block_list *src, unsigned int base_exp, unsigned int job_exp, int zeny)
+int party_exp_share(struct party_data *p, struct block_list *src, unsigned int base_exp, unsigned int job_exp, int zeny)
 {
 	struct map_session_data *sd[MAX_PARTY];
 	unsigned int i, c;
@@ -1046,7 +1046,7 @@ int party_exp_share(struct party_data* p, struct block_list *src, unsigned int b
 }
 
 //Does party loot. first_charid holds the charid of the player who has time priority to take the item
-int party_share_loot(struct party_data* p, struct map_session_data *sd, struct item* item, int first_charid)
+int party_share_loot(struct party_data *p, struct map_session_data *sd, struct item *item, int first_charid)
 {
 	TBL_PC *target = NULL;
 	int i;

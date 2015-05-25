@@ -159,8 +159,8 @@ void script_error(const char *src, const char *file, int start_line, const char 
 void script_warning(const char *src, const char *file, int start_line, const char *error_msg, const char *error_pos);
 
 struct script_code* parse_script(const char *src,const char *file,int line,int options);
-void run_script_sub(struct script_code *rootscript,int pos,int rid,int oid, char *file, int lineno);
-void run_script(struct script_code*,int,int,int);
+void run_script_sub(struct script_code *rootscript, int pos, int rid, int oid, char *file, int lineno);
+void run_script(struct script_code *rootscript, int pos, int rid, int oid);
 
 int set_var(struct map_session_data *sd, char *name, void *val);
 int conv_num(struct script_state *st,struct script_data *data);

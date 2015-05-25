@@ -37,7 +37,7 @@
 #include <errno.h>
 
 
-struct npc_data* fake_nd;
+struct npc_data *fake_nd;
 
 //Linked list of npc source files
 struct npc_src_list {
@@ -118,7 +118,7 @@ static struct script_event_s { //Holds pointers to the commonly executed scripts
 	uint8 event_count;
 } script_event[NPCE_MAX];
 
-struct view_data* npc_get_viewdata(int class_) { //Returns the viewdata for normal npc classes
+struct view_data *npc_get_viewdata(int class_) { //Returns the viewdata for normal npc classes
 	if( class_ == INVISIBLE_CLASS )
 		return &npc_viewdb[0];
 	if( npcdb_checkid(class_) || class_ == WARP_CLASS ) {
@@ -227,7 +227,7 @@ int npc_enable_sub(struct block_list *bl, va_list ap)
  *------------------------------------------*/
 int npc_enable(const char *name, int flag)
 {
-	struct npc_data* nd = npc_name2id(name);
+	struct npc_data *nd = npc_name2id(name);
 
 	if( nd == NULL ) {
 		ShowError("npc_enable: Attempted to %s a non-existing NPC '%s' (flag=%d).\n", (flag&3) ? "show" : "hide", name, flag);
@@ -263,7 +263,7 @@ int npc_enable(const char *name, int flag)
 /*==========================================
  * NPC lookup (get npc_data through npcname)
  *------------------------------------------*/
-struct npc_data* npc_name2id(const char *name)
+struct npc_data *npc_name2id(const char *name)
 {
 	return (struct npc_data *) strdb_get(npcname_db, name);
 }
@@ -548,7 +548,7 @@ int npc_timerevent(int tid, unsigned int tick, int id, intptr_t data)
 {
 	int old_rid, old_timer;
 	unsigned int old_tick;
-	struct npc_data* nd=(struct npc_data *)map_id2bl(id);
+	struct npc_data *nd=(struct npc_data *)map_id2bl(id);
 	struct npc_timerevent_list *te;
 	struct timer_event_data *ted = (struct timer_event_data*)data;
 	struct map_session_data *sd=NULL;
@@ -610,7 +610,7 @@ int npc_timerevent(int tid, unsigned int tick, int id, intptr_t data)
 /*==========================================
  * Start/Resume NPC timer
  *------------------------------------------*/
-int npc_timerevent_start(struct npc_data* nd, int rid)
+int npc_timerevent_start(struct npc_data *nd, int rid)
 {
 	int j;
 	unsigned int tick = gettick();
@@ -657,7 +657,7 @@ int npc_timerevent_start(struct npc_data* nd, int rid)
 /*==========================================
  * Stop NPC timer
  *------------------------------------------*/
-int npc_timerevent_stop(struct npc_data* nd)
+int npc_timerevent_stop(struct npc_data *nd)
 {
 	struct map_session_data *sd = NULL;
 	int *tid;
@@ -696,7 +696,7 @@ int npc_timerevent_stop(struct npc_data* nd)
 void npc_timerevent_quit(struct map_session_data *sd)
 {
 	const struct TimerData *td;
-	struct npc_data* nd;
+	struct npc_data *nd;
 	struct timer_event_data *ted;
 
 	// Check timer existance
@@ -753,7 +753,7 @@ void npc_timerevent_quit(struct map_session_data *sd)
  * Get the tick value of an NPC timer
  * If it's stopped, return stopped time
  *------------------------------------------*/
-int npc_gettimerevent_tick(struct npc_data* nd)
+int npc_gettimerevent_tick(struct npc_data *nd)
 {
 	int tick;
 
@@ -771,7 +771,7 @@ int npc_gettimerevent_tick(struct npc_data* nd)
 /*==========================================
  * Set tick for running and stopped timer
  *------------------------------------------*/
-int npc_settimerevent_tick(struct npc_data* nd, int newtimer)
+int npc_settimerevent_tick(struct npc_data *nd, int newtimer)
 {
 	bool flag;
 	int old_rid;
@@ -1144,7 +1144,7 @@ int npc_check_areanpc(int flag, int16 m, int16 x, int16 y, int16 range)
  * Chk if player not too far to access the npc.
  * Returns npc_data (success) or NULL (fail).
  *------------------------------------------*/
-struct npc_data* npc_checknear(struct map_session_data *sd, struct block_list *bl)
+struct npc_data *npc_checknear(struct map_session_data *sd, struct block_list *bl)
 {
 	struct npc_data *nd;
 	int distance = AREA_SIZE + 1;
@@ -1181,7 +1181,7 @@ struct npc_data* npc_checknear(struct map_session_data *sd, struct block_list *b
  *------------------------------------------*/
 int npc_globalmessage(const char *name, const char *mes)
 {
-	struct npc_data* nd = npc_name2id(name);
+	struct npc_data *nd = npc_name2id(name);
 	char temp[100];
 
 	if (!nd)
@@ -1194,7 +1194,7 @@ int npc_globalmessage(const char *name, const char *mes)
 }
 
 // MvP tomb [GreenBox]
-void run_tomb(struct map_session_data *sd, struct npc_data* nd)
+void run_tomb(struct map_session_data *sd, struct npc_data *nd)
 {
 	char buffer[200];
     char time[10];
@@ -1222,7 +1222,7 @@ void run_tomb(struct map_session_data *sd, struct npc_data* nd)
  * NPC 1st call when clicking on npc
  * Do specific action for NPC type (openshop, run scripts...)
  *------------------------------------------*/
-int npc_click(struct map_session_data *sd, struct npc_data* nd)
+int npc_click(struct map_session_data *sd, struct npc_data *nd)
 {
 	nullpo_retr(1, sd);
 
@@ -1249,7 +1249,7 @@ int npc_click(struct map_session_data *sd, struct npc_data* nd)
 	if (nd->class_ < 0 || nd->sc.option&(OPTION_INVISIBLE|OPTION_HIDE))
 		return 1;
 
-	switch(nd->subtype) {
+	switch (nd->subtype) {
 		case NPCTYPE_SHOP:
 		case NPCTYPE_ITEMSHOP:
 		case NPCTYPE_POINTSHOP:
@@ -1269,10 +1269,10 @@ int npc_click(struct map_session_data *sd, struct npc_data* nd)
 			 {
 				unsigned short i;
 
-				for(i = 0; i < nd->u.shop.count; i++)
-					if(nd->u.shop.shop_item[i].qty)
+				for (i = 0; i < nd->u.shop.count; i++)
+					if (nd->u.shop.shop_item[i].qty)
 						break;
-				if(i == nd->u.shop.count) {
+				if (i == nd->u.shop.count) {
 					clif_colormes(sd,color_table[COLOR_RED],msg_txt(500));
 					return 0;
 				}
@@ -1293,16 +1293,17 @@ int npc_scriptcont(struct map_session_data *sd, int id, bool closing)
 {
 	nullpo_retr(1, sd);
 
-	if( id != sd->npc_id ) {
-		TBL_NPC* nd_sd=(TBL_NPC *)map_id2bl(sd->npc_id);
-		TBL_NPC* nd=(TBL_NPC *)map_id2bl(id);
+	if (id != sd->npc_id) {
+		TBL_NPC *nd_sd = (TBL_NPC *)map_id2bl(sd->npc_id);
+		TBL_NPC *nd = (TBL_NPC *)map_id2bl(id);
+
 		ShowDebug("npc_scriptcont: %s (sd->npc_id=%d) is not %s (id=%d).\n",
-			nd_sd?(char *)nd_sd->name:"'Unknown NPC'", (int)sd->npc_id,
-		  	nd?(char *)nd->name:"'Unknown NPC'", (int)id);
+			nd_sd ? (char *)nd_sd->name : "'Unknown NPC'", (int)sd->npc_id,
+		  	nd ? (char *)nd->name : "'Unknown NPC'", (int)id);
 		return 1;
 	}
 	
-	if(id != fake_nd->bl.id) { // Not item script
+	if (id != fake_nd->bl.id) { // Not item script
 		if ((npc_checknear(sd,map_id2bl(id))) == NULL) {
 			ShowWarning("npc_scriptcont: failed npc_checknear test.\n");
 			return 1;
@@ -1315,10 +1316,10 @@ int npc_scriptcont(struct map_session_data *sd, int id, bool closing)
 	/**
 	 * WPE can get to this point with a progressbar; we deny it.
 	 */
-	if( sd->progressbar.npc_id && DIFF_TICK(sd->progressbar.timeout,gettick()) > 0 )
+	if (sd->progressbar.npc_id && DIFF_TICK(sd->progressbar.timeout,gettick()) > 0)
 		return 1;
 
-	if( closing && sd->st && sd->st->state == CLOSE )
+	if (closing && sd->st && sd->st->state == CLOSE)
 		sd->st->state = END;
 
 	run_script_main(sd->st);
@@ -1888,7 +1889,7 @@ uint8 npc_selllist(struct map_session_data *sd, int n, unsigned short *item_list
 
 //Atempt to remove an npc from a map
 //This doesn't remove it from map_db
-int npc_remove_map(struct npc_data* nd)
+int npc_remove_map(struct npc_data *nd)
 {
 	int16 m,i;
 	nullpo_retr(1, nd);
@@ -1928,7 +1929,7 @@ static int npc_unload_ev(DBKey key, DBData *data, va_list ap)
 
 //Chk if npc matches src_id, then unload.
 //Sub-function used to find duplicates.
-static int npc_unload_dup_sub(struct npc_data* nd, va_list args)
+static int npc_unload_dup_sub(struct npc_data *nd, va_list args)
 {
 	int src_id;
 
@@ -1939,7 +1940,7 @@ static int npc_unload_dup_sub(struct npc_data* nd, va_list args)
 }
 
 //Removes all npcs that are duplicates of the passed one. [Skotlex]
-void npc_unload_duplicates(struct npc_data* nd)
+void npc_unload_duplicates(struct npc_data *nd)
 {
 	map_foreachnpc(npc_unload_dup_sub,nd->bl.id);
 }
@@ -2122,10 +2123,10 @@ void npc_delsrcfile(const char *name)
 
 /// Parses and sets the name and exname of a npc.
 /// Assumes that m, x and y are already set in nd.
-static void npc_parsename(struct npc_data* nd, const char *name, const char *start, const char *buffer, const char *filepath)
+static void npc_parsename(struct npc_data *nd, const char *name, const char *start, const char *buffer, const char *filepath)
 {
 	const char *p;
-	struct npc_data* dnd; //Duplicate npc
+	struct npc_data *dnd; //Duplicate npc
 	char newname[NAME_LENGTH];
 
 	//Parse name
@@ -2245,7 +2246,7 @@ bool npc_viewisid(const char * viewid)
 	return true;
 }
 
-struct npc_data* npc_create_npc(int m, int x, int y)
+struct npc_data *npc_create_npc(int m, int x, int y)
 {
 	struct npc_data *nd;
 
@@ -2271,9 +2272,9 @@ struct npc_data* npc_create_npc(int m, int x, int y)
  * @param to_mapindex : mapid to warp to
  * @param to_x : x coordinate to warp to
  * @param to_y : y coordinate to warp to
- * @return NULL:failed creation, npc_data* new warp
+ * @return NULL:failed creation, npc_data *new warp
  */
-struct npc_data* npc_add_warp(char *name, short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
+struct npc_data *npc_add_warp(char *name, short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
 {
 	int i, flag = 0;
 	struct npc_data *nd;
@@ -2758,7 +2759,7 @@ static const char *npc_parse_script(char *w1, char *w2, char *w3, char *w4, cons
 
 	struct npc_label_list* label_list;
 	int label_list_num;
-	struct npc_data* nd;
+	struct npc_data *nd;
 
 	if( strcmp(w1, "-") == 0 ) { //Floating npc
 		x = 0;
@@ -2871,8 +2872,8 @@ const char *npc_parse_duplicate(char *w1, char *w2, char *w3, char *w4, const ch
 
 	int src_id;
 	int type;
-	struct npc_data* nd;
-	struct npc_data* dnd;
+	struct npc_data *nd;
+	struct npc_data *dnd;
 
 	end = strchr(start,'\n');
 	length = strlen(w2);
@@ -3076,7 +3077,7 @@ int npc_duplicate4instance(struct npc_data *snd, int16 m) {
 	return 0;
 }
 
-int npc_instanceinit(struct npc_data* nd)
+int npc_instanceinit(struct npc_data *nd)
 {
 	struct event_data *ev;
 	char evname[EVENT_NAME_LENGTH];
@@ -3259,7 +3260,7 @@ static void npc_market_fromsql(void) {
 #endif
 
 //Set mapcell CELL_NPC to trigger event later
-void npc_setcells(struct npc_data* nd)
+void npc_setcells(struct npc_data *nd)
 {
 	int16 m = nd->bl.m, x = nd->bl.x, y = nd->bl.y, xs, ys;
 	int i,j;
@@ -3298,7 +3299,7 @@ int npc_unsetcells_sub(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-void npc_unsetcells(struct npc_data* nd)
+void npc_unsetcells(struct npc_data *nd)
 {
 	int16 m = nd->bl.m, x = nd->bl.x, y = nd->bl.y, xs, ys;
 	int i,j, x0, x1, y0, y1;
@@ -3330,7 +3331,7 @@ void npc_unsetcells(struct npc_data* nd)
 	map_foreachinarea( npc_unsetcells_sub, m, x0, y0, x1, y1, BL_NPC, nd->bl.id );
 }
 
-void npc_movenpc(struct npc_data* nd, int16 x, int16 y)
+void npc_movenpc(struct npc_data *nd, int16 x, int16 y)
 {
 	const int16 m = nd->bl.m;
 	if (m < 0 || nd->bl.prev == NULL) return;	//Not on a map.
@@ -3347,7 +3348,7 @@ void npc_movenpc(struct npc_data* nd, int16 x, int16 y)
 ///
 /// @param nd Target npc
 /// @param newname New display name
-void npc_setdisplayname(struct npc_data* nd, const char *newname)
+void npc_setdisplayname(struct npc_data *nd, const char *newname)
 {
 	nullpo_retv(nd);
 
@@ -3360,7 +3361,7 @@ void npc_setdisplayname(struct npc_data* nd, const char *newname)
 ///
 /// @param nd Target npc
 /// @param class_ New display class
-void npc_setclass(struct npc_data* nd, short class_)
+void npc_setclass(struct npc_data *nd, short class_)
 {
 	nullpo_retv(nd);
 
@@ -4343,7 +4344,7 @@ int npc_reload(void) {
 //Unload all npc in the given file
 bool npc_unloadfile( const char *path ) {
 	DBIterator * iter = db_iterator(npcname_db);
-	struct npc_data* nd = NULL;
+	struct npc_data *nd = NULL;
 	bool found = false;
 
 	for( nd = dbi_first(iter); dbi_exists(iter); nd = dbi_next(iter) ) {
@@ -4384,7 +4385,7 @@ void do_final_npc(void) {
 	npc_clearsrcfile();
 }
 
-static void npc_debug_warps_sub(struct npc_data* nd)
+static void npc_debug_warps_sub(struct npc_data *nd)
 {
 	int16 m;
 

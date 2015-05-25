@@ -391,7 +391,7 @@ bool vending_search(struct map_session_data *sd, unsigned short nameid) {
 bool vending_searchall(struct map_session_data *sd, const struct s_search_store_search *s) {
 	int i, c, slot;
 	unsigned int idx, cidx;
-	struct item* it;
+	struct item *it;
 
 	nullpo_retr(false, sd);
 

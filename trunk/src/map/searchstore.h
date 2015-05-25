@@ -30,7 +30,7 @@ struct s_search_store_info_item {
 
 struct s_search_store_info {
 	unsigned int count;
-	struct s_search_store_info_item* items;
+	struct s_search_store_info_item *items;
 	unsigned int pages;  // amount of pages already sent to client
 	unsigned int uses;
 	int remote_id;

@@ -4752,12 +4752,13 @@ ACMD_FUNC(disguise)
 		return -1;
 	}
 
-	if ((id = atoi(message)) > 0) { //Acquired an ID
+	if ((id = atoi(message)) > 0) { // Acquired an ID
 		if (!mobdb_checkid(id) && !npcdb_checkid(id))
-			id = 0; //Invalid id for either mobs or npcs.
-	} else { //Acquired a Name
+			id = 0; // Invalid id for either mobs or npcs
+	} else { // Acquired a Name
 		if ((id = mobdb_searchname(message)) == 0) {
-			struct npc_data* nd = npc_name2id(message);
+			struct npc_data *nd = npc_name2id(message);
+
 			if (nd != NULL)
 				id = nd->class_;
 		}
@@ -4838,7 +4839,7 @@ ACMD_FUNC(disguiseguild)
 			id = 0;
 	} else {
 		if( (id = mobdb_searchname(monster)) == 0 ) {
-			struct npc_data* nd = npc_name2id(monster);
+			struct npc_data *nd = npc_name2id(monster);
 			if( nd != NULL )
 				id = nd->class_;
 		}
@@ -5162,7 +5163,7 @@ ACMD_FUNC(addwarp)
 	char mapname[32], warpname[NAME_LENGTH+1];
 	int x,y;
 	unsigned short m;
-	struct npc_data* nd;
+	struct npc_data *nd;
 
 	nullpo_retr(-1, sd);
 	memset(warpname, '\0', sizeof(warpname));
@@ -8397,7 +8398,7 @@ ACMD_FUNC(itemlist)
 {
 	int i, j, count, counter;
 	const char *location;
-	const struct item* items;
+	const struct item *items;
 	int size;
 	StringBuf buf;
 
@@ -8425,8 +8426,8 @@ ACMD_FUNC(itemlist)
 	count = 0; // Total slots occupied
 	counter = 0; // Total items found
 	for( i = 0; i < size; ++i ) {
-		const struct item* it = &items[i];
-		struct item_data* itd;
+		const struct item *it = &items[i];
+		struct item_data *itd;
 
 		if( it->nameid == 0 || (itd = itemdb_exists(it->nameid)) == NULL )
 			continue;
@@ -8530,7 +8531,7 @@ ACMD_FUNC(itemlist)
 			int counter2 = 0;
 
 			for( j = 0; j < itd->slot; ++j ) {
-				struct item_data* card;
+				struct item_data *card;
 
 				if( it->card[j] == 0 || (card = itemdb_exists(it->card[j])) == NULL )
 					continue;
@@ -8636,7 +8637,7 @@ ACMD_FUNC(delitem)
 	char item_name[100];
 	unsigned short nameid;
 	int amount = 0, total, idx;
-	struct item_data* id;
+	struct item_data *id;
 
 	nullpo_retr(-1, sd);
 

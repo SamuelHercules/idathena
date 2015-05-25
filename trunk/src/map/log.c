@@ -119,7 +119,7 @@ static char log_cashtype2char( e_log_cash_type type )
 static bool should_log_item(unsigned short nameid, int amount, int refine)
 {
 	int filter = log_config.filter;
-	struct item_data* id;
+	struct item_data *id;
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 		return false;
@@ -185,7 +185,7 @@ void log_branch(struct map_session_data *sd)
 }
 
 /// logs item transactions (generic)
-void log_pick(int id, int16 m, e_log_pick_type type, int amount, struct item* itm)
+void log_pick(int id, int16 m, e_log_pick_type type, int amount, struct item *itm)
 {
 	nullpo_retv(itm);
 
@@ -226,7 +226,7 @@ void log_pick(int id, int16 m, e_log_pick_type type, int amount, struct item* it
 }
 
 /// logs item transactions (players)
-void log_pick_pc(struct map_session_data *sd, e_log_pick_type type, int amount, struct item* itm)
+void log_pick_pc(struct map_session_data *sd, e_log_pick_type type, int amount, struct item *itm)
 {
 	nullpo_retv(sd);
 	log_pick(sd->status.char_id, sd->bl.m, type, amount, itm);
@@ -234,7 +234,7 @@ void log_pick_pc(struct map_session_data *sd, e_log_pick_type type, int amount, 
 
 
 /// logs item transactions (monsters)
-void log_pick_mob(struct mob_data *md, e_log_pick_type type, int amount, struct item* itm)
+void log_pick_mob(struct mob_data *md, e_log_pick_type type, int amount, struct item *itm)
 {
 	nullpo_retv(md);
 	log_pick(md->mob_id, md->bl.m, type, amount, itm);

@@ -441,7 +441,7 @@ void clif_authok(struct map_session_data *sd);
 void clif_authrefuse(int fd, uint8 error_code);
 void clif_authfail_fd(int fd, int type);
 void clif_charselectok(int id, uint8 ok);
-void clif_dropflooritem(struct flooritem_data* fitem);
+void clif_dropflooritem(struct flooritem_data *fitem);
 void clif_clearflooritem(struct flooritem_data *fitem, int fd);
 
 void clif_clearunit_single(int id, clr_type type, int fd);
@@ -532,9 +532,9 @@ void clif_tradecompleted(struct map_session_data *sd, int fail);
 void clif_tradeundo(struct map_session_data *sd);
 
 // Storage
-void clif_storagelist(struct map_session_data *sd, struct item* items, int items_length);
+void clif_storagelist(struct map_session_data *sd, struct item *items, int items_length);
 void clif_updatestorageamount(struct map_session_data *sd, int amount, int max_amount);
-void clif_storageitemadded(struct map_session_data *sd, struct item* i, int index, int amount);
+void clif_storageitemadded(struct map_session_data *sd, struct item *i, int index, int amount);
 void clif_storageitemremoved(struct map_session_data *sd, int index, int amount);
 void clif_storageclose(struct map_session_data *sd);
 
@@ -632,12 +632,12 @@ void clif_movetoattack(struct map_session_data *sd,struct block_list *bl);
 // Party
 void clif_party_created(struct map_session_data *sd,int result);
 void clif_party_member_info(struct party_data *p, struct map_session_data *sd);
-void clif_party_info(struct party_data* p, struct map_session_data *sd);
+void clif_party_info(struct party_data *p, struct map_session_data *sd);
 void clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd);
 void clif_party_inviteack(struct map_session_data *sd, const char *nick, int result);
 void clif_party_option(struct party_data *p,struct map_session_data *sd,int flag);
-void clif_party_withdraw(struct party_data* p, struct map_session_data *sd, int account_id, const char *name, int flag);
-void clif_party_message(struct party_data* p, int account_id, const char *mes, int len);
+void clif_party_withdraw(struct party_data *p, struct map_session_data *sd, int account_id, const char *name, int flag);
+void clif_party_message(struct party_data *p, int account_id, const char *mes, int len);
 void clif_party_xy(struct map_session_data *sd);
 void clif_party_xy_single(int fd, struct map_session_data *sd);
 void clif_party_hp(struct map_session_data *sd);

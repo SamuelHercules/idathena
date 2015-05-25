@@ -51,7 +51,7 @@ static int guild_save_timer(int tid, unsigned int tick, int id, intptr_t data)
 	int state = 0; //0: Have not reached last guild. 1: Reached last guild, ready for save. 2: Some guild saved, don't do further saving.
 	DBIterator *iter = db_iterator(guild_db_);
 	DBKey key;
-	struct guild* g;
+	struct guild *g;
 
 	if( last_id == 0 ) //Save the first guild in the list.
 		state = 1;
@@ -1241,7 +1241,7 @@ int mapif_parse_GuildLeave(int fd, int guild_id, int account_id, int char_id, in
 {
 	int i;
 
-	struct guild* g = inter_guild_fromsql(guild_id);
+	struct guild *g = inter_guild_fromsql(guild_id);
 	if( g == NULL )
 	{
 		// Unknown guild, just update the player

@@ -303,7 +303,7 @@ struct mob_db* mob_db(int mob_id);
 int mobdb_searchname(const char *str);
 int mobdb_searchname_array(struct mob_db** data, int size, const char *str);
 int mobdb_checkid(const int id);
-struct view_data* mob_get_viewdata(int mob_id);
+struct view_data *mob_get_viewdata(int mob_id);
 
 struct mob_data *mob_once_spawn_sub(struct block_list *bl, int16 m,
 	short x, short y, const char *mobname, int mob_id, const char *event, unsigned int size, unsigned int ai);

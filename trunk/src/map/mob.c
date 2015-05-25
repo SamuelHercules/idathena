@@ -506,7 +506,7 @@ int mob_once_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, const
 
 		if (mob_id == MOBID_EMPERIUM && !no_guardian_data) {
 			struct guild_castle* gc = guild_mapindex2gc(map_id2index(m));
-			struct guild* g = (gc) ? guild_search(gc->guild_id) : NULL;
+			struct guild *g = (gc) ? guild_search(gc->guild_id) : NULL;
 
 			if (gc) {
 				md->guardian_data = (struct guardian_data*)aCalloc(1, sizeof(struct guardian_data));
@@ -593,7 +593,7 @@ static int mob_spawn_guardian_sub(int tid, unsigned int tick, int id, intptr_t d
 { //Needed because the guild data may not be available at guardian spawn time.
 	struct block_list *bl = map_id2bl(id);
 	struct mob_data *md;
-	struct guild* g;
+	struct guild *g;
 
 	if (bl == NULL) //It is possible mob was already removed from map when the castle has no owner. [Skotlex]
 		return 0;
@@ -1770,7 +1770,7 @@ static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
 /*==========================================
  * Initializes the delay drop structure for mob-looted items.
  *------------------------------------------*/
-static struct item_drop* mob_setlootitem(struct item* item)
+static struct item_drop* mob_setlootitem(struct item *item)
 {
 	struct item_drop *drop = ers_alloc(item_drop_ers, struct item_drop);
 
@@ -2309,7 +2309,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	{ //Item Drop
 		struct item_drop_list *dlist = ers_alloc(item_drop_list_ers, struct item_drop_list);
 		struct item_drop *ditem;
-		struct item_data* it = NULL;
+		struct item_data *it = NULL;
 		int drop_rate;
 #ifdef RENEWAL_DROP
 		int drop_modifier = mvp_sd    ? pc_level_penalty_mod(mvp_sd, md->level, md->status.class_, 2)   :

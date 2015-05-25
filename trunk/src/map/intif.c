@@ -1664,7 +1664,7 @@ int intif_parse_GuildBasicInfoChanged(int fd)
 	int type = RFIFOW(fd,8);
 	//void *data = RFIFOP(fd,10);
 
-	struct guild* g = guild_search(guild_id);
+	struct guild *g = guild_search(guild_id);
 
 	if (g == NULL)
 		return 0;
@@ -1704,7 +1704,7 @@ int intif_parse_GuildMemberInfoChanged(int fd)
 	int type = RFIFOW(fd,16);
 	//void *data = RFIFOP(fd,18);
 
-	struct guild* g;
+	struct guild *g;
 	int idx;
 
 	g = guild_search(guild_id);
