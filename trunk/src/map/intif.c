@@ -1662,7 +1662,7 @@ int intif_parse_GuildBasicInfoChanged(int fd)
 	//int len = RFIFOW(fd,2) - 10;
 	int guild_id = RFIFOL(fd,4);
 	int type = RFIFOW(fd,8);
-	//void* data = RFIFOP(fd,10);
+	//void *data = RFIFOP(fd,10);
 
 	struct guild* g = guild_search(guild_id);
 
@@ -1702,7 +1702,7 @@ int intif_parse_GuildMemberInfoChanged(int fd)
 	int account_id = RFIFOL(fd,8);
 	int char_id = RFIFOL(fd,12);
 	int type = RFIFOW(fd,16);
-	//void* data = RFIFOP(fd,18);
+	//void *data = RFIFOP(fd,18);
 
 	struct guild* g;
 	int idx;

@@ -167,7 +167,7 @@ typedef enum DBDataType {
  * @param u Union of available data types
  * @param u.i Data of int type
  * @param u.ui Data of unsigned int type
- * @param u.ptr Data of void* type
+ * @param u.ptr Data of void *type
  * @public
  */
 typedef struct DBData {
@@ -844,13 +844,13 @@ int db_data2i(DBData *data);
 unsigned int db_data2ui(DBData *data);
 
 /**
- * Gets void* type data from struct DBData.
- * If data is not void* type, returns NULL.
+ * Gets void *type data from struct DBData.
+ * If data is not void *type, returns NULL.
  * @param data Data
- * @return Void* value of the data.
+ * @return void *value of the data.
  * @public
  */
-void* db_data2ptr(DBData *data);
+void *db_data2ptr(DBData *data);
 
 /**
  * Initialize the database system.

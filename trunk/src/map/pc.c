@@ -3716,8 +3716,15 @@ void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int 
 				sd->bonus.sp_vanish_trigger = val;
 			}
 			break;
+		case SP_STATE_NORECOVER_RACE: // bonus3 bStateNoRecoverRace,n,x,r;
+			PC_BONUS_CHK_RACE(type2, SP_STATE_NORECOVER_RACE);
+			if( sd->state.lr_flag == 2 )
+				break;
+			sd->norecover_state_race[type2].rate = type3;
+			sd->norecover_state_race[type2].tick = val;
+			break;
 		default:
-			ShowWarning("pc_bonus3: unknown type %d %d %d %d!\n",type,type2,type3,val);
+			ShowWarning("pc_bonus3: unknown type %d %d %d %d!\n", type, type2, type3, val);
 			break;
 	}
 }
@@ -3759,7 +3766,7 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 			if( sd->state.lr_flag != 2 )
 				pc_bonus_addeff_onskill(sd->addeff3, ARRAYLENGTH(sd->addeff3), (sc_type)type3, type4, type2, val);
 			break;
-		case SP_SET_DEF_RACE: // bonus4 bSetDefRace,r,n,t,y;
+		case SP_SET_DEF_RACE: // bonus4 bSetDefRace,n,x,r,y;
 			PC_BONUS_CHK_RACE(type2, SP_SET_DEF_RACE);
 			if( sd->state.lr_flag == 2 )
 				break;
@@ -3767,7 +3774,7 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 			sd->def_set_race[type2].tick = type4;
 			sd->def_set_race[type2].value = val;
 			break;
-		case SP_SET_MDEF_RACE: // bonus4 bSetMdefRace,r,n,t,y;
+		case SP_SET_MDEF_RACE: // bonus4 bSetMdefRace,n,x,r,y;
 			PC_BONUS_CHK_RACE(type2, SP_SET_MDEF_RACE);
 			if( sd->state.lr_flag == 2 )
 				break;
@@ -3820,7 +3827,7 @@ void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int 
  *	2 - Like 1, except the level granted can stack with previously learned level.
  *	4 - Like 0, except the skill will ignore skill tree (saves through job changes and resets).
  */
-int pc_skill(TBL_PC* sd, int id, int level, int flag)
+int pc_skill(TBL_PC *sd, int id, int level, int flag)
 {
 	nullpo_ret(sd);
 
@@ -7920,15 +7927,15 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 		penalty += sd->sc.data[SC_CRITICALWOUND]->val2;
 	if(sd->sc.data[SC_DEATHHURT])
 		penalty += 20;
+	if(sd->sc.data[SC_NORECOVER_STATE])
+		penalty = 100;
 	//Apply a penalty to recovery if there is one
 	if(penalty > 0) {
 		hp -= hp * penalty / 100;
 		sp -= sp * penalty / 100;
 	}
-#ifdef RENEWAL
 	if(sd->sc.data[SC_EXTREMITYFIST2])
 		sp = 0;
-#endif
 	return status_heal(&sd->bl,hp,sp,1);
 }
 
@@ -8425,7 +8432,7 @@ bool pc_setcart(struct map_session_data *sd,int type) {
 /*==========================================
  * Give player a falcon
  *------------------------------------------*/
-void pc_setfalcon(TBL_PC* sd, int flag)
+void pc_setfalcon(TBL_PC *sd, int flag)
 {
 	if( flag ) {
 		if( pc_checkskill(sd,HT_FALCON) > 0 ) //Add falcon if he have the skill
@@ -8437,7 +8444,7 @@ void pc_setfalcon(TBL_PC* sd, int flag)
 /*==========================================
  *  Set player riding
  *------------------------------------------*/
-void pc_setriding(TBL_PC* sd, int flag)
+void pc_setriding(TBL_PC *sd, int flag)
 {
 	if( sd->sc.data[SC_ALL_RIDING] )
 		return;
@@ -9914,7 +9921,7 @@ void pc_setsavepoint(struct map_session_data *sd, short mapindex,int x,int y)
 static int pc_autosave(int tid, unsigned int tick, int id, intptr_t data)
 {
 	int interval;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct map_session_data *sd;
 	static int last_save_id = 0, save_flag = 0;
 
@@ -11004,7 +11011,7 @@ int pc_autotrade_timer(int tid, unsigned int tick, int id, intptr_t data) {
 /* This timer exists only when a character with a expire timer > 24h is online */
 /* It loops thru online players once an hour to check whether a new < 24h is available */
 int pc_global_expiration_timer(int tid, unsigned int tick, int id, intptr_t data) {
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct map_session_data *sd;
 
 	iter = mapit_getallusers();

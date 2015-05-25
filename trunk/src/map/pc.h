@@ -351,14 +351,14 @@ struct map_session_data {
 	short sp_gain_race[RC_MAX];
 	short sp_gain_race_attack[RC_MAX];
 	short hp_gain_race_attack[RC_MAX];
-	//Zeroed arrays end here.
+	//Zeroed arrays end here
 
 	//Zeroed structures start here
 	struct s_autospell autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS], autospell3[MAX_PC_BONUS];
 	struct s_addeffect addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct s_addeffectonskill addeff3[MAX_PC_BONUS];
 
-	struct s_skill_bonus { //Skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
+	struct s_skill_bonus { //Skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills
 		unsigned short id;
 		short val;
 	} skillatk[MAX_PC_BONUS], skillusesprate[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS], skillheal[MAX_PC_BONUS], skillheal2[MAX_PC_BONUS], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS], skillfixcast[MAX_PC_BONUS], skillvarcast[MAX_PC_BONUS], skillfixcastrate[MAX_PC_BONUS];
@@ -386,21 +386,21 @@ struct map_session_data {
 	struct {
 		short value;
 		int rate, tick;
-	} def_set_race[RC_MAX], mdef_set_race[RC_MAX];
-	//Zeroed structures end here.
+	} def_set_race[RC_MAX], mdef_set_race[RC_MAX], norecover_state_race[RC_MAX];
+	//Zeroed structures end here
 
-	//Manually zeroed structures start here.
+	//Manually zeroed structures start here
 	struct s_autobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS]; //Auto script on attack, when attacked, on skill usage
-	//Manually zeroed structures end here.
+	//Manually zeroed structures end here
 
-	//Zeroed vars start here.
+	//Zeroed vars start here
 	struct s_bonus {
 		int hp, sp;
 		int atk_rate;
 		int arrow_atk,arrow_ele,arrow_cri,arrow_hit;
 		int nsshealhp,nsshealsp;
 		int critical_def,double_rate;
-		int long_attack_atk_rate; //Long range atk rate, not weapon based. [Skotlex]
+		int long_attack_atk_rate; //Long range atk rate, not weapon based [Skotlex]
 		int near_attack_def_rate,long_attack_def_rate,magic_def_rate,misc_def_rate;
 		int ignore_mdef_ele;
 		int ignore_mdef_race;
@@ -416,9 +416,9 @@ struct map_session_data {
 		int crit_atk_rate;
 		int classchange; //[Valaris]
 		int speed_rate, speed_add_rate, aspd_add;
-		int itemhealrate2; //[Epoque] Increase heal rate of all healing items.
+		int itemhealrate2; //[Epoque] Increase heal rate of all healing items
 		int shieldmdef; //Royal guard's
-		unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
+		unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges [Skotlex]
 
 		short splash_range, splash_add_range;
 		short add_steal_rate;
@@ -434,7 +434,7 @@ struct map_session_data {
 		int ematk; //Matk bonus from equipment
 		int eatk; //Atk bonus from equipment
 	} bonus;
-	//Zeroed vars end here.
+	//Zeroed vars end here
 
 	int castrate,delayrate,hprate,sprate,dsprate;
 	int hprecov_rate,sprecov_rate;
@@ -916,7 +916,7 @@ void pc_bonus2(struct map_session_data *sd, int type, int type2, int val);
 void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int val);
 void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int type4, int val);
 void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int type4, int type5, int val);
-int pc_skill(TBL_PC* sd, int id, int level, int flag);
+int pc_skill(TBL_PC *sd, int id, int level, int flag);
 
 int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
 

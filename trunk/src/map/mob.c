@@ -1811,7 +1811,7 @@ static int mob_delay_item_drop(int tid, unsigned int tick, int id, intptr_t data
  *------------------------------------------*/
 static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, struct item_drop *ditem, int loot, int drop_rate, unsigned short flag)
 {
-	TBL_PC* sd = map_charid2sd(dlist->first_charid);
+	TBL_PC *sd = map_charid2sd(dlist->first_charid);
 
 	//Logs items, dropped by mobs [Lupus]
 	log_pick_mob(md, loot ? LOG_TYPE_LOOT : LOG_TYPE_PICKDROP_MONSTER, -ditem->item_data.amount, &ditem->item_data);

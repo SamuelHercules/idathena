@@ -405,7 +405,7 @@ int npc_chat_sub(struct block_list *bl, va_list ap)
 
 // Various script builtins used to support these functions
 
-int buildin_defpattern(struct script_state* st)
+int buildin_defpattern(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
 	const char *pattern = conv_str(st,& (st->stack->stack_data[st->start+3]));
@@ -417,7 +417,7 @@ int buildin_defpattern(struct script_state* st)
 	return 0;
 }
 
-int buildin_activatepset(struct script_state* st)
+int buildin_activatepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
 	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
@@ -427,7 +427,7 @@ int buildin_activatepset(struct script_state* st)
 	return 0;
 }
 
-int buildin_deactivatepset(struct script_state* st)
+int buildin_deactivatepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
 	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
@@ -437,7 +437,7 @@ int buildin_deactivatepset(struct script_state* st)
 	return 0;
 }
 
-int buildin_deletepset(struct script_state* st)
+int buildin_deletepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
 	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);

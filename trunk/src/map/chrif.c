@@ -663,7 +663,7 @@ void chrif_authok(int fd) {
 	struct mmo_charstatus *status;
 	struct auth_node *node;
 	bool changing_mapservers;
-	TBL_PC* sd;
+	TBL_PC *sd;
 
 	//Check if both servers agree on the struct's size
 	if( RFIFOW(fd,2) - 25 != sizeof(struct mmo_charstatus) ) {
@@ -1803,7 +1803,7 @@ int send_usercount_tochar(int tid, unsigned int tick, int id, intptr_t data) {
 int send_users_tochar(void) {
 	int users = 0, i = 0;
 	struct map_session_data *sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	chrif_check(-1);
 

@@ -2584,13 +2584,13 @@ unsigned int db_data2ui(DBData *data)
 }
 
 /**
- * Gets void* type data from struct DBData.
- * If data is not void* type, returns NULL.
+ * Gets void *type data from struct DBData.
+ * If data is not void *type, returns NULL.
  * @param data Data
- * @return Void* value of the data.
+ * @return void *value of the data.
  * @public
  */
-void* db_data2ptr(DBData *data)
+void *db_data2ptr(DBData *data)
 {
 	DB_COUNTSTAT(db_data2ptr);
 	if (data && DB_DATA_PTR == data->type)

@@ -1267,8 +1267,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			pc_addspiritball(sd,skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1),spheremax);
 		}
 
-		if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT &&
-			rnd()%100 < 30 + 10 * sce->val1 )
+		if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
 			status_change_spread(bl,src); //Deadly infect attacked side
 
 		if( (sce = sc->data[SC_STYLE_CHANGE]) && sce->val1 == MH_MD_GRAPPLING ) {
@@ -1302,7 +1301,6 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 					}
 				}
 			}
-
 			if( ((sce = sc->data[SC_SPL_ATK]) && flag&BF_WEAPON) ||
 				((sce = sc->data[SC_SPL_MATK]) && flag&BF_MAGIC) ) {
 				for( i = 0; ARRAYLENGTH(mob_splendide) > i; i++ ) {
@@ -1320,7 +1318,6 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 		if( damage > 0 ) {
 			if( (sce = sc->data[SC_POISONINGWEAPON]) && skill_id != GC_VENOMPRESSURE && flag&BF_WEAPON && rnd()%100 < sce->val3 )
 				sc_start(src,bl,(sc_type)sce->val2,100,sce->val1,skill_get_time2(GC_POISONINGWEAPON,1));
-
 			if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
 				status_change_spread(src,bl);
 		}

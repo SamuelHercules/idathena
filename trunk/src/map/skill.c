@@ -440,6 +440,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 				penalty += tsc->data[SC_CRITICALWOUND]->val2;
 			if( tsc->data[SC_DEATHHURT] )
 				penalty += 20;
+			if( tsc->data[SC_NORECOVER_STATE] )
+				penalty = 100;
 			if( penalty > 0 )
 				hp -= hp * penalty / 100;
 		}
@@ -1580,13 +1582,16 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			if( rate ) //Target armor breaking
 				skill_break_equip(src,bl,EQP_ARMOR,rate,BCT_ENEMY);
 		}
-		if( sd && bl->type == BL_PC && !skill_id ) { //This effect does not work with skills
+		if( sd && !skill_id ) { //This effect does not work with skills
 			if( sd->def_set_race[tstatus->race].rate )
-				status_change_start(src,bl,SC_DEFSET,sd->def_set_race[tstatus->race].rate,sd->def_set_race[tstatus->race].value,
-					0,0,0,sd->def_set_race[tstatus->race].tick,SCFLAG_FIXEDTICK);
+				status_change_start(src,bl,SC_DEFSET,sd->def_set_race[tstatus->race].rate,
+					sd->def_set_race[tstatus->race].value,0,0,0,sd->def_set_race[tstatus->race].tick,SCFLAG_FIXEDTICK);
 			if( sd->mdef_set_race[tstatus->race].rate )
-				status_change_start(src,bl,SC_MDEFSET,sd->mdef_set_race[tstatus->race].rate,sd->mdef_set_race[tstatus->race].value,
-					0,0,0,sd->mdef_set_race[tstatus->race].tick,SCFLAG_FIXEDTICK);
+				status_change_start(src,bl,SC_MDEFSET,sd->mdef_set_race[tstatus->race].rate,
+					sd->mdef_set_race[tstatus->race].value,0,0,0,sd->mdef_set_race[tstatus->race].tick,SCFLAG_FIXEDTICK);
+			if( sd->norecover_state_race[tstatus->race].rate )
+				status_change_start(src,bl,SC_NORECOVER_STATE,sd->norecover_state_race[tstatus->race].rate,
+					0,0,0,0,sd->norecover_state_race[tstatus->race].tick,SCFLAG_NONE);
 		}
 	}
 
@@ -7175,6 +7180,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 						penalty += tsc->data[SC_CRITICALWOUND]->val2;
 					if( tsc->data[SC_DEATHHURT] )
 						penalty += 20;
+					if( tsc->data[SC_NORECOVER_STATE] )
+						penalty = 100;
 					if( penalty > 0 ) {
 						hp -= hp * penalty / 100;
 						sp -= sp * penalty / 100;
@@ -7189,10 +7196,14 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					clif_skill_nodamage(NULL,bl,AL_HEAL,hp,1);
 				if( sp > 0 )
 					clif_skill_nodamage(NULL,bl,MG_SRECOVERY,sp,1);
-#ifdef RENEWAL
-				if( tsc && tsc->data[SC_EXTREMITYFIST2] )
-					sp = 0;
-#endif
+				if( tsc ) {
+					if( tsc->data[SC_EXTREMITYFIST2] )
+						sp = 0;
+					if( tsc->data[SC_NORECOVER_STATE] ) {
+						hp = 0;
+						sp = 0;
+					}
+				}
 				status_heal(bl,hp,sp,0);
 			}
 			break;
@@ -7309,9 +7320,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_HIDING:			case SC_CLOAKING:		case SC_CHASEWALK:
 							case SC_CHASEWALK2:		case SC_GATLINGFEVER:		case SC_INCREASING:
 							case SC_ADJUSTMENT:		case SC_MADNESSCANCEL:
-#ifdef RENEWAL
-							case SC_EXTREMITYFIST2:
-#endif
+							case SC_EXTREMITYFIST2:		case SC_NORECOVER_STATE:
 							//RK
 							case SC_DEATHBOUND:		case SC_DEATHBOUND_POSTDELAY:	case SC_CRUSHSTRIKE:
 							case SC_REFRESH:		case SC_GIANTGROWTH:		case SC_STONEHARDSKIN:
@@ -7407,7 +7416,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_MTF_ASPD2:		case SC_MTF_RANGEATK:		case SC_MTF_RANGEATK2:
 							case SC_MTF_MATK:		case SC_MTF_MATK2:		case SC_MTF_MLEATKED:
 							case SC_MTF_MHP:		case SC_MTF_MSP:		case SC_MTF_HITFLEE:
-							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:
+							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:		case SC_DEFSET:
+							case SC_MDEFSET:
 								continue;
 							case SC_SILENCE:
 								if( tsc->data[i]->val4 )
@@ -7976,9 +7986,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 #ifdef RENEWAL
 				sp1 = sp1 / 2;
 				sp2 = sp2 / 2;
-				if (tsc && tsc->data[SC_EXTREMITYFIST2])
-					sp1 = tstatus->sp;
 #endif
+				if (tsc && (tsc->data[SC_EXTREMITYFIST2] || tsc->data[SC_NORECOVER_STATE]))
+					sp1 = tstatus->sp;
 				status_set_sp(src,sp2,3);
 				status_set_sp(bl,sp1,3);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
@@ -7986,7 +7996,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case CR_SLIMPITCHER: //Slim Pitcher
-			//Updated to block Slim Pitcher from working on barricades and guardian stones.
+			//Updated to block Slim Pitcher from working on barricades and guardian stones
 			if (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || (dstmd->mob_id >= MOBID_BARRICADE1 && dstmd->mob_id <= MOBID_GUARIDAN_STONE2)))
 				break;
 			if (potion_hp || potion_sp) {
@@ -8007,6 +8017,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 						penalty += tsc->data[SC_CRITICALWOUND]->val2;
 					if( tsc->data[SC_DEATHHURT] )
 						penalty += 20;
+					if( tsc->data[SC_NORECOVER_STATE] )
+						penalty = 100;
 					if( penalty > 0 ) {
 						hp -= hp * penalty / 100;
 						sp -= sp * penalty / 100;
@@ -8869,9 +8881,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_HIDING:			case SC_CLOAKING:		case SC_CHASEWALK:
 							case SC_CHASEWALK2:		case SC_GATLINGFEVER:		case SC_INCREASING:
 							case SC_ADJUSTMENT:		case SC_MADNESSCANCEL:
-#ifdef RENEWAL
-							case SC_EXTREMITYFIST2:
-#endif
+							case SC_EXTREMITYFIST2:		case SC_NORECOVER_STATE:
 							//RK
 							case SC_DEATHBOUND:		case SC_DEATHBOUND_POSTDELAY:
 							//AB
@@ -8959,7 +8969,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_MTF_ASPD2:		case SC_MTF_RANGEATK:		case SC_MTF_RANGEATK2:
 							case SC_MTF_MATK:		case SC_MTF_MATK2:		case SC_MTF_MLEATKED:
 							case SC_MTF_MHP:		case SC_MTF_MSP:		case SC_MTF_HITFLEE:
-							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:
+							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:		case SC_DEFSET:
+							case SC_MDEFSET:
 								continue;
 							case SC_SILENCE:
 								if( tsc->data[i]->val4 )
@@ -9629,8 +9640,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start2(src,bl,type,100,skill_lv,(sd ? pc_checkskill(sd,WM_LESSON) : 1),skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9659,8 +9670,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					break;
 				sc_start(src,bl,type,rate,skill_lv,skill_get_time(skill_id,skill_lv));
 			} else {
-				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),BL_CHAR,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),BL_CHAR,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9668,10 +9679,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 			else {
-				map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
+				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				clif_specialeffect(bl,851,AREA);
 				clif_specialeffect(bl,852,AREA);
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9682,8 +9693,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			} else if( sd ) {
 				rate = 6 * skill_lv + 2 * pc_checkskill(sd,WM_LESSON) + min(50,sd->status.job_level) / 2;
 				if( rnd()%100 < rate ) {
-					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_CHAR|BL_SKILL,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_CHAR|BL_SKILL,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 				}
 			}
 			break;
@@ -9705,8 +9716,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start2(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,2),skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9714,8 +9725,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start2(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,1),skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9723,8 +9734,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start2(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,3),skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9734,8 +9745,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					break;
 				sc_start2(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,0),skill_get_time(skill_id,skill_lv));
 			} else if( sd ) {
-				map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9747,9 +9758,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				if( skill_area_temp[5] > 7 )
 					status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,DMG_NORMAL,0));
 			} else if( sd ) {
+				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				skill_area_temp[5] = map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,BCT_ALL,skill_area_sub_count);
 				map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			}
 			break;
 
@@ -9758,8 +9769,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start4(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,3),party_calc_chorusbonus(sd,1),0,skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
 				if( rnd()%100 < 15 + 5 * skill_lv + min(5 * party_calc_chorusbonus(sd,3),65) ) {
-					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 				}
 			}
 			break;
@@ -9769,8 +9780,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start4(src,bl,type,100,skill_lv,party_calc_chorusbonus(sd,3),party_calc_chorusbonus(sd,1),0,skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
 				if( rnd()%100 < 15 + 5 * skill_lv + min(5 * party_calc_chorusbonus(sd,3),65) ) {
-					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 				}
 			}
 			break;
@@ -9836,8 +9847,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 )
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -10599,9 +10610,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_HIDING:			case SC_CLOAKING:		case SC_CHASEWALK:
 							case SC_CHASEWALK2:		case SC_GATLINGFEVER:		case SC_INCREASING:
 							case SC_ADJUSTMENT:		case SC_MADNESSCANCEL:
-#ifdef RENEWAL
-							case SC_EXTREMITYFIST2:
-#endif
+							case SC_EXTREMITYFIST2:		case SC_NORECOVER_STATE:
 							//RK
 							case SC_DEATHBOUND:		case SC_DEATHBOUND_POSTDELAY:	case SC_CRUSHSTRIKE:
 							case SC_REFRESH:		case SC_GIANTGROWTH:		case SC_STONEHARDSKIN:
@@ -10697,7 +10706,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							case SC_MTF_ASPD2:		case SC_MTF_RANGEATK:		case SC_MTF_RANGEATK2:
 							case SC_MTF_MATK:		case SC_MTF_MATK2:		case SC_MTF_MLEATKED:
 							case SC_MTF_MHP:		case SC_MTF_MSP:		case SC_MTF_HITFLEE:
-							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:
+							case SC_MTF_CRIDAMAGE:		case SC_MTF_PUMPKIN:		case SC_DEFSET:
+							case SC_MDEFSET:
 								continue;
 							case SC_SILENCE:
 								if( tsc->data[i]->val4 )
@@ -12901,7 +12911,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 {
 	struct skill_unit_group *group;
 	struct block_list *src; //Actual source that cast the skill unit
-	TBL_PC* sd;
+	TBL_PC *sd;
 	struct status_data *status;
 	struct status_change *sc;
 	struct status_change_entry *sce;
@@ -13165,7 +13175,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 {
 	struct skill_unit_group *group;
 	struct block_list *src;
-	TBL_PC* tsd;
+	TBL_PC *tsd;
 	struct status_data *tstatus;
 	struct status_change *sc, *tsc;
 	struct skill_unit_group_tickset *ts;

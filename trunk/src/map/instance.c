@@ -757,7 +757,7 @@ void do_reload_instance(void)
 {
 	struct instance_data *im;
 	struct instance_db *db;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct map_session_data *sd;
 	int i;
 

@@ -1008,6 +1008,7 @@ void initChangeTables(void) {
 	StatusIconChangeTable[SC_MTF_MHP] = SI_MTF_MHP;
 	StatusIconChangeTable[SC_MTF_MSP] = SI_MTF_MSP;
 	StatusIconChangeTable[SC_MTF_PUMPKIN] = SI_MTF_PUMPKIN;
+	StatusIconChangeTable[SC_NORECOVER_STATE] = SI_HANDICAPSTATE_NORECOVER;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -3149,6 +3150,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->skillfixcastrate)
 		+ sizeof(sd->def_set_race)
 		+ sizeof(sd->mdef_set_race)
+		+ sizeof(sd->norecover_state_race)
 	);
 
 	memset(&sd->bonus, 0, sizeof(sd->bonus));
@@ -4689,7 +4691,7 @@ void status_calc_bl_(struct block_list *bl, enum scb_flag flag, enum e_status_ca
 
 	//Compare against new values and send client updates
 	if( bl->type == BL_PC ) {
-		TBL_PC* sd = BL_CAST(BL_PC, bl);
+		TBL_PC *sd = BL_CAST(BL_PC, bl);
 
 		if( b_status.str != status->str )
 			clif_updatestatus(sd, SP_STR);
@@ -5863,7 +5865,7 @@ short status_calc_mdef2(struct block_list *bl, struct status_change *sc, int mde
 
 static unsigned short status_calc_speed(struct block_list *bl, struct status_change *sc, int speed)
 {
-	TBL_PC* sd = BL_CAST(BL_PC, bl);
+	TBL_PC *sd = BL_CAST(BL_PC, bl);
 	int speed_rate;
 
 	if( sc == NULL || (sd && sd->state.permanent_speed) )
@@ -6840,7 +6842,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 
 	switch (bl->type) {
 		case BL_PC: {
-				TBL_PC* sd = (TBL_PC *)bl;
+				TBL_PC *sd = (TBL_PC *)bl;
 				if (pcdb_checkid(class_)) {
 					if (sd->sc.option&OPTION_RIDING) {
 						switch (class_) { //Adapt class to a Mounted one.
@@ -7213,6 +7215,9 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			break;
 		case SC_B_TRAP:
 			tick_def2 = b_status->str * 50; //Custom values
+			break;
+		case SC_NORECOVER_STATE:
+			tick_def2 = status->luk * 100;
 			break;
 		default: //Effect that cannot be reduced? Likely a buff
 			if (!(rnd()%10000 < rate))
@@ -8212,6 +8217,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC__WEAKNESS:
 			case SC_DEEPSLEEP:
 			case SC_CRYSTALIZE:
+			case SC_DEFSET:
+			case SC_MDEFSET:
+			case SC_NORECOVER_STATE:
 				return 0;
 			case SC_COMBO:
 			case SC_DANCING:
@@ -9808,8 +9816,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				break;
 			case SC_UNLIMIT:
 				val2 = 50 * val1;
-				status_change_start(bl,bl,SC_DEFSET,10000,1,0,0,0,tick,SCFLAG_FIXEDTICK);
-				status_change_start(bl,bl,SC_MDEFSET,10000,1,0,0,0,tick,SCFLAG_FIXEDTICK);
+				status_change_start(bl,bl,SC_DEFSET,10000,1,0,0,1,tick,SCFLAG_FIXEDTICK);
+				status_change_start(bl,bl,SC_MDEFSET,10000,1,0,0,1,tick,SCFLAG_FIXEDTICK);
 				break;
 			case SC_FLASHCOMBO:
 				val2 = 20 + 20 * val1;
@@ -9849,7 +9857,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_DEFSET:
 			case SC_MDEFSET:
 				tick_time = tick;
-				tick = -1;
+				if( val4 )
+					tick = -1;
 				break;
 			default:
 				if( calc_flag == SCB_NONE && StatusIconChangeTable[type] == SI_BLANK &&
@@ -12526,15 +12535,15 @@ void status_change_clear_buffs(struct block_list *bl, int type)
 				if( !(type&4) )
 					continue;
 				break;
-			case SC_HALLUCINATION:
 			case SC_QUAGMIRE:
 			case SC_SIGNUMCRUCIS:
 			case SC_DECREASEAGI:
+			case SC_HALLUCINATION:
 			case SC_SLOWDOWN:
 			case SC_MINDBREAKER:
+			case SC_ORCISH:
 			case SC_WINKCHARM:
 			case SC_STOP:
-			case SC_ORCISH:
 			case SC_STRIPWEAPON:
 			case SC_STRIPSHIELD:
 			case SC_STRIPARMOR:

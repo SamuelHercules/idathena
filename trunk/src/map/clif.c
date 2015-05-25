@@ -364,7 +364,7 @@ int clif_send(const uint8 *buf, int len, struct block_list *bl, enum send_target
 	struct guild *g = NULL;
 	struct battleground_data *bg = NULL;
 	int x0 = 0, x1 = 0, y0 = 0, y1 = 0, fd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	if (type != ALL_CLIENT)
 		nullpo_ret(bl);
@@ -1468,7 +1468,7 @@ static void clif_weather_check(struct map_session_data *sd)
  */
 void clif_weather(int16 m)
 {
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct map_session_data *sd=NULL;
 
 	iter = mapit_getallusers();
@@ -18132,7 +18132,7 @@ void DumpUnknow(int fd,TBL_PC *sd,int cmd,int packet_len) {
 static int clif_parse(int fd)
 {
 	int cmd, packet_ver, packet_len, err;
-	TBL_PC* sd;
+	TBL_PC *sd;
 	int pnum;
 
 	//@TODO: Apply delays or disconnect based on packet throughput [FlavioJS]

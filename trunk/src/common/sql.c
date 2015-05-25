@@ -456,7 +456,7 @@ static enum enum_field_types Sql_P_SizeToMysqlIntType(int sz)
 /// Binds a parameter/result.
 ///
 /// @private
-static int Sql_P_BindSqlDataType(MYSQL_BIND* bind, enum SqlDataType buffer_type, void* buffer, size_t buffer_len, unsigned long* out_length, int8* out_is_null)
+static int Sql_P_BindSqlDataType(MYSQL_BIND* bind, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, unsigned long* out_length, int8* out_is_null)
 {
 	memset(bind, 0, sizeof(MYSQL_BIND));
 	switch( buffer_type )
@@ -693,7 +693,7 @@ size_t SqlStmt_NumParams(SqlStmt* self)
 
 
 /// Binds a parameter to a buffer.
-int SqlStmt_BindParam(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void* buffer, size_t buffer_len)
+int SqlStmt_BindParam(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void *buffer, size_t buffer_len)
 {
 	if( self == NULL )
 		return SQL_ERROR;
@@ -772,7 +772,7 @@ size_t SqlStmt_NumColumns(SqlStmt* self)
 
 
 /// Binds the result of a column to a buffer.
-int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void* buffer, size_t buffer_len, uint32* out_length, int8* out_is_null)
+int SqlStmt_BindColumn(SqlStmt* self, size_t idx, enum SqlDataType buffer_type, void *buffer, size_t buffer_len, uint32* out_length, int8* out_is_null)
 {
 	if( self == NULL )
 		return SQL_ERROR;
