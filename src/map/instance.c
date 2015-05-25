@@ -210,7 +210,7 @@ static int instance_stopidletimer(struct instance_data *im)
  *------------------------------------------*/
 static int instance_npcinit(struct block_list *bl, va_list ap)
 {
-	struct npc_data* nd;
+	struct npc_data *nd;
 
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);
@@ -224,7 +224,7 @@ static int instance_npcinit(struct block_list *bl, va_list ap)
  *------------------------------------------*/
 static int instance_addnpc_sub(struct block_list *bl, va_list ap)
 {
-	struct npc_data* nd;
+	struct npc_data *nd;
 
 	nullpo_retr(0, bl);
 	nullpo_retr(0, ap);

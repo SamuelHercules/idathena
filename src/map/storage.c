@@ -52,7 +52,7 @@ static int storage_comp_item(const void *_i1, const void *_i2)
  * @param items : list of items to sort
  * @param size : number of item in list
  */
-void storage_sortitem(struct item* items, unsigned int size)
+void storage_sortitem(struct item *items, unsigned int size)
 {
 	nullpo_retv(items);
 
@@ -161,7 +161,7 @@ int compare_item(struct item *a, struct item *b)
  * @param amount : quantity of items
  * @return 0 : success, 1 : failed
  */
-static int storage_additem(struct map_session_data *sd, struct item* item_data, int amount)
+static int storage_additem(struct map_session_data *sd, struct item *item_data, int amount)
 {
 	struct storage_data* stor = &sd->status.storage;
 	struct item_data *data;
@@ -488,7 +488,7 @@ char gstorage_storageopen(struct map_session_data *sd)
  * @param amount : number of item to add
  * @return True : success, False : fail
  */
-bool gstorage_additem(struct map_session_data *sd, struct guild_storage *stor, struct item* item, int amount)
+bool gstorage_additem(struct map_session_data *sd, struct guild_storage *stor, struct item *item, int amount)
 {
 	struct item_data *id;
 	int i;
@@ -549,7 +549,7 @@ bool gstorage_additem(struct map_session_data *sd, struct guild_storage *stor, s
  * @param amount : number of item to add
  * @return True : success, False : fail
  */
-bool gstorage_additem2(struct guild_storage *stor, struct item* item, int amount)
+bool gstorage_additem2(struct guild_storage *stor, struct item *item, int amount)
 {
 	struct item_data *id;
 	int i;

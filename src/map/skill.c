@@ -7707,7 +7707,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case NPC_TRANSFORMATION:
 		case NPC_METAMORPHOSIS:
 			if (md && md->skill_idx >= 0) {
-				int class_ = mob_random_class (md->db->skill[md->skill_idx].val,0);
+				int class_ = mob_random_class(md->db->skill[md->skill_idx].val,0);
 
 				if (skill_lv > 1) //Multiply the rest of mobs [Skotlex]
 					mob_summonslave(md,md->db->skill[md->skill_idx].val,skill_lv - 1,skill_id);
@@ -18636,7 +18636,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 	int i, sc, ele, idx, equip, wlv, make_per = 0, flag = 0, skill_lv = 0;
 	int num = -1; //Exclude the recipe
 	struct status_data *status;
-	struct item_data* data;
+	struct item_data *data;
 
 	nullpo_ret(sd);
 

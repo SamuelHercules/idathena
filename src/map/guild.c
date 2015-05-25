@@ -178,15 +178,15 @@ static bool guild_read_castledb(char *str[], int columns, int current)
 }
 
 /// lookup: guild id -> guild*
-struct guild* guild_search(int guild_id)
+struct guild *guild_search(int guild_id)
 {
 	return (struct guild*)idb_get(guild_db,guild_id);
 }
 
 /// lookup: guild name -> guild*
-struct guild* guild_searchname(char *str)
+struct guild *guild_searchname(char *str)
 {
-	struct guild* g;
+	struct guild *g;
 	DBIterator *iter = db_iterator(guild_db);
 
 	for( g = dbi_first(iter); dbi_exists(iter); g = dbi_next(iter) ) {
@@ -225,7 +225,7 @@ struct guild_castle* guild_mapname2gc(const char *mapname)
 	return guild_mapindex2gc(mapindex_name2id(mapname));
 }
 
-struct map_session_data *guild_getavailablesd(struct guild* g)
+struct map_session_data *guild_getavailablesd(struct guild *g)
 {
 	int i;
 	nullpo_retr(NULL, g);
@@ -247,7 +247,7 @@ int guild_getindex(struct guild *g,int account_id,int char_id)
 }
 
 /// lookup: player sd -> member position
-int guild_getposition(struct guild* g, struct map_session_data *sd)
+int guild_getposition(struct guild *g, struct map_session_data *sd)
 {
 	int i;
 
@@ -660,7 +660,7 @@ int guild_reply_invite(struct map_session_data *sd, int guild_id, int flag)
 		if( tsd ) clif_guild_inviteack(tsd,1);
 	} else { // accepted
 		struct guild_member m;
-		struct guild* g;
+		struct guild *g;
 		int i;
 
 		if( (g = guild_search(guild_id)) == NULL ) {
@@ -691,7 +691,7 @@ int guild_reply_invite(struct map_session_data *sd, int guild_id, int flag)
 //- Player must be authed and must belong to a guild before invoking this method
 void guild_member_joined(struct map_session_data *sd)
 {
-	struct guild* g;
+	struct guild *g;
 	int i;
 
 	g = guild_search(sd->status.guild_id);
@@ -840,7 +840,7 @@ int guild_expulsion(struct map_session_data *sd, int guild_id, int account_id, i
 int guild_member_withdraw(int guild_id, int account_id, int char_id, int flag, const char *name, const char *mes)
 {
 	int i;
-	struct guild* g = guild_search(guild_id);
+	struct guild *g = guild_search(guild_id);
 	struct map_session_data *sd = map_charid2sd(char_id);
 	struct map_session_data *online_member_sd;
 
@@ -1310,7 +1310,7 @@ int guild_getexp(struct map_session_data *sd,int exp)
  *---------------------------------------------------*/
 int guild_skillup(TBL_PC *sd, uint16 skill_id)
 {
-	struct guild* g;
+	struct guild *g;
 	int idx = skill_id - GD_SKILLBASE;
 	int max = guild_skill_get_max(skill_id);
 
@@ -2160,7 +2160,7 @@ int guild_checkcastles(struct guild *g)
 bool guild_isallied(int guild_id, int guild_id2)
 {
 	int i;
-	struct guild* g = guild_search(guild_id);
+	struct guild *g = guild_search(guild_id);
 	nullpo_ret(g);
 
 	ARR_FIND( 0, MAX_GUILDALLIANCE, i, g->alliance[i].guild_id == guild_id2 );

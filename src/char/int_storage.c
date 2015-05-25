@@ -46,7 +46,7 @@ int storage_fromsql(int account_id, struct storage_data* p)
 	StringBuf_Destroy(&buf);
 
 	for( i = 0; i < MAX_STORAGE && SQL_SUCCESS == Sql_NextRow(sql_handle); ++i ) {
-		struct item* item;
+		struct item *item;
 		char *data;
 
 		item = &p->items[i];
@@ -103,7 +103,7 @@ int guild_storage_fromsql(int guild_id, struct guild_storage *p)
 	StringBuf_Destroy(&buf);
 
 	for( i = 0; i < MAX_GUILD_STORAGE && SQL_SUCCESS == Sql_NextRow(sql_handle); ++i ) {
-		struct item* item;
+		struct item *item;
 		char *data;
 
 		item = &p->items[i];

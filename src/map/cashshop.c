@@ -32,7 +32,7 @@ static int cashshop_parse_dbrow( char** str, const char *source, int line ){
 	if( itemdb_exists( nameid ) ){
 		uint16 tab = atoi( str[0] );
 		uint32 price = atoi( str[2] );
-		struct cash_item_data* cid;
+		struct cash_item_data *cid;
 		int j;
 
 		if( tab > CASHSHOP_TAB_SEARCH ){

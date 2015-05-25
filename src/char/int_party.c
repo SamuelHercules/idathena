@@ -198,7 +198,7 @@ struct party_data *inter_party_fromsql(int party_id)
 {
 	int leader_id = 0;
 	int leader_char = 0;
-	struct party_data* p;
+	struct party_data *p;
 	struct party_member* m;
 	char *data;
 	size_t len;
@@ -293,11 +293,11 @@ void inter_party_sql_final(void)
 }
 
 // Search for the party according to its name
-struct party_data* search_partyname(char *str)
+struct party_data *search_partyname(char *str)
 {
 	char esc_name[NAME_LENGTH*2+1];
 	char *data;
-	struct party_data* p = NULL;
+	struct party_data *p = NULL;
 
 	Sql_EscapeStringLen(sql_handle, esc_name, str, safestrnlen(str, NAME_LENGTH));
 	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `party_id` FROM `%s` WHERE `name`='%s'", party_db, esc_name) )
@@ -805,7 +805,7 @@ int inter_party_leave(int party_id,int account_id, int char_id)
 
 int inter_party_CharOnline(int char_id, int party_id)
 {
-	struct party_data* p;
+	struct party_data *p;
 	int i;
 
 	if( party_id == -1 )

@@ -1000,7 +1000,7 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
     [Haru] for third-classes extension
     [Cydh] finishing :D
  *------------------------------------------*/
-static bool pc_isItemClass(struct map_session_data *sd, struct item_data* item) {
+static bool pc_isItemClass(struct map_session_data *sd, struct item_data *item) {
 	while( 1 ) {
 		//Normal classes (no upper, no baby, no third)
 		if( item->class_upper&ITEMJ_NORMAL && !(sd->class_&(JOBL_UPPER|JOBL_THIRD|JOBL_BABY)) )
@@ -1225,9 +1225,9 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 
 	status_change_init(&sd->bl);
 
-	sd->sc.option = sd->status.option; //This is the actual option used in battle.
+	sd->sc.option = sd->status.option; //This is the actual option used in battle
 
-	//Set here because we need the inventory data for weapon sprite parsing.
+	//Set here because we need the inventory data for weapon sprite parsing
 	status_set_viewdata(&sd->bl, sd->status.class_);
 	unit_dataset(&sd->bl);
 
@@ -1905,8 +1905,8 @@ int pc_disguise(struct map_session_data *sd, int class_)
 		return 0;
 	if (class_ && sd->disguise == class_)
 		return 0;
-	if (sd->sc.option&OPTION_INVISIBLE) { //Character is invisible. Stealth class-change. [Skotlex]
-		sd->disguise = class_; //Viewdata is set on uncloaking.
+	if (sd->sc.option&OPTION_INVISIBLE) { //Character is invisible, stealth class-change [Skotlex]
+		sd->disguise = class_; //Viewdata is set on uncloaking
 		return 2;
 	}
 	if (sd->bl.prev != NULL) {
@@ -4004,7 +4004,7 @@ int pc_modifysellvalue(struct map_session_data *sd,int orig_value)
 char pc_checkadditem(struct map_session_data *sd, unsigned short nameid, int amount)
 {
 	int i;
-	struct item_data* data;
+	struct item_data *data;
 
 	nullpo_ret(sd);
 
@@ -4957,7 +4957,7 @@ void pc_putitemtocart(struct map_session_data *sd, int idx, int amount)
  *------------------------------------------*/
 int pc_cartitem_amount(struct map_session_data *sd, int idx, int amount)
 {
-	struct item* item_data;
+	struct item *item_data;
 
 	nullpo_retr(-1, sd);
 
@@ -7872,9 +7872,7 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 	if(hp) {
 		int i;
 
-		bonus = 100 + (sd->battle_status.vit<<1)
-			+ pc_checkskill(sd,SM_RECOVERY) * 10
-			+ pc_checkskill(sd,AM_LEARNINGPOTION) * 5;
+		bonus = 100 + (sd->battle_status.vit<<1) + pc_checkskill(sd,SM_RECOVERY) * 10 + pc_checkskill(sd,AM_LEARNINGPOTION) * 5;
 		//A potion produced by an Alchemist in the Fame Top 10 gets +50% effect [DracoRPG]
 		if(potion_flag > 1)
 			bonus += bonus * (potion_flag - 1) * 50 / 100;

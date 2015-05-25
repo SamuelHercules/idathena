@@ -399,7 +399,7 @@ static struct item_data *itemdb_create_item(unsigned short nameid) {
  * @return *item_data or *dummy_item if item not found
  */
 struct item_data *itemdb_search(unsigned short nameid) {
-	struct item_data* id = NULL;
+	struct item_data *id = NULL;
 
 	if (nameid == dummy_item->nameid)
 		id = dummy_item;
@@ -457,41 +457,41 @@ bool itemdb_isdropable_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NODROP) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_cantrade_sub(struct item_data* item, int gmlv, int gmlv2) {
+bool itemdb_cantrade_sub(struct item_data *item, int gmlv, int gmlv2) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOTRADE) || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
 }
 
-bool itemdb_canpartnertrade_sub(struct item_data* item, int gmlv, int gmlv2) {
+bool itemdb_canpartnertrade_sub(struct item_data *item, int gmlv, int gmlv2) {
 	return (item && (item->flag.trade_restriction&ITR_PARTNEROVERRIDE || gmlv >= item->gm_lv_trade_override || gmlv2 >= item->gm_lv_trade_override));
 }
 
-bool itemdb_cansell_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_cansell_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOSELLTONPC) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_cancartstore_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_cancartstore_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOCART) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_canstore_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_canstore_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOSTORAGE) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_canguildstore_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_canguildstore_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOGSTORAGE) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_canmail_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_canmail_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOMAIL) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_canauction_sub(struct item_data* item, int gmlv, int unused) {
+bool itemdb_canauction_sub(struct item_data *item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&ITR_NOAUCTION) || gmlv >= item->gm_lv_trade_override));
 }
 
-bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, bool (*func)(struct item_data*, int, int))
+bool itemdb_isrestricted(struct item *item, int gmlv, int gmlv2, bool (*func)(struct item_data*, int, int))
 {
-	struct item_data* item_data = itemdb_search(item->nameid);
+	struct item_data *item_data = itemdb_search(item->nameid);
 	int i;
 
 	if(!func(item_data, gmlv, gmlv2))
@@ -811,7 +811,7 @@ static bool itemdb_read_stack(char *fields[], int columns, int current)
 {
 	unsigned short nameid, amount;
 	unsigned int type;
-	struct item_data* id;
+	struct item_data *id;
 
 	nameid = (unsigned short)strtoul(fields[0], NULL, 10);
 
@@ -846,7 +846,7 @@ static bool itemdb_read_stack(char *fields[], int columns, int current)
 static bool itemdb_read_buyingstore(char *fields[], int columns, int current)
 {
 	unsigned short nameid;
-	struct item_data* id;
+	struct item_data *id;
 
 	nameid = atoi(fields[0]);
 
@@ -872,7 +872,7 @@ static bool itemdb_read_nouse(char *fields[], int columns, int current)
 {
 	unsigned short nameid;
 	int flag, override;
-	struct item_data* id;
+	struct item_data *id;
 
 	nameid = atoi(fields[0]);
 
@@ -1011,7 +1011,7 @@ static void itemdb_read_combos() {
 		} else {
 			int items[MAX_ITEMS_PER_COMBO];
 			int v = 0, retcount = 0;
-			struct item_data* id = NULL;
+			struct item_data *id = NULL;
 			int idx = 0;
 
 			if ((retcount = itemdb_combo_split_atoi(str[0], items)) < 2) {
@@ -1146,7 +1146,7 @@ static bool itemdb_parse_dbrow(char** str, const char *source, int line, int scr
 		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
 	*/
 	unsigned short nameid;
-	struct item_data* id;
+	struct item_data *id;
 
 	if (atoi(str[0]) <= 0 || atoi(str[0]) >= MAX_ITEMID || atoi(str[0]) == dummy_item->nameid) {
 		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[0]), line, source);
@@ -1295,7 +1295,7 @@ static int itemdb_readdb(void)
 
 		//Process rows one by one
 		while (fgets(line, sizeof(line), fp)) {
-			struct item_data* itd;
+			struct item_data *itd;
 			char *str[32], *p;
 			int i, nameid;
 
@@ -1523,7 +1523,7 @@ static void itemdb_read(void) {
 /**
  * Destroys the item_data.
  */
-static void destroy_item_data(struct item_data* self)
+static void destroy_item_data(struct item_data *self)
 {
 	if( self == NULL )
 		return;

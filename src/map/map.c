@@ -1353,7 +1353,7 @@ int map_get_new_object_id(void)
  *------------------------------------------*/
 int map_clearflooritem_timer(int tid, unsigned int tick, int id, intptr_t data)
 {
-	struct flooritem_data* fitem = (struct flooritem_data *)idb_get(id_db, id);
+	struct flooritem_data *fitem = (struct flooritem_data *)idb_get(id_db, id);
 	
 	if (fitem == NULL || fitem->bl.type != BL_ITEM || (fitem->cleartimer != tid)) {
 		ShowError("map_clearflooritem_timer : error\n");
@@ -1374,7 +1374,7 @@ int map_clearflooritem_timer(int tid, unsigned int tick, int id, intptr_t data)
  * Clears a single bl item out of the map.
  */
 void map_clearflooritem(struct block_list *bl) {
-	struct flooritem_data* fitem = (struct flooritem_data *)bl;
+	struct flooritem_data *fitem = (struct flooritem_data *)bl;
 
 	if( fitem->cleartimer )
 		delete_timer(fitem->cleartimer,map_clearflooritem_timer);
@@ -2135,7 +2135,7 @@ void map_foreachmob(int (*func)(struct mob_data *md, va_list args), ...)
 
 /// Applies func to all the npcs in the db.
 /// Stops iterating if func returns -1.
-void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...)
+void map_foreachnpc(int (*func)(struct npc_data *nd, va_list args), ...)
 {
 	DBIterator *iter;
 	struct block_list *bl;
@@ -2145,7 +2145,7 @@ void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...)
 	{
 		if( bl->type == BL_NPC )
 		{
-			struct npc_data* nd = (struct npc_data*)bl;
+			struct npc_data *nd = (struct npc_data*)bl;
 			va_list args;
 			int ret;
 

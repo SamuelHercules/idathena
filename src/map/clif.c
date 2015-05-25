@@ -78,7 +78,7 @@ static unsigned short clif_parse_cmd(int fd, struct map_session_data *sd);
  */
 static inline int itemtype(unsigned short nameid) {
 	//Use itemdb_search, so non-existance item will use dummy data and won't crash the server. bugreport:8468
-	struct item_data* id = itemdb_search(nameid);
+	struct item_data *id = itemdb_search(nameid);
 	int type = id->type;
 
 	switch( type ) {
@@ -706,7 +706,7 @@ void clif_charselectok(int id, uint8 ok)
 /// Makes an item appear on the ground.
 /// 009e <id>.L <name id>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY)
 /// 084b <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY4)
-void clif_dropflooritem(struct flooritem_data* fitem)
+void clif_dropflooritem(struct flooritem_data *fitem)
 {
 #if PACKETVER >= 20130000
 	uint8 buf[19];
@@ -838,7 +838,7 @@ void clif_get_weapon_view(struct map_session_data *sd, unsigned short *rhand, un
 	if (sd->equip_index[EQI_HAND_R] >= 0 &&
 		sd->inventory_data[sd->equip_index[EQI_HAND_R]])
 	{
-		struct item_data* id = sd->inventory_data[sd->equip_index[EQI_HAND_R]];
+		struct item_data *id = sd->inventory_data[sd->equip_index[EQI_HAND_R]];
 
 		if (id->view_id > 0)
 			*rhand = id->view_id;
@@ -851,7 +851,7 @@ void clif_get_weapon_view(struct map_session_data *sd, unsigned short *rhand, un
 		sd->equip_index[EQI_HAND_L] != sd->equip_index[EQI_HAND_R] &&
 		sd->inventory_data[sd->equip_index[EQI_HAND_L]])
 	{
-		struct item_data* id = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
+		struct item_data *id = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
 
 		if (id->view_id > 0)
 			*lhand = id->view_id;
@@ -894,7 +894,7 @@ static int clif_setlevel(struct block_list *bl) {
 static int clif_set_unit_idle(struct block_list *bl, unsigned char *buffer, bool spawn) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
-	struct view_data* vd = status_get_viewdata(bl);
+	struct view_data *vd = status_get_viewdata(bl);
 	unsigned char *buf = WBUFP(buffer,0);
 #if PACKETVER < 20091103
 	bool type = !pcdb_checkid(vd->class_);
@@ -1072,7 +1072,7 @@ static int clif_set_unit_idle(struct block_list *bl, unsigned char *buffer, bool
 static int clif_spawn_unit(struct block_list *bl, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
-	struct view_data* vd = status_get_viewdata(bl);
+	struct view_data *vd = status_get_viewdata(bl);
 	unsigned char *buf = WBUFP(buffer,0);
 	int g_id = status_get_guild_id(bl);
 
@@ -1131,7 +1131,7 @@ static int clif_spawn_unit(struct block_list *bl, unsigned char *buffer) {
 static int clif_idle_unit(struct block_list *bl, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
-	struct view_data* vd = status_get_viewdata(bl);
+	struct view_data *vd = status_get_viewdata(bl);
 	unsigned char *buf = WBUFP(buffer,0);
 	int g_id = status_get_guild_id(bl);
 
@@ -1195,7 +1195,7 @@ static int clif_idle_unit(struct block_list *bl, unsigned char *buffer) {
 static int clif_set_unit_walking(struct block_list *bl, struct unit_data* ud, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
-	struct view_data* vd = status_get_viewdata(bl);
+	struct view_data *vd = status_get_viewdata(bl);
 	unsigned char *buf = WBUFP(buffer,0);
 #if PACKETVER >= 7
 	unsigned short offset = 0;
@@ -1311,7 +1311,7 @@ static int clif_set_unit_walking(struct block_list *bl, struct unit_data* ud, un
 static int clif_walking_unit(struct block_list *bl, struct unit_data* ud, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
-	struct view_data* vd = status_get_viewdata(bl);
+	struct view_data *vd = status_get_viewdata(bl);
 	unsigned char *buf = WBUFP(buffer,0);
 	int g_id = status_get_guild_id(bl);
 
@@ -1981,7 +1981,7 @@ void clif_buylist(struct map_session_data *sd, struct npc_data *nd)
 	c = 0;
 	discount = npc_shop_discount(nd->subtype,nd->u.shop.discount);
 	for( i = 0; i < nd->u.shop.count; i++ ) {
-		struct item_data* id = itemdb_exists(nd->u.shop.shop_item[i].nameid);
+		struct item_data *id = itemdb_exists(nd->u.shop.shop_item[i].nameid);
 		int val = nd->u.shop.shop_item[i].value;
 
 		if( id == NULL )
@@ -2421,7 +2421,7 @@ void clif_cutin(struct map_session_data *sd, const char *image, int type)
 /*==========================================
  * Fills in card data from the given item and into the buffer. [Skotlex]
  *------------------------------------------*/
-static void clif_addcards(unsigned char *buf, struct item* item)
+static void clif_addcards(unsigned char *buf, struct item *item)
 {
 	int i = 0, j;
 
@@ -2801,7 +2801,7 @@ void clif_equiplist(struct map_session_data *sd)
 }
 
 
-void clif_storagelist(struct map_session_data *sd, struct item* items, int items_length)
+void clif_storagelist(struct map_session_data *sd, struct item *items, int items_length)
 {
 	static const int client_buf = 0x5000; //Max buffer to send
 	struct item_data *id;
@@ -3325,7 +3325,7 @@ void clif_changelook(struct block_list *bl,int type,int val)
 	unsigned char buf[16];
 	struct map_session_data *sd;
 	struct status_change *sc;
-	struct view_data* vd;
+	struct view_data *vd;
 	enum send_target target = AREA;
 
 	nullpo_retv(bl);
@@ -4388,7 +4388,7 @@ void clif_updatestorageamount(struct map_session_data *sd, int amount, int max_a
 /// Notifies the client of an item being added to the storage.
 /// 00f4 <index>.W <amount>.L <nameid>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_STORE)
 /// 01c4 <index>.W <amount>.L <nameid>.W <type>.B <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_STORE2)
-void clif_storageitemadded(struct map_session_data *sd, struct item* i, int index, int amount)
+void clif_storageitemadded(struct map_session_data *sd, struct item *i, int index, int amount)
 {
 	int view,fd;
 
@@ -4827,7 +4827,7 @@ void clif_changemapcell(int fd, int16 m, int x, int y, int type, enum send_targe
 
 /// Notifies the client about an item on floor (ZC_ITEM_ENTRY).
 /// 009d <id>.L <name id>.W <identified>.B <x>.W <y>.W <amount>.W <subX>.B <subY>.B
-void clif_getareachar_item(struct map_session_data *sd,struct flooritem_data* fitem)
+void clif_getareachar_item(struct map_session_data *sd,struct flooritem_data *fitem)
 {
 	int view, fd = sd->fd;
 
@@ -7014,7 +7014,7 @@ void clif_vendinglist(struct map_session_data *sd, int id, struct s_vending* ven
 
 	for( i = 0; i < count; i++ ) {
 		int index = vending[i].index;
-		struct item_data* data = itemdb_search(vsd->status.cart[index].nameid);
+		struct item_data *data = itemdb_search(vsd->status.cart[index].nameid);
 
 		WFIFOL(fd,offset + 0 + i * 22) = vending[i].value;
 		WFIFOW(fd,offset + 4 + i * 22) = vending[i].amount;
@@ -7074,7 +7074,7 @@ void clif_openvending(struct map_session_data *sd, int id, struct s_vending* ven
 	WFIFOL(fd,4) = id;
 	for( i = 0; i < count; i++ ) {
 		int index = vending[i].index;
-		struct item_data* data = itemdb_search(sd->status.cart[index].nameid);
+		struct item_data *data = itemdb_search(sd->status.cart[index].nameid);
 		WFIFOL(fd, 8+i*22) = vending[i].value;
 		WFIFOW(fd,12+i*22) = vending[i].index + 2;
 		WFIFOW(fd,14+i*22) = vending[i].amount;
@@ -7174,7 +7174,7 @@ void clif_party_member_info(struct party_data *p, struct map_session_data *sd)
 /// state:
 ///     0 = connected
 ///     1 = disconnected
-void clif_party_info(struct party_data* p, struct map_session_data *sd)
+void clif_party_info(struct party_data *p, struct map_session_data *sd)
 {
 	unsigned char buf[2 + 2 + NAME_LENGTH + (4 + NAME_LENGTH + MAP_NAME_LENGTH_EXT + 1 + 1) * MAX_PARTY];
 	struct map_session_data* party_sd = NULL;
@@ -7347,7 +7347,7 @@ void clif_party_option(struct party_data *p,struct map_session_data *sd,int flag
 ///     1 = expel
 ///     2 = cannot leave party on this map
 ///     3 = cannot expel from party on this map
-void clif_party_withdraw(struct party_data* p, struct map_session_data *sd, int account_id, const char *name, int flag)
+void clif_party_withdraw(struct party_data *p, struct map_session_data *sd, int account_id, const char *name, int flag)
 {
 	unsigned char buf[64];
 
@@ -7377,7 +7377,7 @@ void clif_party_withdraw(struct party_data* p, struct map_session_data *sd, int 
 
 /// Party chat message (ZC_NOTIFY_CHAT_PARTY).
 /// 0109 <packet len>.W <account id>.L <message>.?B
-void clif_party_message(struct party_data* p, int account_id, const char *mes, int len)
+void clif_party_message(struct party_data *p, int account_id, const char *mes, int len)
 {
 	struct map_session_data *sd;
 	int i;
@@ -8474,7 +8474,7 @@ void clif_guild_expulsionlist(struct map_session_data *sd)
 	const int offset = NAME_LENGTH+40;
 #endif
 	int fd, i, c = 0;
-	struct guild* g;
+	struct guild *g;
 
 	nullpo_retv(sd);
 
@@ -10950,7 +10950,7 @@ void clif_parse_WisMessage(int fd, struct map_session_data *sd)
 	//-------------------------------------------------------//
 	if( target[0] && (strncasecmp(target,"NPC:",4) == 0) && (strlen(target) > 4) ) {
 		char *str = target + 4; // Skip the NPC: string part.
-		struct npc_data* npc;
+		struct npc_data *npc;
 
 		if( (npc = npc_name2id(str)) ) {
 			char split_data[NUM_WHISPER_VAR][CHAT_SIZE_MAX];
@@ -12163,7 +12163,7 @@ void clif_parse_NpcSelectMenu(int fd,struct map_session_data *sd)
 #ifdef SECURE_NPCTIMEOUT
 		if( sd->npc_idle_timer != INVALID_TIMER ) {
 #endif
-			TBL_NPC* nd = map_id2nd(npc_id);
+			TBL_NPC *nd = map_id2nd(npc_id);
 			ShowWarning("Invalid menu selection on npc %d:'%s' - got %d, valid range is [%d..%d] (player AID:%d, CID:%d, name:'%s')!\n", npc_id, (nd)?nd->name:"invalid npc id", select, 1, sd->npc_menu, sd->bl.id, sd->status.char_id, sd->status.name);
 			clif_GM_kick(NULL,sd);
 #ifdef SECURE_NPCTIMEOUT
@@ -13104,7 +13104,7 @@ void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd)
 /// 0151 <guild id>.L
 void clif_parse_GuildRequestEmblem(int fd,struct map_session_data *sd)
 {
-	struct guild* g;
+	struct guild *g;
 	int guild_id = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
 
 	if( (g = guild_search(guild_id)) != NULL )
@@ -13548,7 +13548,7 @@ void clif_parse_GMKick(int fd, struct map_session_data *sd)
 			break;
 
 		case BL_NPC: {
-				struct npc_data* nd = (struct npc_data *)target;
+				struct npc_data *nd = (struct npc_data *)target;
 
 				if( pc_can_use_command(sd, "unloadnpc", COMMAND_ATCOMMAND)) {
 					npc_unload_duplicates(nd);
@@ -15610,7 +15610,7 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 #endif
 
 	for( i = 0; i < nd->u.shop.count; i++ ) {
-		struct item_data* id = itemdb_search(nd->u.shop.shop_item[i].nameid);
+		struct item_data *id = itemdb_search(nd->u.shop.shop_item[i].nameid);
 
 		WFIFOL(fd,offset + 0 + i * 11) = nd->u.shop.shop_item[i].value;
 		WFIFOL(fd,offset + 4 + i * 11) = nd->u.shop.shop_item[i].value; //Discount Price
@@ -16563,7 +16563,7 @@ void clif_party_show_picker(struct map_session_data *sd, struct item * item_data
 {
 #if PACKETVER >= 20071002
 	unsigned char buf[22];
-	struct item_data* id = itemdb_search(item_data->nameid);
+	struct item_data *id = itemdb_search(item_data->nameid);
 
 	WBUFW(buf,0) = 0x2b8;
 	WBUFL(buf,2) = sd->status.account_id;
@@ -17104,7 +17104,7 @@ void clif_search_store_info_ack(struct map_session_data *sd)
 	WFIFOB(fd,6) = (unsigned char)min(sd->searchstore.uses, UINT8_MAX);
 
 	for( i = start; i < end; i++ ) {
-		struct s_search_store_info_item* ssitem = &sd->searchstore.items[i];
+		struct s_search_store_info_item *ssitem = &sd->searchstore.items[i];
 		struct item it;
 
 		WFIFOL(fd,i*blocksize+ 7) = ssitem->store_id;

@@ -334,7 +334,7 @@ int chat_kickchat(struct map_session_data *sd, const char *kickusername)
 }
 
 /// Creates a chat room for the npc.
-int chat_createnpcchat(struct npc_data* nd, const char *title, int limit, bool pub, int trigger, const char *ev, int zeny, int minLvl, int maxLvl)
+int chat_createnpcchat(struct npc_data *nd, const char *title, int limit, bool pub, int trigger, const char *ev, int zeny, int minLvl, int maxLvl)
 {
 	struct chat_data *cd;
 	nullpo_ret(nd);
@@ -360,7 +360,7 @@ int chat_createnpcchat(struct npc_data* nd, const char *title, int limit, bool p
 }
 
 /// Removes the chatroom from the npc.
-int chat_deletenpcchat(struct npc_data* nd)
+int chat_deletenpcchat(struct npc_data *nd)
 {
 	struct chat_data *cd;
 	nullpo_ret(nd);

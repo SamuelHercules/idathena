@@ -117,7 +117,7 @@ void finalize_pcrematch_entry(struct pcrematch_entry* e)
 /**
  * Lookup (and possibly create) a new set of patterns by the set id
  */
-static struct pcrematch_set* lookup_pcreset(struct npc_data* nd, int setid) 
+static struct pcrematch_set* lookup_pcreset(struct npc_data *nd, int setid) 
 {
 	struct pcrematch_set *pcreset;
 	struct npc_parse *npcParse = (struct npc_parse *) nd->chatdb;
@@ -158,7 +158,7 @@ static struct pcrematch_set* lookup_pcreset(struct npc_data* nd, int setid)
  *
  * if the setid does not exist, this will silently return
  */
-static void activate_pcreset(struct npc_data* nd, int setid)
+static void activate_pcreset(struct npc_data *nd, int setid)
 {
 	struct pcrematch_set *pcreset;
 	struct npc_parse *npcParse = (struct npc_parse *) nd->chatdb;
@@ -191,7 +191,7 @@ static void activate_pcreset(struct npc_data* nd, int setid)
  *
  * if the setid does not exist, this will silently return
  */
-static void deactivate_pcreset(struct npc_data* nd, int setid)
+static void deactivate_pcreset(struct npc_data *nd, int setid)
 {
 	struct pcrematch_set *pcreset;
 	struct npc_parse *npcParse = (struct npc_parse *) nd->chatdb;
@@ -227,7 +227,7 @@ static void deactivate_pcreset(struct npc_data* nd, int setid)
 /**
  * delete a set of patterns.
  */
-static void delete_pcreset(struct npc_data* nd, int setid)
+static void delete_pcreset(struct npc_data *nd, int setid)
 {
 	int active = 1;
 	struct pcrematch_set *pcreset;
@@ -307,7 +307,7 @@ static struct pcrematch_entry* create_pcrematch_entry(struct pcrematch_set* set)
 /**
  * define/compile a new pattern
  */
-void npc_chat_def_pattern(struct npc_data* nd, int setid, const char *pattern, const char *label)
+void npc_chat_def_pattern(struct npc_data *nd, int setid, const char *pattern, const char *label)
 {
 	const char *err;
 	int erroff;
@@ -326,7 +326,7 @@ void npc_chat_def_pattern(struct npc_data* nd, int setid, const char *pattern, c
  *
  * this could be more efficent but.. how often do you do this?
  */
-void npc_chat_finalize(struct npc_data* nd)
+void npc_chat_finalize(struct npc_data *nd)
 {
 	struct npc_parse *npcParse = (struct npc_parse *) nd->chatdb;
 	if (npcParse == NULL)
@@ -347,7 +347,7 @@ void npc_chat_finalize(struct npc_data* nd)
  */
 int npc_chat_sub(struct block_list *bl, va_list ap)
 {
-	struct npc_data* nd = (struct npc_data *) bl;
+	struct npc_data *nd = (struct npc_data *) bl;
 	struct npc_parse* npcParse = (struct npc_parse *) nd->chatdb;
 	char *msg;
 	int len, i;
@@ -410,7 +410,7 @@ int buildin_defpattern(struct script_state *st)
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
 	const char *pattern = conv_str(st,& (st->stack->stack_data[st->start+3]));
 	const char *label = conv_str(st,& (st->stack->stack_data[st->start+4]));
-	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
+	struct npc_data *nd = (struct npc_data *)map_id2bl(st->oid);
 	
 	npc_chat_def_pattern(nd, setid, pattern, label);
 	
@@ -420,7 +420,7 @@ int buildin_defpattern(struct script_state *st)
 int buildin_activatepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
-	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
+	struct npc_data *nd = (struct npc_data *)map_id2bl(st->oid);
 	
 	activate_pcreset(nd, setid);
 	
@@ -430,7 +430,7 @@ int buildin_activatepset(struct script_state *st)
 int buildin_deactivatepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
-	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
+	struct npc_data *nd = (struct npc_data *)map_id2bl(st->oid);
 	
 	deactivate_pcreset(nd, setid);
 	
@@ -440,7 +440,7 @@ int buildin_deactivatepset(struct script_state *st)
 int buildin_deletepset(struct script_state *st)
 {
 	int setid = conv_num(st,& (st->stack->stack_data[st->start+2]));
-	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
+	struct npc_data *nd = (struct npc_data *)map_id2bl(st->oid);
 	
 	delete_pcreset(nd, setid);
 	

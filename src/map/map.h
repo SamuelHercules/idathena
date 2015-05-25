@@ -789,7 +789,7 @@ struct map_session_data *map_charid2sd(int charid);
 
 struct map_session_data *map_id2sd(int id);
 struct mob_data *map_id2md(int id);
-struct npc_data* map_id2nd(int id);
+struct npc_data *map_id2nd(int id);
 struct homun_data *map_id2hd(int id);
 struct mercenary_data *map_id2mc(int id);
 struct pet_data *map_id2pd(int id);
@@ -810,7 +810,7 @@ void map_addiddb(struct block_list *);
 void map_deliddb(struct block_list *bl);
 void map_foreachpc(int (*func)(struct map_session_data *sd, va_list args), ...);
 void map_foreachmob(int (*func)(struct mob_data *md, va_list args), ...);
-void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...);
+void map_foreachnpc(int (*func)(struct npc_data *nd, va_list args), ...);
 void map_foreachregen(int (*func)(struct block_list *bl, va_list args), ...);
 void map_foreachiddb(int (*func)(struct block_list *bl, va_list args), ...);
 struct map_session_data *map_nick2sd(const char *);
