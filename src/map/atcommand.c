@@ -717,7 +717,7 @@ ACMD_FUNC(who)
 ACMD_FUNC(whogm)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	int j, count;
 	int level;
 	char match_text[CHAT_SIZE_MAX];
@@ -1589,7 +1589,7 @@ static int atcommand_stopattack(struct block_list *bl,va_list ap)
  *------------------------------------------*/
 static int atcommand_pvpoff_sub(struct block_list *bl,va_list ap)
 {
-	TBL_PC* sd = (TBL_PC *)bl;
+	TBL_PC *sd = (TBL_PC *)bl;
 
 	clif_pvpset(sd, 0, 0, 2);
 	if (sd->pvp_timer != INVALID_TIMER) {
@@ -1625,7 +1625,7 @@ ACMD_FUNC(pvpoff)
  *------------------------------------------*/
 static int atcommand_pvpon_sub(struct block_list *bl,va_list ap)
 {
-	TBL_PC* sd = (TBL_PC *)bl;
+	TBL_PC *sd = (TBL_PC *)bl;
 
 	if (sd->pvp_timer == INVALID_TIMER) {
 		sd->pvp_timer = add_timer(gettick() + 200, pc_calc_pvprank_timer, sd->bl.id, 0);
@@ -2994,7 +2994,7 @@ ACMD_FUNC(day)
 ACMD_FUNC(doom)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	nullpo_retr(-1, sd);
 
@@ -3019,7 +3019,7 @@ ACMD_FUNC(doom)
 ACMD_FUNC(doommap)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	nullpo_retr(-1, sd);
 
@@ -3055,7 +3055,7 @@ static void atcommand_raise_sub(struct map_session_data *sd) {
 ACMD_FUNC(raise)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 		
 	nullpo_retr(-1, sd);
 
@@ -3076,7 +3076,7 @@ ACMD_FUNC(raise)
 ACMD_FUNC(raisemap)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	nullpo_retr(-1, sd);
 
@@ -3127,7 +3127,7 @@ ACMD_FUNC(kick)
 ACMD_FUNC(kickall)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	nullpo_retr(-1, sd);
 
 	iter = mapit_getallusers();
@@ -3469,7 +3469,7 @@ ACMD_FUNC(idsearch)
 ACMD_FUNC(recallall)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	int count;
 	nullpo_retr(-1, sd);
 
@@ -3514,7 +3514,7 @@ ACMD_FUNC(recallall)
 ACMD_FUNC(guildrecall)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	int count;
 	char guild_name[NAME_LENGTH];
 	struct guild *g;
@@ -3571,7 +3571,7 @@ ACMD_FUNC(guildrecall)
 ACMD_FUNC(partyrecall)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	char party_name[NAME_LENGTH];
 	struct party_data *p;
 	int count;
@@ -3729,7 +3729,7 @@ ACMD_FUNC(reload)
 		pc_read_motd();
 		clif_displaymessage(fd, msg_txt(268));
 	} else if (strstr(command, "script") || strncmp(message, "script", 3) == 0) {
-		struct s_mapiterator* iter;
+		struct s_mapiterator *iter;
 		struct map_session_data *pl_sd;
 		//atcommand_broadcast( fd, sd, "@broadcast", "Server is reloading scripts..." );
 		//atcommand_broadcast( fd, sd, "@broadcast", "You will feel a bit of lag at this point !" );
@@ -3794,7 +3794,7 @@ ACMD_FUNC(partysharelvl) {
 ACMD_FUNC(mapinfo)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct chat_data *cd = NULL;
 	char direction[12];
 	int i, m_id, chat_num = 0, list = 0, vend_num = 0;
@@ -4791,7 +4791,7 @@ ACMD_FUNC(disguiseall)
 {
 	int mob_id = 0;
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message) {
@@ -4890,7 +4890,7 @@ ACMD_FUNC(undisguise)
 ACMD_FUNC(undisguiseall)
 {
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	nullpo_retr(-1, sd);
 
 	iter = mapit_getallusers();
@@ -6250,7 +6250,7 @@ ACMD_FUNC(mobsearch)
 	char mob_name[100];
 	int mob_id;
 	int number = 0;
-	struct s_mapiterator* it;
+	struct s_mapiterator *it;
 
 	nullpo_retr(-1, sd);
 
@@ -6440,7 +6440,7 @@ ACMD_FUNC(users)
 	int i;
 	int users[MAX_MAPINDEX];
 	int users_all;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	memset(users, 0, sizeof(users));
 	users_all = 0;
@@ -6735,7 +6735,7 @@ ACMD_FUNC(refresh)
 ACMD_FUNC(refreshall)
 {
 	struct map_session_data *iter_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	nullpo_retr(-1, sd);
 
 	iter = mapit_getallusers();
@@ -7025,7 +7025,7 @@ ACMD_FUNC(showmobs)
 	char mob_name[100];
 	int mob_id;
 	int number = 0;
-	struct s_mapiterator* it;
+	struct s_mapiterator *it;
 
 	nullpo_retr(-1, sd);
 
@@ -7722,7 +7722,7 @@ ACMD_FUNC(sizeall)
 {
 	int size;
 	struct map_session_data *pl_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	size = atoi(message);
 	size = cap_value(size,0,2);

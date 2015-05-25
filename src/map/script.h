@@ -93,7 +93,7 @@ struct script_data {
 		char *str;
 		struct script_retinfo* ri;
 	} u;
-	struct DBMap** ref;
+	struct DBMap **ref;
 };
 
 // Moved defsp from script_state to script_stack since
@@ -172,8 +172,8 @@ void script_stop_sleeptimers(int id);
 struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n);
 void script_free_code(struct script_code* code);
 void script_free_vars(struct DBMap *storage);
-struct script_state* script_alloc_state(struct script_code* script, int pos, int rid, int oid);
-void script_free_state(struct script_state* st);
+struct script_state *script_alloc_state(struct script_code* script, int pos, int rid, int oid);
+void script_free_state(struct script_state *st);
 
 struct DBMap *script_get_label_db(void);
 struct DBMap *script_get_userfunc_db(void);
@@ -183,8 +183,8 @@ bool script_get_constant(const char *name, int* value);
 void script_set_constant(const char *name, int value, bool isparameter);
 void script_hardcoded_constants(void);
 
-void script_cleararray_pc(struct map_session_data *sd, const char *varname, void* value);
-void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void* value, int* refcache);
+void script_cleararray_pc(struct map_session_data *sd, const char *varname, void *value);
+void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void *value, int* refcache);
 
 int script_config_read(char *cfgName);
 void do_init_script(void);

@@ -87,9 +87,9 @@ struct map_session_data *party_getavailablesd(struct party_data *p)
  * Retrieves and validates the sd pointer for this party member [Skotlex]
  *------------------------------------------*/
 
-static TBL_PC* party_sd_check(int party_id, int account_id, int char_id)
+static TBL_PC *party_sd_check(int party_id, int account_id, int char_id)
 {
-	TBL_PC* sd = map_id2sd(account_id);
+	TBL_PC *sd = map_id2sd(account_id);
 
 	if (!(sd && sd->status.char_id == char_id))
 		return NULL;
@@ -1048,13 +1048,13 @@ int party_exp_share(struct party_data* p, struct block_list *src, unsigned int b
 //Does party loot. first_charid holds the charid of the player who has time priority to take the item
 int party_share_loot(struct party_data* p, struct map_session_data *sd, struct item* item, int first_charid)
 {
-	TBL_PC* target = NULL;
+	TBL_PC *target = NULL;
 	int i;
 
 	if (p && (p->party.item&2) && (first_charid || !(battle_config.party_share_type&1))) {
 		//Item distribution to party members
 		if (battle_config.party_share_type&2) { //Round Robin
-			TBL_PC* psd;
+			TBL_PC *psd;
 
 			i = p->itemc;
 			do {
@@ -1075,7 +1075,7 @@ int party_share_loot(struct party_data* p, struct map_session_data *sd, struct i
 				break;
 			} while (i != p->itemc);
 		} else { //Random pick
-			TBL_PC* psd[MAX_PARTY];
+			TBL_PC *psd[MAX_PARTY];
 			int count = 0;
 
 			//Collect pick candidates

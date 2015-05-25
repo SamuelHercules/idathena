@@ -4254,7 +4254,7 @@ void npc_process_files(int npc_min) {
 int npc_reload(void) {
 	int16 m, i;
 	int npc_new_min = npc_id;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct block_list *bl;
 
 	//Clear guild flag cache

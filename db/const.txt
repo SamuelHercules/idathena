@@ -633,6 +633,7 @@ bAddClassDropItemGroup	2075
 
 bAddMaxWeight	2076
 bAddItemGroupHealRate	2077
+bStateNoRecoverRace	2078
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2

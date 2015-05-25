@@ -73,9 +73,9 @@ unsigned short guild_flags_count;
 /*==========================================
  * Retrieves and validates the sd pointer for this guild member [Skotlex]
  *------------------------------------------*/
-static TBL_PC* guild_sd_check(int guild_id, int account_id, int char_id)
+static TBL_PC *guild_sd_check(int guild_id, int account_id, int char_id)
 {
-	TBL_PC* sd = map_id2sd(account_id);
+	TBL_PC *sd = map_id2sd(account_id);
 
 	if (!(sd && sd->status.char_id == char_id))
 		return NULL;
@@ -458,7 +458,7 @@ int guild_check_member(struct guild *g)
 {
 	int i;
 	struct map_session_data *sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	nullpo_ret(g);
 
@@ -484,7 +484,7 @@ int guild_check_member(struct guild *g)
 int guild_recv_noinfo(int guild_id)
 {
 	struct map_session_data *sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	iter = mapit_getallusers();
 	for( sd = (TBL_PC *)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC *)mapit_next(iter) ) {
@@ -1308,7 +1308,7 @@ int guild_getexp(struct map_session_data *sd,int exp)
 /*====================================================
  * Ask to increase guildskill skill_id
  *---------------------------------------------------*/
-int guild_skillup(TBL_PC* sd, uint16 skill_id)
+int guild_skillup(TBL_PC *sd, uint16 skill_id)
 {
 	struct guild* g;
 	int idx = skill_id - GD_SKILLBASE;

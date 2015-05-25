@@ -453,7 +453,7 @@ enum _sp {
 	SP_IGNORE_DEF_CLASS,SP_IGNORE_DEF_CLASS_RATE,SP_IGNORE_MDEF_CLASS,SP_IGNORE_MDEF_CLASS_RATE, //2063-2066
 	SP_DEF_RATIO_ATK_CLASS,SP_ADDCLASS,SP_SUBCLASS,SP_MAGIC_ADDCLASS,SP_WEAPON_COMA_CLASS, //2067-2071
 	SP_MAGIC_SUBCLASS,SP_EXP_ADDCLASS,SP_ADD_CLASS_DROP_ITEM,SP_ADD_CLASS_DROP_ITEMGROUP, //2072-2075
-	SP_ADDMAXWEIGHT, SP_ADD_ITEMGROUP_HEAL_RATE //2076-2077
+	SP_ADDMAXWEIGHT,SP_ADD_ITEMGROUP_HEAL_RATE,SP_STATE_NORECOVER_RACE //2076-2078
 };
 
 enum _look {
@@ -827,13 +827,13 @@ enum e_mapitflags
 //	MAPIT_PCISPLAYING = 1,// Unneeded as pc_db/id_db will only hold auth'ed, active players.
 };
 struct s_mapiterator;
-struct s_mapiterator*   mapit_alloc(enum e_mapitflags flags, enum bl_type types);
-void                    mapit_free(struct s_mapiterator* mapit);
-struct block_list *     mapit_first(struct s_mapiterator* mapit);
-struct block_list *     mapit_last(struct s_mapiterator* mapit);
-struct block_list *     mapit_next(struct s_mapiterator* mapit);
-struct block_list *     mapit_prev(struct s_mapiterator* mapit);
-bool                    mapit_exists(struct s_mapiterator* mapit);
+struct s_mapiterator *  mapit_alloc(enum e_mapitflags flags, enum bl_type types);
+void                    mapit_free(struct s_mapiterator *mapit);
+struct block_list *     mapit_first(struct s_mapiterator *mapit);
+struct block_list *     mapit_last(struct s_mapiterator *mapit);
+struct block_list *     mapit_next(struct s_mapiterator *mapit);
+struct block_list *     mapit_prev(struct s_mapiterator *mapit);
+bool                    mapit_exists(struct s_mapiterator *mapit);
 #define mapit_getallusers() mapit_alloc(MAPIT_NORMAL,BL_PC)
 #define mapit_geteachpc()   mapit_alloc(MAPIT_NORMAL,BL_PC)
 #define mapit_geteachmob()  mapit_alloc(MAPIT_NORMAL,BL_MOB)

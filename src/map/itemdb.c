@@ -1589,7 +1589,7 @@ static int itemdb_group_free(DBKey key, DBData *data, va_list ap) {
  */
 void itemdb_reload(void)
 {
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	struct map_session_data *sd;
 	int i, d, k;
 

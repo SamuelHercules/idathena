@@ -1732,7 +1732,7 @@ void map_addiddb(struct block_list *bl)
 
 	if( bl->type == BL_PC )
 	{
-		TBL_PC* sd = (TBL_PC *)bl;
+		TBL_PC *sd = (TBL_PC *)bl;
 		idb_put(pc_db,sd->bl.id,sd);
 		idb_put(charid_db,sd->status.char_id,sd);
 	}
@@ -1759,7 +1759,7 @@ void map_deliddb(struct block_list *bl)
 	nullpo_retv(bl);
 
 	if( bl->type == BL_PC ) {
-		TBL_PC* sd = (TBL_PC *)bl;
+		TBL_PC *sd = (TBL_PC *)bl;
 		idb_remove(pc_db,sd->bl.id);
 		idb_remove(charid_db,sd->status.char_id);
 	} else if( bl->type == BL_MOB ) {
@@ -2006,7 +2006,7 @@ struct map_session_data *map_nick2sd(const char *nick)
 {
 	struct map_session_data *sd;
 	struct map_session_data *found_sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 	size_t nicklen;
 	int qty = 0;
 
@@ -2230,9 +2230,9 @@ struct s_mapiterator
 /// @param flags Flags of the iterator
 /// @param type Target types
 /// @return Iterator
-struct s_mapiterator* mapit_alloc(enum e_mapitflags flags, enum bl_type types)
+struct s_mapiterator *mapit_alloc(enum e_mapitflags flags, enum bl_type types)
 {
-	struct s_mapiterator* mapit;
+	struct s_mapiterator *mapit;
 
 	CREATE(mapit, struct s_mapiterator, 1);
 	mapit->flags = flags;
@@ -2246,7 +2246,7 @@ struct s_mapiterator* mapit_alloc(enum e_mapitflags flags, enum bl_type types)
 /// Frees the iterator.
 ///
 /// @param mapit Iterator
-void mapit_free(struct s_mapiterator* mapit)
+void mapit_free(struct s_mapiterator *mapit)
 {
 	nullpo_retv(mapit);
 
@@ -2259,7 +2259,7 @@ void mapit_free(struct s_mapiterator* mapit)
 ///
 /// @param mapit Iterator
 /// @return first block_list or NULL
-struct block_list *mapit_first(struct s_mapiterator* mapit)
+struct block_list *mapit_first(struct s_mapiterator *mapit)
 {
 	struct block_list *bl;
 
@@ -2277,7 +2277,7 @@ struct block_list *mapit_first(struct s_mapiterator* mapit)
 ///
 /// @param mapit Iterator
 /// @return last block_list or NULL
-struct block_list *mapit_last(struct s_mapiterator* mapit)
+struct block_list *mapit_last(struct s_mapiterator *mapit)
 {
 	struct block_list *bl;
 
@@ -2295,7 +2295,7 @@ struct block_list *mapit_last(struct s_mapiterator* mapit)
 ///
 /// @param mapit Iterator
 /// @return next block_list or NULL
-struct block_list *mapit_next(struct s_mapiterator* mapit)
+struct block_list *mapit_next(struct s_mapiterator *mapit)
 {
 	struct block_list *bl;
 
@@ -2318,7 +2318,7 @@ struct block_list *mapit_next(struct s_mapiterator* mapit)
 ///
 /// @param mapit Iterator
 /// @return previous block_list or NULL
-struct block_list *mapit_prev(struct s_mapiterator* mapit)
+struct block_list *mapit_prev(struct s_mapiterator *mapit)
 {
 	struct block_list *bl;
 
@@ -2340,7 +2340,7 @@ struct block_list *mapit_prev(struct s_mapiterator* mapit)
 ///
 /// @param mapit Iterator
 /// @return true if it exists
-bool mapit_exists(struct s_mapiterator* mapit)
+bool mapit_exists(struct s_mapiterator *mapit)
 {
 	nullpo_retr(false,mapit);
 
@@ -4121,7 +4121,7 @@ void do_final(void)
 {
 	int i;
 	struct map_session_data *sd;
-	struct s_mapiterator* iter;
+	struct s_mapiterator *iter;
 
 	ShowStatus("Terminating...\n");
 	channel_config.closing = true;
@@ -4272,7 +4272,7 @@ void do_shutdown(void)
 		runflag = MAPSERVER_ST_SHUTDOWN;
 		ShowStatus("Shutting down...\n"); {
 			struct map_session_data *sd;
-			struct s_mapiterator* iter = mapit_getallusers();
+			struct s_mapiterator *iter = mapit_getallusers();
 
 			for( sd = (TBL_PC *)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC *)mapit_next(iter) )
 				clif_GM_kick(NULL, sd);

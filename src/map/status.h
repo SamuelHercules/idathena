@@ -734,6 +734,8 @@ typedef enum sc_type {
 
 	SC_PROMOTE_HEALTH_RESERCH,
 	SC_ENERGY_DRINK_RESERCH,
+
+	SC_NORECOVER_STATE,
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds
 } sc_type;
 

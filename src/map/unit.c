@@ -147,7 +147,7 @@ int unit_walktoxy_sub(struct block_list *bl)
  * @param bl: char to get his master [HOM|ELEM|PET|MER]
  * @return map_session_data of master or NULL
  */
-TBL_PC* unit_get_master(struct block_list *bl) {
+TBL_PC *unit_get_master(struct block_list *bl) {
 	if(bl)
 		switch(bl->type) {
 			case BL_HOM: return (((TBL_HOM *)bl)->master);
@@ -2161,7 +2161,7 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 	}
 
 	if(src->type == BL_PC) {
-		TBL_PC* sd = (TBL_PC *)src;
+		TBL_PC *sd = (TBL_PC *)src;
 
 		if(target->type == BL_NPC) { //Monster npcs [Valaris]
 			npc_click(sd, (TBL_NPC *)target); //Submitted by leinsirk10 [Celest]
