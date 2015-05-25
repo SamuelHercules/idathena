@@ -548,10 +548,10 @@ int npc_timerevent(int tid, unsigned int tick, int id, intptr_t data)
 {
 	int old_rid, old_timer;
 	unsigned int old_tick;
-	struct npc_data *nd=(struct npc_data *)map_id2bl(id);
+	struct npc_data *nd = (struct npc_data *)map_id2bl(id);
 	struct npc_timerevent_list *te;
-	struct timer_event_data *ted = (struct timer_event_data*)data;
-	struct map_session_data *sd=NULL;
+	struct timer_event_data *ted = (struct timer_event_data *)data;
+	struct map_session_data *sd = NULL;
 
 	if( nd == NULL ) {
 		ShowError("npc_timerevent: NPC not found??\n");
@@ -709,7 +709,7 @@ void npc_timerevent_quit(struct map_session_data *sd)
 
 	// Delete timer
 	nd = (struct npc_data *)map_id2bl(td->id);
-	ted = (struct timer_event_data*)td->data;
+	ted = (struct timer_event_data *)td->data;
 	delete_timer(sd->npc_timer_id, npc_timerevent);
 	sd->npc_timer_id = INVALID_TIMER;
 
