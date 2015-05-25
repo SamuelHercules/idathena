@@ -5530,12 +5530,12 @@ static short status_calc_flee(struct block_list *bl, struct status_change *sc, i
 		flee += sc->data[SC_ZEPHYR]->val2;
 	if(sc->data[SC_MTF_HITFLEE])
 		flee += sc->data[SC_MTF_HITFLEE]->val2;
+	if(sc->data[SC_GOLDENE_FERSE])
+		flee += sc->data[SC_GOLDENE_FERSE]->val2;
 	if(sc->data[SC_INCFLEERATE])
 		flee += flee * sc->data[SC_INCFLEERATE]->val1 / 100;
 	if(sc->data[SC_WIND_STEP_OPTION])
 		flee += flee * sc->data[SC_WIND_STEP_OPTION]->val2 / 100;
-	if(sc->data[SC_GOLDENE_FERSE])
-		flee += flee * sc->data[SC_GOLDENE_FERSE]->val2 / 100;
 	if(sc->data[SC_SMOKEPOWDER])
 		flee += flee * 20 / 100;
 	if(sc->data[SC_GATLINGFEVER])
