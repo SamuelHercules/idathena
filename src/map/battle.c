@@ -7935,7 +7935,7 @@ bool battle_check_range(struct block_list *src, struct block_list *bl, int range
  */
 static const struct _battle_data {
 	const char *str;
-	int* val;
+	int *val;
 	int defval;
 	int min;
 	int max;

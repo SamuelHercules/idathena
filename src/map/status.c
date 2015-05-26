@@ -3470,7 +3470,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 #else
 	status->watk = status_weapon_atk(&status->rhw,status);
 	status->watk2 = status_weapon_atk(&status->lhw,status);
-	status->eatk = sd->bonus.eatk;
+	status->eatk = max(sd->bonus.eatk,0);
 #endif
 
 	//----- MAX HP CALCULATION -----

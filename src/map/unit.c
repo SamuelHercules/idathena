@@ -163,7 +163,7 @@ TBL_PC *unit_get_master(struct block_list *bl) {
  * @param bl: char to get his master's teleport timer [HOM|ELEM|PET|MER]
  * @return timer or NULL
  */
-int* unit_get_masterteleport_timer(struct block_list *bl) {
+int *unit_get_masterteleport_timer(struct block_list *bl) {
 	if(bl)
 		switch(bl->type) {
 			case BL_HOM: return &(((TBL_HOM *)bl)->masterteleport_timer);

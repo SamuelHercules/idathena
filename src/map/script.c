@@ -364,7 +364,7 @@ static struct {
 
 const char *parse_curly_close(const char *p);
 const char *parse_syntax_close(const char *p);
-const char *parse_syntax_close_sub(const char *p,int* flag);
+const char *parse_syntax_close_sub(const char *p,int *flag);
 const char *parse_syntax(const char *p);
 static int parse_syntax_for_flag = 0;
 
@@ -2030,7 +2030,7 @@ const char *parse_syntax_close(const char *p) {
 // Close judgment if, for, while, of do
 //	 flag == 1 : closed
 //	 flag == 0 : not closed
-const char *parse_syntax_close_sub(const char *p,int* flag)
+const char *parse_syntax_close_sub(const char *p,int *flag)
 {
 	char label[256];
 	int pos = syntax.curly_count - 1;
@@ -2247,7 +2247,7 @@ static void add_buildin_func(void)
 }
 
 /// Retrieves the value of a constant.
-bool script_get_constant(const char *name, int* value)
+bool script_get_constant(const char *name, int *value)
 {
 	int n = search_str(name);
 
@@ -4009,7 +4009,7 @@ void script_cleararray_pc(struct map_session_data *sd, const char *varname, void
 
 /// sets a temporary character array variable element idx to given value
 /// @param refcache Pointer to an int variable, which keeps a copy of the reference to varname and must be initialized to 0. Can be NULL if only one element is set.
-void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void *value, int* refcache)
+void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void *value, int *refcache)
 {
 	int key;
 
@@ -4500,7 +4500,7 @@ BUILDIN_FUNC(close2)
 /// Counts the number of valid and total number of options in 'str'
 /// If max_count > 0 the counting stops when that valid option is reached
 /// total is incremented for each option (NULL is supported)
-static int menu_countoptions(const char *str, int max_count, int* total)
+static int menu_countoptions(const char *str, int max_count, int *total)
 {
 	int count = 0;
 	int bogus_total;
@@ -6845,7 +6845,7 @@ BUILDIN_FUNC(makeitem2) {
 /// Counts/deletes the current item given by idx.
 /// Used by buildin_delitem_search
 /// Relies on all input data being already fully valid.
-static void buildin_delitem_delete(struct map_session_data *sd, int idx, int* amount, uint8 loc, bool delete_items)
+static void buildin_delitem_delete(struct map_session_data *sd, int idx, int *amount, uint8 loc, bool delete_items)
 {
 	int delamount;
 	struct item *itm = NULL;

@@ -179,12 +179,12 @@ struct DBMap *script_get_label_db(void);
 struct DBMap *script_get_userfunc_db(void);
 void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos);
 
-bool script_get_constant(const char *name, int* value);
+bool script_get_constant(const char *name, int *value);
 void script_set_constant(const char *name, int value, bool isparameter);
 void script_hardcoded_constants(void);
 
 void script_cleararray_pc(struct map_session_data *sd, const char *varname, void *value);
-void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void *value, int* refcache);
+void script_setarray_pc(struct map_session_data *sd, const char *varname, uint8 idx, void *value, int *refcache);
 
 int script_config_read(char *cfgName);
 void do_init_script(void);

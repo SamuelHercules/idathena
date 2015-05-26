@@ -1968,7 +1968,7 @@ void do_shutdown(void)
 //------------------------------
 // Login server initialization
 //------------------------------
-int do_init(int argc, char** argv)
+int do_init(int argc, char **argv)
 {
 	int i;
 

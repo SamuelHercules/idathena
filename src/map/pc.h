@@ -431,8 +431,8 @@ struct map_session_data {
 		unsigned short unstripable_equip;
 		int fixcastrate, varcastrate;
 		int add_fixcast, add_varcast;
-		int ematk; //Matk bonus from equipment
-		int eatk; //Atk bonus from equipment
+		short ematk; //Matk bonus from equipment
+		short eatk; //Atk bonus from equipment
 	} bonus;
 	//Zeroed vars end here
 
@@ -831,8 +831,8 @@ short pc_maxaspd(struct map_session_data *sd);
 #endif
 
 int pc_split_str(char *str, char **val, int num);
-int pc_split_atoi(char *str, int* val, char sep, int max);
-int pc_split_atoui(char *str, unsigned int* val, char sep, int max);
+int pc_split_atoi(char *str, int *val, char sep, int max);
+int pc_split_atoui(char *str, unsigned int *val, char sep, int max);
 int pc_class2idx(int class_);
 int pc_get_group_level(struct map_session_data *sd);
 int pc_get_group_id(struct map_session_data *sd);

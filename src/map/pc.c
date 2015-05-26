@@ -10271,7 +10271,7 @@ int pc_split_str(char *str, char **val, int num)
 	return i;
 }
 
-int pc_split_atoi(char *str, int* val, char sep, int max)
+int pc_split_atoi(char *str, int *val, char sep, int max)
 {
 	int i, j;
 
@@ -10288,7 +10288,7 @@ int pc_split_atoi(char *str, int* val, char sep, int max)
 	return i;
 }
 
-int pc_split_atoui(char *str, unsigned int* val, char sep, int max)
+int pc_split_atoui(char *str, unsigned int *val, char sep, int max)
 {
 	static int warning = 0;
 	int i, j;
