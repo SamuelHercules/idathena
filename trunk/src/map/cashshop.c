@@ -26,7 +26,7 @@ extern char item_cash_db2_db[32];
  *  0 = failure
  *  1 = success
  */
-static int cashshop_parse_dbrow( char** str, const char *source, int line ){
+static int cashshop_parse_dbrow( char **str, const char *source, int line ){
 	unsigned short nameid = atoi( str[1] );
 
 	if( itemdb_exists( nameid ) ){

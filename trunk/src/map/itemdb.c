@@ -1137,7 +1137,7 @@ static void itemdb_re_split_atoi(char *str, int *atk, int *matk) {
 /**
  * Processes one itemdb entry
  */
-static bool itemdb_parse_dbrow(char** str, const char *source, int line, int scriptopt) {
+static bool itemdb_parse_dbrow(char **str, const char *source, int line, int scriptopt) {
 	/*
 		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
 		| 00 |      01      |       02      |  03  |     04    |     05     |   06   |   07   |    08   |   09  |   10  |     11     |      12     |       13      |        14       |      15      |      16     |     17     |  18  |   19   |      20      |        21      |

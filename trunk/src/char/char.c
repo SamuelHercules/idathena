@@ -4912,7 +4912,7 @@ int broadcast_user_count(int tid, unsigned int tick, int id, intptr_t data)
 static int send_accounts_tologin_sub(DBKey key, DBData *data, va_list ap)
 {
 	struct online_char_data* character = db_data2ptr(data);
-	int* i = va_arg(ap, int*);
+	int *i = va_arg(ap, int*);
 
 	if( character->server > -1 ) {
 		WFIFOL(login_fd,8 + (*i) * 4) = character->account_id;

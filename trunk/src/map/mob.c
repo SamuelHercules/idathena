@@ -3683,7 +3683,7 @@ static void item_dropratio_adjust(unsigned short nameid, int mob_id, int *rate_a
 /*==========================================
  * Processes one mobdb entry
  *------------------------------------------*/
-static bool mob_parse_dbrow(char** str)
+static bool mob_parse_dbrow(char **str)
 {
 	struct mob_db *db, entry;
 	struct status_data *status;
@@ -4108,7 +4108,7 @@ static bool mob_parse_row_chatdb(char *fields[], int columns, int current)
 /*==========================================
  * processes one mob_skill_db entry
  *------------------------------------------*/
-static bool mob_parse_row_mobskilldb(char** str, int columns, int current)
+static bool mob_parse_row_mobskilldb(char **str, int columns, int current)
 {
 	static const struct {
 		char str[32];

@@ -364,7 +364,7 @@ int npc_event_doall_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char *p = key.str;
 	struct event_data* ev;
-	int* c;
+	int *c;
 	const char *name;
 	int rid;
 
@@ -393,7 +393,7 @@ static int npc_event_do_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char *p = key.str;
 	struct event_data* ev;
-	int* c;
+	int *c;
 	const char *name;
 
 	nullpo_ret(ev = db_data2ptr(data));
@@ -2655,7 +2655,7 @@ int npc_convertlabel_db(DBKey key, DBData *data, va_list ap)
 	const char *lname = (const char *)key.str;
 	int lpos = db_data2i(data);
 	struct npc_label_list** label_list;
-	int* label_list_num;
+	int *label_list_num;
 	const char *filepath;
 	struct npc_label_list* label;
 	const char *p;

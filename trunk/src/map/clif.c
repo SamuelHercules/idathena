@@ -3172,17 +3172,12 @@ void clif_updatestatus(struct map_session_data *sd,int type)
 		case SP_DEF2:
 			WFIFOL(fd,4) = pc_rightside_def(sd);
 			break;
-		case SP_MDEF2: {
-				//Negative check (in case you have something like Berserk active)
-				int mdef2 = pc_rightside_mdef(sd);
-
-				WFIFOL(fd,4) =
-#ifndef RENEWAL
-				(mdef2 < 0) ? 0 :
+		case SP_MDEF2:
+#ifndef RENEWAL //Negative check (in case you have something like Berserk active)
+			WFIFOL(fd,4) = max(pc_rightside_mdef(sd),0);
+#else
+			WFIFOL(fd,4) = pc_rightside_mdef(sd);
 #endif
-				mdef2;
-
-			}
 			break;
 		case SP_CRITICAL:
 			WFIFOL(fd,4) = sd->battle_status.cri / 10;
@@ -3521,7 +3516,7 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 ///     <flee>.W <flee2>.W <crit>.W <aspd>.W <aspd2>.W
 void clif_initialstatus(struct map_session_data *sd)
 {
-	int fd, mdef2;
+	int fd;
 	unsigned char *buf;
 
 	nullpo_retv(sd);
@@ -3552,12 +3547,11 @@ void clif_initialstatus(struct map_session_data *sd)
 	WBUFW(buf,24) = pc_leftside_def(sd);
 	WBUFW(buf,26) = pc_rightside_def(sd);
 	WBUFW(buf,28) = pc_leftside_mdef(sd);
-	mdef2 = pc_rightside_mdef(sd);
-	WBUFW(buf,30) =
 #ifndef RENEWAL
-		(mdef2 < 0) ? 0 : //Negative check for Frenzy'ed characters.
+	WBUFW(buf,30) = max(pc_rightside_mdef(sd),0); //Negative check for Frenzy'ed characters
+#else
+	WBUFW(buf,30) = pc_rightside_mdef(sd);
 #endif
-		mdef2;
 	WBUFW(buf,32) = sd->battle_status.hit;
 	WBUFW(buf,34) = sd->battle_status.flee;
 	WBUFW(buf,36) = sd->battle_status.flee2 / 10;
@@ -9695,7 +9689,7 @@ void clif_msg_skill(struct map_session_data *sd, uint16 skill_id, int msg_id)
 /// Returns true if the packet was parsed successfully.
 /// Formats: 0 - <packet id>.w <packet len>.w (<name> : <message>).?B 00
 ///          1 - <packet id>.w <packet len>.w <name>.24B <message>.?B 00
-static bool clif_process_message(struct map_session_data *sd, int format, char** name_, int* namelen_, char** message_, int* messagelen_)
+static bool clif_process_message(struct map_session_data *sd, int format, char **name_, int *namelen_, char **message_, int *messagelen_)
 {
 	char *text, *name, *message;
 	unsigned int packetlen, textlen, namelen, messagelen;
