@@ -3763,7 +3763,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			break;
 		case SR_SKYNETBLOW:
 			//ATK [{(Skill Level x 100) + (Caster's AGI) + 150} x Caster's Base Level / 100] %
-			if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_DRAGONCOMBO)
+			if(wd.miscflag&4)
 				skillratio += 100 * skill_lv + sstatus->agi + 50;
 			else //ATK [{(Skill Level x 80) + (Caster's AGI)} x Caster's Base Level / 100] %
 				skillratio += -100 + 80 * skill_lv + sstatus->agi;

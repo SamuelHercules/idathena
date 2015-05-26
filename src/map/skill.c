@@ -4381,18 +4381,24 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					sflag |= SD_ANIMATION; //Original target gets no animation (as well as all NPC skills)
 				if (tsc && tsc->data[SC_HOVERING] && (skill_id == LG_MOONSLASHER || skill_id == SR_WINDMILL))
 					break;
+				if (skill_area_temp[1] == bl->id && skill_id == SR_TIGERCANNON)
+					break; //Already done in 'skill_castend_nodamage_id' [exneval]
+				switch (skill_id) {
 #ifdef RENEWAL
-				if (skill_id == MG_FIREBALL)
-					sflag |= distance_xy(bl->x,bl->y,skill_area_temp[4],skill_area_temp[5]);
+					case MG_FIREBALL:
+						sflag |= distance_xy(bl->x,bl->y,skill_area_temp[4],skill_area_temp[5]);
+						break;
 #endif
-				if (skill_id == SR_TIGERCANNON) {
-					if (skill_area_temp[1] != bl->id) {
+					case SR_SKYNETBLOW:
 						if (flag&4)
-							skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,sflag|4|8);
+							sflag |= 4;
+						break;
+					case SR_TIGERCANNON:
+						if (flag&4)
+							sflag |= 4|8;
 						else
-							skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,sflag|8);
-					}
-					break;
+							sflag |= 8;
+						break;
 				}
 				heal = (int)skill_attack(skill_get_type(skill_id),src,src,bl,skill_id,skill_lv,tick,sflag);
 				if (skill_id == NPC_VAMPIRE_GIFT && heal > 0) {
@@ -6471,8 +6477,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case RG_RAID:
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			skill_area_temp[1] = 0;
-			map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),
-				src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+			map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,
+				skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
 			status_change_end(src,SC_HIDING,INVALID_TIMER);
 			break;
 
@@ -6482,9 +6488,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case RK_STORMBLAST:
 		case WL_FROSTMISTY:
 		case WL_JACKFROST:
-		case NC_AXETORNADO:
 		case GC_COUNTERSLASH:
-		case SR_SKYNETBLOW:
 		case SR_RAMPAGEBLASTER:
 		case SR_HOWLINGOFLION:
 		case KO_HAPPOKUNAI:
@@ -6493,16 +6497,15 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			skill_area_temp[1] = 0;
 			if (battle_config.skill_wall_check)
-				i = map_foreachinshootrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+				map_foreachinshootrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
 			else
-				i = map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
-			if (!i && (skill_id == NC_AXETORNADO || skill_id == SR_SKYNETBLOW || skill_id == KO_HAPPOKUNAI))
-				clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
 			if (skill_id == GC_COUNTERSLASH)
 				status_change_end(src,SC_WEAPONBLOCKING,INVALID_TIMER);
 			break;
 
 		case RK_IGNITIONBREAK:
+		case NC_AXETORNADO:
 		case LG_MOONSLASHER:
 			clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
 			skill_area_temp[1] = 0;
@@ -9510,6 +9513,18 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
 			break;
 
+		case SR_SKYNETBLOW: {
+				struct status_change *sc = status_get_sc(src);
+
+				clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
+				skill_area_temp[1] = 0;
+				if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_DRAGONCOMBO )
+					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1|4,skill_castend_damage_id);
+				else
+					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+			}
+			break;
+
 		case SR_TIGERCANNON:
 			clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
 			skill_area_temp[1] = bl->id;
@@ -9519,7 +9534,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			} else {
 				struct status_change *sc = status_get_sc(src);
 
-				if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) {
+				if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE ) {
 					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag|4);
 					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1|4,skill_castend_damage_id);
 				} else {

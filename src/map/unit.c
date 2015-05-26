@@ -1702,8 +1702,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			break;
 		case SR_GATEOFHELL:
 		case SR_TIGERCANNON:
-			if( sc && sc->data[SC_COMBO] &&
-			   sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE )
+			if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE )
 				casttime = -1;
 			combo = 1;
 			break;
