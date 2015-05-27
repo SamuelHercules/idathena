@@ -1741,15 +1741,19 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			if( sc && sc->data[SC_WUGDASH] )
 				casttime = -1;
 			break;
-		case EL_WIND_SLASH:
-		case EL_HURRICANE:
-		case EL_TYPOON_MIS:
-		case EL_STONE_HAMMER:
-		case EL_ROCK_CRUSHER:
-		case EL_STONE_RAIN:
+		case EL_FIRE_ARROW:
+		case EL_FIRE_BOMB:
+		case EL_FIRE_WAVE:
 		case EL_ICE_NEEDLE:
 		case EL_WATER_SCREW:
 		case EL_TIDAL_WEAPON:
+		case EL_WIND_SLASH:
+		case EL_HURRICANE:
+		case EL_TYPOON_MIS:
+		case EL_TYPOON_MIS_ATK:
+		case EL_STONE_HAMMER:
+		case EL_ROCK_CRUSHER:
+		case EL_STONE_RAIN:
 			if( src->type == BL_ELEM ) {
 				sd = BL_CAST(BL_PC, battle_get_master(src));
 				if( sd && sd->skill_id_old == SO_EL_ACTION ) {
@@ -2724,6 +2728,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char *file, 
 		status_change_end(bl,SC_STOP,INVALID_TIMER);
 		status_change_end(bl,SC_WUGDASH,INVALID_TIMER);
 		status_change_end(bl,SC_CAMOUFLAGE,INVALID_TIMER);
+		status_change_end(bl,SC_MAGNETICFIELD,INVALID_TIMER);
 		status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
 		status_change_end(bl,SC__MANHOLE,INVALID_TIMER);
 		status_change_end(bl,SC_VACUUM_EXTREME,INVALID_TIMER);

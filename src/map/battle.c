@@ -422,7 +422,7 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 					}
 				}
 				if( tsc->data[SC_THORNSTRAP] ) {
-					struct skill_unit_group* group = skill_id2group(tsc->data[SC_THORNSTRAP]->val3);
+					struct skill_unit_group *group = skill_id2group(tsc->data[SC_THORNSTRAP]->val3);
 
 					if( group )
 						skill_delunitgroup(group);
@@ -835,18 +835,19 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			}
 		}
 
-		//Block all ranged attacks, all short-ranged skills, and targeted magic skills
+		//Block all ranged attacks, all short-ranged skills
+		//Block targeted magic skills with 70% success chance
 		//Normal melee attacks and ground magic skills can still hit the player inside Zephyr
 		if( sc->data[SC_ZEPHYR] && (((flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && skill_id) ||
 			(flag&(BF_LONG|BF_MAGIC)) == BF_LONG || (flag&BF_MAGIC &&
-			!(skill_get_inf(skill_id)&(INF_GROUND_SKILL|INF_SELF_SKILL)))) )
+			!(skill_get_inf(skill_id)&(INF_GROUND_SKILL|INF_SELF_SKILL)) && rnd()%100 < 70)) )
 		{
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
 		}
 
 		if( (sce = sc->data[SC_SAFETYWALL]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT ) {
-			struct skill_unit_group* group = skill_id2group(sce->val3);
+			struct skill_unit_group *group = skill_id2group(sce->val3);
 			uint16 skill_id = sce->val2;
 
 			if( group ) {
@@ -1183,15 +1184,6 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 
 		if( (sce = sc->data[SC_MAGMA_FLOW]) && rnd()%100 <= sce->val2 )
 			skill_castend_nodamage_id(bl,bl,MH_MAGMA_FLOW,sce->val1,gettick(),flag|2);
-
-		if( (sce = sc->data[SC_CIRCLE_OF_FIRE_OPTION]) ) {
-			struct elemental_data *ed = ((TBL_PC *)bl)->ed;
-
-			if( ed ) {
-				skill_castend_nodamage_id(bl,bl,EL_CIRCLE_OF_FIRE,sce->val1,gettick(),flag|2);
-				elemental_clean_single_effect(ed,EL_CIRCLE_OF_FIRE); //Lasts one hit
-			}
-		}
 
 		if( damage > 0 && (sce = sc->data[SC_STONEHARDSKIN]) && (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) ) {
 			sce->val2 -= (int)cap_value(damage,INT_MIN,INT_MAX);
@@ -7365,12 +7357,21 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 			} else
 				status_change_end(target,SC_DEVOTION,INVALID_TIMER);
 		}
+		if (tsc->data[SC_CIRCLE_OF_FIRE_OPTION] && wd.flag&BF_SHORT && target->type == BL_PC) {
+			struct status_change_entry *sce_e = tsc->data[SC_CIRCLE_OF_FIRE_OPTION];
+			struct elemental_data *ed = ((TBL_PC *)target)->ed;
+
+			if (ed) {
+				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(src),0,-30000,1,EL_CIRCLE_OF_FIRE,sce_e->val1,DMG_SKILL);
+				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,sce_e->val1,tick,wd.flag);
+			}
+		}
 		if (tsc->data[SC_WATER_SCREEN_OPTION]) {
 			struct status_change_entry *sce_e = tsc->data[SC_WATER_SCREEN_OPTION];
 			struct block_list *e_bl = map_id2bl(sce_e->val1);
 
 			if (e_bl) {
-				clif_damage(e_bl,e_bl,tick,0,0,damage,0,DMG_NORMAL,0);
+				clif_damage(e_bl,e_bl,tick,0,0,damage,wd.div_,DMG_NORMAL,0);
 				status_fix_damage(NULL,e_bl,damage,0);
 			}
 		}
