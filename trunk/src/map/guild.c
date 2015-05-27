@@ -1366,7 +1366,7 @@ int guild_skillupack(int guild_id,uint16 skill_id,int account_id)
 }
 
 void guild_guildaura_refresh(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv) {
-	struct skill_unit_group* group = NULL;
+	struct skill_unit_group *group = NULL;
 	enum sc_type type = status_skill2sc(skill_id);
 
 	if( !(battle_config.guild_aura&((agit_flag || agit2_flag) ? 2 : 1)) &&

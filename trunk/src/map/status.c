@@ -745,7 +745,7 @@ void initChangeTables(void) {
 
 	//Homunculus S
 	add_sc( MH_STAHL_HORN         , SC_STUN );
-	set_sc( MH_ANGRIFFS_MODUS     , SC_ANGRIFFS_MODUS  , SI_ANGRIFFS_MODUS     , SCB_BATK|SCB_DEF|SCB_FLEE|SCB_MAXHP );
+	set_sc( MH_ANGRIFFS_MODUS     , SC_ANGRIFFS_MODUS  , SI_ANGRIFFS_MODUS     , SCB_BATK|SCB_WATK|SCB_DEF|SCB_FLEE|SCB_MAXHP );
 	set_sc( MH_GOLDENE_FERSE      , SC_GOLDENE_FERSE   , SI_GOLDENE_FERSE      , SCB_ASPD|SCB_FLEE );
 	add_sc( MH_STEINWAND          , SC_SAFETYWALL );
 	set_sc( MH_LIGHT_OF_REGENE    , SC_LIGHT_OF_REGENE , SI_LIGHT_OF_REGENE    , SCB_NONE );
@@ -789,7 +789,7 @@ void initChangeTables(void) {
 	set_sc( EL_PETROLOGY       , SC_PETROLOGY_OPTION     , SI_PETROLOGY_OPTION     , SCB_MAXHP );
 	set_sc( EL_CURSED_SOIL     , SC_CURSED_SOIL_OPTION   , SI_CURSED_SOIL_OPTION   , SCB_MAXHP );
 	set_sc( EL_UPHEAVAL        , SC_UPHEAVAL_OPTION      , SI_UPHEAVAL_OPTION      , SCB_MAXHP );
-	set_sc( EL_TIDAL_WEAPON    , SC_TIDAL_WEAPON_OPTION  , SI_TIDAL_WEAPON_OPTION  , SCB_ALL );
+	set_sc( EL_TIDAL_WEAPON    , SC_TIDAL_WEAPON_OPTION  , SI_TIDAL_WEAPON_OPTION  , SCB_ATK_ELE );
 	set_sc( EL_ROCK_CRUSHER    , SC_ROCK_CRUSHER         , SI_ROCK_CRUSHER         , SCB_DEF );
 	set_sc( EL_ROCK_CRUSHER_ATK, SC_ROCK_CRUSHER_ATK     , SI_ROCK_CRUSHER_ATK     , SCB_SPEED );
 
@@ -979,6 +979,7 @@ void initChangeTables(void) {
 	StatusIconChangeTable[SC_PETROLOGY] = SI_PETROLOGY;
 	StatusIconChangeTable[SC_CURSED_SOIL] = SI_CURSED_SOIL;
 	StatusIconChangeTable[SC_UPHEAVAL] = SI_UPHEAVAL;
+	StatusIconChangeTable[SC_TIDAL_WEAPON] = SI_TIDAL_WEAPON;
 	StatusIconChangeTable[SC_REBOUND] = SI_REBOUND;
 	StatusIconChangeTable[SC_DEFSET] = SI_SET_NUM_DEF;
 	StatusIconChangeTable[SC_MDEFSET] = SI_SET_NUM_MDEF;
@@ -1055,8 +1056,8 @@ void initChangeTables(void) {
 	StatusChangeFlagTable[SC_BATKFOOD] |= SCB_BATK;
 	StatusChangeFlagTable[SC_WATKFOOD] |= SCB_WATK;
 	StatusChangeFlagTable[SC_MATKFOOD] |= SCB_MATK;
-	StatusChangeFlagTable[SC_ARMOR_ELEMENT] |= SCB_DEF_ELE;
-	StatusChangeFlagTable[SC_ARMOR_RESIST] |= SCB_DEF_ELE;
+	StatusChangeFlagTable[SC_ARMOR_ELEMENT] |= SCB_ALL;
+	StatusChangeFlagTable[SC_ARMOR_RESIST] |= SCB_ALL;
 	StatusChangeFlagTable[SC_SPCOST_RATE] |= SCB_ALL;
 	StatusChangeFlagTable[SC_WALKSPEED] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ITEMSCRIPT] |= SCB_ALL;
@@ -1100,6 +1101,7 @@ void initChangeTables(void) {
 	StatusChangeFlagTable[SC_SIROMA_ICE_TEA] |= SCB_DEX;
 	StatusChangeFlagTable[SC_DROCERA_HERB_STEAMED] |= SCB_AGI;
 	StatusChangeFlagTable[SC_PUTTI_TAILS_NOODLES] |= SCB_LUK;
+	StatusChangeFlagTable[SC_TIDAL_WEAPON] |= SCB_WATK|SCB_ATK_ELE;
 	StatusChangeFlagTable[SC_REBOUND] |= SCB_SPEED|SCB_REGEN;
 	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF|SCB_DEF2;
 	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF|SCB_MDEF2;
@@ -1190,7 +1192,7 @@ void initChangeTables(void) {
 	StatusChangeStateTable[SC_ELECTRICSHOCKER]      |= SCS_NOMOVE;
 	StatusChangeStateTable[SC_BITE]                 |= SCS_NOMOVE;
 	StatusChangeStateTable[SC_THORNSTRAP]           |= SCS_NOMOVE;
-	StatusChangeStateTable[SC_MAGNETICFIELD]        |= SCS_NOMOVE|SCS_NOMOVECOND;
+	StatusChangeStateTable[SC_MAGNETICFIELD]        |= SCS_NOMOVE;
 	StatusChangeStateTable[SC__MANHOLE]             |= SCS_NOMOVE;
 	StatusChangeStateTable[SC_FALLENEMPIRE]         |= SCS_NOMOVE;
 	StatusChangeStateTable[SC_VACUUM_EXTREME]       |= SCS_NOMOVE;
@@ -2279,6 +2281,10 @@ void status_get_matk_sub(struct block_list *bl, int flag, unsigned short *matk_m
 		case BL_HOM:
 			*matk_min += (status_get_homint(bl) + status_get_homdex(bl)) / 5;
 			*matk_max += (status_get_homluk(bl) + status_get_homint(bl) + status_get_homdex(bl)) / 3;
+			break;
+		case BL_ELEM:
+			*matk_min += 70 * ((TBL_ELEM *)bl)->elemental.matk / 100;
+			*matk_max += 130 * ((TBL_ELEM *)bl)->elemental.matk / 100;
 			break;
 	}
 #else
@@ -4224,8 +4230,7 @@ void status_calc_state(struct block_list *bl, struct status_change *sc, enum scs
 		else if( (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF) || //Can't move while gospel is in effect
 			(sc->data[SC_BASILICA] && sc->data[SC_BASILICA]->val4 == bl->id) || //Basilica caster cannot move
 			(sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF) ||
-			(sc->data[SC_CAMOUFLAGE] && sc->data[SC_CAMOUFLAGE]->val1 < 3) ||
-			(sc->data[SC_MAGNETICFIELD] && sc->data[SC_MAGNETICFIELD]->val2 != bl->id) )
+			(sc->data[SC_CAMOUFLAGE] && sc->data[SC_CAMOUFLAGE]->val1 < 3) )
 			sc->cant.move += (start ? 1 : -1);
 		sc->cant.move = max(sc->cant.move, 0); //Safe check
 	}
@@ -5278,6 +5283,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_FULL_SWING_K])
 		watk += sc->data[SC_FULL_SWING_K]->val1;
+	if(sc->data[SC_ANGRIFFS_MODUS])
+		watk += sc->data[SC_ANGRIFFS_MODUS]->val2;
 #ifndef RENEWAL
 	if(sc->data[SC_CONCENTRATION])
 		watk += watk * sc->data[SC_CONCENTRATION]->val2 / 100;
@@ -5294,8 +5301,6 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_FLEET]->val3 / 100;
 	if(sc->data[SC_TIDAL_WEAPON])
 		watk += watk * sc->data[SC_TIDAL_WEAPON]->val2 / 100;
-	if(sc->data[SC_ANGRIFFS_MODUS])
-		watk += watk * sc->data[SC_ANGRIFFS_MODUS]->val2 / 100;
 	if(sc->data[SC_CURSE])
 		watk -= watk * 25 / 100;
 #ifndef RENEWAL
@@ -5645,14 +5650,14 @@ defType status_calc_def(struct block_list *bl, struct status_change *sc, int def
 	if(sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
 		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
 #endif
+	if(sc->data[SC_SOLID_SKIN_OPTION])
+		def <<= 1;
+	if(sc->data[SC_POWER_OF_GAIA])
+		def += 100;
 	if(sc->data[SC_INCDEFRATE])
 		def += def * sc->data[SC_INCDEFRATE]->val1 / 100;
 	if(sc->data[SC_ECHOSONG])
 		def += def * sc->data[SC_ECHOSONG]->val3 / 100;
-	if(sc->data[SC_SOLID_SKIN_OPTION])
-		def += def * sc->data[SC_SOLID_SKIN_OPTION]->val2 / 100;
-	if(sc->data[SC_POWER_OF_GAIA])
-		def += def * sc->data[SC_POWER_OF_GAIA]->val2 / 100;
 	if(sc->data[SC_ODINS_POWER])
 		def -= 20 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_ANGRIFFS_MODUS])
@@ -9559,9 +9564,6 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val2 = 5; //Bonus % MaxHP
 				val3 = 50; //% Increase Chance
 				break;
-			case SC_SOLID_SKIN_OPTION:
-				val2 = 33; //% Increase DEF
-				break;
 			case SC_CURSED_SOIL_OPTION:
 				val2 = 10; //Bonus % MaxHP
 				val3 = (sd ? sd->status.job_level : 0); //% Increase Damage
@@ -9624,11 +9626,12 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_TIDAL_WEAPON:
 				val2 = 20; //Increase Elemental attack
 				break;
+			case SC_POWER_OF_GAIA:
+				val3 = 20; //% Increase summoner HP
+			//Fall through
 			case SC_ROCK_CRUSHER:
 			case SC_ROCK_CRUSHER_ATK:
-			case SC_POWER_OF_GAIA:
-				val2 = 33; //% Increase/Reduce Def/Speed
-				val3 = 20; //% Increase summoner HP
+				val2 = 33; //% Reduce Def/Speed
 				break;
 			case SC_TEARGAS:
 				val2 = status->max_hp * 5 / 100; //Drain 5% HP
@@ -10862,7 +10865,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 			break;
 		case SC_BASILICA: //Clear the skill area [Skotlex]
 			if (sce->val3 && sce->val4 == bl->id) {
-				struct skill_unit_group* group = skill_id2group(sce->val3);
+				struct skill_unit_group *group = skill_id2group(sce->val3);
 
 				sce->val3 = 0;
 				if (group)
@@ -10876,7 +10879,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 		case SC_WARM:
 		case SC__MANHOLE:
 			if (sce->val4) { //Clear the group
-				struct skill_unit_group* group = skill_id2group(sce->val4);
+				struct skill_unit_group *group = skill_id2group(sce->val4);
 
 				sce->val4 = 0;
 				if (group) //Might have been cleared before status ended, e.g. land protector
@@ -10950,7 +10953,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 		case SC_NEUTRALBARRIER_MASTER:
 		case SC_STEALTHFIELD_MASTER:
 			if (sce->val2) {
-				struct skill_unit_group* group = skill_id2group(sce->val2);
+				struct skill_unit_group *group = skill_id2group(sce->val2);
 
 				sce->val2 = 0;
 				if (group) //Might have been cleared before status ended, e.g. land protector
@@ -11962,7 +11965,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		case SC_THORNSTRAP:
 			if( --(sce->val4) >= 0 ) {
 				struct block_list *src = map_id2bl(sce->val2);
-				struct skill_unit_group* group = skill_id2group(sce->val3);
+				struct skill_unit_group *group = skill_id2group(sce->val3);
 
 				if( !src || (src && (status_isdead(src) || src->m != bl->m)) )
 					break;
@@ -12124,20 +12127,17 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			break;
 
 		case SC_MAGNETICFIELD:
-			if( --(sce->val3) <= 0 )
-				break; //Time out
-			if( sce->val2 != bl->id ) {
-				if( !status_charge(bl,0,50) )
-					break; //No more SP status should end, and in the next second will end for the other affected players
-			} else {
+			if( --(sce->val3) >= 0 ) {
 				struct block_list *src = map_id2bl(sce->val2);
-				struct status_change *ssc = status_get_sc(src);
 
-				if( !src || !ssc || !ssc->data[SC_MAGNETICFIELD] )
-					break; //Source no more under Magnetic Field
+				if( !src || (src && (status_isdead(src) || src->m != bl->m)) )
+					break;
+				if( !status_charge(bl,0,50) )
+					status_zap(bl,0,status->sp);
+				sc_timer_next(1000 + tick,status_change_timer,bl->id,data);
+				return 0;
 			}
-			sc_timer_next(1000 + tick,status_change_timer,bl->id,data);
-			return 0;
+			break;
 
 		case SC_STEALTHFIELD_MASTER:
 			if( --(sce->val4) >= 0 ) {
