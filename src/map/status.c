@@ -7442,11 +7442,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 	if( bl->type == BL_MOB ) {
 		struct mob_data *md = BL_CAST(BL_MOB,bl);
 
-		if( md && (md->mob_id == MOBID_EMPERIUM || mob_is_battleground(md)) &&
+		if( md && (mob_is_gvg(md) || mob_is_battleground(md)) &&
 			type != SC_SAFETYWALL && type != SC_PNEUMA && type != SC_NEUTRALBARRIER && type != SC_STEALTHFIELD )
-			return 0; //Emperium/BG Monsters can't be afflicted by status changes
-		//if( md && mob_is_gvg(md) && status_sc2scb_flag(type)&SCB_MAXHP )
-			//return 0; //Prevent status addin hp to gvg mob (like bloodylust = hp * 3, and etc)
+			return 0; //GVG/BG Monsters can't be afflicted by status changes
 	}
 
 	if( sc->data[SC_REFRESH] ) { //Immunes against status effects
