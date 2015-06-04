@@ -3605,8 +3605,12 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 				(!target || target->prev == NULL || !check_distance_bl(src,target,AREA_SIZE)))
 				target = src; //Required since it has to warp
 			if (!target || target->prev == NULL || src->m != target->m) {
-				if (skl->skill_id == SR_SKYNETBLOW)
+				if (skl->skill_id == SR_SKYNETBLOW) {
 					clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skl->skill_id,skl->skill_lv,DMG_SKILL);
+					skill_area_temp[1] = 0;
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skl->skill_id,skl->skill_lv),splash_target(src),src,
+						skl->skill_id,skl->skill_lv,tick,skl->flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+				}
 				break; //Target offline, not on map, or in different maps
 			}
 			if (status_isdead(src)) {
