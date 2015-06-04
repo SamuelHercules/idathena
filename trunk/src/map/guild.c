@@ -199,15 +199,15 @@ struct guild *guild_searchname(char *str)
 }
 
 /// lookup: castle id -> castle*
-struct guild_castle* guild_castle_search(int gcid)
+struct guild_castle *guild_castle_search(int gcid)
 {
 	return (struct guild_castle*)idb_get(castle_db,gcid);
 }
 
 /// lookup: map index -> castle*
-struct guild_castle* guild_mapindex2gc(short mapindex)
+struct guild_castle *guild_mapindex2gc(short mapindex)
 {
-	struct guild_castle* gc;
+	struct guild_castle *gc;
 	DBIterator *iter = db_iterator(castle_db);
 
 	for( gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter) ) {
@@ -220,7 +220,7 @@ struct guild_castle* guild_mapindex2gc(short mapindex)
 }
 
 /// lookup: map name -> castle*
-struct guild_castle* guild_mapname2gc(const char *mapname)
+struct guild_castle *guild_mapname2gc(const char *mapname)
 {
 	return guild_mapindex2gc(mapindex_name2id(mapname));
 }
@@ -230,8 +230,8 @@ struct map_session_data *guild_getavailablesd(struct guild *g)
 	int i;
 	nullpo_retr(NULL, g);
 
-	ARR_FIND( 0, g->max_member, i, g->member[i].sd != NULL );
-	return( i < g->max_member ) ? g->member[i].sd : NULL;
+	ARR_FIND(0, g->max_member, i, g->member[i].sd != NULL);
+	return(i < g->max_member) ? g->member[i].sd : NULL;
 }
 
 /// lookup: player AID/CID -> member index
@@ -242,8 +242,8 @@ int guild_getindex(struct guild *g,int account_id,int char_id)
 	if( g == NULL )
 		return -1;
 
-	ARR_FIND( 0, g->max_member, i, g->member[i].account_id == account_id && g->member[i].char_id == char_id );
-	return( i < g->max_member ) ? i : -1;
+	ARR_FIND(0, g->max_member, i, g->member[i].account_id == account_id && g->member[i].char_id == char_id);
+	return(i < g->max_member) ? i : -1;
 }
 
 /// lookup: player sd -> member position
@@ -254,8 +254,8 @@ int guild_getposition(struct guild *g, struct map_session_data *sd)
 	if( g == NULL && (g=sd->guild) == NULL )
 		return -1;
 
-	ARR_FIND( 0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id );
-	return( i < g->max_member ) ? g->member[i].position : -1;
+	ARR_FIND(0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id);
+	return(i < g->max_member) ? g->member[i].position : -1;
 }
 
 // Creation of member information
@@ -658,7 +658,7 @@ int guild_reply_invite(struct map_session_data *sd, int guild_id, int flag)
 		sd->guild_invite = 0;
 		sd->guild_invite_account = 0;
 		if( tsd ) clif_guild_inviteack(tsd,1);
-	} else { // accepted
+	} else { //Accepted
 		struct guild_member m;
 		struct guild *g;
 		int i;
@@ -669,11 +669,12 @@ int guild_reply_invite(struct map_session_data *sd, int guild_id, int flag)
 			return 0;
 		}
 
-		ARR_FIND( 0, g->max_member, i, g->member[i].account_id == 0 );
+		ARR_FIND(0, g->max_member, i, g->member[i].account_id == 0);
 		if( i == g->max_member ) {
 			sd->guild_invite = 0;
 			sd->guild_invite_account = 0;
-			if( tsd ) clif_guild_inviteack(tsd,3);
+			if( tsd )
+				clif_guild_inviteack(tsd,3);
 			return 0;
 		}
 
@@ -1202,7 +1203,7 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 	}
 	{ // Update guardians (mobs)
 		DBIterator *iter = db_iterator(castle_db);
-		struct guild_castle* gc;
+		struct guild_castle *gc;
 
 		for(gc = (struct guild_castle*)dbi_first(iter); dbi_exists(iter); gc = (struct guild_castle*)dbi_next(iter)) {
 			if(gc->guild_id != guild_id)
@@ -1648,7 +1649,7 @@ int guild_allianceack(int guild_id1,int guild_id2,int account_id1,int account_id
 	if (!(flag & 0x08)) { // New relationship
 		for (i = 0; i < 2 - (flag&1); i++) {
 			if (g[i] != NULL) {
-				ARR_FIND( 0, MAX_GUILDALLIANCE, j, g[i]->alliance[j].guild_id == 0 );
+				ARR_FIND(0, MAX_GUILDALLIANCE, j, g[i]->alliance[j].guild_id == 0);
 				if (j < MAX_GUILDALLIANCE) {
 					g[i]->alliance[j].guild_id = guild_id[1-i];
 					memcpy(g[i]->alliance[j].name,guild_name[1-i],NAME_LENGTH);
@@ -1661,7 +1662,7 @@ int guild_allianceack(int guild_id1,int guild_id2,int account_id1,int account_id
 			if (g[i] != NULL) {
 				for (j = 0; j < g[i]->max_member; j++)
 					channel_pcquit(g[i]->member[j].sd,2); // Leave all alliance channel
-				ARR_FIND( 0, MAX_GUILDALLIANCE, j, g[i]->alliance[j].guild_id == guild_id[1-i] && g[i]->alliance[j].opposition == (flag&1) );
+				ARR_FIND(0, MAX_GUILDALLIANCE, j, g[i]->alliance[j].guild_id == guild_id[1-i] && g[i]->alliance[j].opposition == (flag&1));
 				if (j < MAX_GUILDALLIANCE)
 					g[i]->alliance[j].guild_id = 0;
 			}
@@ -1939,7 +1940,7 @@ void guild_castle_map_init(void)
 	int num = db_size(castle_db);
 
 	if (num > 0) {
-		struct guild_castle* gc = NULL;
+		struct guild_castle *gc = NULL;
 		int *castle_ids, *cursor;
 		DBIterator *iter = NULL;
 
@@ -2108,8 +2109,9 @@ int guild_castledataloadack(int len, struct guild_castle *gc)
  * Start normal woe and triggers all npc OnAgitStart
  *---------------------------------------------------*/
 void guild_agit_start(void)
-{	// Run All NPC_Event[OnAgitStart]
+{	//Run All NPC_Event[OnAgitStart]
 	int c = npc_event_doall("OnAgitStart");
+
 	ShowStatus("NPC_Event:[OnAgitStart] Run (%d) Events by @AgitStart.\n",c);
 }
 
@@ -2117,8 +2119,9 @@ void guild_agit_start(void)
  * End normal woe and triggers all npc OnAgitEnd
  *---------------------------------------------------*/
 void guild_agit_end(void)
-{	// Run All NPC_Event[OnAgitEnd]
+{	//Run All NPC_Event[OnAgitEnd]
 	int c = npc_event_doall("OnAgitEnd");
+
 	ShowStatus("NPC_Event:[OnAgitEnd] Run (%d) Events by @AgitEnd.\n",c);
 }
 
@@ -2126,8 +2129,9 @@ void guild_agit_end(void)
  * Start woe2 and triggers all npc OnAgitStart2
  *---------------------------------------------------*/
 void guild_agit2_start(void)
-{	// Run All NPC_Event[OnAgitStart2]
+{	//Run All NPC_Event[OnAgitStart2]
 	int c = npc_event_doall("OnAgitStart2");
+
 	ShowStatus("NPC_Event:[OnAgitStart2] Run (%d) Events by @AgitStart2.\n",c);
 }
 
@@ -2135,76 +2139,72 @@ void guild_agit2_start(void)
  * End woe2 and triggers all npc OnAgitEnd2
  *---------------------------------------------------*/
 void guild_agit2_end(void)
-{	// Run All NPC_Event[OnAgitEnd2]
+{	//Run All NPC_Event[OnAgitEnd2]
 	int c = npc_event_doall("OnAgitEnd2");
+
 	ShowStatus("NPC_Event:[OnAgitEnd2] Run (%d) Events by @AgitEnd2.\n",c);
 }
 
-// How many castles does this guild have?
+//How many castles does this guild have?
 int guild_checkcastles(struct guild *g)
 {
 	int nb_cas = 0;
-	struct guild_castle* gc = NULL;
+	struct guild_castle *gc = NULL;
 	DBIterator *iter = db_iterator(castle_db);
 
-	for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter)) {
-		if (gc->guild_id == g->guild_id) {
+	for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter))
+		if (gc->guild_id == g->guild_id)
 			nb_cas++;
-		}
-	}
+
 	dbi_destroy(iter);
 	return nb_cas;
 }
 
-// Are these two guilds allied?
+//Are these two guilds allied?
 bool guild_isallied(int guild_id, int guild_id2)
 {
 	int i;
 	struct guild *g = guild_search(guild_id);
 	nullpo_ret(g);
 
-	ARR_FIND( 0, MAX_GUILDALLIANCE, i, g->alliance[i].guild_id == guild_id2 );
-	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
+	ARR_FIND(0, MAX_GUILDALLIANCE, i, g->alliance[i].guild_id == guild_id2);
+	return(i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0);
 }
 
 void guild_flag_add(struct npc_data *nd) {
 	int i;
 
-	/* check */
-	for( i = 0; i < guild_flags_count; i++ ) {
-		if( guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id ) {
-			return;/* exists, most likely updated the id. */
-		}
-	}
+	//Check
+	for( i = 0; i < guild_flags_count; i++ )
+		if( guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id )
+			return; //Exists, most likely updated the id
 
-	i = guild_flags_count;/* save the current slot */
-	/* add */
-	RECREATE(guild_flags,struct npc_data*,++guild_flags_count);
-	/* save */
-	guild_flags[i] = nd;
+	i = guild_flags_count; //Save the current slot
+
+	RECREATE(guild_flags,struct npc_data*,++guild_flags_count); //Add
+
+	guild_flags[i] = nd; //Save
 }
 
 void guild_flag_remove(struct npc_data *nd) {
 	int i, cursor;
+
 	if( guild_flags_count == 0 )
 		return;
-	/* find it */
-	for( i = 0; i < guild_flags_count; i++ ) {
-		if( guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id ) {/* found */
+
+	for( i = 0; i < guild_flags_count; i++ ) { //Find it
+		if( guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id ) { //Found
 			guild_flags[i] = NULL;
 			break;
 		}
 	}
 
-	/* Compact list */
+	//Compact list
 	for( i = 0, cursor = 0; i < guild_flags_count; i++ ) {
 		if( guild_flags[i] == NULL )
 			continue;
-
-		if( cursor != i ) {
+		if( cursor != i )
 			memmove(&guild_flags[cursor], &guild_flags[i], sizeof(struct npc_data*));
-		}
-
 		cursor++;
 	}
 }
@@ -2235,7 +2235,7 @@ static int guild_expcache_db_final(DBKey key, DBData *data, va_list ap) {
  * @see DBApply
  */
 static int guild_castle_db_final(DBKey key, DBData *data, va_list ap) {
-	struct guild_castle* gc = db_data2ptr(data);
+	struct guild_castle *gc = db_data2ptr(data);
 	if( gc->temp_guardians )
 		aFree(gc->temp_guardians);
 	aFree(gc);

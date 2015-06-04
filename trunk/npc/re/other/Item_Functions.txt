@@ -12,22 +12,22 @@
 //= 1.0 First version. [exneval]
 //============================================================ 
 
-function	script	F_B_D_A	{ //18691
+function	script	F_18691	{ //Rising_Black_Dragon
 	unittalk getcharid(3),"Oy my goooodness!! How could my profile be so cute!!!",1;
 	return;
 }
 
-function	script	F_H_P_H_D	{ //18810
+function	script	F_18810_D	{ //Hell_Pumpkin_Hat
 	unittalk getcharid(3),"Human can show up, or get out of here Goast!!",1;
 	return;
 }
 
-function	script	F_H_P_H_L	{ //18810
+function	script	F_18810_L	{ //Hell_Pumpkin_Hat
 	unittalk getcharid(3),"Trick or Treat!!",1;
 	return;
 }
 
-function	script	F_W_K_T_D_H	{ //18856
+function	script	F_18856	{ //W_King_Tiger_Doll_Hat
 	unittalk getcharid(3),"fee-faw-fum-!!! I totally feel like a tiger!!!",1;
 	return;
 }

@@ -544,14 +544,13 @@ int mapif_parse_PartyAddMember(int fd, int party_id, struct party_member *member
 	int i;
 
 	p = inter_party_fromsql(party_id);
-	if( p == NULL || p->size == MAX_PARTY ) {
+	if (p == NULL || p->size == MAX_PARTY) {
 		mapif_party_memberadded(fd, party_id, member->account_id, member->char_id, 1);
 		return 0;
 	}
 
-	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == 0 );
-	if( i == MAX_PARTY )
-	{// Party full
+	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].account_id == 0);
+	if (i == MAX_PARTY) { // Party full
 		mapif_party_memberadded(fd, party_id, member->account_id, member->char_id, 1);
 		return 0;
 	}

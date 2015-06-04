@@ -525,13 +525,13 @@ int party_removemember(struct map_session_data *sd, int account_id, char *name)
 		return 0;
 
 	// Check the requesting char's party membership
-	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
+	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id);
 	if( i == MAX_PARTY )
 		return 0; // Request from someone not in party? o.O
 	if( !p->party.member[i].leader )
 		return 0; // Only party leader may remove members
 
-	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == account_id && strncmp(p->party.member[i].name,name,NAME_LENGTH) == 0 );
+	ARR_FIND(0, MAX_PARTY, i, p->party.member[i].account_id == account_id && strncmp(p->party.member[i].name,name,NAME_LENGTH) == 0);
 	if( i == MAX_PARTY )
 		return 0; // No such char in party
 
@@ -734,17 +734,16 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 		if ((p = party_search(sd->status.party_id)) == NULL )
 			return -1;
 
-		ARR_FIND( 0, MAX_PARTY, mi, p->data[mi].sd == sd );
+		ARR_FIND(0, MAX_PARTY, mi, p->data[mi].sd == sd);
 		if (mi == MAX_PARTY)
 			return 0; //Shouldn't happen
 
-		if (!p->party.member[mi].leader) {
-			//Need to be a party leader
+		if (!p->party.member[mi].leader) { //Need to be a party leader
 			clif_displaymessage(sd->fd, msg_txt(282));
 			return 0;
 		}
 
-		ARR_FIND( 0, MAX_PARTY, tmi, p->data[tmi].sd == tsd);
+		ARR_FIND(0, MAX_PARTY, tmi, p->data[tmi].sd == tsd);
 		if (tmi == MAX_PARTY)
 			return 0; //Shouldn't happen
 	} else {
@@ -1126,7 +1125,7 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	int x0,y0,x1,y1;
 	struct block_list *list[MAX_PARTY];
 	int blockcount = 0;
-	int total = 0; //Return value.
+	int total = 0; //Return value
 
 	nullpo_ret(sd);
 
@@ -1141,12 +1140,9 @@ int party_foreachsamemap(int (*func)(struct block_list*,va_list),struct map_sess
 	for (i = 0; i < MAX_PARTY; i++) {
 		struct map_session_data *psd = p->data[i].sd;
 
-		if (!psd)
+		if (!psd || psd->bl.m != sd->bl.m || !psd->bl.prev)
 			continue;
-		if (psd->bl.m != sd->bl.m || !psd->bl.prev)
-			continue;
-		if (range && (psd->bl.x < x0 || psd->bl.y < y0 ||
-			psd->bl.x > x1 || psd->bl.y > y1))
+		if (range && (psd->bl.x < x0 || psd->bl.y < y0 || psd->bl.x > x1 || psd->bl.y > y1))
 			continue;
 		list[blockcount++] =& psd->bl;
 	}

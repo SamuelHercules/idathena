@@ -505,7 +505,6 @@ void pc_rental_expire(struct map_session_data *sd, int i)
 {
 	unsigned short nameid = sd->status.inventory[i].nameid;
 
-	//Soon to be dropped, we got plans to integrate it with item db
 	switch( nameid ) {
 		case ITEMID_BOARDING_HALTER:
 			if( sd->sc.data[SC_ALL_RIDING] )
@@ -3929,7 +3928,7 @@ int pc_insert_card(struct map_session_data *sd, int idx_card, int idx_equip)
 	if( sd->status.inventory[idx_equip].equip != 0 )
 		return 0; //Item must be unequipped
 
-	ARR_FIND( 0, sd->inventory_data[idx_equip]->slot, i, sd->status.inventory[idx_equip].card[i] == 0 );
+	ARR_FIND(0, sd->inventory_data[idx_equip]->slot, i, sd->status.inventory[idx_equip].card[i] == 0);
 	if( i == sd->inventory_data[idx_equip]->slot )
 		return 0; //No free slots
 

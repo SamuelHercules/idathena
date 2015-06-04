@@ -679,8 +679,8 @@ static bool mmo_auth_tosql(AccountDB_SQL *db, const struct mmo_account* acc, boo
 			break;
 		}
 		for( i = 0; i < acc->account_reg2_num; ++i ) {
-			if( SQL_SUCCESS != SqlStmt_BindParam(stmt, 0, SQLDT_STRING, (void*)acc->account_reg2[i].str, strlen(acc->account_reg2[i].str))
-			||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 1, SQLDT_STRING, (void*)acc->account_reg2[i].value, strlen(acc->account_reg2[i].value))
+			if( SQL_SUCCESS != SqlStmt_BindParam(stmt, 0, SQLDT_STRING, (void *)acc->account_reg2[i].str, strlen(acc->account_reg2[i].str))
+			||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 1, SQLDT_STRING, (void *)acc->account_reg2[i].value, strlen(acc->account_reg2[i].value))
 			||  SQL_SUCCESS != SqlStmt_Execute(stmt)
 			) {
 				SqlStmt_ShowDebug(stmt);

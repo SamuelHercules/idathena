@@ -7,17 +7,17 @@
 // target = friend (party + guildmates + neutral players) / party / guild /
 //          ally (party + guildmates) / all / sameguild (guild but no allies) / enemy
 // flag 0x0001(UF_DEFNOTENEMY)		If 'defunit_not_enemy' is set, the target is changed to 'friend'
-//      0x0002(UF_NOREITERATION)	Spell cannot be stacked
-//      0x0004(UF_NOFOOTSET)		Spell cannot be cast near/on targets
-//      0x0008(UF_NOOVERLAP)		Spell effects do not overlap
+//      0x0002(UF_NOREITERATION)	Unit cannot be stacked
+//      0x0004(UF_NOFOOTSET)		Unit cannot be cast near/on targets
+//      0x0008(UF_NOOVERLAP)		Unit effects do not overlap
 //      0x0010(UF_PATHCHECK)		Only cells with a shootable path will be placed
-//      0x0020(UF_NOPC)			Spell cannot affect players
-//      0x0040(UF_NOMOB)		Spell cannot affect mobs
-//      0x0080(UF_SKILL)		Spell can affect skills
+//      0x0020(UF_NOPC)			Unit cannot affect players
+//      0x0040(UF_NOMOB)		Unit cannot affect mobs
+//      0x0080(UF_SKILL)		Unit can affect skills
 //      0x0100(UF_DANCE)		Dance skill
 //      0x0200(UF_ENSEMBLE)		Ensemble skill
 //      0x0400(UF_SONG)			Song skill
-//      0x0800(UF_DUALMODE)		Spell has effects both at an interval and when you step in/out
+//      0x0800(UF_DUALMODE)		Unit has effects both at an interval and when you step in/out
 //      0x1000(UF_????)			Unused flag
 //      0x2000(UF_RANGEDSINGLEUNIT)     Layout hack, use layout range propriety but only display center
 // 	Example: 0x006 = 0x002+0x004 -> Cannot be stacked nor cast near targets
@@ -122,7 +122,7 @@
 2273,0xe2,    ,  2, 0, 500,all,   0x000	//NC_NEUTRALBARRIER
 2274,0xe3,    ,  2, 0, 500,ally,  0x000	//NC_STEALTHFIELD
 
-2299,0xcc,    ,  0, 1,1000,enemy, 0x006  //SC_MANHOLE
+2299,0xcc,    ,  0, 1,1000,all,   0x006  //SC_MANHOLE
 2300,0xcd,    ,  0, 0,1000,all,   0x006  //SC_DIMENSIONDOOR
 2301,0xce,    ,  2, 0,  -1,all,   0x200E //SC_CHAOSPANIC
 2302,0xcf,    ,  2, 0,  -1,all,   0x2002 //SC_MAELSTROM
@@ -165,9 +165,8 @@
 3020,0xf8,    ,  0, 2, 500,all, 0x018   //KO_ZENKAI
 
 5006,0x101,   ,  0, 3, 500,enemy, 0x018	//NC_MAGMA_ERUPTION
-5008,0x85,    ,  0, 0,  -1,all,   0x003	//SO_ELEMENTAL_SHIELD
-5010,0xfe,    ,  0, 2,  -1,enemy, 0x000	//SC_ESCAPE
-5013,0x102,   ,  3, 0,  -1,all,   0x2002	//LG_KINGS_GRACE
+5010,0x91,    ,  0, 1,1000,all,   0x002	//SC_ESCAPE
+5013,0x102,   ,  3, 0,  -1,friend,   0x2002	//LG_KINGS_GRACE
 
 8020,0xf5,    ,  3, 0,2300:2100:1900:1700:1500,enemy, 0x018	//MH_POISON_MIST
 8033,0x7e,    ,  0, 0,  -1,all, 0x003	//MH_STEINWAND

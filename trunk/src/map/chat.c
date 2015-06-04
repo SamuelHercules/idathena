@@ -327,7 +327,7 @@ int chat_kickchat(struct map_session_data *sd, const char *kickusername)
 	if( pc_has_permission(cd->usersd[i], PC_PERM_NO_CHAT_KICK) )
 		return 0; //GM kick protection [Valaris]
 
-	idb_put(cd->kick_list,cd->usersd[i]->status.char_id,(void*)1);
+	idb_put(cd->kick_list,cd->usersd[i]->status.char_id,(void *)1);
 
 	chat_leavechat(cd->usersd[i],1);
 	return 0;

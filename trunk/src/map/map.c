@@ -2145,7 +2145,7 @@ void map_foreachnpc(int (*func)(struct npc_data *nd, va_list args), ...)
 	{
 		if( bl->type == BL_NPC )
 		{
-			struct npc_data *nd = (struct npc_data*)bl;
+			struct npc_data *nd = (struct npc_data *)bl;
 			va_list args;
 			int ret;
 
@@ -2528,9 +2528,9 @@ int map_delinstancemap(int m)
 int map_addmobtolist(unsigned short m, struct spawn_data *spawn)
 {
 	size_t i;
-	ARR_FIND( 0, MAX_MOB_LIST_PER_MAP, i, map[m].moblist[i] == NULL );
-	if( i < MAX_MOB_LIST_PER_MAP )
-	{
+
+	ARR_FIND(0, MAX_MOB_LIST_PER_MAP, i, map[m].moblist[i] == NULL);
+	if( i < MAX_MOB_LIST_PER_MAP ) {
 		map[m].moblist[i] = spawn;
 		return i;
 	}
@@ -2539,24 +2539,23 @@ int map_addmobtolist(unsigned short m, struct spawn_data *spawn)
 
 void map_spawnmobs(int16 m)
 {
-	int i, k=0;
-	if (map[m].mob_delete_timer != INVALID_TIMER)
-	{	//Mobs have not been removed yet [Skotlex]
+	int i, k = 0;
+
+	if (map[m].mob_delete_timer != INVALID_TIMER) { //Mobs have not been removed yet [Skotlex]
 		delete_timer(map[m].mob_delete_timer, map_removemobs_timer);
 		map[m].mob_delete_timer = INVALID_TIMER;
 		return;
 	}
-	for(i=0; i<MAX_MOB_LIST_PER_MAP; i++)
-		if(map[m].moblist[i]!=NULL)
-		{
-			k+=map[m].moblist[i]->num;
+
+	for (i = 0; i < MAX_MOB_LIST_PER_MAP; i++) {
+		if (map[m].moblist[i] != NULL) {
+			k += map[m].moblist[i]->num;
 			npc_parse_mob2(map[m].moblist[i]);
 		}
+	}
 
 	if (battle_config.etc_log && k > 0)
-	{
 		ShowStatus("Map %s: Spawned '"CL_WHITE"%d"CL_RESET"' mobs.\n",map[m].name, k);
-	}
 }
 
 int map_removemobs_sub(struct block_list *bl, va_list ap)

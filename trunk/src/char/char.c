@@ -3066,8 +3066,8 @@ int mapif_parse_reqcharban(int fd) {
 			if( SQL_SUCCESS != SqlStmt_Prepare(stmt,
 				"UPDATE `%s` SET `unban_time` = ? WHERE `char_id` = ? LIMIT 1",
 				char_db)
-				|| SQL_SUCCESS != SqlStmt_BindParam(stmt,  0, SQLDT_LONG,   (void*)&unban_time,   sizeof(unban_time))
-				|| SQL_SUCCESS != SqlStmt_BindParam(stmt,  1, SQLDT_INT,    (void*)&t_cid,        sizeof(t_cid))
+				|| SQL_SUCCESS != SqlStmt_BindParam(stmt,  0, SQLDT_LONG,   (void *)&unban_time,   sizeof(unban_time))
+				|| SQL_SUCCESS != SqlStmt_BindParam(stmt,  1, SQLDT_INT,    (void *)&t_cid,        sizeof(t_cid))
 				|| SQL_SUCCESS != SqlStmt_Execute(stmt)
 				) {
 				SqlStmt_ShowDebug(stmt);

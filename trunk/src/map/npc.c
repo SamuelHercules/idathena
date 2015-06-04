@@ -131,7 +131,7 @@ struct view_data *npc_get_viewdata(int class_) { //Returns the viewdata for norm
 }
 
 int npc_isnear_sub(struct block_list *bl, va_list args) {
-	struct npc_data *nd = (struct npc_data*)bl;
+	struct npc_data *nd = (struct npc_data *)bl;
 	int skill_id = va_arg(args, int);
 
 	if( skill_id > 0 ) { //If skill_id > 0 that means is used for INF2_NO_NEARNPC [Cydh]
@@ -353,7 +353,7 @@ static int npc_event_export(struct npc_data *nd, int i)
 	return 0;
 }
 
-int npc_event_sub(struct map_session_data *sd, struct event_data* ev, const char *eventname); //[Lance]
+int npc_event_sub(struct map_session_data *sd, struct event_data *ev, const char *eventname); //[Lance]
 
 /**
  * Exec name (NPC events) on player or global
@@ -363,7 +363,7 @@ int npc_event_sub(struct map_session_data *sd, struct event_data* ev, const char
 int npc_event_doall_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char *p = key.str;
-	struct event_data* ev;
+	struct event_data *ev;
 	int *c;
 	const char *name;
 	int rid;
@@ -392,7 +392,7 @@ int npc_event_doall_sub(DBKey key, DBData *data, va_list ap)
 static int npc_event_do_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char *p = key.str;
-	struct event_data* ev;
+	struct event_data *ev;
 	int *c;
 	const char *name;
 
@@ -614,14 +614,14 @@ int npc_timerevent_start(struct npc_data *nd, int rid)
 {
 	int j;
 	unsigned int tick = gettick();
-	struct map_session_data *sd = NULL; //Player to whom script is attached.
+	struct map_session_data *sd = NULL; // Player to whom script is attached
 		
 	nullpo_ret(nd);
 
 	// Check if there is an OnTimer Event
-	ARR_FIND( 0, nd->u.scr.timeramount, j, nd->u.scr.timer_event[j].timer > nd->u.scr.timer );
+	ARR_FIND(0, nd->u.scr.timeramount, j, nd->u.scr.timer_event[j].timer > nd->u.scr.timer);
 
-	if( nd->u.scr.rid > 0 && !(sd = map_id2sd(nd->u.scr.rid)) ) { // Failed to attach timer to this player.
+	if( nd->u.scr.rid > 0 && !(sd = map_id2sd(nd->u.scr.rid)) ) { // Failed to attach timer to this player
 		ShowError("npc_timerevent_start: Attached player not found!\n");
 		return 1;
 	}
@@ -673,19 +673,19 @@ int npc_timerevent_stop(struct npc_data *nd)
 	if( *tid == INVALID_TIMER && (sd || !nd->u.scr.timertick) ) // Nothing to stop
 		return 0;
 
-	// Delete timer
-	if ( *tid != INVALID_TIMER ) {
+	//Delete timer
+	if( *tid != INVALID_TIMER ) {
 		const struct TimerData *td = get_timer(*tid);
 
 		if( td && td->data )
-			ers_free(timer_event_ers, (void*)td->data);
+			ers_free(timer_event_ers,(void *)td->data);
 		delete_timer(*tid,npc_timerevent);
 		*tid = INVALID_TIMER;
 	}
 
 	if( !sd && nd->u.scr.timertick ) {
-		nd->u.scr.timer += DIFF_TICK(gettick(),nd->u.scr.timertick); // Set 'timer' to the time that has passed since the beginning of the timers
-		nd->u.scr.timertick = 0; // Set 'tick' to zero so that we know it's off.
+		nd->u.scr.timer += DIFF_TICK(gettick(),nd->u.scr.timertick); //Set 'timer' to the time that has passed since the beginning of the timers
+		nd->u.scr.timertick = 0; // Set 'tick' to zero so that we know it's off
 	}
 
 	return 0;
@@ -699,7 +699,7 @@ void npc_timerevent_quit(struct map_session_data *sd)
 	struct npc_data *nd;
 	struct timer_event_data *ted;
 
-	// Check timer existance
+	//Check timer existance
 	if( sd->npc_timer_id == INVALID_TIMER )
 		return;
 	if( !(td = get_timer(sd->npc_timer_id)) ) {
@@ -707,13 +707,13 @@ void npc_timerevent_quit(struct map_session_data *sd)
 		return;
 	}
 
-	// Delete timer
+	//Delete timer
 	nd = (struct npc_data *)map_id2bl(td->id);
 	ted = (struct timer_event_data *)td->data;
 	delete_timer(sd->npc_timer_id, npc_timerevent);
 	sd->npc_timer_id = INVALID_TIMER;
 
-	// Execute OnTimerQuit
+	//Execute OnTimerQuit
 	if( nd && nd->bl.type == BL_NPC ) {
 		char buf[EVENT_NAME_LENGTH];
 		struct event_data *ev;
@@ -725,11 +725,11 @@ void npc_timerevent_quit(struct map_session_data *sd)
 			ev = NULL;
 		}
 		if( ev ) {
-			int old_rid,old_timer;
+			int old_rid, old_timer;
 			unsigned int old_tick;
 
-			//Set timer related info.
-			old_rid = (nd->u.scr.rid == sd->bl.id ? 0 : nd->u.scr.rid); // Detach rid if the last attached player logged off.
+			//Set timer related info
+			old_rid = (nd->u.scr.rid == sd->bl.id ? 0 : nd->u.scr.rid); //Detach rid if the last attached player logged off
 			old_tick = nd->u.scr.timertick;
 			old_timer = nd->u.scr.timer;
 
@@ -740,7 +740,7 @@ void npc_timerevent_quit(struct map_session_data *sd)
 			//Execute label
 			run_script(nd->u.scr.script,ev->pos,sd->bl.id,nd->bl.id);
 
-			//Restore previous data.
+			//Restore previous data
 			nd->u.scr.rid = old_rid;
 			nd->u.scr.timer = old_timer;
 			nd->u.scr.timertick = old_tick;
@@ -759,10 +759,10 @@ int npc_gettimerevent_tick(struct npc_data *nd)
 
 	nullpo_ret(nd);
 
-	// @TODO: Get player attached timer's tick. Now we can just get it by using 'getnpctimer' inside OnTimer event.
+	//@TODO: Get player attached timer's tick. Now we can just get it by using 'getnpctimer' inside OnTimer event
 
-	tick = nd->u.scr.timer; // The last time it's active(start, stop or event trigger)
-	if( nd->u.scr.timertick ) // It's a running timer
+	tick = nd->u.scr.timer; //The last time it's active(start, stop or event trigger)
+	if( nd->u.scr.timertick ) //It's a running timer
 		tick += DIFF_TICK(gettick(), nd->u.scr.timertick);
 
 	return tick;
@@ -779,41 +779,38 @@ int npc_settimerevent_tick(struct npc_data *nd, int newtimer)
 
 	nullpo_ret(nd);
 
-	// @TODO: Set player attached timer's tick.
+	//@TODO: Set player attached timer's tick
 
 	old_rid = nd->u.scr.rid;
 	nd->u.scr.rid = 0;
 
-	// Check if timer is started
+	//Check if timer is started
 	flag = (nd->u.scr.timerid != INVALID_TIMER);
 
-	if( flag ) npc_timerevent_stop(nd);
+	if( flag )
+		npc_timerevent_stop(nd);
 	nd->u.scr.timer = newtimer;
-	if( flag ) npc_timerevent_start(nd, -1);
+	if( flag )
+		npc_timerevent_start(nd, -1);
 
 	nd->u.scr.rid = old_rid;
 	return 0;
 }
 
-int npc_event_sub(struct map_session_data *sd, struct event_data* ev, const char *eventname)
+int npc_event_sub(struct map_session_data *sd, struct event_data *ev, const char *eventname)
 {
-	if ( sd->npc_id != 0 )
-	{
-		//Enqueue the event trigger.
+	if( sd->npc_id != 0 ) { //Enqueue the event trigger
 		int i;
-		ARR_FIND( 0, MAX_EVENTQUEUE, i, sd->eventqueue[i][0] == '\0' );
-		if( i < MAX_EVENTQUEUE )
-		{
-			safestrncpy(sd->eventqueue[i],eventname,50); //Event enqueued.
+
+		ARR_FIND(0, MAX_EVENTQUEUE, i, sd->eventqueue[i][0] == '\0');
+		if( i < MAX_EVENTQUEUE ) {
+			safestrncpy(sd->eventqueue[i],eventname,50); //Event enqueued
 			return 0;
 		}
-
 		ShowWarning("npc_event: player's event queue is full, can't add event '%s' !\n", eventname);
 		return 1;
 	}
-	if( ev->nd->sc.option&OPTION_INVISIBLE )
-	{
-		//Disabled npc, shouldn't trigger event.
+	if( ev->nd->sc.option&OPTION_INVISIBLE ) { //Disabled npc, shouldn't trigger event
 		npc_event_dequeue(sd);
 		return 2;
 	}
@@ -826,7 +823,7 @@ int npc_event_sub(struct map_session_data *sd, struct event_data* ev, const char
  *------------------------------------------*/
 int npc_event(struct map_session_data *sd, const char *eventname, int ontouch)
 {
-	struct event_data* ev = (struct event_data*)strdb_get(ev_db, eventname);
+	struct event_data *ev = (struct event_data*)strdb_get(ev_db, eventname);
 	struct npc_data *nd;
 
 	nullpo_ret(sd);
@@ -1023,7 +1020,7 @@ int npc_touch_areanpc2(struct mob_data *md)
 {
 	int i, m = md->bl.m, x = md->bl.x, y = md->bl.y, id;
 	char eventname[EVENT_NAME_LENGTH];
-	struct event_data* ev;
+	struct event_data *ev;
 	int xs, ys;
 
 	for( i = 0; i < map[m].npc_num; i++ ) {
@@ -1612,7 +1609,7 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 		int value;
 
 		//Find this entry in the shop's sell list
-		ARR_FIND( 0, nd->u.shop.count, j,
+		ARR_FIND(0, nd->u.shop.count, j,
 			item_list[i].nameid == shop[j].nameid || //Normal items
 			item_list[i].nameid == itemdb_viewid(shop[j].nameid) //item_avail replacement
 		);
@@ -1781,24 +1778,24 @@ static int npc_selllist_sub(struct map_session_data *sd, int n, unsigned short *
 	for( j = 0; j < MAX_SLOTS; j++ ) { //Clear each of the card slot entries
 		key_card[j] = 0;
 		snprintf(card_slot, sizeof(card_slot), "@sold_card%d", j + 1);
-		script_cleararray_pc(sd, card_slot, (void*)0);
+		script_cleararray_pc(sd, card_slot, (void *)0);
 	}
 	
 	//Save list of to be sold items
 	for( i = 0; i < n; i++ ) {
 		int idx = item_list[i * 2] - 2;
 
-		script_setarray_pc(sd, "@sold_nameid", i, (void*)(intptr_t)sd->status.inventory[idx].nameid, &key_nameid);
-		script_setarray_pc(sd, "@sold_quantity", i, (void*)(intptr_t)item_list[i * 2 + 1], &key_amount);
+		script_setarray_pc(sd, "@sold_nameid", i, (void *)(intptr_t)sd->status.inventory[idx].nameid, &key_nameid);
+		script_setarray_pc(sd, "@sold_quantity", i, (void *)(intptr_t)item_list[i * 2 + 1], &key_amount);
 
 		if( itemdb_isequip(sd->status.inventory[idx].nameid) ) { //Process equipment based information into the arrays
-			script_setarray_pc(sd, "@sold_refine", i, (void*)(intptr_t)sd->status.inventory[idx].refine, &key_refine);
-			script_setarray_pc(sd, "@sold_attribute", i, (void*)(intptr_t)sd->status.inventory[idx].attribute, &key_attribute);
-			script_setarray_pc(sd, "@sold_identify", i, (void*)(intptr_t)sd->status.inventory[idx].identify, &key_identify);
+			script_setarray_pc(sd, "@sold_refine", i, (void *)(intptr_t)sd->status.inventory[idx].refine, &key_refine);
+			script_setarray_pc(sd, "@sold_attribute", i, (void *)(intptr_t)sd->status.inventory[idx].attribute, &key_attribute);
+			script_setarray_pc(sd, "@sold_identify", i, (void *)(intptr_t)sd->status.inventory[idx].identify, &key_identify);
 		
 			for( j = 0; j < MAX_SLOTS; j++ ) { //Store each of the cards from the equipment in the array
 				snprintf(card_slot, sizeof(card_slot), "@sold_card%d", j + 1);
-				script_setarray_pc(sd, card_slot, i, (void*)(intptr_t)sd->status.inventory[idx].card[j], &key_card[j]);
+				script_setarray_pc(sd, card_slot, i, (void *)(intptr_t)sd->status.inventory[idx].card[j], &key_card[j]);
 			}
 		}
 	}
@@ -1917,7 +1914,7 @@ int npc_remove_map(struct npc_data *nd)
  */
 static int npc_unload_ev(DBKey key, DBData *data, va_list ap)
 {
-	struct event_data* ev = db_data2ptr(data);
+	struct event_data *ev = db_data2ptr(data);
 	char *npcname = va_arg(ap, char *);
 
 	if(strcmp(ev->nd->exname,npcname) == 0) {
@@ -3292,7 +3289,7 @@ void npc_setcells(struct npc_data *nd)
 
 int npc_unsetcells_sub(struct block_list *bl, va_list ap)
 {
-	struct npc_data *nd = (struct npc_data*)bl;
+	struct npc_data *nd = (struct npc_data *)bl;
 	int id =  va_arg(ap,int);
 	if (nd->bl.id == id) return 0;
 	npc_setcells(nd);
@@ -3394,17 +3391,17 @@ int npc_do_atcmd_event(struct map_session_data *sd, const char *command, const c
 
 	if( sd->npc_id != 0 ) { // Enqueue the event trigger
 		int i;
-		ARR_FIND( 0, MAX_EVENTQUEUE, i, sd->eventqueue[i][0] == '\0' );
+
+		ARR_FIND(0, MAX_EVENTQUEUE, i, sd->eventqueue[i][0] == '\0');
 		if( i < MAX_EVENTQUEUE ) {
-			safestrncpy(sd->eventqueue[i],eventname,50); //Event enqueued.
+			safestrncpy(sd->eventqueue[i],eventname,50); //Event enqueued
 			return 0;
 		}
-
 		ShowWarning("npc_event: player's event queue is full, can't add event '%s' !\n", eventname);
 		return 1;
 	}
 
-	if( ev->nd->sc.option&OPTION_INVISIBLE ) { // Disabled npc, shouldn't trigger event.
+	if( ev->nd->sc.option&OPTION_INVISIBLE ) { //Disabled npc, shouldn't trigger event
 		npc_event_dequeue(sd);
 		return 2;
 	}
@@ -3412,20 +3409,18 @@ int npc_do_atcmd_event(struct map_session_data *sd, const char *command, const c
 	st = script_alloc_state(ev->nd->u.scr.script, ev->pos, sd->bl.id, ev->nd->bl.id);
 	setd_sub(st, NULL, ".@atcmd_command$", 0, (void *)command, NULL);
 
-	// split atcmd parameters based on spaces
+	//Split atcmd parameters based on spaces
 
 	temp = (char *)aMalloc(strlen(message) + 1);
 
-	for( i = 0; i < ( strlen( message ) + 1 ) && k < 127; i ++ ) {
+	for( i = 0; i < (strlen(message) + 1) && k < 127; i ++ ) {
 		if( message[i] == ' ' || message[i] == '\0' ) {
-			if( message[ ( i - 1 ) ] == ' ' ) {
-				continue; // To prevent "@atcmd [space][space]" and .@atcmd_numparameters return 1 without any parameter.
-			}
+			if( message[(i - 1)] == ' ' )
+				continue; //To prevent "@atcmd [space][space]" and .@atcmd_numparameters return 1 without any parameter
 			temp[k] = '\0';
 			k = 0;
-			if( temp[0] != '\0' ) {
-				setd_sub( st, NULL, ".@atcmd_parameters$", j++, (void *)temp, NULL );
-			}
+			if( temp[0] != '\0' )
+				setd_sub(st, NULL, ".@atcmd_parameters$", j++, (void *)temp, NULL);
 		} else {
 			temp[k] = message[i];
 			k++;
@@ -4193,7 +4188,7 @@ void npc_read_event_script(void)
 		iter = db_iterator(ev_db);
 		for( data = iter->first(iter,&key); iter->exists(iter); data = iter->next(iter,&key) ) {
 			const char *p = key.str;
-			struct event_data* ed = db_data2ptr(data);
+			struct event_data *ed = db_data2ptr(data);
 			unsigned char count = script_event[i].event_count;
 
 			if( count >= ARRAYLENGTH(script_event[i].event) ) {

@@ -529,7 +529,7 @@ int inter_guildcastle_tosql(struct guild_castle *gc)
 }
 
 // Read guild_castle from SQL
-static struct guild_castle* inter_guildcastle_fromsql(int castle_id)
+static struct guild_castle *inter_guildcastle_fromsql(int castle_id)
 {
 	char *data;
 	int i;

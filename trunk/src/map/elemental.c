@@ -942,7 +942,7 @@ void read_elemental_skilldb(void) {
 			ShowError("read_elemental_skilldb: Skillmode out of range, line %d.\n",k);
 			continue;
 		}
-		ARR_FIND( 0, MAX_ELESKILLTREE, i, db->skill[i].id == 0 || db->skill[i].id == skill_id );
+		ARR_FIND(0, MAX_ELESKILLTREE, i, db->skill[i].id == 0 || db->skill[i].id == skill_id);
 		if( i == MAX_ELESKILLTREE ) {
 			ShowWarning("Unable to load skill %d into Elemental %d's tree. Maximum number of skills per elemental has been reached.\n", skill_id, class_);
 			continue;
