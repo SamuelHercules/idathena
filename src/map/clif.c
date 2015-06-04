@@ -1192,7 +1192,7 @@ static int clif_idle_unit(struct block_list *bl, unsigned char *buffer) {
 /*==========================================
  * Prepares 'unit walking' packet
  *------------------------------------------*/
-static int clif_set_unit_walking(struct block_list *bl, struct unit_data* ud, unsigned char *buffer) {
+static int clif_set_unit_walking(struct block_list *bl, struct unit_data *ud, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
 	struct view_data *vd = status_get_viewdata(bl);
@@ -1308,7 +1308,7 @@ static int clif_set_unit_walking(struct block_list *bl, struct unit_data* ud, un
 }
 
 #ifdef VISIBLE_MONSTER_HP
-static int clif_walking_unit(struct block_list *bl, struct unit_data* ud, unsigned char *buffer) {
+static int clif_walking_unit(struct block_list *bl, struct unit_data *ud, unsigned char *buffer) {
 	struct map_session_data *sd;
 	struct status_change *sc = status_get_sc(bl);
 	struct view_data *vd = status_get_viewdata(bl);
@@ -4896,6 +4896,7 @@ void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, 
 	if( flag && battle_config.traps_setting&1 ) {
 		switch( unit->group->skill_id ) {
 			case HT_ANKLESNARE:
+			case SC_ESCAPE:
 				if( !map_flag_vs(((TBL_PC *)bl)->bl.m) )
 					break;
 			case HT_SKIDTRAP:
@@ -12655,7 +12656,7 @@ void clif_parse_PartyChangeOption(int fd, struct map_session_data *sd)
 	p = party_search(sd->status.party_id);
 	if( p == NULL )
 		return;
-	ARR_FIND( 0, MAX_PARTY, i, p->data[i].sd == sd );
+	ARR_FIND(0, MAX_PARTY, i, p->data[i].sd == sd);
 	if( i == MAX_PARTY )
 		return; //Shouldn't happen
 	if( !p->party.member[i].leader )

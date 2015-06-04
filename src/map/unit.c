@@ -59,7 +59,7 @@ int unit_unattackable(struct block_list *bl);
  *  valid type are : BL_PC|BL_MOB|BL_PET|BL_NPC|BL_HOM|BL_MER|BL_ELEM
  * @return unit_data of bl or NULL
  */
-struct unit_data* unit_bl2ud(struct block_list *bl)
+struct unit_data *unit_bl2ud(struct block_list *bl)
 {
 	if( bl == NULL )
 		return NULL;
@@ -590,7 +590,7 @@ int unit_delay_walktobl_timer(int tid, unsigned int tick, int id, intptr_t data)
  */
 int unit_walktoxy(struct block_list *bl, short x, short y, unsigned char flag)
 {
-	struct unit_data* ud = NULL;
+	struct unit_data *ud = NULL;
 	struct status_change *sc = NULL;
 	struct walkpath_data wpd;
 	TBL_PC *sd = NULL;
@@ -1089,8 +1089,7 @@ int unit_blown_immune(struct block_list *bl, int flag)
 
 				if (md->mob_id == MOBID_EMPERIUM)
 					return 2; //Emperium can't be knocked back
-				if ((flag&0x1) && status_get_mode(bl)&(MD_KNOCKBACK_IMMUNE|MD_BOSS) &&
-					!(battle_config.skill_trap_type&0x2))
+				if ((flag&0x1) && status_get_mode(bl)&(MD_KNOCKBACK_IMMUNE|MD_BOSS) && !(battle_config.skill_trap_type&0x2))
 					return 3; //Bosses or immune can't be knocked back
 			}
 			break;
@@ -2052,12 +2051,12 @@ int unit_skilluse_pos2(struct block_list *src, short skill_x, short skill_y, uin
  * @param target_id: Target ID (bl->id)
  * @return 0
  */
-int unit_set_target(struct unit_data* ud, int target_id)
+int unit_set_target(struct unit_data *ud, int target_id)
 {
 	nullpo_ret(ud);
 
 	if( ud->target != target_id ) {
-		struct unit_data* ux;
+		struct unit_data *ux;
 		struct block_list *target;
 
 		if( ud->target && (target = map_id2bl(ud->target)) && (ux = unit_bl2ud(target)) && ux->target_count > 0 )
@@ -2632,7 +2631,7 @@ void unit_dataset(struct block_list *bl)
  */
 int unit_counttargeted(struct block_list *bl)
 {
-	struct unit_data* ud;
+	struct unit_data *ud;
 
 	if (bl && (ud = unit_bl2ud(bl)))
 		return ud->target_count;
@@ -3090,10 +3089,10 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				}
 				if( md->lootitem ) {
 					aFree(md->lootitem);
-					md->lootitem=NULL;
+					md->lootitem = NULL;
 				}
 				if( md->guardian_data ) {
-					struct guild_castle* gc = md->guardian_data->castle;
+					struct guild_castle *gc = md->guardian_data->castle;
 
 					if( md->guardian_data->number >= 0 && md->guardian_data->number < MAX_GUARDIANS )
 						gc->guardian[md->guardian_data->number].id = 0;

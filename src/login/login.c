@@ -316,8 +316,8 @@ int lan_subnetcheck(uint32 ip)
 {
 	int i;
 
-	ARR_FIND( 0, subnet_count, i, (subnet[i].char_ip & subnet[i].mask) == (ip & subnet[i].mask) );
-	return ( i < subnet_count ) ? subnet[i].char_ip : 0;
+	ARR_FIND(0, subnet_count, i, (subnet[i].char_ip & subnet[i].mask) == (ip & subnet[i].mask));
+	return (i < subnet_count) ? subnet[i].char_ip : 0;
 }
 
 //----------------------------------
@@ -557,7 +557,7 @@ int parse_fromchar(int fd) {
 	uint32 ipl;
 	char ip[16];
 
-	ARR_FIND( 0, ARRAYLENGTH(server), id, server[id].fd == fd );
+	ARR_FIND(0, ARRAYLENGTH(server), id, server[id].fd == fd);
 	if( id == ARRAYLENGTH(server) ) { //Not a char server
 		ShowDebug("parse_fromchar: Disconnecting invalid session #%d (is not a char-server)\n", fd);
 		set_eof(fd);

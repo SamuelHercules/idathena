@@ -257,9 +257,9 @@ struct skill_unit_group_tickset {
 
 enum {
 	UF_DEFNOTENEMY   = 0x0001, //If 'defunit_not_enemy' is set, the target is changed to 'friend'
-	UF_NOREITERATION = 0x0002, //Spell cannot be stacked
-	UF_NOFOOTSET     = 0x0004, //Spell cannot be cast near/on targets
-	UF_NOOVERLAP     = 0x0008, //Spell effects do not overlap
+	UF_NOREITERATION = 0x0002, //Unit cannot be stacked
+	UF_NOFOOTSET     = 0x0004, //Unit cannot be cast near/on targets
+	UF_NOOVERLAP     = 0x0008, //Unit effects do not overlap
 	UF_PATHCHECK     = 0x0010, //Only cells with a shootable path will be placed
 	UF_NOPC          = 0x0020, //May not target players
 	UF_NOMOB         = 0x0040, //May not target mobs
@@ -267,7 +267,7 @@ enum {
 	UF_DANCE         = 0x0100, //Dance
 	UF_ENSEMBLE      = 0x0200, //Duet
 	UF_SONG          = 0x0400, //Song
-	UF_DUALMODE      = 0x0800, //Spells should trigger both ontimer and onplace/onout/onleft effects
+	UF_DUALMODE      = 0x0800, //Unit should trigger both ontimer and onplace/onout/onleft effects
 	//UF_????        = 0x1000, //Unused flag
 	UF_RANGEDSINGLEUNIT = 0x2000 //Hack for ranged layout, only display center
 };

@@ -38,9 +38,9 @@
 int attr_fix_table[4][ELE_MAX][ELE_MAX];
 
 struct Battle_Config battle_config;
-static struct eri *delay_damage_ers; //For battle delay damage structures.
+static struct eri *delay_damage_ers; //For battle delay damage structures
 
-int battle_getcurrentskill(struct block_list *bl) { //Returns the current/last skill in use by this bl.
+int battle_getcurrentskill(struct block_list *bl) { //Returns the current/last skill in use by this bl
 	struct unit_data *ud;
 
 	if( bl->type == BL_SKILL ) {
@@ -851,39 +851,35 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			uint16 skill_id = sce->val2;
 
 			if( group ) {
-				if( skill_id == MH_STEINWAND ) {
-					if( --group->val2 <= 0 )
-						skill_delunitgroup(group);
-					d->dmg_lv = ATK_BLOCK;
-					if( (group->val3 - damage) > 0 )
-						group->val3 -= (int)cap_value(damage,INT_MIN,INT_MAX);
-					else
-						skill_delunitgroup(group);
-					return 0;
-				}
-				//Renewal SW possesses a lifetime equal to 3 times the caster's health
 				d->dmg_lv = ATK_BLOCK;
+				switch( skill_id ) {
+					case MG_SAFETYWALL:
+						if( --group->val2 <= 0 )
+							skill_delunitgroup(group);
 #ifdef RENEWAL
-				if( (group->val2 - damage) > 0 )
-					group->val2 -= (int)cap_value(damage,INT_MIN,INT_MAX);
-				else
-					skill_delunitgroup(group);
-#else
-				if( --group->val2 <= 0 )
-					skill_delunitgroup(group);
+						if( (group->val3 - damage) > 0 )
+							group->val3 -= (int)cap_value(damage,INT_MIN,INT_MAX);
+						else
+							skill_delunitgroup(group);
 #endif
+						break;
+					case MH_STEINWAND:
+						if( --group->val2 <= 0 )
+							skill_delunitgroup(group);
+						if( (group->val3 - damage) > 0 )
+							group->val3 -= (int)cap_value(damage,INT_MIN,INT_MAX);
+						else
+							skill_delunitgroup(group);
+						break;
+				}
+				skill_unit_move(bl,gettick(),1); //For stacked units [exneval]
 				return 0;
 			}
 			status_change_end(bl,SC_SAFETYWALL,INVALID_TIMER);
 		}
 
 		if( (sc->data[SC_PNEUMA] && (flag&(BF_LONG|BF_MAGIC)) == BF_LONG) ||
-			sc->data[SC__MANHOLE] || (src->type == BL_PC && sc->data[SC_KINGS_GRACE]) ) {
-			d->dmg_lv = ATK_BLOCK;
-			return 0;
-		}
-
-		if( sc->data[SC_ELEMENTAL_SHIELD] && flag&BF_MAGIC ) { //In kRO, only block magic skills
+			sc->data[SC__MANHOLE] || (sc->data[SC_KINGS_GRACE] && skill_id) ) {
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
 		}
@@ -7312,7 +7308,7 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 				skill_id = AB_DUPLELIGHT_MELEE;
 			else
 				skill_id = AB_DUPLELIGHT_MAGIC;
-			skill_attack(skill_get_type(skill_id),src,src,target,skill_id,sc->data[SC_DUPLELIGHT]->val1,tick,SD_LEVEL);
+			skill_attack(skill_get_type(skill_id),src,src,target,skill_id,sc->data[SC_DUPLELIGHT]->val1,tick,flag);
 		}
 	}
 
@@ -7363,7 +7359,7 @@ enum damage_lv battle_weapon_attack(struct block_list *src, struct block_list *t
 
 			if (ed) {
 				clif_skill_damage(&ed->bl,target,tick,status_get_amotion(src),0,-30000,1,EL_CIRCLE_OF_FIRE,sce_e->val1,DMG_SKILL);
-				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,sce_e->val1,tick,wd.flag);
+				skill_attack(BF_WEAPON,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,sce_e->val1,tick,flag);
 			}
 		}
 		if (tsc->data[SC_WATER_SCREEN_OPTION]) {
@@ -7710,7 +7706,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 					break;
 				sd = BL_CAST(BL_PC, t_bl);
 				sc = status_get_sc(t_bl);
-				if( (sd->state.monster_ignore || (sc->data[SC_KINGS_GRACE] && s_bl->type != BL_PC)) && flag&BCT_ENEMY )
+				if( (sd->state.monster_ignore || (sc->data[SC_KINGS_GRACE] && !battle_getcurrentskill(s_bl))) && flag&BCT_ENEMY )
 					return 0; //Global immunity only to attacks
 				if( sd->status.karma && s_bl->type == BL_PC && ((TBL_PC *)s_bl)->status.karma )
 					state |= BCT_ENEMY; //Characters with bad karma may fight amongst them

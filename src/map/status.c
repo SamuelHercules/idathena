@@ -628,7 +628,7 @@ void initChangeTables(void) {
 	add_sc( WL_CRIMSONROCK        , SC_STUN           );
 	add_sc( WL_HELLINFERNO        , SC_BURNING        );
 	add_sc( WL_COMET              , SC_BURNING        );
-	set_sc( WL_TELEKINESIS_INTENSE, SC_TELEKINESIS_INTENSE , SI_TELEKINESIS_INTENSE , SCB_MATK );
+	set_sc( WL_TELEKINESIS_INTENSE, SC_TELEKINESIS_INTENSE , SI_TELEKINESIS_INTENSE , SCB_NONE );
 
 	set_sc( RA_FEARBREEZE        , SC_FEARBREEZE      , SI_FEARBREEZE      , SCB_NONE );
 	set_sc( RA_ELECTRICSHOCKER   , SC_ELECTRICSHOCKER , SI_ELECTRICSHOCKER , SCB_NONE );
@@ -682,10 +682,11 @@ void initChangeTables(void) {
 	set_sc( SC_WEAKNESS          , SC__WEAKNESS       , SI_WEAKNESS        , SCB_MAXHP );
 	set_sc( SC_STRIPACCESSARY    , SC__STRIPACCESSORY , SI_STRIPACCESSARY  , SCB_INT|SCB_DEX|SCB_LUK );
 	set_sc_with_vfx( SC_MANHOLE  , SC__MANHOLE        , SI_MANHOLE         , SCB_NONE );
-	add_sc( SC_CHAOSPANIC        , SC_CONFUSION );
+	add_sc( SC_CHAOSPANIC        , SC_CONFUSION  );
 	set_sc( SC_BLOODYLUST        , SC_BERSERK         , SI_BERSERK         , SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN );
 	set_sc( SC_MAELSTROM         , SC__MAELSTROM      , SI_BLANK           , SCB_NONE );
 	add_sc( SC_FEINTBOMB         , SC__FEINTBOMB );
+	add_sc( SC_ESCAPE            , SC_ANKLE      );
 
 	add_sc( SR_DRAGONCOMBO           , SC_STUN );
 	add_sc( SR_EARTHSHAKER           , SC_STUN );
@@ -733,7 +734,6 @@ void initChangeTables(void) {
 	set_sc( SO_WATER_INSIGNIA    , SC_WATER_INSIGNIA  , SI_WATER_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
 	set_sc( SO_WIND_INSIGNIA     , SC_WIND_INSIGNIA   , SI_WIND_INSIGNIA   , SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
 	set_sc( SO_EARTH_INSIGNIA    , SC_EARTH_INSIGNIA  , SI_EARTH_INSIGNIA  , SCB_MDEF|SCB_DEF|SCB_MAXHP|SCB_MAXSP|SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
-	add_sc( SO_ELEMENTAL_SHIELD  , SC_ELEMENTAL_SHIELD );
 
 	set_sc( GN_CARTBOOST                  , SC_GN_CARTBOOST, SI_GN_CARTBOOST               , SCB_SPEED );
 	set_sc( GN_THORNS_TRAP                , SC_THORNSTRAP  , SI_THORNS_TRAP                , SCB_NONE );
@@ -813,23 +813,23 @@ void initChangeTables(void) {
 	add_sc( ALL_REVERSEORCISH  , SC_ORCISH               );
 	set_sc( ALL_ANGEL_PROTECT  , SC_ANGEL_PROTECT        , SI_ANGEL_PROTECT        , SCB_REGEN );
 
-	add_sc( NPC_WIDEHEALTHFEAR   , SC_FEAR           );
-	add_sc( NPC_WIDEBODYBURNNING , SC_BURNING        );
-	add_sc( NPC_WIDEFROSTMISTY   , SC_FREEZING       );
-	add_sc( NPC_WIDECOLD         , SC_CRYSTALIZE     );
-	add_sc( NPC_WIDE_DEEP_SLEEP  , SC_DEEPSLEEP      );
-	add_sc( NPC_WIDESIREN        , SC_VOICEOFSIREN   );
+	add_sc( NPC_WIDEHEALTHFEAR   , SC_FEAR         );
+	add_sc( NPC_WIDEBODYBURNNING , SC_BURNING      );
+	add_sc( NPC_WIDEFROSTMISTY   , SC_FREEZING     );
+	add_sc( NPC_WIDECOLD         , SC_CRYSTALIZE   );
+	add_sc( NPC_WIDE_DEEP_SLEEP  , SC_DEEPSLEEP    );
+	add_sc( NPC_WIDESIREN        , SC_VOICEOFSIREN );
 
-	add_sc( RL_MASS_SPIRAL     , SC_BLEEDING );
-	add_sc( RL_HAMMER_OF_GOD   , SC_STUN );
-	set_sc( RL_B_TRAP          , SC_B_TRAP              , SI_B_TRAP               , SCB_SPEED );
-	set_sc( RL_E_CHAIN         , SC_E_CHAIN             , SI_E_CHAIN              , SCB_NONE );
-	set_sc_with_vfx( RL_C_MARKER, SC_C_MARKER           , SI_C_MARKER             , SCB_FLEE );
-	set_sc( RL_H_MINE          , SC_H_MINE              , SI_H_MINE               , SCB_NONE );
-	set_sc( RL_P_ALTER         , SC_P_ALTER             , SI_P_ALTER              , SCB_NONE );
-	set_sc( RL_SLUGSHOT        , SC_STUN                , SI_SLUGSHOT             , SCB_NONE );
-	set_sc_with_vfx( RL_AM_BLAST, SC_ANTI_M_BLAST       , SI_ANTI_M_BLAST         , SCB_NONE );
-	set_sc( RL_HEAT_BARREL     , SC_HEAT_BARREL         , SI_HEAT_BARREL          , SCB_ASPD|SCB_FLEE );
+	add_sc( RL_MASS_SPIRAL      , SC_BLEEDING );
+	add_sc( RL_HAMMER_OF_GOD    , SC_STUN );
+	set_sc( RL_B_TRAP           , SC_B_TRAP             , SI_B_TRAP               , SCB_SPEED         );
+	set_sc( RL_E_CHAIN          , SC_E_CHAIN            , SI_E_CHAIN              , SCB_NONE          );
+	set_sc_with_vfx( RL_C_MARKER, SC_C_MARKER           , SI_C_MARKER             , SCB_FLEE          );
+	set_sc( RL_H_MINE           , SC_H_MINE             , SI_H_MINE               , SCB_NONE          );
+	set_sc( RL_P_ALTER          , SC_P_ALTER            , SI_P_ALTER              , SCB_NONE          );
+	set_sc( RL_SLUGSHOT         , SC_STUN               , SI_SLUGSHOT             , SCB_NONE          );
+	set_sc_with_vfx( RL_AM_BLAST, SC_ANTI_M_BLAST       , SI_ANTI_M_BLAST         , SCB_NONE          );
+	set_sc( RL_HEAT_BARREL      , SC_HEAT_BARREL        , SI_HEAT_BARREL          , SCB_ASPD|SCB_FLEE );
 
 	//Storing the target job rather than simply SC_SPIRIT simplifies code later on.
 	SkillStatusChangeTable[SL_ALCHEMIST]   = (sc_type)MAPID_ALCHEMIST,
@@ -1165,7 +1165,6 @@ void initChangeTables(void) {
 	StatusDisplayType[SC_OFFERTORIUM]	  = true;
 	StatusDisplayType[SC_TELEKINESIS_INTENSE] = true;
 	StatusDisplayType[SC_UNLIMIT]		  = true;
-	StatusDisplayType[SC_ILLUSIONDOPING]	  = true;
 	StatusDisplayType[SC_C_MARKER]		  = true;
 	StatusDisplayType[SC_ANTI_M_BLAST]	  = true;
 	StatusDisplayType[SC_MOONSTAR]		  = true;
@@ -1263,7 +1262,7 @@ static void initDummyData(void)
 //For copying a status_data structure from b to a, without overwriting current HP and SP
 static inline void status_cpy(struct status_data *a, const struct status_data *b)
 {
-	memcpy((void*)&a->max_hp, (const void*)&b->max_hp, sizeof(struct status_data) - (sizeof(a->hp) + sizeof(a->sp)));
+	memcpy((void *)&a->max_hp, (const void *)&b->max_hp, sizeof(struct status_data) - (sizeof(a->hp) + sizeof(a->sp)));
 }
 
 //Sets HP to given value. Flag is the flag passed to status_heal in case
@@ -1868,7 +1867,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 
 	if (sc && sc->count) {
 		if (sc->data[SC_ALL_RIDING])
-			return false; //New mounts can't attack nor use skills in the client. This check makes it cheat-safe [Ind]
+			return false; //New mounts can't attack nor use skills in the client, this check makes it cheat-safe [Ind]
 		if (sc->data[SC_ASH] && rnd()%2 && src->type == BL_PC) { //Gain 50% of failing rate when casting skills
 			clif_skill_fail((TBL_PC *)src, skill_id, 0, 0, 0);
 			return false;
@@ -1902,8 +1901,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 		}
 		if (sc->data[SC_DANCING] && flag != 2) {
 			//Lvl 5 Lesson or higher allow you use 3rd job skills while dancing
-			if (src->type == BL_PC && ((skill_id >= WA_SWING_DANCE && skill_id <= WM_UNLIMITED_HUMMING_VOICE) ||
-				skill_id == WM_FRIGG_SONG)) {
+			if (src->type == BL_PC && ((skill_id >= WA_SWING_DANCE && skill_id <= WM_UNLIMITED_HUMMING_VOICE) || skill_id == WM_FRIGG_SONG)) {
 				if (pc_checkskill((TBL_PC *)src, WM_LESSON) < 5)
 					return false;
 			} else if (sc->data[SC_LONGING]) { //Allow everything except dancing/re-dancing [Skotlex]
@@ -6021,8 +6019,6 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 25 );
 			if( sc->data[SC_WIND_STEP_OPTION] )
 				val = max( val, sc->data[SC_WIND_STEP_OPTION]->val2 );
-			if( sc->data[SC_FULL_THROTTLE] )
-				val = max( val, 100 );
 			//FIXME: Official items use a single bonus for this [ultramage]
 			if( sc->data[SC_SPEEDUP0] ) //Temporary item-based speedup
 				val = max( val, sc->data[SC_SPEEDUP0]->val1 );
@@ -6047,9 +6043,11 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 		if( sc->data[SC_STEELBODY] )
 			speed = 200;
 		if( sc->data[SC_DEFENDER] )
-			speed = max(speed, 200);
+			speed = max( speed, 200 );
 		if( sc->data[SC_WALKSPEED] && sc->data[SC_WALKSPEED]->val1 > 0 ) //ChangeSpeed
 			speed = speed * 100 / sc->data[SC_WALKSPEED]->val1;
+		if( sc->data[SC_FULL_THROTTLE] )
+			speed = 60;
 	}
 
 	return (unsigned short)cap_value(speed,MIN_WALK_SPEED,MAX_WALK_SPEED);
@@ -7286,10 +7284,13 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 				break;
 		}
 		if (sd && SC_COMMON_MIN <= type && type <= SC_COMMON_MAX) { //Item resistance (only applies to rate%)
+			int bonus = 0;
+
 			if (sd->reseff[type - SC_COMMON_MIN] > 0)
-				rate -= rate * sd->reseff[type - SC_COMMON_MIN] / 10000;
+				bonus += rate * sd->reseff[type - SC_COMMON_MIN] / 10000;
 			if (sd->sc.data[SC_COMMONSC_RESIST])
-				rate -= rate * sd->sc.data[SC_COMMONSC_RESIST]->val1 / 100;
+				bonus += rate * sd->sc.data[SC_COMMONSC_RESIST]->val1 / 100;
+			rate -= bonus;
 		}
 		if (rate > 0 && rate%10 != 0)
 			rate += (10 - rate%10); //Aegis accuracy
@@ -7798,7 +7799,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_ALL_RIDING:
 			if(sc->option&(OPTION_RIDING|OPTION_DRAGON|OPTION_WUGRIDER|OPTION_MADOGEAR))
 				return 0;
-			if(sc->data[type]) { // Already mounted, just dismount
+			if(sc->data[type]) { //Already mounted, just dismount
 				status_change_end(bl,type,INVALID_TIMER);
 				return 0;
 			}
@@ -10020,7 +10021,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_MEIKYOUSISUI:
 		case SC_PARALYSIS:
 		case SC_KAGEHUMI:
-			unit_stop_walking(bl,1);
+			if (type != SC_FREEZE)
+				unit_stop_walking(bl,1);
 			break;
 		case SC_CURSEDCIRCLE_TARGET:
 			unit_stop_attack(bl);
@@ -12073,7 +12075,8 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_CRYSTALIZE:
 			if( --(sce->val4) >= 0 ) { //Drains 2% of HP and 1% of SP every seconds
-				status_charge(bl,status->max_hp * 2 / 100,status->max_sp / 100);
+				if( !status_charge(bl,status->max_hp * 2 / 100,status->max_sp / 100) )
+					break;
 				sc_timer_next(1000 + tick,status_change_timer,bl->id,data);
 				return 0;
 			}

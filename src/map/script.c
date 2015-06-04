@@ -2816,7 +2816,7 @@ void *get_val2(struct script_state *st, int uid, struct DBMap **ref)
 	push_val2(st->stack, C_NAME, uid, ref);
 	data = script_getdatatop(st, -1);
 	get_val(st, data);
-	return (data->type == C_INT ? (void*)__64BPRTSIZE(data->u.num) : (void*)__64BPRTSIZE(data->u.str));
+	return (data->type == C_INT ? (void *)__64BPRTSIZE(data->u.num) : (void *)__64BPRTSIZE(data->u.str));
 }
 
 /*==========================================
@@ -5502,11 +5502,11 @@ BUILDIN_FUNC(input)
 		sd->state.menu_or_input = 0;
 		if( is_string_variable(name) ) {
 			int len = (int)strlen(sd->npc_str);
-			set_reg(st, sd, uid, name, (void*)sd->npc_str, script_getref(st,2));
+			set_reg(st, sd, uid, name, (void *)sd->npc_str, script_getref(st,2));
 			script_pushint(st, (len > max ? 1 : len < min ? -1 : 0));
 		} else {
 			int amount = sd->npc_amount;
-			set_reg(st, sd, uid, name, (void*)__64BPRTSIZE(cap_value(amount,min,max)), script_getref(st,2));
+			set_reg(st, sd, uid, name, (void *)__64BPRTSIZE(cap_value(amount,min,max)), script_getref(st,2));
 			script_pushint(st, (amount > max ? 1 : amount < min ? -1 : 0));
 		}
 		st->state = RUN;
@@ -5572,9 +5572,9 @@ BUILDIN_FUNC(set)
 #endif
 
 	if( is_string_variable(name) )
-		set_reg(st,sd,num,name,(void*)script_getstr(st,3),script_getref(st,2));
+		set_reg(st,sd,num,name,(void *)script_getstr(st,3),script_getref(st,2));
 	else
-		set_reg(st,sd,num,name,(void*)__64BPRTSIZE(script_getnum(st,3)),script_getref(st,2));
+		set_reg(st,sd,num,name,(void *)__64BPRTSIZE(script_getnum(st,3)),script_getref(st,2));
 
 	// Return a copy of the variable reference
 	script_pushcopy(st,2);
@@ -5655,10 +5655,10 @@ BUILDIN_FUNC(setarray)
 
 	if( is_string_variable(name) ) { // String array
 		for( i = 3; start < end; ++start, ++i )
-			set_reg(st, sd, reference_uid(id, start), name, (void*)script_getstr(st,i), reference_getref(data));
+			set_reg(st, sd, reference_uid(id, start), name, (void *)script_getstr(st,i), reference_getref(data));
 	} else { // Int array
 		for( i = 3; start < end; ++start, ++i )
-			set_reg(st, sd, reference_uid(id, start), name, (void*)__64BPRTSIZE(script_getnum(st,i)), reference_getref(data));
+			set_reg(st, sd, reference_uid(id, start), name, (void *)__64BPRTSIZE(script_getnum(st,i)), reference_getref(data));
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -5702,9 +5702,9 @@ BUILDIN_FUNC(cleararray)
 	}
 
 	if( is_string_variable(name) )
-		v = (void*)script_getstr(st, 3);
+		v = (void *)script_getstr(st, 3);
 	else
-		v = (void*)__64BPRTSIZE(script_getnum(st, 3));
+		v = (void *)__64BPRTSIZE(script_getnum(st, 3));
 
 	end = start + script_getnum(st, 4);
 	if( end > SCRIPT_MAX_ARRAYSIZE )
@@ -5791,7 +5791,7 @@ BUILDIN_FUNC(copyarray)
 				set_reg(st, sd, reference_uid(id1, idx1 + i), name1, v, reference_getref(data1));
 				script_removetop(st, -1, 0);
 			} else // Out of range - assume ""/0
-				set_reg(st, sd, reference_uid(id1, idx1 + i), name1, (is_string_variable(name1) ? (void*)"" : (void*)0), reference_getref(data1));
+				set_reg(st, sd, reference_uid(id1, idx1 + i), name1, (is_string_variable(name1) ? (void *)"" : (void *)0), reference_getref(data1));
 		}
 	}
 	return SCRIPT_CMD_SUCCESS;
@@ -5895,7 +5895,7 @@ BUILDIN_FUNC(deletearray)
 			set_reg(st, sd, reference_uid(id, start), name, (void *)"", reference_getref(data));
 	} else {
 		for( ; start < end; ++start )
-			set_reg(st, sd, reference_uid(id, start), name, (void*)0, reference_getref(data));
+			set_reg(st, sd, reference_uid(id, start), name, (void *)0, reference_getref(data));
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -11715,7 +11715,7 @@ BUILDIN_FUNC(flagemblem)
 BUILDIN_FUNC(getcastlename)
 {
 	const char *mapname = mapindex_getmapname(script_getstr(st,2),NULL);
-	struct guild_castle* gc = guild_mapname2gc(mapname);
+	struct guild_castle *gc = guild_mapname2gc(mapname);
 	const char *name = (gc) ? gc->castle_name : "";
 	script_pushstrcopy(st,name);
 	return SCRIPT_CMD_SUCCESS;
@@ -12337,7 +12337,7 @@ BUILDIN_FUNC(guardianinfo)
 	int id = script_getnum(st,3);
 	int type = script_getnum(st,4);
 
-	struct guild_castle* gc = guild_mapname2gc(mapname);
+	struct guild_castle *gc = guild_mapname2gc(mapname);
 	struct mob_data *gd;
 
 	if( gc == NULL || id < 0 || id >= MAX_GUARDIANS ) {
@@ -13986,7 +13986,7 @@ BUILDIN_FUNC(getmapxy)
 		sd = script_rid2sd(st);
 	else
 		sd = NULL;
-	set_reg(st,sd,num,name,(void*)mapname,script_getref(st,2));
+	set_reg(st,sd,num,name,(void *)mapname,script_getref(st,2));
 
 	//Set MapX
 	num = st->stack->stack_data[st->start + 3].u.num;
@@ -14072,7 +14072,7 @@ BUILDIN_FUNC(summon)
 	clif_skill_poseffect(&sd->bl,AM_CALLHOMUN,1,sd->bl.x,sd->bl.y,tick);
 
 	lv = sd->status.base_level;
-	class_ = (class_ >= 0 ? class_ : mob_get_random_id(-class_ - 1,(battle_config.random_monster_checklv ? 3 : 1),lv));
+	class_ = (class_ >= 0 ? class_ : mob_get_random_id(-class_ - 1,(battle_config.random_monster_checklv ? 0x03 : 0x01),lv));
 	md = mob_once_spawn_sub(&sd->bl,sd->bl.m,sd->bl.x,sd->bl.y,str,class_,event,SZ_SMALL,AI_NONE);
 	if( md ) {
 		md->master_id = sd->bl.id;
@@ -14732,7 +14732,7 @@ BUILDIN_FUNC(explode)
 	while( str[i] != '\0' ) {
 		if( str[i] == delimiter && start < SCRIPT_MAX_ARRAYSIZE - 1 ) { //Break at delimiter but ignore after reaching last array index
 			temp[j] = '\0';
-			set_reg(st, sd, reference_uid(id, start++), name, (void*)temp, reference_getref(data));
+			set_reg(st, sd, reference_uid(id, start++), name, (void *)temp, reference_getref(data));
 			j = 0;
 			++i;
 		} else
@@ -14740,7 +14740,7 @@ BUILDIN_FUNC(explode)
 	}
 	//Set last string
 	temp[j] = '\0';
-	set_reg(st, sd, reference_uid(id, start), name, (void*)temp, reference_getref(data));
+	set_reg(st, sd, reference_uid(id, start), name, (void *)temp, reference_getref(data));
 
 	aFree(temp);
 	return SCRIPT_CMD_SUCCESS;
@@ -16157,7 +16157,7 @@ BUILDIN_FUNC(searchitem)
 	}
 
 	for( i = 0; i < count; ++start, ++i ) { // Set array
-		void *v = (void*)__64BPRTSIZE((int)items[i]->nameid);
+		void *v = (void *)__64BPRTSIZE((int)items[i]->nameid);
 
 		set_reg(st,sd,reference_uid(id,start),name,v,reference_getref(data));
 	}

@@ -3356,6 +3356,7 @@ ma_fild01,166,214,6	script	Old Man in Dilemma#GA	575,{
 				if (countitem(6497) >= 3 && Zeny >= 1000) {
 					specialeffect2 EF_CONE;
 					specialeffect EF_FORESTLIGHT2;
+					delitem 6497,3; //Lesser_Agimat
 					set Zeny, Zeny-1000;
 					getitem 12775,1; //Ancient_Spirit_Agimat
 				} else {
@@ -3528,6 +3529,7 @@ ma_fild01,238,198,4	script	Tikbalang Expert#malaya	582,{
 			switch(select("Yes, Im interested.:No, I can capture one myself.")) {
 			case 1:
 				delitem 6496,3; //Tikbalang_Thick_Spine
+				delitem 6497,5; //Lesser_Agimat
 				getitem 12699,1; //Tikbalang_Belt
 				mes "[Tikbalang Expert]";
 				mes "Yiiiiiiiiiiii! Yap!";
@@ -3889,6 +3891,7 @@ OnTouch:
 	}
 	end;
 }
+
 malaya,276,288,5	script	Port Malaya Villager::buwaya_A	582,{
 	if (malaya_hi < 20) {
 		mes "- Look at you warily while whispering to each other. -";

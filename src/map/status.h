@@ -687,7 +687,6 @@ typedef enum sc_type {
 	SC_MDEFSET,
 
 	SC_ALL_RIDING,
-	SC_ELEMENTAL_SHIELD,
 
 	SC_MTF_ASPD,
 	SC_MTF_RANGEATK,

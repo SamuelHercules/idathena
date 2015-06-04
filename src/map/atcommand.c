@@ -6413,10 +6413,12 @@ ACMD_FUNC(pettalk)
 			"/whisp"
 		};
 		int i;
-		ARR_FIND( 0, ARRAYLENGTH(emo), i, stricmp(message, emo[i]) == 0 );
-		if( i == E_DICE1 ) i = rnd()%6 + E_DICE1; // randomize /dice
+
+		ARR_FIND(0, ARRAYLENGTH(emo), i, stricmp(message, emo[i]) == 0);
+		if( i == E_DICE1 )
+			i = rnd()%6 + E_DICE1; // Randomize /dice
 		if( i < ARRAYLENGTH(emo) ) {
-			if (sd->emotionlasttime + 1 >= time(NULL)) { // not more than 1 per second
+			if (sd->emotionlasttime + 1 >= time(NULL)) { // Not more than 1 per second
 					sd->emotionlasttime = time(NULL);
 					return 0;
 			}
@@ -8882,9 +8884,9 @@ ACMD_FUNC(set) {
 
 	if( toset >= 2 ) { // We only set the var if there is an val, otherwise we only output the value
 		if( is_str )
-			set_var(sd, reg, (void*) val);
+			set_var(sd, reg, (void *) val);
 		else
-			set_var(sd, reg, (void*)__64BPRTSIZE((atoi(val))));
+			set_var(sd, reg, (void *)__64BPRTSIZE((atoi(val))));
 	}
 
 	CREATE(data, struct script_data,1);

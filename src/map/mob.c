@@ -320,10 +320,11 @@ struct mob_data *mob_spawn_dataset(struct spawn_data *data)
  * 1: poring list
  * 2: bloody branch list
  * flag:
- * &1: Apply the summon success chance found in the list (otherwise get any monster from the db)
- * &2: Apply a monster check level.
- * &4: Selected monster should not be a boss type
- * &8: Selected monster must have normal spawn.
+ * &0x01: Apply the summon success chance found in the list (otherwise get any monster from the db)
+ * &0x02: Apply a monster check level
+ * &0x04: Selected monster should not be a boss type
+ * &0x08: Selected monster must have normal spawn
+ * &0x10: Selected monster element must be undead
  * lv: Mob level to check against
  *------------------------------------------*/
 int mob_get_random_id(int type, int flag, int lv)
@@ -341,15 +342,15 @@ int mob_get_random_id(int type, int flag, int lv)
 		else //Dead branch
 			mob_id = rnd()%MAX_MOB_DB;
 		mob = mob_db(mob_id);
-	} while ((mob == mob_dummy ||
-		mob_is_clone(mob_id) ||
-		(flag&1 && mob->summonper[type] <= rnd()%1000000) ||
-		(flag&2 && lv < mob->lv) ||
-		(flag&4 && mob->status.mode&MD_BOSS) ||
-		(flag&8 && mob->spawn[0].qty < 1)
-	) && (i++) < MAX_MOB_DB);
+	} while ((mob == mob_dummy || mob_is_clone(mob_id) ||
+		(flag&0x01 && mob->summonper[type] <= rnd()%1000000) ||
+		(flag&0x02 && lv < mob->lv) ||
+		(flag&0x04 && mob->status.mode&MD_BOSS) ||
+		(flag&0x08 && mob->spawn[0].qty < 1) ||
+		(flag&0x10 && mob->status.def_ele != ELE_UNDEAD)) &&
+		(i++) < MAX_MOB_DB);
 
-	if(i >= MAX_MOB_DB)  // no suitable monster found, use fallback for given list
+	if (i >= MAX_MOB_DB) //No suitable monster found, use fallback for given list
 		mob_id = mob_db_data[0]->summonper[type];
 	return mob_id;
 }
@@ -497,7 +498,8 @@ int mob_once_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, const
 	lv = (sd) ? sd->status.base_level : 255;
 
 	for (count = 0; count < amount; count++) {
-		int c = (mob_id >= 0) ? mob_id : mob_get_random_id(-mob_id - 1, (battle_config.random_monster_checklv) ? 3 : 1, lv);
+		int c = (mob_id >= 0) ? mob_id : (mob_id == -4) ? mob_get_random_id(0, 0x11, 0) :
+			mob_get_random_id(-mob_id - 1, (battle_config.random_monster_checklv) ? 0x03 : 0x01, lv);
 
 		md = mob_once_spawn_sub((sd) ? &sd->bl : NULL, m, x, y, mobname, c, event, size, ai);
 
@@ -505,11 +507,11 @@ int mob_once_spawn(struct map_session_data *sd, int16 m, int16 x, int16 y, const
 			continue;
 
 		if (mob_id == MOBID_EMPERIUM && !no_guardian_data) {
-			struct guild_castle* gc = guild_mapindex2gc(map_id2index(m));
+			struct guild_castle *gc = guild_mapindex2gc(map_id2index(m));
 			struct guild *g = (gc) ? guild_search(gc->guild_id) : NULL;
 
 			if (gc) {
-				md->guardian_data = (struct guardian_data*)aCalloc(1, sizeof(struct guardian_data));
+				md->guardian_data = (struct guardian_data *)aCalloc(1, sizeof(struct guardian_data));
 				md->guardian_data->castle = gc;
 				md->guardian_data->number = MAX_GUARDIANS;
 				if (g)
@@ -654,8 +656,9 @@ int mob_spawn_guardian(const char *mapname, short x, short y, const char *mobnam
 	data.num = 1;
 
 	if (mob_id <= 0) {
-		mob_id = mob_get_random_id(-mob_id - 1, 1, 99);
-		if (!mob_id) return 0;
+		mob_id = mob_get_random_id(-mob_id - 1, 0x01, 99);
+		if (!mob_id)
+			return 0;
 	}
 
 	data.id = mob_id;
@@ -702,7 +705,7 @@ int mob_spawn_guardian(const char *mapname, short x, short y, const char *mobnam
 	}
 
 	md = mob_spawn_dataset(&data);
-	md->guardian_data = (struct guardian_data*)aCalloc(1, sizeof(struct guardian_data));
+	md->guardian_data = (struct guardian_data *)aCalloc(1, sizeof(struct guardian_data));
 	md->guardian_data->number = guardian;
 	md->guardian_data->castle = gc;
 
@@ -747,8 +750,9 @@ int mob_spawn_bg(const char *mapname, short x, short y, const char *mobname, int
 	data.m = m;
 	data.num = 1;
 	if( mob_id <= 0 ) {
-		mob_id = mob_get_random_id(-mob_id - 1, 1, 99);
-		if( !mob_id ) return 0;
+		mob_id = mob_get_random_id(-mob_id - 1, 0x01, 99);
+		if( !mob_id )
+			return 0;
 	}
 
 	data.id = mob_id;
@@ -2576,7 +2580,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				(battle_config.taekwon_mission_mobname == 1 && mob_is_goblin(md, sd->mission_mobid)) ||
 				(battle_config.taekwon_mission_mobname == 2 && mob_is_samename(md, sd->mission_mobid)))
 			{ //TK_MISSION [Skotlex]
-				if(++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0xE, sd->status.base_level))) {
+				if(++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0x0E, sd->status.base_level))) {
 					pc_addfame(sd, battle_config.fame_taekwon_mission);
 					sd->mission_mobid = temp;
 					pc_setglobalreg(sd, "TK_MISSION_ID", temp);
@@ -4032,10 +4036,8 @@ static int mob_read_randommonster(void)
 				if(p)
 					*p++ = 0;
 			}
-
 			if(str[0] == NULL || str[2] == NULL)
 				continue;
-
 			mob_id = atoi(str[0]);
 			if(mob_db(mob_id) == mob_dummy)
 				continue;
