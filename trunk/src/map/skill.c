@@ -9518,7 +9518,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( flag&1 ) {
 				uint16 sp = 0;
 
-				if( dstsd && (sd == dstsd || map_flag_vs(src->m)) &&
+				if( dstsd && (sd == dstsd || map_flag_vs(src->m) || (sd && sd->duel_group && sd->duel_group == dstsd->duel_group)) &&
 					((dstsd->class_&MAPID_BASEMASK) != MAPID_GUNSLINGER || (dstsd->class_&MAPID_UPPERMASK) != MAPID_REBELLION) ) {
 					if( dstsd->spiritball > 0 ) {
 						sp = dstsd->spiritball;
@@ -9531,11 +9531,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					if( sp )
 						status_percent_heal(src,0,sp); //1% SP per spiritball
 				}
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,(sp ? 1 : 0));
-			} else {
 				clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
-				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|BCT_SELF|SD_SPLASH|1,skill_castend_nodamage_id);
-			}
+			} else
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ALL|SD_SPLASH|1,skill_castend_nodamage_id);
 			break;
 
 		case SR_POWERVELOCITY:
