@@ -2322,6 +2322,7 @@ ACMD_FUNC(displaystatus)
 		clif_displaymessage(fd, msg_txt(1009)); // Please enter a status type/flag (usage: @displaystatus <status type> <flag> <tick> {<val1> {<val2> {<val3>}}}).
 		return -1;
 	}
+
 	if (i < 2) flag = 1;
 	if (i < 3) tick = 0;
 	if (i < 4) val1 = 0;

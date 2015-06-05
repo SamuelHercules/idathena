@@ -928,17 +928,11 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 							clif_skill_fail(sd,RG_SNATCHER,USESKILL_FAIL_LEVEL,0,0);
 					}
 					if( !(sc && sc->data[SC_COMBO]) ) { //Chance to trigger Taekwon kicks [Dralnu]
-						if( sc->data[SC_READYSTORM] &&
-							sc_start4(src,src,SC_COMBO,15,TK_STORMKICK,bl->id,2,0,
-								(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
+						if( sc->data[SC_READYSTORM] && sc_start4(src,src,SC_COMBO,15,TK_STORMKICK,bl->id,2,0,(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
 							; //Stance triggered
-						else if( sc->data[SC_READYDOWN] &&
-							sc_start4(src,src,SC_COMBO,15,TK_DOWNKICK,bl->id,2,0,
-								(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
+						else if( sc->data[SC_READYDOWN] && sc_start4(src,src,SC_COMBO,15,TK_DOWNKICK,bl->id,2,0,(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
 							; //Stance triggered
-						else if( sc->data[SC_READYTURN] &&
-							sc_start4(src,src,SC_COMBO,15,TK_TURNKICK,bl->id,2,0,
-								(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
+						else if( sc->data[SC_READYTURN] && sc_start4(src,src,SC_COMBO,15,TK_TURNKICK,bl->id,2,0,(2000 - 4 * sstatus->agi - 2 * sstatus->dex)) )
 							; //Stance triggered
 						else if( sc->data[SC_READYCOUNTER] ) { //Additional chance from SG_FRIEND [Komurka]
 							rate = 20;
@@ -946,15 +940,12 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 								rate += rate * sc->data[SC_SKILLRATE_UP]->val2 / 100;
 								status_change_end(src,SC_SKILLRATE_UP,INVALID_TIMER);
 							}
-							sc_start4(src,src,SC_COMBO,rate,TK_COUNTER,bl->id,2,0,
-								(2000 - 4 * sstatus->agi - 2 * sstatus->dex))
-							; //Stance triggered
+							sc_start4(src,src,SC_COMBO,rate,TK_COUNTER,bl->id,2,0,(2000 - 4 * sstatus->agi - 2 * sstatus->dex)); //Stance triggered
 						}
 					}
 					if( sc && sc->data[SC_PYROCLASTIC] && ((rnd()%100) <= sc->data[SC_PYROCLASTIC]->val3) )
 						skill_castend_pos2(src,bl->x,bl->y,BS_HAMMERFALL,sc->data[SC_PYROCLASTIC]->val1,tick,0);
 				}
-
 				if( sc ) {
 					struct status_change_entry *sce;
 
@@ -968,8 +959,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			break;
 		case SM_BASH: //BaseChance gets multiplied with BaseLevel/50.0; 500/50 simplifies to 10 [Playtester]
 			if( sd && skill_lv > 5 && pc_checkskill(sd,SM_FATALBLOW) > 0 )
-				status_change_start(src,bl,SC_STUN,(skill_lv - 5) * sd->status.base_level * 10,
-					skill_lv,0,0,0,skill_get_time2(SM_FATALBLOW,skill_lv),SCFLAG_NONE);
+				status_change_start(src,bl,SC_STUN,(skill_lv - 5) * sd->status.base_level * 10,skill_lv,0,0,0,skill_get_time2(SM_FATALBLOW,skill_lv),SCFLAG_NONE);
 			break;
 		case MER_CRASH:
 			sc_start(src,bl,SC_STUN,(6 * skill_lv),skill_lv,skill_get_time2(skill_id,skill_lv));
@@ -1486,17 +1476,16 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			sc_start(src,bl,SC_STUN,10 * skill_lv,skill_lv,skill_get_time2(skill_id,skill_lv));
 			break;
 		case MH_LAVA_SLIDE:
-			if( !tsc->data[SC_BURNING] )
-				sc_start4(src,bl,SC_BURNING,10 * skill_lv,skill_lv,1000,src->id,0,skill_get_time(skill_id,skill_lv));
+			sc_start4(src,bl,SC_BURNING,10 * skill_lv,skill_lv,1000,src->id,0,skill_get_time2(skill_id,skill_lv));
 			break;
 		case MH_STAHL_HORN:
-			sc_start(src,bl,SC_STUN,(20 + 4 * (skill_lv - 1)),skill_lv,skill_get_time(skill_id,skill_lv));
+			sc_start(src,bl,SC_STUN,16 + 4 * skill_lv,skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 		case MH_NEEDLE_OF_PARALYZE:
-			sc_start(src,bl,SC_PARALYSIS,40 + (5 * skill_lv),skill_lv,skill_get_time(skill_id,skill_lv));
+			sc_start(src,bl,SC_PARALYSIS,40 + 5 * skill_lv,skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 		case MH_SILVERVEIN_RUSH:
-			sc_start4(src,bl,SC_STUN,20 + (5 * skill_lv),skill_lv,src->id,0,0,skill_get_time(skill_id,skill_lv));
+			sc_start4(src,bl,SC_STUN,20 + 5 * skill_lv,skill_lv,src->id,0,0,skill_get_time(skill_id,skill_lv));
 			break;
 		case MH_MIDNIGHT_FRENZY: {
 				TBL_HOM *hd = BL_CAST(BL_HOM,src);
@@ -1506,7 +1495,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			}
 			break;
 		case MH_XENO_SLASHER:
-			sc_start4(src,bl,SC_BLEEDING,10 * skill_lv,skill_lv,src->id,0,0,skill_get_time2(skill_id,skill_lv));
+			sc_start4(src,bl,SC_BLEEDING,1 * skill_lv,skill_lv,src->id,0,0,skill_get_time2(skill_id,skill_lv));
 			break;
 		case GN_ILLUSIONDOPING:
 			if( sc_start(src,bl,SC_ILLUSIONDOPING,100 - skill_lv * 10,skill_lv,skill_get_time(skill_id,skill_lv)) )
@@ -3021,6 +3010,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case GN_CRAZYWEED_ATK:
 		case GN_ILLUSIONDOPING:
 		case KO_BAKURETSU:
+		case MH_HEILIGE_STANGE:
 			dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skill_id, -1, DMG_SPLASH);
 			break;
 		case SC_FEINTBOMB:
@@ -4405,6 +4395,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					case NJ_BAKUENRYU:
 					case GN_CARTCANNON:
 					case GN_ILLUSIONDOPING:
+					case MH_HEILIGE_STANGE:
 						clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 						break;
 					case MH_XENO_SLASHER:
@@ -7631,13 +7622,11 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			}
 			break;
 
-		case NPC_REVENGE:
-			//Not really needed, but adding here anyway ^^
+		case NPC_REVENGE: //Not really needed, but adding here anyway ^^
 			if (md && md->master_id > 0) {
 				struct block_list *mbl, *tbl;
 
-				if ((mbl = map_id2bl(md->master_id)) == NULL ||
-					(tbl = battle_gettargeted(mbl)) == NULL)
+				if ((mbl = map_id2bl(md->master_id)) == NULL || (tbl = battle_gettargeted(mbl)) == NULL)
 					break;
 				md->state.provoke_flag = tbl->id;
 				mob_target(md,tbl,sstatus->rhw.range);
@@ -10421,14 +10410,14 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 						if( tsc->data[scs[i]] )
 							status_change_end(bl,scs[i],INVALID_TIMER);
 				}
-				heal = 5 * status_get_lv(&hd->bl) +
+				heal = 5 * (status_get_lv(src) +
 #ifdef RENEWAL
-					status_base_matk(bl,&hd->battle_status,status_get_lv(&hd->bl))
+					status_base_matk(bl,&hd->battle_status,status_get_lv(src))
 #else
 					status_base_matk_min(&hd->battle_status)
 #endif
-				;
-				status_heal(bl,heal,0,0);
+					);
+				status_heal(bl,heal,0,2);
 				clif_skill_nodamage(src,src,skill_id,skill_lv,clif_skill_nodamage(src,bl,AL_HEAL,heal,1));
 				status_change_start(src,src,type,10000,skill_lv,0,0,1,skill_get_time(skill_id,skill_lv),SCFLAG_NOAVOID|SCFLAG_FIXEDTICK|SCFLAG_FIXEDRATE);
 				if( battle_check_target(src,bl,BCT_ENEMY) > 0 && !is_boss(bl) )
@@ -10443,29 +10432,31 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				struct block_list *m_src = battle_get_master(src);
 
 				if( m_src ) //Start on master
-					sc_start2(src,m_src,type,100,skill_lv,hd->homunculus.level,skill_get_time(skill_id,skill_lv));
-				sc_start2(src,bl,type,100,skill_lv,hd->homunculus.level,skill_get_time(skill_id,skill_lv));
+					sc_start(src,m_src,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
+				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 				skill_blockhomun_start(hd,skill_id,skill_get_cooldown(NULL,skill_id,skill_lv));
 			}
 			break;
 
 		case MH_STYLE_CHANGE:
 			if( hd ) {
-				struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+				struct status_change_entry *sce = hd->sc.data[type];
 
 				if( sce ) { //In preparation for other bl usage
-					if( sce->val1 == MH_MD_FIGHTING )
+					if( sce->val1 == MH_MD_FIGHTING ) {
+						clif_status_load(&hd->master->bl,SI_STYLE_CHANGE,0);
 						sce->val1 = MH_MD_GRAPPLING;
-					else
+					} else {
+						clif_status_change(&hd->master->bl,SI_STYLE_CHANGE,1,INVALID_TIMER,0,0,0);
 						sce->val1 = MH_MD_FIGHTING;
-					if( hd->master && hd->sc.data[SC_STYLE_CHANGE] ) {
-						char output[128];
-
-						safesnprintf(output,sizeof(output),msg_txt(378),(sce->val1 == MH_MD_FIGHTING ? "fighthing" : "grappling"));
-						clif_colormes(hd->master,color_table[COLOR_RED],output);
 					}
-				} else
-					sc_start(&hd->bl,&hd->bl,SC_STYLE_CHANGE,100,MH_MD_FIGHTING,INVALID_TIMER);
+					//if( hd->master && hd->sc.data[type] ) {
+					//	char output[128];
+					//
+					//	safesnprintf(output,sizeof(output),msg_txt(378),(sce->val1 == MH_MD_FIGHTING ? "fighthing" : "grappling"));
+					//	clif_colormes(hd->master,color_table[COLOR_RED],output);
+					//}
+				}
 			}
 			break;
 
@@ -10511,7 +10502,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							delete_timer(sum_md->deletetimer,mob_timer_delete);
 						sum_md->deletetimer = add_timer(gettick() + skill_get_time(skill_id,skill_lv),mob_timer_delete,sum_md->bl.id,0);
 						mob_spawn(sum_md); //Now it is ready for spawning
-						sc_start4(&sum_md->bl,&sum_md->bl,SC_MODECHANGE,100,1,0,MD_CANATTACK|MD_AGGRESSIVE,0,60000);
+						sc_start4(&sum_md->bl,&sum_md->bl,SC_MODECHANGE,100,1,0,MD_CANATTACK|MD_AGGRESSIVE,0,skill_get_time(skill_id,skill_lv));
 					}
 				}
 				if( hd )
@@ -13114,7 +13105,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 
 		case UNT_VOLCANIC_ASH:
 			if( !sce )
-				sc_start(src,bl,type,100,skill_lv,group->limit);
+				sc_start(src,bl,type,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 			break;
 
 		case UNT_KINGS_GRACE:
@@ -13948,13 +13939,14 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 
 		case UNT_LAVA_SLIDE:
 			skill_attack(BF_WEAPON,src,&unit->bl,bl,skill_id,skill_lv,tick,0);
-			if (++group->val1 > 4) //After 5 stop hit and destroy me
+			if (++group->val1 > 4) //After 5 separate hits have been dealt, destroy the unit
 				group->limit = DIFF_TICK(tick,group->tick);
 			break;
 
 		case UNT_POISON_MIST:
 			skill_attack(BF_MAGIC,src,&unit->bl,bl,skill_id,skill_lv,tick,0);
-			status_change_start(src,bl,SC_BLIND,(10 + 10 * skill_lv) * 100,skill_lv,skill_id,0,0,skill_get_time2(skill_id,skill_lv),SCFLAG_FIXEDTICK|SCFLAG_FIXEDRATE);
+			status_change_start(src,bl,SC_BLIND,(10 + 10 * skill_lv) * 100,
+				skill_lv,skill_id,0,0,skill_get_time2(skill_id,skill_lv),SCFLAG_FIXEDTICK|SCFLAG_FIXEDRATE);
 			break;
 
 		case UNT_B_TRAP:
@@ -14440,7 +14432,7 @@ static int skill_check_condition_mob_master_sub(struct block_list *bl, va_list a
 		AI_LEGION : skill == NC_SILVERSNIPER ? AI_FAW : skill == NC_MAGICDECOY ? AI_FAW : AI_FLORA);
 
 	if( md->master_id != src_id || md->special_state.ai != ai )
-		return 0; //Non alchemist summoned mobs have nothing to do here
+		return 0; //Nothing to do here
 
 	if( md->mob_id == mob_id )
 		(*c)++;

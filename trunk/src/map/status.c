@@ -1868,7 +1868,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 	if (sc && sc->count) {
 		if (sc->data[SC_ALL_RIDING])
 			return false; //New mounts can't attack nor use skills in the client, this check makes it cheat-safe [Ind]
-		if (sc->data[SC_ASH] && rnd()%2 && src->type == BL_PC) { //Gain 50% of failing rate when casting skills
+		if (sc->data[SC_ASH] && rnd()%100 < 50 && src->type == BL_PC) { //Gain 50% of failing rate when casting skills
 			clif_skill_fail((TBL_PC *)src, skill_id, 0, 0, 0);
 			return false;
 		}
@@ -2641,7 +2641,7 @@ int status_calc_mob_(struct mob_data *md, enum e_status_calc_opt opt)
 
 	status_calc_misc(&md->bl, status, md->level);
 
-	if (flag&4) { //Strengthen Guardians - custom value + 10% / lv
+	if (flag&4) { //Strengthen Guardians
 		struct guild_castle *gc;
 
 		gc = guild_mapname2gc(map[md->bl.m].name);
@@ -2654,16 +2654,18 @@ int status_calc_mob_(struct mob_data *md, enum e_status_calc_opt opt)
 #else
 			status->max_hp += 1000 * gc->defense;
 			status->max_sp += 200 * gc->defense;
+			status->def += (gc->defense + 2) / 3;
+			status->mdef += (gc->defense + 2) / 3;
 #endif
 			status->hp = status->max_hp;
 			status->sp = status->max_sp;
-			status->def += (gc->defense + 2) / 3;
-			status->mdef += (gc->defense + 2) / 3;
 		}
 		if (md->mob_id != MOBID_EMPERIUM) {
 			status->batk += status->batk * 10 * guardup_lv / 100;
 			status->rhw.atk += status->rhw.atk * 10 * guardup_lv / 100;
+#ifndef RENEWAL
 			status->rhw.atk2 += status->rhw.atk2 * 10 * guardup_lv / 100;
+#endif
 			status->aspd_rate -= 100 * guardup_lv;
 		}
 	}
@@ -2685,35 +2687,45 @@ int status_calc_mob_(struct mob_data *md, enum e_status_calc_opt opt)
 				case AM_SPHEREMINE:
 					status->max_hp = 2000 + 400 * ud->skill_lv;
 					break;
-				case KO_ZANZOU:
-					status->max_hp = 3000 + 3000 * ud->skill_lv + status_get_max_sp(battle_get_master(mbl));
-					break;
 				case AM_CANNIBALIZE:
 					status->max_hp = 1500 + 200 * ud->skill_lv + 10 * status_get_lv(mbl);
 					status->mode |= MD_CANATTACK|MD_AGGRESSIVE;
 					break;
-				case NC_SILVERSNIPER:
-					if (!mstatus)
-						break;
-					status->max_hp = mstatus->max_hp / 3 + ud->skill_lv * 1000 + status_get_lv(mbl) * 12;
-					status->rhw.atk = status->rhw.atk2 = ((ud->skill_lv > 3 ? 300 : 100) + 200 * ud->skill_lv);
-					break;
-				case NC_MAGICDECOY:
-					if (!mstatus)
-						break;
-					status->max_hp = mstatus->max_sp * 4 + ud->skill_lv * 1000 + status_get_lv(mbl) * 12;
-					status->matk_min = status->matk_max = ud->skill_lv * 50 + 250;
+				case KO_ZANZOU:
+					status->max_hp = 3000 + 3000 * ud->skill_lv + status_get_max_sp(battle_get_master(mbl));
 					break;
 				case MH_SUMMON_LEGION: {
 						int homblvl = status_get_lv(mbl);
 
 						status->max_hp = 10 * (100 * (ud->skill_lv + 2) + homblvl);
-						status->batk = 100 * (ud->skill_lv + 5) / 2;
-						status->def = 10 * (100 * (ud->skill_lv + 2) + homblvl);
-						//status->aspd_rate = 10 * (2 * (20 - ud->skill_lv) - homblvl / 10);
-						//status->aspd_rate = max(100, status->aspd_rate);
-						break;
+						status->rhw.atk = 100 * (ud->skill_lv + 5) / 2;
+#ifndef RENEWAL
+						status->rhw.atk2 = status->rhw.atk;
+#endif
+						status->def = 40 * (ud->skill_lv + 1);
+						status->amotion = max(10 * (2 * (20 - ud->skill_lv) - homblvl / 10),100);
 					}
+					break;
+				case NC_SILVERSNIPER:
+					if (!mstatus)
+						break;
+					status->max_hp = mstatus->max_hp / 3 + ud->skill_lv * 1000 + status_get_lv(mbl) * 12;
+					status->rhw.atk = (ud->skill_lv > 3 ? 300 : 100) + 200 * ud->skill_lv;
+#ifndef RENEWAL
+					status->rhw.atk2 = status->rhw.atk;
+#endif
+					break;
+				case NC_MAGICDECOY:
+					if (!mstatus)
+						break;
+					status->max_hp = mstatus->max_sp * 4 + ud->skill_lv * 1000 + status_get_lv(mbl) * 12;
+#ifdef RENEWAL
+					status->rhw.atk2 =
+#else
+					status->matk_min = status->matk_max =
+#endif
+						ud->skill_lv * 50 + 250;
+					break;
 			}
 			status->hp = status->max_hp;
 		}
@@ -3926,8 +3938,10 @@ int status_calc_homunculus_(struct homun_data *hd, enum e_status_calc_opt opt)
 	if( opt&SCO_FIRST ) {
 		hd->battle_status.hp = hom->hp;
 		hd->battle_status.sp = hom->sp;
-		if( hom->class_ == 6052 ) //Eleanor
+		if( hom->class_ == 6052 ) { //Eleanor
+			clif_status_change(&hd->master->bl, SI_STYLE_CHANGE, 1, INVALID_TIMER, 0, 0, 0);
 			sc_start(&hd->bl, &hd->bl, SC_STYLE_CHANGE, 100, MH_MD_FIGHTING, INVALID_TIMER);
+		}
 	}
 
 #ifndef RENEWAL
@@ -5241,8 +5255,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk -= batk * 25 / 100;
 	if(sc->data[SC__ENERVATION])
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
-	if(sc->data[SC_ASH])
-		batk -= batk * sc->data[SC_ASH]->val4 / 100;
+	if(sc->data[SC_ASH] && status_get_element(bl) == ELE_WATER)
+		batk -= batk * 50 / 100;
 
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
@@ -5480,7 +5494,7 @@ static short status_calc_hit(struct block_list *bl, struct status_change *sc, in
 	if(sc->data[SC_TEARGAS])
 		hit -= hit * 50 / 100;
 	if(sc->data[SC_ASH])
-		hit -= hit * sc->data[SC_ASH]->val2 / 100;
+		hit -= hit * 50 / 100;
 
 	return (short)cap_value(hit,1,SHRT_MAX);
 }
@@ -5571,8 +5585,8 @@ static short status_calc_flee(struct block_list *bl, struct status_change *sc, i
 		flee -= flee * (40 + 10 * sc->data[SC_SATURDAYNIGHTFEVER]->val1) / 100;
 	if(sc->data[SC_TEARGAS])
 		flee -= flee * 50 / 100;
-	if(sc->data[SC_ASH])
-		flee -= flee * sc->data[SC_ASH]->val4 / 100;
+	if(sc->data[SC_ASH] && status_get_element(bl) == ELE_WATER)
+		flee -= flee * 50 / 100;
 
 	return (short)cap_value(flee,1,SHRT_MAX);
 }
@@ -5686,8 +5700,8 @@ defType status_calc_def(struct block_list *bl, struct status_change *sc, int def
 		def -= def * 25 / 100;
 	if(sc->data[SC_ROCK_CRUSHER])
 		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
-	if(sc->data[SC_ASH])
-		def -= def * sc->data[SC_ASH]->val3 / 100;
+	if(sc->data[SC_ASH] && status_get_race(bl) == RC_PLANT)
+		def -= def * 50 / 100;
 	if(sc->data[SC_OVERED_BOOST] && bl->type == BL_HOM)
 		def -= def * sc->data[SC_OVERED_BOOST]->val4 / 100;
 
@@ -5756,8 +5770,8 @@ short status_calc_def2(struct block_list *bl, struct status_change *sc, int def2
 		def2 -= def2 * 14 * sc->data[SC_ANALYZE]->val1 / 100;
 	if(sc->data[SC_SATURDAYNIGHTFEVER])
 		def2 -= def2 * (10 + 10 * sc->data[SC_SATURDAYNIGHTFEVER]->val1) / 100;
-	if(sc->data[SC_ASH])
-		def2 -= def2 * sc->data[SC_ASH]->val3 / 100;
+	if(sc->data[SC_ASH] && status_get_race(bl) == RC_PLANT)
+		def2 -= def2 * 50 / 100;
 	if(sc->data[SC_PARALYSIS])
 		def2 -= def2 * sc->data[SC_PARALYSIS]->val2 / 100;
 	if(sc->data[SC_EQC])
@@ -8165,7 +8179,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			status_change_end(bl,SC_FOOD_LUK_CASH,INVALID_TIMER);
 			break;
 		case SC_EQC:
-			status_change_end(bl,SC_TINDER_BREAKER2,INVALID_TIMER);
+			status_change_end(bl,SC_CBC,INVALID_TIMER);
 			break;
 	}
 
@@ -9742,14 +9756,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_GRANITIC_ARMOR:
 				val2 = 2 * val1; //Dmg hp reduction
 				val3 = 6 * val1; //Dmg hp on status end
-				val4 = 5 * val1; //Unknow formula
 				break;
 			case SC_MAGMA_FLOW:
 				val2 = 3 * val1; //Activation chance
 				break;
 			case SC_PYROCLASTIC:
-				val2 += 10 * val1; //Watk bonus
-				val3 = 2 * val1; //Chance To AutoCast Hammer Fall %
+				val2 = 10 * val1 + status_get_lv(src); //Watk bonus
+				val3 = 2 * val1; //Chance to autocast Hammer Fall %
 				break;
 			case SC_PARALYSIS:
 				val2 = 2 * val1; //Def reduction
@@ -9759,10 +9772,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val2 = 20 * val1; //Hp reco on death %
 				break;
 			case SC_PAIN_KILLER:
-				val2 = 2 * val1; //Aspd reduction %
-				val3 = 2 * val1; //Dmg reduction %
-				if( sc->data[SC_PARALYSIS] )
-					sc_start(src,bl,SC_ENDURE,100,val1,tick); //Start endure for same duration
+				val2 = 10 * val1; //Aspd reduction %
+				val3 = 200 * val1 * status_get_lv(src) / 150; //Flat dmg reduction
+				sc_start(src,bl,SC_ENDURE,100,1,tick); //Start endure for same duration
 				break;
 			case SC_CBC:
 				val3 = 10; //SP drain %
@@ -9773,19 +9785,10 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val4 = tick / tick_time;
 				break;
 			case SC_EQC:
-				val2 = 5 * val1; //Def % reduc
-				val3 = 5 * val1; //Atk % reduc
-				val4 = 2 * val1; //HP % drain
-				sc_start2(src,bl,SC_STUN,100,val1,bl->id,(1000 * status_get_lv(src)) / 50 + 500 * val1);
-				break;
-			case SC_ASH:
-				val2 = 50; //Hit % reduc
-				val3 = 0; //Def % reduc
-				val4 = 0; //Atk & flee % reduc
-				if( status_get_race(bl) == RC_PLANT ) //Plant type
-					val3 = 50;
-				if( status_get_element(bl) == ELE_WATER ) //Defense water type
-					val4 = 50;
+				val2 = 5 * val1; //Def reduc %
+				val3 = 5 * val1; //Atk reduc %
+				val4 = 2 * val1; //MaxHP reduc %
+				sc_start2(src,bl,SC_STUN,100,val1,bl->id,1000 * status_get_lv(src) / 50 + 500 * val1);
 				break;
 			case SC_FULL_THROTTLE:
 				val2 = (val1 == 1 ? 6 : 6 - val1);
@@ -9997,6 +10000,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_CRYSTALIZE:
 			if (sd && pc_issit(sd))
 				pc_setstand(sd); //Avoid sprite sync problems
+			flag |= 0x20;
 		//Fall through
 		case SC_TRICKDEAD:
 			status_change_end(bl,SC_DANCING,INVALID_TIMER);
@@ -10019,7 +10023,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_MEIKYOUSISUI:
 		case SC_PARALYSIS:
 		case SC_KAGEHUMI:
-			if (type != SC_FREEZE)
+			if (!(flag&0x20))
 				unit_stop_walking(bl,1);
 			break;
 		case SC_CURSEDCIRCLE_TARGET:
@@ -12261,7 +12265,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_CBC:
 			if( --(sce->val4) >= 0 ) {
-				int sp = (status->max_sp * sce->val3) / 100;
+				int sp = status->max_sp * sce->val3 / 100;
 				int hp = (bl->type == BL_MOB ? sp * 10 : 0);
 
 				if( !status_charge(bl,hp,sp) )
@@ -12395,7 +12399,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 			{
 				enum sc_type type2 = (type == SC_CLOSECONFINE ? SC_CLOSECONFINE2 : SC_TINDER_BREAKER2);
 
-				//Locked char has released the hold on everyone.
+				//Locked char has released the hold on everyone
 				if( tsc && tsc->data[type2] && tsc->data[type2]->val2 == src->id ) {
 					tsc->data[type2]->val2 = 0;
 					status_change_end(bl, type2, INVALID_TIMER);

@@ -439,7 +439,7 @@ static int unit_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data
 			if(md->min_chase > md->db->range3)
 				md->min_chase--;
 			//Walk skills are triggered regardless of target due to the idle-walk mob state
-			//But avoid triggering on stop-walk calls.
+			//But avoid triggering on stop-walk calls
 			if(tid != INVALID_TIMER && !(ud->walk_count%WALK_SKILL_INTERVAL) &&
 				map[bl->m].users > 0 && mobskill_use(md,tick,-1)) {
 				if(!(ud->skill_id == NPC_SELFDESTRUCTION && ud->skilltimer != INVALID_TIMER) &&
@@ -1220,6 +1220,7 @@ int unit_stop_walking(struct block_list *bl,int type)
 	ud = unit_bl2ud(bl);
 	if(!ud || ud->walktimer == INVALID_TIMER)
 		return 0;
+
 	//NOTE: We are using timer data after deleting it because we know the
 	//delete_timer function does not messes with it. If the function's
 	//behaviour changes in the future, this code could break!
@@ -1228,21 +1229,22 @@ int unit_stop_walking(struct block_list *bl,int type)
 	ud->walktimer = INVALID_TIMER;
 	ud->state.change_walk_target = 0;
 	tick = gettick();
-	if( (type&0x02 && !ud->walkpath.path_pos) || //Force moving at least one cell.
-		(type&0x04 && td && DIFF_TICK(td->tick, tick) <= td->data / 2) //Enough time has passed to cover half-cell
-	) {
+
+	if ((type&0x02 && !ud->walkpath.path_pos) || //Force moving at least one cell
+		(type&0x04 && td && DIFF_TICK(td->tick, tick) <= td->data / 2)) { //Enough time has passed to cover half-cell
 		ud->walkpath.path_len = ud->walkpath.path_pos + 1;
 		unit_walktoxy_timer(INVALID_TIMER, tick, bl->id, ud->walkpath.path_pos);
 	}
 
 	if(type&0x01)
 		clif_fixpos(bl);
-	
+
 	ud->walkpath.path_len = 0;
 	ud->walkpath.path_pos = 0;
 	ud->to_x = bl->x;
 	ud->to_y = bl->y;
-	if(bl->type == BL_PET && type&~0xff)
+
+	if (bl->type == BL_PET && type&~0xff)
 		ud->canmove_tick = gettick() + (type>>8);
 
 	//Readded, the check in unit_set_walkdelay means dmg during running won't fall through to this place in code [Kevin]
@@ -1250,6 +1252,7 @@ int unit_stop_walking(struct block_list *bl,int type)
 		status_change_end(bl, SC_RUN, INVALID_TIMER);
 		status_change_end(bl, SC_WUGDASH, INVALID_TIMER);
 	}
+
 	return 1;
 }
 

@@ -74,6 +74,7 @@ static short hom_skill_get_index(int skill_id)
 {
 	if (!skill_get_index(skill_id))
 		return -1;
+
 	if ((skill_id -= HM_SKILLBASE) < 0 || skill_id >= MAX_HOMUNSKILL)
 		return -1;
 	return skill_id;
@@ -162,8 +163,10 @@ void hom_addspiritball(TBL_HOM *hd, int max)
 
 	if (max > MAX_SKILL_LEVEL)
 		max = MAX_SKILL_LEVEL;
+
 	if (hd->homunculus.spiritball < 0)
 		hd->homunculus.spiritball = 0;
+
 	if (hd->homunculus.spiritball && hd->homunculus.spiritball >= max)
 		hd->homunculus.spiritball = max;
 	else
@@ -186,13 +189,18 @@ void hom_delspiritball(TBL_HOM *hd, int count, int type)
 		hd->homunculus.spiritball = 0;
 		return;
 	}
+
 	if (count <= 0)
 		return;
+
 	if (count > MAX_SKILL_LEVEL)
 		count = MAX_SKILL_LEVEL;
+
 	if (count > hd->homunculus.spiritball)
 		count = hd->homunculus.spiritball;
+
 	hd->homunculus.spiritball -= count;
+
 	if (!type)
 		clif_spiritball(&hd->bl);
 }
@@ -218,11 +226,18 @@ int hom_dead(struct homun_data *hd)
 
 	clif_emotion(&hd->bl, E_WAH);
 
-	//Delete timers when dead.
+	if (hd->homunculus.class_ == 6052) { //Eleanor
+		struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+
+		if (sce && sce->val1 == MH_MD_FIGHTING)
+			clif_status_load(&sd->bl, SI_STYLE_CHANGE, 0);
+	}
+
+	//Delete timers when dead
 	hom_hungry_timer_delete(hd);
 	hd->homunculus.hp = 0;
 
-	if (!sd) //unit remove map will invoke unit free
+	if (!sd) //unit_remove_map will invoke unit free
 		return 3;
 
 	clif_emotion(&sd->bl, E_SOB);
@@ -255,9 +270,19 @@ int hom_vaporize(struct map_session_data *sd, int flag)
 	//Delete timers when vaporized
 	hom_hungry_timer_delete(hd);
 	hd->homunculus.vaporize = (flag ? flag : HOM_ST_REST);
+
 	if (battle_config.hom_setting&HOMSET_RESET_REUSESKILL_VAPORIZED)
 		memset(hd->blockskill, 0, sizeof(hd->blockskill));
+
 	clif_hominfo(sd, sd->hd, 0);
+
+	if (hd->homunculus.vaporize == HOM_ST_REST && hd->homunculus.class_ == 6052) { //Eleanor
+		struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+
+		if (sce && sce->val1 == MH_MD_FIGHTING)
+			clif_status_load(&hd->master->bl, SI_STYLE_CHANGE, 0);
+	}
+
 	hom_save(hd);
 	return unit_remove_map(&hd->bl, CLR_OUTSIGHT);
 }
@@ -378,11 +403,12 @@ short hom_checkskill(struct homun_data *hd, uint16 skill_id)
 
 	if (idx < 0) //Invalid skill
 		return 0;
+
 	if (!hd || !&hd->homunculus)
 		return 0;
+
 	if (hd->homunculus.hskill[idx].id == skill_id)
 		return (hd->homunculus.hskill[idx].lv);
-
 	return 0;
 }
 
@@ -398,6 +424,7 @@ int hom_skill_tree_get_max(int skill_id, int b_class)
 
 	if ((b_class = hom_class2index(b_class)) < 0)
 		return 0;
+
 	ARR_FIND(0, MAX_HOM_SKILL_TREE, i, hskill_tree[b_class][i].id == skill_id);
 	if (i < MAX_HOM_SKILL_TREE)
 		return hskill_tree[b_class][i].max;
@@ -417,6 +444,7 @@ uint8 hom_skill_get_min_level(int class_, uint16 skill_id)
 
 	if (class_idx == -1 || (skill_idx = hom_skill_get_index(skill_id)) == -1)
 		return 0;
+
 	ARR_FIND(0, MAX_HOM_SKILL_REQUIRE, i, hskill_tree[class_idx][i].id == skill_id);
 	if (i == MAX_HOM_SKILL_REQUIRE)
 		return 0;
@@ -436,8 +464,10 @@ void hom_skillup(struct homun_data *hd, uint16 skill_id)
 
 	if (hd->homunculus.vaporize)
 		return;
+
 	if ((idx = hom_skill_get_index(skill_id)) < 0)
 		return;
+
 	if (hd->homunculus.skillpts > 0 &&
 		hd->homunculus.hskill[idx].id &&
 		hd->homunculus.hskill[idx].flag == SKILL_FLAG_PERMANENT && //Don't allow raising while you have granted skills [Skotlex]
@@ -557,9 +587,7 @@ int hom_levelup(struct homun_data *hd)
 	hom->int_+= growth_int;
 	hom->luk += growth_luk;
 
-	//MaxHP/MaxSP/Stats Cap check
-	hom_stats_cap_check(hd);
-
+	hom_stats_cap_check(hd); //MaxHP/MaxSP/Stats Cap check
 	APPLY_HOMUN_LEVEL_STATWEIGHT();
 
 	if (battle_config.homunculus_show_growth) {
@@ -583,11 +611,11 @@ int hom_levelup(struct homun_data *hd)
  */
 static bool hom_change_class(struct homun_data *hd, short class_)
 {
-	int i;
+	int i = hom_search(class_, HOMUNCULUS_CLASS);
 
-	i = hom_search(class_, HOMUNCULUS_CLASS);
 	if (i < 0)
 		return false;
+
 	hd->homunculusDB = &homunculus_db[i];
 	hd->homunculus.class_ = class_;
 	status_set_viewdata(&hd->bl, class_);
@@ -634,10 +662,7 @@ int hom_evolution(struct homun_data *hd)
 	hom->int_+= 10 * rnd_value(min->int_, max->int_);
 	hom->dex += 10 * rnd_value(min->dex, max->dex);
 	hom->luk += 10 * rnd_value(min->luk, max->luk);
-
-	//MaxHP/MaxSP/Stats Cap check
-	hom_stats_cap_check(hd);
-
+	hom_stats_cap_check(hd); //MaxHP/MaxSP/Stats Cap check
 	hom->intimacy = battle_config.homunculus_evo_intimacy_reset;
 
 	unit_remove_map(&hd->bl, CLR_OUTSIGHT);
@@ -732,9 +757,7 @@ int hom_mutate(struct homun_data *hd, int homun_id)
 	hom->dex += 10 * rnd_value(1, 10);
 	hom->luk += 10 * rnd_value(1, 10);
 
-	//MaxHP/MaxSP/Stats Cap check
-	hom_stats_cap_check(hd);
-
+	hom_stats_cap_check(hd); //MaxHP/MaxSP/Stats Cap check
 	hom->intimacy = battle_config.homunculus_evo_intimacy_reset;
 
 	unit_remove_map(&hd->bl, CLR_OUTSIGHT);
@@ -745,6 +768,7 @@ int hom_mutate(struct homun_data *hd, int homun_id)
 	i = hom_search(hom->class_, HOMUNCULUS_CLASS);
 	if (i < 0)
 		return 0;
+
 	safestrncpy(hom->name, homunculus_db[i].name, NAME_LENGTH - 1);
 	hd->homunculus.rename_flag = 0;
 	clif_hominfo(hd->master, hd, 0);
@@ -980,8 +1004,8 @@ static int hom_hungry(int tid, unsigned int tick, int id, intptr_t data)
 	}
 
 	hd->hungry_timer = INVALID_TIMER;
-
 	hd->homunculus.hunger-- ;
+
 	if (hd->homunculus.hunger <= 10)
 		clif_emotion(&hd->bl, E_AN);
 	else if (hd->homunculus.hunger == 25)
@@ -1027,6 +1051,7 @@ int hom_change_name(struct map_session_data *sd,char *name)
 	nullpo_retr(1, sd);
 
 	hd = sd->hd;
+
 	if (!hom_is_active(hd))
 		return 1;
 
@@ -1036,7 +1061,6 @@ int hom_change_name(struct map_session_data *sd,char *name)
 	for (i = 0; i < NAME_LENGTH && name[i]; i++)
 		if (!(name[i]&0xe0) || name[i] == 0x7f)
 			return 1;
-
 	return intif_rename_hom(sd, name);
 }
 
@@ -1104,7 +1128,7 @@ int hom_search(int key, int type)
 void hom_alloc(struct map_session_data *sd, struct s_homunculus *hom)
 {
 	struct homun_data *hd;
-	int i = 0;
+	int i;
 
 	nullpo_retv(sd);
 
@@ -1117,6 +1141,7 @@ void hom_alloc(struct map_session_data *sd, struct s_homunculus *hom)
 		intif_homunculus_requestdelete(hom->hom_id);
 		return;
 	}
+
 	sd->hd = hd = (struct homun_data *)aCalloc(1, sizeof(struct homun_data));
 	hd->bl.type = BL_HOM;
 	hd->bl.id = npc_get_new_npc_id();
@@ -1155,6 +1180,7 @@ void hom_init_timers(struct homun_data * hd)
 {
 	if (hd->hungry_timer == INVALID_TIMER)
 		hd->hungry_timer = add_timer(gettick() + hd->homunculusDB->hungryDelay, hom_hungry, hd->master->bl.id, 0);
+
 	hd->regen.state.block = 0; //Restore HP/SP block
 	hd->masterteleport_timer = INVALID_TIMER;
 }
@@ -1184,6 +1210,7 @@ bool hom_call(struct map_session_data *sd)
 
 	hom_init_timers(hd);
 	hd->homunculus.vaporize = HOM_ST_ACTIVE;
+
 	if (hd->bl.prev == NULL) { //Spawn him
 		hd->bl.x = sd->bl.x;
 		hd->bl.y = sd->bl.y;
@@ -1193,10 +1220,21 @@ bool hom_call(struct map_session_data *sd)
 		clif_spawn(&hd->bl);
 		clif_send_homdata(sd, SP_ACK, 0);
 		clif_hominfo(sd, hd, 1);
-		clif_hominfo(sd, hd, 0); //Send this x2. dunno why, but kRO does that [blackhole89]
+		clif_hominfo(sd, hd, 0); //Send this x2, dunno why, but kRO does that [blackhole89]
 		clif_homskillinfoblock(sd);
 		if (battle_config.slaves_inherit_speed&1)
 			status_calc_bl(&hd->bl, SCB_SPEED);
+		if (hd->homunculus.class_ == 6052) { //Eleanor
+			struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+
+			if (sce) {
+				if (sce->val1 == MH_MD_GRAPPLING) {
+					clif_status_change(&hd->master->bl, SI_STYLE_CHANGE, 1, INVALID_TIMER, 0, 0, 0);
+					sce->val1 = MH_MD_FIGHTING;
+				} else
+					clif_status_change(&hd->master->bl, SI_STYLE_CHANGE, 1, INVALID_TIMER, 0, 0, 0);
+			}
+		}
 		hom_save(hd);
 	} else //Warp him to master
 		unit_warp(&hd->bl, sd->bl.m, sd->bl.x, sd->bl.y, CLR_OUTSIGHT);
@@ -1218,12 +1256,14 @@ int hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 	sd = map_id2sd(account_id);
 	if (!sd)
 		return 0;
+
 	if (sd->status.char_id != sh->char_id) {
 		if (sd->status.hom_id == sh->hom_id)
 			sh->char_id = sd->status.char_id; //Correct char id
 		else
 			return 0;
 	}
+
 	if (!flag) { //Failed to load
 		sd->status.hom_id = 0;
 		return 0;
@@ -1231,6 +1271,7 @@ int hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 
 	if (!sd->status.hom_id) //Hom just created
 		sd->status.hom_id = sh->hom_id;
+
 	if (sd->hd) //Overwrite the data
 		memcpy(&sd->hd->homunculus, sh, sizeof(struct s_homunculus));
 	else
@@ -1260,11 +1301,10 @@ bool hom_create_request(struct map_session_data *sd, int class_)
 {
 	struct s_homunculus homun;
 	struct h_stats *base;
-	int i;
+	int i = hom_search(class_, HOMUNCULUS_CLASS);
 
 	nullpo_retr(false, sd);
 
-	i = hom_search(class_, HOMUNCULUS_CLASS);
 	if (i < 0)
 		return false;
 
@@ -1345,14 +1385,26 @@ void hom_revive(struct homun_data *hd, unsigned int hp, unsigned int sp)
 	struct map_session_data *sd = hd->master;
 
 	hd->homunculus.hp = hd->battle_status.hp;
+
 	if (!sd)
 		return;
+
 	clif_send_homdata(sd, SP_ACK, 0);
 	clif_hominfo(sd, hd, 1);
 	clif_hominfo(sd, hd, 0);
 	clif_homskillinfoblock(sd);
-	if (hd->homunculus.class_ == 6052) //Eleanor
-		sc_start(&hd->bl, &hd->bl, SC_STYLE_CHANGE, 100, MH_MD_FIGHTING, INVALID_TIMER);
+
+	if (hd->homunculus.class_ == 6052) { //Eleanor
+		struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+
+		if (sce) {
+			if (sce->val1 == MH_MD_GRAPPLING) {
+				clif_status_change(&hd->master->bl, SI_STYLE_CHANGE, 1, INVALID_TIMER, 0, 0, 0);
+				sce->val1 = MH_MD_FIGHTING;
+			} else
+				clif_status_change(&hd->master->bl, SI_STYLE_CHANGE, 1, INVALID_TIMER, 0, 0, 0);
+		}
+	}
 }
 
 /**
@@ -1423,9 +1475,7 @@ int hom_shuffle(struct homun_data *hd)
 		hom->luk += 10 * rnd_value(min->luk, max->luk);
 	}
 
-	//MaxHP/MaxSP/Stats Cap check
-	hom_stats_cap_check(hd);
-
+	hom_stats_cap_check(hd); //MaxHP/MaxSP/Stats Cap check
 	hd->homunculus.exp = exp;
 	memcpy(&hd->homunculus.hskill, &b_skill, sizeof(b_skill));
 	hd->homunculus.skillpts = skillpts;
@@ -1433,7 +1483,6 @@ int hom_shuffle(struct homun_data *hd)
 	status_calc_homunculus(hd, SCO_NONE);
 	status_percent_heal(&hd->bl, 100, 100);
 	clif_specialeffect(&hd->bl, 568, AREA);
-
 	return 1;
 }
 
@@ -1502,7 +1551,6 @@ int hom_max(struct homun_data *hd)
 	//clif_hominfo(hd->master, hd, 0);
 	status_percent_heal(&hd->bl, 100, 100);
 	clif_specialeffect(&hd->bl, 568, AREA);
-
 	return 1;
 }
 
@@ -1520,6 +1568,7 @@ static bool read_homunculusdb_sub(char *str[], int columns, int current)
 		ShowError("read_homunculusdb : Invalid class %d\n", classid);
 		return false;
 	}
+
 	db = &homunculus_db[current];
 	db->base_class = classid;
 	classid = atoi(str[1]);
@@ -1528,6 +1577,7 @@ static bool read_homunculusdb_sub(char *str[], int columns, int current)
 		ShowError("read_homunculusdb : Invalid class %d\n", classid);
 		return false;
 	}
+
 	db->evo_class = classid;
 	//Name, Food, Hungry Delay, Base Size, Evo Size, Race, Element, ASPD
 	safestrncpy(db->name, str[2], NAME_LENGTH - 1);
@@ -1585,38 +1635,51 @@ static bool read_homunculusdb_sub(char *str[], int columns, int current)
 	//Check that the min/max values really are below the other one
 	if (db->gmin.HP > db->gmax.HP)
 		db->gmin.HP = db->gmax.HP;
+
 	if (db->gmin.SP > db->gmax.SP)
 		db->gmin.SP = db->gmax.SP;
+
 	if (db->gmin.str > db->gmax.str)
 		db->gmin.str = db->gmax.str;
+
 	if (db->gmin.agi > db->gmax.agi)
 		db->gmin.agi = db->gmax.agi;
+
 	if (db->gmin.vit > db->gmax.vit)
 		db->gmin.vit = db->gmax.vit;
+
 	if (db->gmin.int_> db->gmax.int_)
 		db->gmin.int_= db->gmax.int_;
+
 	if (db->gmin.dex > db->gmax.dex)
 		db->gmin.dex = db->gmax.dex;
+
 	if (db->gmin.luk > db->gmax.luk)
 		db->gmin.luk = db->gmax.luk;
 
 	if (db->emin.HP > db->emax.HP)
 		db->emin.HP = db->emax.HP;
+
 	if (db->emin.SP > db->emax.SP)
 		db->emin.SP = db->emax.SP;
+
 	if (db->emin.str > db->emax.str)
 		db->emin.str = db->emax.str;
+
 	if (db->emin.agi > db->emax.agi)
 		db->emin.agi = db->emax.agi;
+
 	if (db->emin.vit > db->emax.vit)
 		db->emin.vit = db->emax.vit;
+
 	if (db->emin.int_> db->emax.int_)
 		db->emin.int_= db->emax.int_;
+
 	if (db->emin.dex > db->emax.dex)
 		db->emin.dex = db->emax.dex;
+
 	if (db->emin.luk > db->emax.luk)
 		db->emin.luk = db->emax.luk;
-
 	return true;
 }
 
@@ -1632,12 +1695,12 @@ void read_homunculusdb(void)
 	};
 
 	memset(homunculus_db,0,sizeof(homunculus_db));
+
 	for (i = 0; i < ARRAYLENGTH(filename); i++) {
 		if (i > 0) {
 			char path[256];
 
 			sprintf(path, "%s/%s", db_path, filename[i]);
-
 			if (!exists(path))
 				continue;
 		}
@@ -1709,6 +1772,7 @@ void read_homunculus_expdb(void)
 		"exp_homun2.txt"};
 
 	memset(hexptbl,0,sizeof(hexptbl));
+
 	for (i = 0; i < 2; i++) {
 		FILE *fp;
 		char line[1024];
@@ -1758,9 +1822,9 @@ void do_init_homunculus(void)
 	read_homunculus_skilldb();
 	// Add homunc timer function to timer func list [Toms]
 	add_timer_func_list(hom_hungry, "hom_hungry");
-
 	//Stock view data for homuncs
 	memset(&hom_viewdb, 0, sizeof(hom_viewdb));
+
 	for (class_ = 0; class_ < ARRAYLENGTH(hom_viewdb); class_++)
 		hom_viewdb[class_].class_ = HM_CLASS_BASE+class_;
 }
