@@ -5488,11 +5488,11 @@ REPLACE INTO `mob_skill_db_re` VALUES (2027,'Dark Shadow@NPC_DARKNESSBREATH','at
 REPLACE INTO `mob_skill_db_re` VALUES (2027,'Dark Shadow@NPC_DARKSTRIKE','chase',340,2,2000,0,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2027,'Dark Shadow@NPC_EMOTION','idle',197,1,2000,0,5000,'yes','self','always',NULL,9,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2027,'Dark Shadow@NPC_FIREATTACK','attack',186,3,500,500,5000,'no','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db_re` VALUES (2042,'Silver Sniper@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db_re` VALUES (2043,'Magic Decoy@MG_FIREBOLT','idle',19,10,10000,500,0,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db_re` VALUES (2044,'Magic Decoy@MG_COLDBOLT','idle',14,10,10000,500,0,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db_re` VALUES (2045,'Magic Decoy@WZ_EARTHSPIKE','idle',90,10,10000,500,0,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db_re` VALUES (2046,'Magic Decoy@MG_LIGHTNINGBOLT','idle',20,10,10000,500,0,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db_re` VALUES (2042,'Silver Sniper@NPC_REVENGE','attack',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db_re` VALUES (2043,'Magic Decoy@MG_FIREBOLT','attack',19,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db_re` VALUES (2044,'Magic Decoy@MG_COLDBOLT','attack',14,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db_re` VALUES (2045,'Magic Decoy@WZ_EARTHSPIKE','attack',90,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db_re` VALUES (2046,'Magic Decoy@MG_LIGHTNINGBOLT','attack',20,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2047,'Naga@HW_GANBANTEIN','attack',483,1,2000,0,7000,'no','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2047,'Naga@KN_BRANDISHSPEAR','attack',57,5,500,1000,5000,'no','target','always',NULL,NULL,NULL,NULL,NULL,NULL,'9',NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2047,'Naga@KN_SPEARBOOMERANG','chase',59,5,500,0,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,'29',NULL);

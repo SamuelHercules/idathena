@@ -110,9 +110,9 @@ enum MobSkillState {
 	MSS_LOOT,
 	MSS_DEAD,
 	MSS_BERSERK, //Aggressive mob attacking
-	MSS_ANGRY,   //Mob retaliating from being attacked.
-	MSS_RUSH,    //Mob following a player after being attacked.
-	MSS_FOLLOW,  //Mob following a player without being attacked.
+	MSS_ANGRY,   //Mob retaliating from being attacked
+	MSS_RUSH,    //Mob following a player after being attacked
+	MSS_FOLLOW,  //Mob following a player without being attacked
 	MSS_ANYTARGET,
 };
 

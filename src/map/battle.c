@@ -1172,8 +1172,12 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 		if( (sce = sc->data[SC_GRANITIC_ARMOR]) )
 			damage -= damage * sce->val2 / 100;
 
-		if( (sce = sc->data[SC_PAIN_KILLER]) )
-			damage -= damage * sce->val3 / 100;
+		if( (sce = sc->data[SC_PAIN_KILLER]) ) {
+			int div_ = (skill_id ? skill_get_num(skill_id,skill_lv) : div);
+
+			damage -= (div_ < 0 ? sce->val3 : div_ * sce->val3);
+			damage = max(damage,1);
+		}
 
 		if( (sce = sc->data[SC_DARKCROW]) && (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) )
 			damage += damage * sce->val2 / 100;
@@ -1258,10 +1262,10 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 		if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
 			status_change_spread(bl,src); //Deadly infect attacked side
 
-		if( (sce = sc->data[SC_STYLE_CHANGE]) && sce->val1 == MH_MD_GRAPPLING ) {
-			TBL_HOM *hd = BL_CAST(BL_HOM,bl); //We add a sphere for when the Homunculus is being hit
+		if( (sce = sc->data[SC_STYLE_CHANGE]) ) { //When being hit
+			TBL_HOM *hd = BL_CAST(BL_HOM,bl);
 
-			if( hd && rnd()%100 < 50 ) //According to WarpPortal, this is a flat 50% chance
+			if( hd && rnd()%100 < status_get_lv(&hd->bl) / 2 )
 				hom_addspiritball(hd,10);
 		}
 	}
@@ -1310,10 +1314,10 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 				status_change_spread(src,bl);
 		}
 
-		if( (sce = sc->data[SC_STYLE_CHANGE]) && sce->val1 == MH_MD_FIGHTING ) {
-			TBL_HOM *hd = BL_CAST(BL_HOM,src); //When attacking
+		if( (sce = sc->data[SC_STYLE_CHANGE]) ) { //When attacking
+			TBL_HOM *hd = BL_CAST(BL_HOM,src);
 
-			if( hd && rnd()%100 < 50 )
+			if( hd && rnd()%100 < 20 + status_get_lv(&hd->bl) / 5 )
 				hom_addspiritball(hd,10);
 		}
 	}
@@ -3977,7 +3981,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			skillratio += 400 + 100 * skill_lv * status_get_lv(src) / 150;
 			break;
 		case MH_LAVA_SLIDE:
-			skillratio += -100 + 70 * skill_lv;
+			skillratio += -100 + (10 * skill_lv + status_get_lv(src)) * 2 * status_get_lv(src) / 100;
 			break;
 		case MH_SONIC_CRAW:
 			skillratio += -100 + 40 * skill_lv * status_get_lv(src) / 150;
@@ -4928,6 +4932,7 @@ static struct Damage initialize_weapon_data(struct block_list *src, struct block
 		switch(skill_id) {
 			case MH_SONIC_CRAW: {
 					TBL_HOM *hd = BL_CAST(BL_HOM,src);
+
 					wd.div_ = hd->homunculus.spiritball;
 				}
 				break;
@@ -6036,8 +6041,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += 400 + 100 * skill_lv; //700:900
 						break;
 					case MH_HEILIGE_STANGE:
-						skillratio += 400 + 250 * skill_lv;
-						skillratio = (skillratio * status_get_lv(src)) / 150;
+						skillratio += 400 + 250 * skill_lv * status_get_lv(src) / 150;
 						break;
 					case MH_POISON_MIST:
 						skillratio += -100 + 40 * skill_lv * status_get_lv(src) / 100;

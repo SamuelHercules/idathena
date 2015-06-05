@@ -959,7 +959,7 @@ int mob_spawn(struct mob_data *md)
 	//md->master_id = 0;
 	md->master_dist = 0;
 
-	md->state.aggressive = md->status.mode&MD_ANGRY ? 1 : 0;
+	md->state.aggressive = (md->status.mode&MD_ANGRY ? 1 : 0);
 	md->state.skillstate = MSS_IDLE;
 	md->next_walktime = tick + rnd()%1000 + MIN_RANDOMWALKTIME;
 	md->last_linktime = tick;
@@ -986,8 +986,10 @@ int mob_spawn(struct mob_data *md)
 
 	if( map_addblock(&md->bl) )
 		return 2;
+
 	if( map[md->bl.m].users )
 		clif_spawn(&md->bl);
+
 	skill_unit_move(&md->bl,tick,1);
 	mobskill_use(md,tick,MSC_SPAWN);
 	return 0;
@@ -1603,12 +1605,9 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		if(md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER) { //Only attack if no more attack delay left
 			if(tbl->type == BL_PC)
 				mob_log_damage(md, tbl, 0); //Log interaction (counts as 'attacker' for the exp bonus)
-			if(!(mode&MD_RANDOMTARGET)) {
-				if(!(md->sc.option&OPTION_HIDE))
-					unit_attack(&md->bl, tbl->id, 1);
-				else
-					mobskill_use(md, tick, -1);
-			} else { //Attack once and find a new random target
+			if(!(mode&MD_RANDOMTARGET))
+				unit_attack(&md->bl, tbl->id, 1);
+			else { //Attack once and find a new random target
 				int search_size = (view_range < md->status.rhw.range) ? view_range : md->status.rhw.range;
 
 				unit_attack(&md->bl, tbl->id, 0);
@@ -1636,7 +1635,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		return true;
 
 	//Out of range
-	//Can't chase. Immobile and trapped mobs should unlock target and use an idle skill
+	//Can't chase, immobile and trapped mobs should unlock target and use an idle skill
 	if(!(mode&MD_CANMOVE) || (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0)) {
 		if(md->ud.attacktimer == INVALID_TIMER) //Only unlock target if no more attack delay left
 			mob_unlocktarget(md, tick); //This handles triggering idle/walk skill

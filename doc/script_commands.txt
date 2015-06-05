@@ -176,7 +176,7 @@ work.
 
 There are two optional fields for monster size and AI.  Size can be 0 (medium),
 1 (small), or 2 (big).  AI can be 0 (default), 1 (attack/friendly), 2 (sphere),
-3 (flora), or 4 (zanzou).
+3 (flora), or 4 (zanzou), or 5 (legion), or 6 (faw).
 
 Alternately, a monster spawned using 'boss_monster' instead of 'monster' is able
 to be detected on the map with the SC_BOSSMAPINFO status (used by Convex Mirror).
