@@ -714,30 +714,30 @@ static unsigned int calc_hash(const char *p)
 #if defined(SCRIPT_HASH_DJB2)
 	h = 5381;
 	while( *p ) // hash*33 + c
-		h = ( h << 5 ) + h + ((unsigned char)TOLOWER(*p++));
+		h = (h<<5) + h + ((unsigned char)TOLOWER(*p++));
 #elif defined(SCRIPT_HASH_SDBM)
 	h = 0;
-	while( *p ) // hash*65599 + c
-		h = ( h << 6 ) + ( h << 16 ) - h + ((unsigned char)TOLOWER(*p++));
+	while( *p ) // Hash * 65599 + c
+		h = (h<<6) + (h<<16) - h + ((unsigned char)TOLOWER(*p++));
 #elif defined(SCRIPT_HASH_ELF) // UNIX ELF hash
 	h = 0;
-	while( *p ){
+	while( *p ) {
 		unsigned int g;
-		h = ( h << 4 ) + ((unsigned char)TOLOWER(*p++));
+
+		h = (h<<4) + ((unsigned char)TOLOWER(*p++));
 		g = h & 0xF0000000;
-		if( g )
-		{
+		if( g ) {
 			h ^= g >> 24;
 			h &= ~g;
 		}
 	}
-#else // athena hash
+#else // Athena hash
 	h = 0;
 	while( *p )
-		h = ( h << 1 ) + ( h >> 3 ) + ( h >> 5 ) + ( h >> 8 ) + (unsigned char)TOLOWER(*p++);
+		h = (h<<1) + (h>>3) + (h>>5) + (h>>8) + (unsigned char)TOLOWER(*p++);
 #endif
 
-	return h % SCRIPT_HASH_SIZE;
+	return h%SCRIPT_HASH_SIZE;
 }
 
 
@@ -748,8 +748,8 @@ static unsigned int calc_hash(const char *p)
 /// Looks up string using the provided id.
 const char *get_str(int id)
 {
-	Assert( id >= LABEL_START && id < str_size );
-	return str_buf+str_data[id].str;
+	Assert(id >= LABEL_START && id < str_size);
+	return str_buf + str_data[id].str;
 }
 
 /// Returns the uid of the string, or -1.
