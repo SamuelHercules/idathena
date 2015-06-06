@@ -189,7 +189,7 @@ struct mob_data {
 	struct mob_db *db;	//For quick data access (saves doing mob_db(md->mob_id) all the time) [Skotlex]
 	char name[NAME_LENGTH];
 	struct {
-		unsigned int size : 2; //Small/Big monsters.
+		unsigned int size : 2; //Small/Big monsters
 		enum mob_ai ai; //Special ai for summoned monsters
 		unsigned int clone : 1; //Is clone ? 1 : 0
 	} special_state; //Special mob information that does not needs to be zero'ed on mob respawn
