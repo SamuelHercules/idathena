@@ -1599,8 +1599,8 @@ int64 battle_addmastery(struct map_session_data *sd, struct block_list *target, 
 			break;
 		case W_FIST:
 			if((skill = pc_checkskill(sd,TK_RUN)) > 0)
-				damage += (skill * 10); //+Atk (barehanded)
-			//No break, fallthrough to Knuckles
+				damage += (skill * 10); //+ATK (Bare Handed)
+		//Fall through
 		case W_KNUCKLE:
 			if((skill = pc_checkskill(sd,MO_IRONHAND)) > 0)
 				damage += (skill * 3);
@@ -2689,8 +2689,11 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, 15 * skill_lv);
 		if(skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, 4);
-		if(skill_id != CR_SHIELDBOOMERANG)
-			ATK_ADD2(wd.masteryAtk, wd.masteryAtk2, wd.div_ * sd->right_weapon.star, wd.div_ * sd->left_weapon.star);
+		if(skill_id != CR_SHIELDBOOMERANG) {
+			short div_ = (wd.div_ < 1 ? wd.div_ * -1 : wd.div_);
+
+			ATK_ADD2(wd.masteryAtk, wd.masteryAtk2, div_ * sd->right_weapon.star, div_ * sd->left_weapon.star);
+		}
 		if(skill_id == MO_FINGEROFFENSIVE) {
 			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball_old * 3);
 		} else
@@ -3026,7 +3029,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 //For quick div adjustment
 #define DAMAGE_DIV_FIX(dmg, div) { if(div > 1) (dmg) *= div; else if(div < 0) (div) *= -1; }
 #define DAMAGE_DIV_FIX2(dmg, div) { if(div > 1) (dmg) *= div; }
-#define DAMAGE_DIV_FIX_RENEWAL(wd, div) { DAMAGE_DIV_FIX2(wd.statusAtk, div); DAMAGE_DIV_FIX2(wd.weaponAtk, div); DAMAGE_DIV_FIX2(wd.equipAtk, div); DAMAGE_DIV_FIX2(wd.masteryAtk, div); }
+
 /*=======================================
  * Check for and calculate multi attacks
  *---------------------------------------
@@ -5259,8 +5262,11 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			ATK_ADD(wd.damage, wd.damage2, pc_checkskill(sd, BS_WEAPONRESEARCH) * 2);
 		if(skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.damage, wd.damage2, 4);
-		if(skill_id != CR_SHIELDBOOMERANG) //Only Shield Boomerang doesn't takes the Star Crumbs bonus
-			ATK_ADD2(wd.damage, wd.damage2, wd.div_ * sd->right_weapon.star, wd.div_ * sd->left_weapon.star);
+		if(skill_id != CR_SHIELDBOOMERANG) { //Only Shield Boomerang doesn't takes the star crumb bonus
+			short div_ = (wd.div_ < 1 ? wd.div_ * -1 : wd.div_);
+
+			ATK_ADD2(wd.damage, wd.damage2, div_ * sd->right_weapon.star, div_ * sd->left_weapon.star);
+		}
 		if(skill_id == MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count [Skotlex]
 			ATK_ADD(wd.damage, wd.damage2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball_old * 3);
 		} else
@@ -5412,9 +5418,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 	}
 
 	//Perform multihit calculations
-#ifdef RENEWAL
-	DAMAGE_DIV_FIX_RENEWAL(wd, wd.div_);
-#endif
 	DAMAGE_DIV_FIX(wd.damage, wd.div_);
 
 	switch(skill_id) {
