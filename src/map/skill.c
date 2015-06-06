@@ -3183,11 +3183,10 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 	if (damage > 0) { //Post-damage effects
 		switch (skill_id) {
 			case GC_VENOMPRESSURE: {
-					struct status_change *ssc = status_get_sc(src);
+					struct status_change_entry *sce;
 
-					if (ssc && ssc->data[SC_POISONINGWEAPON] && rnd()%100 < 70 + 5 * skill_lv) {
-						sc_start(src, bl, (sc_type)ssc->data[SC_POISONINGWEAPON]->val2, 100, ssc->data[SC_POISONINGWEAPON]->val1,
-							skill_get_time2(GC_POISONINGWEAPON, 1));
+					if (sc && (sce = sc->data[SC_POISONINGWEAPON]) && rnd()%100 < 70 + 5 * skill_lv) {
+						sc_start2(src, bl, (sc_type)sce->val2, 100, sce->val1, src->id, skill_get_time2(GC_POISONINGWEAPON, 1));
 						status_change_end(src, SC_POISONINGWEAPON, INVALID_TIMER);
 						clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 					}
@@ -8054,7 +8053,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							}
 							break;
 						case 8:	//Curse coma and poison
-							sc_start(src,bl,SC_COMA,100,skill_lv,skill_get_time2(skill_id,skill_lv));
+							status_change_start(src,bl,SC_COMA,100,skill_lv,0,src->id,0,0,SCFLAG_NONE);
 							sc_start(src,bl,SC_CURSE,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 							sc_start(src,bl,SC_POISON,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 							break;
@@ -13682,7 +13681,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 
 		case UNT_POISONSMOKE:
 			if (battle_check_target(&unit->bl,bl,BCT_ENEMY) > 0 && !(tsc && tsc->data[group->val2]) && rnd()%100 < 50)
-				sc_start(src,bl,(sc_type)group->val2,100,group->val3,skill_get_time2(GC_POISONINGWEAPON,1));
+				sc_start2(src,bl,(sc_type)group->val2,100,group->val3,src->id,skill_get_time2(GC_POISONINGWEAPON,1));
 			break;
 
 		case UNT_EPICLESIS:
@@ -19274,8 +19273,8 @@ int skill_poisoningweapon(struct map_session_data *sd, unsigned short nameid) {
 	status_change_end(&sd->bl,SC_POISONINGWEAPON,INVALID_TIMER);
 	chance = 2 + 2 * sd->menuskill_val; //2 + 2 * skill_lv
 	//In Aegis it store the level of GC_RESEARCHNEWPOISON in val1
-	if( sc_start4(&sd->bl,&sd->bl,SC_POISONINGWEAPON,100,pc_checkskill(sd,GC_RESEARCHNEWPOISON),
-		type,chance,0,skill_get_time(GC_POISONINGWEAPON,sd->menuskill_val)) ) {
+	if( sc_start4(&sd->bl,&sd->bl,SC_POISONINGWEAPON,100,
+		pc_checkskill(sd,GC_RESEARCHNEWPOISON),type,chance,0,skill_get_time(GC_POISONINGWEAPON,sd->menuskill_val)) ) {
 		sprintf(output,"[%s] Poison effect was applied to the weapon.",msg);
 		clif_colormes(sd,color_table[COLOR_WHITE],output);
 	}

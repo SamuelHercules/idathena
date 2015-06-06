@@ -8827,7 +8827,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					}
 				}
 				break;
-			case SC_COMA: //Coma. Sends a char to 1HP. If val2, do not zap sp
+			case SC_COMA: //Coma, sends a char to 1 HP, if val2, do not zap SP
 				if( val3 && bl->type == BL_MOB ) {
 					struct block_list *src = map_id2bl(val3);
 
@@ -11543,8 +11543,6 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				int cap_mob_hp = 1;
 #endif
 
-				if( src && bl && bl->type == BL_MOB )
-					mob_log_damage((TBL_MOB *)bl,src,(hp < status->hp ? hp : status->hp - cap_mob_hp));
 				map_freeblock_lock();
 				status_fix_damage(src,bl,(sd || hp < status->hp ? hp : status->hp - cap_mob_hp),1);
 				if( sc->data[type] ) {
@@ -11722,8 +11720,10 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_PYREXIA:
 			if( --(sce->val4) >= 0 ) {
+				struct block_list *src = map_id2bl(sce->val2);
+
 				map_freeblock_lock();
-				status_damage(NULL,bl,100,0,clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl) + 500,100,0,DMG_NORMAL,0),0);
+				status_damage(src,bl,100,0,clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl) + 500,100,0,DMG_NORMAL,0),0);
 				unit_skillcastcancel(bl,2);
 				if( sc->data[type] ) {
 					sc_timer_next(3000 + tick,status_change_timer,bl->id,data);
@@ -11735,11 +11735,12 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_LEECHESEND:
 			if( --(sce->val4) >= 0 ) {
-				int damage = status->max_hp / 100; //{Target VIT x (New Poison Research Skill Level - 3)} + (Target HP/100)
+				//{Target VIT x (New Poison Research Skill Level - 3)} + (Target HP / 100)
+				int damage = status->vit * (sce->val1 - 3) + status->max_hp / 100;
+				struct block_list *src = map_id2bl(sce->val2);
 
 				map_freeblock_lock();
-				damage += status->vit * (sce->val1 - 3);
-				status_damage(NULL,bl,damage,0,clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl) + 500,damage,0,DMG_NORMAL,0),0);
+				status_damage(src,bl,damage,0,clif_damage(bl,bl,tick,status_get_amotion(bl),status_get_dmotion(bl) + 500,damage,0,DMG_NORMAL,0),0);
 				unit_skillcastcancel(bl,2);
 				if( sc->data[type] ) {
 					sc_timer_next(1000 + tick,status_change_timer,bl->id,data);
@@ -11751,10 +11752,13 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_MAGICMUSHROOM:
 			if( --(sce->val4) >= 0 ) {
+				struct block_list *src = map_id2bl(sce->val2);
 				int damage = status->max_hp * 3 / 100;
 
 				if( status->hp <= damage )
 					damage = status->hp - 1; //Cannot Kill
+				if( src && bl && bl->type == BL_MOB )
+					mob_log_damage((TBL_MOB *)bl,src,damage);
 				if( damage > 0 ) { //3% Damage each 4 seconds
 					map_freeblock_lock();
 					status_zap(bl,damage,0);
@@ -11798,8 +11802,10 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_TOXIN:
 			if( --(sce->val4) >= 0 ) { //Damage is every 10 seconds including 3% sp drain
+				struct block_list *src = map_id2bl(sce->val2);
+
 				map_freeblock_lock();
-				status_damage(NULL,bl,1,status->max_sp * 3 / 100,clif_damage(bl,bl,tick,status_get_amotion(bl),1,1,0,DMG_NORMAL,0),0);
+				status_damage(src,bl,1,status->max_sp * 3 / 100,clif_damage(bl,bl,tick,status_get_amotion(bl),1,1,0,DMG_NORMAL,0),0);
 				unit_skillcastcancel(bl,2);
 				if( sc->data[type] ) {
 					sc_timer_next(10000 + tick,status_change_timer,bl->id,data);
