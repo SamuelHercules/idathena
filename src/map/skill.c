@@ -1442,7 +1442,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 						break;
 					case ITEMID_BANANA_BOMB: //Reduces LUK and chance to force sit, must do the force sit success chance first before LUK reduction
 						sc_start(src,bl,SC_BANANA_BOMB_SITDOWN,baselv + joblv + sstatus->dex / 6 - tbaselv - tstatus->agi / 4 - tstatus->luk / 5,skill_lv,1000 * joblv / 4);
-						//sc_start(src,bl,SC_BANANA_BOMB,100,skill_lv,77000); //Needs more info
+						sc_start(src,bl,SC_BANANA_BOMB,100,skill_lv,30000);
 						break;
 				}
 				sd->itemid = -1;

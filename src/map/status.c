@@ -5176,7 +5176,7 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 	if(sc->data[SC__STRIPACCESSORY] && bl->type != BL_PC)
 		luk -= luk * sc->data[SC__STRIPACCESSORY]->val2 / 100;
 	if(sc->data[SC_BANANA_BOMB])
-		luk -= 77;
+		luk -= 75;
 	if(sc->data[SC_HARMONIZE])
 		luk -= sc->data[SC_HARMONIZE]->val2;
 	if(sc->data[SC_STOMACHACHE])
@@ -9993,14 +9993,14 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		//Those that make you stop attacking/walking
 		case SC_FREEZE:
 		case SC_STUN:
-		case SC_SLEEP:
 		case SC_STONE:
+			flag |= 0x20;
+		case SC_SLEEP:
 		case SC_WHITEIMPRISON:
 		case SC_DEEPSLEEP:
 		case SC_CRYSTALIZE:
 			if (sd && pc_issit(sd))
 				pc_setstand(sd); //Avoid sprite sync problems
-			flag |= 0x20;
 		//Fall through
 		case SC_TRICKDEAD:
 			status_change_end(bl,SC_DANCING,INVALID_TIMER);
@@ -11476,7 +11476,6 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		case SC_STONE:
 			if( sc->opt1 == OPT1_STONEWAIT && sce->val3 ) {
 				sce->val4 = 0;
-				unit_stop_walking(bl,1);
 				unit_stop_attack(bl);
 				sc->opt1 = OPT1_STONE;
 				clif_changeoption(bl);
