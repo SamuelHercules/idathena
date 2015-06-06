@@ -2196,7 +2196,7 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 	if(continuous) //If you're to attack continously, set to auto-case character
 		ud->chaserange = range;
 
-	//Just change target/type. [Skotlex]
+	//Just change target/type [Skotlex]
 	if(ud->attacktimer != INVALID_TIMER)
 		return 0;
 

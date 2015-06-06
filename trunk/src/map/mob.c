@@ -46,24 +46,24 @@
 
 #define IDLE_SKILL_INTERVAL 10 //Active idle skills should be triggered every 1 second (1000/MIN_MOBTHINKTIME)
 
-// Probability for mobs far from players from doing their IDLE skill. (rate of 1000 minute)
-// in Aegis, this is 100% for mobs that have been activated by players and none otherwise
+// Probability for mobs far from players from doing their IDLE skill (rate of 1000 minute)
+// In Aegis, this is 100% for mobs that have been activated by players and none otherwise
 #define MOB_LAZYSKILLPERC(md) (md->state.spotted ? 1000 : 0)
 // Move probability for mobs away from players (rate of 1000 minute)
-// in Aegis, this is 100% for mobs that have been activated by players and none otherwise
+// In Aegis, this is 100% for mobs that have been activated by players and none otherwise
 #define MOB_LAZYMOVEPERC(md) (md->state.spotted ? 1000 : 0)
-#define MOB_MAX_DELAY (24*3600*1000)
+#define MOB_MAX_DELAY (24 * 3600 * 1000)
 #define MAX_MINCHASE 30 //Max minimum chase value to use for mobs
 #define RUDE_ATTACKED_COUNT 2 //After how many rude-attacks should the skill be used?
 #define MAX_MOB_CHAT 50 //Max Skill's messages
 
 // On official servers, monsters will only seek targets that are closer to walk to than their
-// search range. The search range is affected depending on if the monster is walking or not.
+// search range. The search range is affected depending on if the monster is walking or not
 // On some maps there can be a quite long path for just walking two cells in a direction and
 // the client does not support displaying walk paths that are longer than 14 cells, so this
 // option reduces position lag in such situation. But doing a complex search for every possible
 // target, might be CPU intensive.
-// Disable this to make monsters not do any path search when looking for a target (old behavior).
+// Disable this to make monsters not do any path search when looking for a target (old behavior)
 #define ACTIVEPATHSEARCH
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
@@ -238,7 +238,7 @@ int mobdb_checkid(const int id)
 {
 	if (mob_db(id) == mob_dummy)
 		return 0;
-	if (mob_is_clone(id)) //checkid is used mostly for random ID based code, therefore clone mobs are out of the question.
+	if (mob_is_clone(id)) //checkid is used mostly for random ID based code, therefore clone mobs are out of the question
 		return 0;
 	return id;
 }
@@ -264,7 +264,7 @@ int mob_parse_dataset(struct spawn_data *data)
 
 	if ((len = strlen(data->eventname)) > 0) {
 		if (data->eventname[len - 1] == '"')
-			data->eventname[len - 1] = '\0'; //Remove trailing quote.
+			data->eventname[len - 1] = '\0'; //Remove trailing quote
 		if (data->eventname[0] == '"') //Strip leading quotes
 			memmove(data->eventname, data->eventname + 1, len - 1);
 	}
@@ -461,7 +461,7 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int16 m, int16 x, int
 	if (event)
 		safestrncpy(data.eventname, event, sizeof(data.eventname));
 	
-	// Locate spot next to player.
+	// Locate spot next to player
 	if (bl && (x < 0 || y < 0))
 		map_search_freecell(bl, m, &x, &y, 1, 1, 0);
 
@@ -1587,7 +1587,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 			memmove(&md->lootitem[0], &md->lootitem[1], (LOOTITEM_SIZE - 1) * sizeof(md->lootitem[0]));
 			memcpy(&md->lootitem[LOOTITEM_SIZE - 1], &fitem->item, sizeof(md->lootitem[0]));
 		}
-		if(pcdb_checkid(md->vd->class_)) { //Give them walk act/delay to properly mimic players. [Skotlex]
+		if(pcdb_checkid(md->vd->class_)) { //Give them walk act/delay to properly mimic players [Skotlex]
 			clif_takeitem(&md->bl, tbl);
 			md->ud.canact_tick = tick + md->status.amotion;
 			unit_set_walkdelay(&md->bl, tick, md->status.amotion, 1);
@@ -1605,12 +1605,18 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		if(md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER) { //Only attack if no more attack delay left
 			if(tbl->type == BL_PC)
 				mob_log_damage(md, tbl, 0); //Log interaction (counts as 'attacker' for the exp bonus)
-			if(!(mode&MD_RANDOMTARGET))
-				unit_attack(&md->bl, tbl->id, 1);
-			else { //Attack once and find a new random target
+			if(!(mode&MD_RANDOMTARGET)) {
+				if(md->special_state.ai == AI_FAW && md->mob_id != MOBID_SILVERSNIPER)
+					mob_unlocktarget(md, tick); //Force to use idle skill while attacking [exneval]
+				else
+					unit_attack(&md->bl, tbl->id, 1);
+			} else { //Attack once and find a new random target
 				int search_size = (view_range < md->status.rhw.range) ? view_range : md->status.rhw.range;
 
-				unit_attack(&md->bl, tbl->id, 0);
+				if(md->special_state.ai == AI_FAW && md->mob_id != MOBID_SILVERSNIPER)
+					mob_unlocktarget(md, tick);
+				else
+					unit_attack(&md->bl, tbl->id, 0);
 				//If no target was found, keep atacking the old one
 				if((tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md), search_size))) {
 					md->target_id = tbl->id;
@@ -2394,8 +2400,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				sprintf(message, msg_txt(541), mvp_sd->status.name, md->name, it->jname, (float)drop_rate / 100);
 				intif_broadcast(message, strlen(message) + 1, BC_DEFAULT); // "'%s' won %s's %s (chance: %0.02f%%)"
 			}
-			//Announce first, or else ditem will be freed. [Lance]
-			//By popular demand, use base drop rate for autoloot code. [Skotlex]
+			//Announce first, or else ditem will be freed [Lance]
+			//By popular demand, use base drop rate for autoloot code [Skotlex]
 			mob_item_drop(md, dlist, ditem, 0, md->db->dropitem[i].p, homkillonly);
 		}
 
@@ -3135,11 +3141,10 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 			continue;
 
 		c2 = ms[i].cond2;
-		
-		if (ms[i].state != md->state.skillstate) {
+
+		if (ms[i].state != md->state.skillstate) { //ANYTARGET works with any state as long as there's a target [Skotlex]
 			if (md->state.skillstate != MSS_DEAD && (ms[i].state == MSS_ANY ||
-				(ms[i].state == MSS_ANYTARGET && md->target_id && md->state.skillstate != MSS_LOOT)
-			)) //ANYTARGET works with any state as long as there's a target [Skotlex]
+				(ms[i].state == MSS_ANYTARGET && md->target_id && md->state.skillstate != MSS_LOOT)))
 				;
 			else
 				continue;
@@ -3292,7 +3297,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 						bl = map_id2bl(md->master_id);
 					if (bl)
 						break;
-					//Fall through
+				//Fall through
 				case MST_FRIEND:
 					if (fbl) {
 						bl = fbl;
@@ -3301,7 +3306,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 						bl = &fmd->bl;
 						break;
 					}
-					//Fall through
+				//Fall through
 				default:
 					bl = &md->bl;
 					break;
@@ -3336,7 +3341,7 @@ int mobskill_use(struct mob_data *md, unsigned int tick, int event)
 		map_freeblock_unlock();
 		return 1;
 	}
-	//No skill was used.
+	//No skill was used
 	md->skill_idx = -1;
 	return 0;
 }

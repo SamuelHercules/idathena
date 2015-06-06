@@ -2843,7 +2843,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 				wd.masteryAtk = wd.masteryAtk2 = 0; //Weapon mastery is ignored for spiral
 			} else //Monsters have no weight and use ATK instead
 				wd.damage = battle_calc_base_damage(src, sstatus, &sstatus->rhw, sc, tstatus->size, sd, skill_id, 0);
-			switch(tstatus->size) { //Size-fix. Is this modified by weapon perfection?
+			switch(tstatus->size) { //Size-fix, is this modified by weapon perfection?
 				case SZ_SMALL:
 					RE_ALLATK_RATE(wd, 125); //Small: 125%
 					break;
@@ -7626,7 +7626,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 					return 0;
 				if( ((md->special_state.ai == AI_SPHERE || //Marine Spheres
 					(md->special_state.ai == AI_FLORA && battle_config.summon_flora&1)) && s_bl->type == BL_PC && src->type != BL_MOB) || //Floras
-					(md->special_state.ai == AI_ZANZOU && t_bl->id != s_bl->id) || //Zanzoe
+					(md->special_state.ai == AI_ZANZOU && t_bl->id != s_bl->id) || //Zanzou
 					(md->special_state.ai == AI_FAW && (t_bl->id != s_bl->id || (s_bl->type == BL_PC && src->type != BL_MOB))) )
 				{ //Targettable by players
 					state |= BCT_ENEMY;

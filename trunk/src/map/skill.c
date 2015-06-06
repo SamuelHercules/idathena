@@ -1093,7 +1093,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			status_zap(bl,0,rate);
 			break;
 		case SL_STUN:
-			if( tstatus->size == SZ_MEDIUM ) //Only stuns mid-sized mobs.
+			if( tstatus->size == SZ_MEDIUM ) //Only stuns mid-sized mobs
 				sc_start(src,bl,SC_STUN,(30 + 10 * skill_lv),skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 		case NPC_PETRIFYATTACK:
@@ -19308,7 +19308,7 @@ void skill_toggle_magicpower(struct block_list *bl, uint16 skill_id)
 }
 
 int skill_magicdecoy(struct map_session_data *sd, unsigned short nameid) {
-	int x, y, i, class_, skill;
+	int x, y, i, mob_id, skill;
 	struct mob_data *md;
 
 	nullpo_ret(sd);
@@ -19329,20 +19329,20 @@ int skill_magicdecoy(struct map_session_data *sd, unsigned short nameid) {
 	//Item picked decides the mob class
 	switch( nameid ) {
 		case ITEMID_SCARLET_PTS:
-			class_ = MOBID_MAGICDECOY_FIRE;
+			mob_id = MOBID_MAGICDECOY_FIRE;
 			break;
 		case ITEMID_INDIGO_PTS:
-			class_ = MOBID_MAGICDECOY_WATER;
+			mob_id = MOBID_MAGICDECOY_WATER;
 			break;
 		case ITEMID_YELLOW_WISH_PTS:
-			class_ = MOBID_MAGICDECOY_WIND;
+			mob_id = MOBID_MAGICDECOY_WIND;
 			break;
 		default:
-			class_ = MOBID_MAGICDECOY_EARTH;
+			mob_id = MOBID_MAGICDECOY_EARTH;
 			break;
 	}
 
-	md = mob_once_spawn_sub(&sd->bl,sd->bl.m,x,y,sd->status.name,class_,"",SZ_SMALL,AI_NONE);
+	md = mob_once_spawn_sub(&sd->bl,sd->bl.m,x,y,sd->status.name,mob_id,"",SZ_SMALL,AI_NONE);
 	if( md ) {
 		struct unit_data *ud = unit_bl2ud(&md->bl);
 

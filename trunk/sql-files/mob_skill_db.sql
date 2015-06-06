@@ -2660,9 +2660,9 @@ REPLACE INTO `mob_skill_db` VALUES (1520,'Boiled Rice@NPC_SUICIDE','attack',175,
 #REPLACE INTO `mob_skill_db` VALUES (1566,'Wraith Dead@NPC_CURSEATTACK','attack',181,5,500,800,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'29',NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1566,'Wraith Dead@NPC_CURSEATTACK','chase',181,5,500,800,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'29',NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1566,'Wraith Dead@NPC_POISON','attack',176,5,500,800,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'29',NULL);
-REPLACE INTO `mob_skill_db` VALUES (1555,'Parasite@NPC_REVENGE','idle',333,1,10000,0,0,'yes','target','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (1575,'Flora@NPC_REVENGE','idle',333,1,10000,0,0,'yes','target','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (1579,'Hydra@NPC_REVENGE','idle',333,1,10000,0,0,'yes','target','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (1555,'Parasite@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (1575,'Flora@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (1579,'Hydra@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1580,'Incubus@NPC_BLINDATTACK','attack',177,5,500,0,5000,'yes','target','always','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1580,'Incubus@NPC_DARKNESSATTACK','attack',190,2,500,500,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1580,'Incubus@NPC_DARKSTRIKE','attack',340,9,500,700,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'29',NULL);
@@ -2707,9 +2707,9 @@ REPLACE INTO `mob_skill_db` VALUES (1587,'Kraben@NPC_COMBOATTACK','attack',171,1
 REPLACE INTO `mob_skill_db` VALUES (1587,'Kraben@NPC_CRITICALSLASH','attack',170,1,500,500,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'19',NULL);
 REPLACE INTO `mob_skill_db` VALUES (1587,'Kraben@NPC_STUNATTACK','attack',179,1,500,0,5000,'no','target','always','0',NULL,NULL,NULL,NULL,NULL,'6',NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1588,'Christmas Orc@NPC_EMOTION','idle',197,1,500,0,5000,'yes','self','always','0',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (1589,'Mandragora@NPC_REVENGE','idle',333,1,10000,0,0,'yes','target','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (1589,'Mandragora@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db` VALUES (1590,'Geographer@AL_HEAL','idle',28,9,10000,500,5000,'yes','friend','friendhpltmaxrate','90',NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (1590,'Geographer@NPC_REVENGE','idle',333,1,10000,0,0,'yes','target','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (1590,'Geographer@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1609,'Dancing Dragon@NPC_AGIUP','loot',350,1,10000,0,10000,'yes','self','always','0',NULL,NULL,NULL,NULL,NULL,'18',NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1609,'Dancing Dragon@NPC_AGIUP','idle',350,1,0,0,10000,'yes','self','always','0',NULL,NULL,NULL,NULL,NULL,'18',NULL);
 #REPLACE INTO `mob_skill_db` VALUES (1609,'Dancing Dragon@NPC_EMOTION','idle',197,1,10000,0,3000,'yes','self','always','0',22,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -5803,9 +5803,9 @@ REPLACE INTO `mob_skill_db` VALUES (2082,'Piranha@NPC_BLOODDRAIN','attack',199,1
 
 #****
 # NC Mechanic Summons
-REPLACE INTO `mob_skill_db` VALUES (2042,'Silver Sniper@NPC_REVENGE','attack',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (2043,'Magic Decoy@MG_FIREBOLT','attack',19,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (2044,'Magic Decoy@MG_COLDBOLT','attack',14,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (2045,'Magic Decoy@WZ_EARTHSPIKE','attack',90,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
-REPLACE INTO `mob_skill_db` VALUES (2046,'Magic Decoy@MG_LIGHTNINGBOLT','attack',20,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (2042,'Silver Sniper@NPC_REVENGE','idle',333,1,10000,0,0,'yes','self','masterattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (2043,'Magic Decoy@MG_FIREBOLT','idle',19,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (2044,'Magic Decoy@MG_COLDBOLT','idle',14,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (2045,'Magic Decoy@WZ_EARTHSPIKE','idle',90,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+REPLACE INTO `mob_skill_db` VALUES (2046,'Magic Decoy@MG_LIGHTNINGBOLT','idle',20,10,10000,500,5000,'yes','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 
