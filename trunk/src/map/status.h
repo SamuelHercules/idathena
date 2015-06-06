@@ -228,10 +228,10 @@ typedef enum sc_type {
 	SC_DONTFORGETME,
 	SC_FORTUNE, //180
 	SC_SERVICE4U,
-	SC_STOP, //Prevents inflicted chars from walking. [Skotlex]
+	SC_STOP, //Prevents inflicted chars from walking [Skotlex]
 	SC_SPURT,
 	SC_SPIRIT,
-	SC_COMA, //Not a real SC_, it makes a char's HP/SP hit 1.
+	SC_COMA, //Not a real SC_, it makes a char's HP/SP hit 1
 	SC_INTRAVISION,
 	SC_INCALLSTATUS,
 	SC_INCSTR,
