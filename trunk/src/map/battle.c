@@ -2666,11 +2666,12 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 	struct status_change *sc = status_get_sc(src);
 	struct status_data *sstatus = status_get_status_data(src);
 	int t_class = status_get_class(target);
+	short div_ = max(wd.div_, 1);
+	uint16 skill;
 
 	//Add mastery damage
 	if(sd && battle_skill_stacks_masteries_vvs(skill_id) &&
 		skill_id != MO_INVESTIGATE && skill_id != MO_EXTREMITYFIST && skill_id != CR_GRANDCROSS) {
-		uint16 skill;
 
 		wd.damage = battle_addmastery(sd, target, wd.damage, 0);
 #ifdef RENEWAL
@@ -2689,15 +2690,12 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, 15 * skill_lv);
 		if(skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, 4);
-		if(skill_id != CR_SHIELDBOOMERANG) {
-			short div_ = (wd.div_ < 1 ? wd.div_ * -1 : wd.div_);
-
+		if(skill_id != CR_SHIELDBOOMERANG)
 			ATK_ADD2(wd.masteryAtk, wd.masteryAtk2, div_ * sd->right_weapon.star, div_ * sd->left_weapon.star);
-		}
 		if(skill_id == MO_FINGEROFFENSIVE) {
-			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball_old * 3);
+			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, div_ * sd->spiritball_old * 3);
 		} else
-			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball * 3);
+			ATK_ADD(wd.masteryAtk, wd.masteryAtk2, div_ * sd->spiritball * 3);
 #endif
 
 		if(skill_id == NJ_SYURIKEN && (skill = pc_checkskill(sd, NJ_TOBIDOUGU)) > 0) {
@@ -5258,19 +5256,18 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 
 #ifndef RENEWAL
 	if(sd) {
+		short div_ = max(wd.div_, 1);
+
 		if(pc_checkskill(sd, BS_WEAPONRESEARCH) > 0)
 			ATK_ADD(wd.damage, wd.damage2, pc_checkskill(sd, BS_WEAPONRESEARCH) * 2);
 		if(skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.damage, wd.damage2, 4);
-		if(skill_id != CR_SHIELDBOOMERANG) { //Only Shield Boomerang doesn't takes the star crumb bonus
-			short div_ = (wd.div_ < 1 ? wd.div_ * -1 : wd.div_);
-
+		if(skill_id != CR_SHIELDBOOMERANG) //Only Shield Boomerang doesn't takes the star crumb bonus
 			ATK_ADD2(wd.damage, wd.damage2, div_ * sd->right_weapon.star, div_ * sd->left_weapon.star);
-		}
 		if(skill_id == MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count [Skotlex]
-			ATK_ADD(wd.damage, wd.damage2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball_old * 3);
+			ATK_ADD(wd.damage, wd.damage2, div_ * sd->spiritball_old * 3);
 		} else
-			ATK_ADD(wd.damage, wd.damage2, (wd.div_ < 1 ? 1 : wd.div_) * sd->spiritball * 3);
+			ATK_ADD(wd.damage, wd.damage2, div_ * sd->spiritball * 3);
 	}
 #else
 	if(!sd) //Only monsters have a single ATK for element, in pre-renewal we also apply element to entire ATK on players [helvetica]
