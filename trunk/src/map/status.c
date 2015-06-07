@@ -9269,6 +9269,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				tick_time = val2 = 2000 + 1000 * val1;
 				val4 = tick / tick_time;
 				break;
+			case SC_OVERHEAT:
 			case SC_STEALTHFIELD:
 				tick_time = tick;
 				tick = -1;
@@ -12013,8 +12014,10 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				struct block_list *src = map_id2bl(sce->val3);
 				int damage = sce->val2;
 
+				if( damage >= status->hp )
+					damage = status->hp - 1;
 				map_freeblock_lock();
-				status_damage(src,bl,damage,0,clif_damage(bl,bl,tick,0,0,damage,0,DMG_ENDURE,0),1);
+				status_fix_damage(src,bl,damage,1);
 				if( sc->data[type] ) {
 					sc_timer_next(2000 + tick,status_change_timer,bl->id,data);
 				}
@@ -12115,19 +12118,13 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			}
 			break;
 
-		case SC_OVERHEAT_LIMITPOINT:
-			if( --(sce->val1) >= 0 ) { //Cooling
-				sc_timer_next(30000 + tick,status_change_timer,bl->id,data);
-			}
-			break;
-
 		case SC_OVERHEAT: {
-				int damage = status->max_hp / 100; //Suggestion 1% each second
+				int damage = status->max_hp / 100; //1% each second
 
 				if( damage >= status->hp )
 					damage = status->hp - 1; //Do not kill, just keep you with 1 HP minimum
 				map_freeblock_lock();
-				status_fix_damage(NULL,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,DMG_NORMAL,0));
+				status_zap(bl,damage,0);
 				if( sc->data[type] ) {
 					sc_timer_next(1000 + tick,status_change_timer,bl->id,data);
 				}

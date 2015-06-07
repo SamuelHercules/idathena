@@ -10030,25 +10030,22 @@ void pc_setstand(struct map_session_data *sd)
 void pc_overheat(struct map_session_data *sd, int val)
 {
 	int heat = val,
-		limit[] = { 10,20,28,46,66 };
-	uint16 skill_lv;
+		limit[] = { 150,200,280,360,450 };
+	uint16 skill_lv = pc_checkskill(sd,NC_MAINFRAME);
 
 	if( !pc_ismadogear(sd) || sd->sc.data[SC_OVERHEAT] )
-		return; // Already burning
+		return; //Already burning
 
-	skill_lv = min(pc_checkskill(sd,NC_MAINFRAME),4);
 	if( sd->sc.data[SC_OVERHEAT_LIMITPOINT] ) {
 		heat += sd->sc.data[SC_OVERHEAT_LIMITPOINT]->val1;
 		status_change_end(&sd->bl,SC_OVERHEAT_LIMITPOINT,INVALID_TIMER);
 	}
 
-	heat = max(0,heat); // Avoid negative HEAT
+	heat = max(0,heat); //Avoid negative heat
 	if( heat >= limit[skill_lv] )
 		sc_start(&sd->bl,&sd->bl,SC_OVERHEAT,100,0,1000);
-	else
+	else //Cooling down if reached 30 seconds
 		sc_start(&sd->bl,&sd->bl,SC_OVERHEAT_LIMITPOINT,100,heat,30000);
-
-	return;
 }
 
 /**

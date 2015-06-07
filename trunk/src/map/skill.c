@@ -4195,6 +4195,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 		case NC_FLAMELAUNCHER:
 			if (sd)
 				pc_overheat(sd,1);
+		//Fall through
 		case NPC_ACIDBREATH:
 		case NPC_DARKNESSBREATH:
 		case NPC_FIREBREATH:
