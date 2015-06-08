@@ -2650,7 +2650,7 @@ int unit_counttargeted(struct block_list *bl)
  * @param size: New size of bl
  * @return 0
  */
-int unit_changeviewsize(struct block_list *bl,short size)
+int unit_changeviewsize(struct block_list *bl, short size)
 {
 	nullpo_ret(bl);
 

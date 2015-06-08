@@ -10271,7 +10271,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 						delete_timer(md->deletetimer,mob_timer_delete);
 					md->deletetimer = add_timer(gettick() + skill_get_time(skill_id,skill_lv),mob_timer_delete,md->bl.id,0);
 					mob_spawn(md);
-					pc_setinvincibletimer(sd,500); //Unlock target lock
+					map_foreachinrange(unit_changetarget,src,AREA_SIZE,BL_CHAR,src,&md->bl);
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 					skill_blown(src,bl,skill_get_blewcount(skill_id,skill_lv),unit_getdir(bl),0);
 				}
