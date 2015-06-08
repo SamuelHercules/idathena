@@ -5525,7 +5525,7 @@ short pc_checkequip(struct map_session_data *sd,int pos)
 	nullpo_retr(-1, sd);
 
 	for(i = 0; i < EQI_MAX; i++) {
-		if(pos & equip_pos[i])
+		if(pos&equip_pos[i])
 			return sd->equip_index[i];
 	}
 

@@ -3149,8 +3149,8 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 				short index = sd->equip_index[EQI_HAND_R];
 
 				if(index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
-					skillratio += -100 + sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
-						100 * sd->inventory_data[index]->wlv * (sd->status.inventory[index].refine + 6);
+					skillratio += -100 + sd->inventory_data[index]->wlv * (sd->status.inventory[index].refine + 6) * 100 +
+						sd->inventory_data[index]->atk + sd->inventory_data[index]->weight / 10;
 			}
 			status_change_end(src,SC_CRUSHSTRIKE,INVALID_TIMER);
 			skill_break_equip(src,src,EQP_WEAPON,2000,BCT_SELF);
