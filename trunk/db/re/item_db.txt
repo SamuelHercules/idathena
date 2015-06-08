@@ -762,7 +762,7 @@
 1430,Pike_C,Pike,5,0,,0,74,,3,0,0x00004082,63,2,2,1,1,0,4,{ bonus2 bAddSize,Size_All,70; },{},{}
 1431,F_Pole_Axe_C,Pole Axe,5,1,,4800,195,,3,0,0x00004082,63,2,2,3,1,0,4,{ bonus bStr,1; bonus bInt,2; bonus bDex,1; },{},{}
 1432,E_Pole_Axe_C,Pole Axe,5,1,,4800,195,,3,0,0x00004082,63,2,2,3,1,0,4,{ bonus bStr,1; bonus bInt,2; bonus bDex,1; },{},{}
-1433,Imperial_Spear,Imperial Spear,5,20,,1800,180:50,,3,1,0x00004082,63,2,2,3,102,1,4,{ bonus2 bSkillAtk,"LG_CANNONSPEAR",20+getrefine()/2; bonus2 bSkillAtk,"LG_BANISHINGPOINT",20+getrefine()/2; },{},{}
+1433,Imperial_Spear,Imperial Spear,5,20,,1800,180:40,,3,1,0x00004082,63,2,2,3,102,1,4,{ bonus2 bSkillAtk,"LG_CANNONSPEAR",20+getrefine()*3/2; bonus2 bSkillAtk,"LG_BANISHINGPOINT",20+getrefine()*3/2; },{},{}
 1434,P_Spear1,Eden Spear I,5,0,,0,165,,3,0,0x00004082,63,2,2,3,60,0,4,{},{},{}
 1435,Cannon_Spear,Cannon Spear,5,56000,,1600,180,,3,1,0x00004000,63,2,2,4,100,1,4,{ bonus bMaxSP,-100; bonus2 bSkillAtk,"LG_CANNONSPEAR",10; bonus bBaseAtk,(getrefine()/3); },{},{}
 1436,Velum_Spear,Vellum Spear,5,20,,850,150,,3,0,0x00004082,63,2,2,4,95,1,4,{ bonus2 bAddRace,RC_DemiHuman,60; if(getrefine()>=6) { bonus2 bSkillAtk,"RK_HUNDREDSPEAR",80; bonus2 bSkillAtk,"LG_PINPOINTATTACK",80; } if(getrefine()>=9) { bonus2 bAddRace,RC_DemiHuman,30; } },{},{}
@@ -7074,7 +7074,7 @@
 13313,Huuma_Swirling_Petal,Flower Huuma Shuriken,5,100000,,1500,150:50,,1,2,0x22000000,63,2,34,3,110,1,22,{ bonus2 bSkillAtk,"KO_HUUMARANKA",20; },{},{}
 13314,Huuma_Fluttering_Snow,Wave Huuma Shuriken,5,100000,,1500,200:50,,1,0,0x22000000,63,2,34,4,110,1,22,{ bonus bAtkEle,Ele_Water; bonus3 bAutoSpell,"NJ_HYOUSYOURAKU",(getskilllv("NJ_HYOUSYOURAKU")?getskilllv("NJ_HYOUSYOURAKU"):1),30; },{},{}
 13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,5,100000,,1500,200:50,,1,0,0x22000000,63,2,34,4,110,1,22,{ bonus bAtkEle,Ele_Wind; bonus3 bAutoSpell,"NJ_RAIGEKISAI",(getskilllv("NJ_RAIGEKISAI")?getskilllv("NJ_RAIGEKISAI"):1),30; },{},{}
-13316,Upg_Huuma_Shuriken,Upg Huuma Shuriken,5,20,,1500,55,,1,1,0x22000000,63,2,34,3,1,1,22,{ bonus bBaseAtk,(getrefine()*10); bonus bMatk,(getrefine()*5); bonus bLongAtkRate,(getrefine()); if(BaseLevel>70) bonus bBaseAtk,(((BaseLevel-70)/10)*5); },{},{}
+13316,Upg_Huuma_Shuriken,Upg Huuma Shuriken,5,20,,1500,55,,1,1,0x22000000,63,2,34,3,1,1,22,{ bonus bBaseAtk,(getrefine()*10); bonus bMatk,(getrefine()*5); bonus bLongAtkRate,(getrefine()); if(BaseLevel>=70) bonus bBaseAtk,(((BaseLevel-60)/10)*5); },{},{}
 13321,Half_BF_Huuma_Shuriken2,Half BF Huuma Shuriken,5,20,,0,55,,1,0,0x22000000,63,2,34,3,80,1,22,{ bonus bStr,2; bonus bDex,1; bonus2 bAddRace,RC_DemiHuman,40; autobonus "{ bonus2 bSkillAtk,\"NJ_HUUMA\",100; bonus2 bSkillAtk,\"NJ_ISSEN\",100; }",50,10000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; }"; bonus bUnbreakableWeapon,0; },{},{}
 13322,Huuma_Metal_Shuriken,Huuma Metal Shuriken,5,20,,0,50,,1,1,0x02000000,63,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,getrefine()*5; bonus bMatk,getrefine()*3; if(getrefine()>=2) bonus bNearAtkDef,1*getrefine()/2; if (BaseLevel>=20 && BaseLevel<=120) bonus bBaseAtk,3*getrefine()/10; },{},{}
 13323,Infinity_Shuriken,Infinity Shuriken,5,0,,500,150:40,,1,0,0x02000000,63,2,34,4,100,1,22,{},{},{}
@@ -8272,7 +8272,7 @@
 16007,Mjolnir_C,Mjolnir,5,20,,0,250,,1,0,0x000444A2,63,2,2,4,95,0,8,{ bonus bAtkEle,Ele_Wind; bonus bStr,15; bonus bDex,40; },{},{}
 16008,F_Spanner_C,Spanner,5,2,,0,150,,1,0,0x00008110,63,2,2,3,0,0,8,{},{},{}
 16009,E_Spanner_C,Spanner,5,2,,0,150,,1,0,0x00008110,63,2,2,3,0,0,8,{},{},{}
-16010,Red_Ether_Bag,Red Ether Bag,5,20,,1000,15:100,,1,1,0x0004C5B2,63,2,2,3,102,1,8,{ if(getrefine()>=6){ bonus2 bSkillAtk,"GN_CRAZYWEED",20+((getrefine()-5)*2); bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20+((getrefine()-5)*2); } else { bonus2 bSkillAtk,"GN_CRAZYWEED",20; bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20; } },{},{}
+16010,Red_Ether_Bag,Red Ether Bag,5,20,,1000,15:100,,1,1,0x0004C5B2,63,2,2,3,102,1,8,{ if(getrefine()>5) { bonus2 bSkillAtk,"GN_CRAZYWEED",20+((getrefine()-5)*2); bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20+((getrefine()-5)*2); } else { bonus2 bSkillAtk,"GN_CRAZYWEED",20; bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20; } },{},{}
 16011,Adventure_Mace,Adventure Mace,5,0,,0,60,,1,0,0x00008110,63,2,2,1,1,0,8,{},{},{}
 16012,Academy_Mace,Academy Mace,5,0,,1000,110,,1,1,0x00008110,63,2,2,1,1,1,8,{},{},{}
 16013,Mace_Of_Judgement,Mace Of Judgement,5,20,,1200,140:180,,1,2,0x00000100,63,2,2,3,100,1,8,{ bonus bStr,1; bonus bInt,1; autobonus "{ bonus2 bMagicAddRace,RC_Demon,20; }",30,7000,BF_MAGIC,"{ specialeffect2 EF_SPELLBREAKER; }"; autobonus "{ bonus2 bAddRace,RC_Demon,20; }",5,7000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; },{},{}
