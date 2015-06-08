@@ -247,7 +247,7 @@ moc_para01,25,35,4	script	Instructor Boya#para01	4_M_KNIGHT_GOLD,{
 		mes "The person in charge of equipment storage will supply you with what you need.";
 		next;
 		mes "[Boya]";
-		mes "The person in charge of equipment storage will supply you with what you need.";
+		mes "Choose an equipment that fits your particular set of skills.";
 		para_suv01 = 22;
 		completequest 7146;
 	}
