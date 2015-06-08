@@ -9274,10 +9274,9 @@ void clif_charnameack(int fd, struct block_list *bl)
 						str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
 					if( battle_config.show_mob_info&2 )
 						str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
-					//Even thought mobhp ain't a name, we send it as one so the client
-					//can parse it. [Skotlex]
+					//Even thought mobhp ain't a name, we send it as one so the client can parse it [Skotlex]
 					if( str_p != mobhp ) {
-						*(str_p - 3) = '\0'; //Remove trailing space + pipe.
+						*(str_p - 3) = '\0'; //Remove trailing space + pipe
 						memcpy(WBUFP(buf,30), mobhp, NAME_LENGTH);
 						WBUFB(buf,54) = 0;
 						WBUFB(buf,78) = 0;
@@ -9285,9 +9284,9 @@ void clif_charnameack(int fd, struct block_list *bl)
 				}
 			}
 			break;
-		case BL_CHAT: //FIXME: Clients DO request this... what should be done about it? The chat's title may not fit... [Skotlex]
-//			memcpy(WBUFP(buf,6), (struct chat*)->title, NAME_LENGTH);
-//			break;
+		case BL_CHAT: //FIXME: Clients DO request this, what should be done about it? The chat's title may not fit [Skotlex]
+			//memcpy(WBUFP(buf,6), (struct chat*)->title, NAME_LENGTH);
+			//break;
 			return;
 		case BL_ELEM:
 			memcpy(WBUFP(buf,6), ((TBL_ELEM *)bl)->db->name, NAME_LENGTH);
@@ -9297,7 +9296,7 @@ void clif_charnameack(int fd, struct block_list *bl)
 			return;
 	}
 
-	// if no receipient specified just update nearby clients
+	//If no receipient specified just update nearby clients
 	if( fd == 0 )
 		clif_send(buf, packet_len(cmd), bl, AREA);
 	else {
