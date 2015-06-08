@@ -9893,7 +9893,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			rate -= status_get_int(bl) / 6 - status_get_luk(bl) / 10;
 			tick = status_get_lv(bl) / 20 + status_get_base_status(bl)->int_ / 40;
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			status_change_start(src,bl,type,rate * 100,skill_lv,0,0,0,skill_get_time(skill_id,skill_lv) - (1000 * tick),SCFLAG_FIXEDTICK|SCFLAG_FIXEDRATE);
+			status_change_start(src,bl,type,rate * 100,skill_lv,0,0,0,max(skill_get_time(skill_id,skill_lv) - (1000 * tick),5000),SCFLAG_FIXEDTICK|SCFLAG_FIXEDRATE);
 			break;
 
 		case SO_SUMMON_AGNI:
