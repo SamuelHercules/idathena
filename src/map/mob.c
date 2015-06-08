@@ -2059,7 +2059,7 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 	{
 		int i;
 
-		for( i = 0; i < DAMAGELOG_SIZE; i++ ) { //Must show hp bar to all char who already hit the mob.
+		for( i = 0; i < DAMAGELOG_SIZE; i++ ) { //Must show hp bar to all char who already hit the mob
 			if( md->dmglog[i].id ) {
 				struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
 
