@@ -8833,7 +8833,7 @@ bool pc_setreg2(struct map_session_data *sd, const char *reg, int val) {
 
 	nullpo_retr(false, sd);
 
-	if (reg[strlen(reg)-1] == '$') {
+	if (reg[strlen(reg) - 1] == '$') {
 		ShowError("pc_setreg2: Invalid variable scope '%s'\n", reg);
 		return false;
 	}
@@ -8868,7 +8868,7 @@ int pc_readreg2(struct map_session_data *sd, const char *reg) {
 
 	nullpo_ret(sd);
 
-	if (reg[strlen(reg)-1] == '$') {
+	if (reg[strlen(reg) - 1] == '$') {
 		ShowError("pc_readreg2: Invalid variable scope '%s'\n", reg);
 		return 0;
 	}

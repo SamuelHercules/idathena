@@ -15672,7 +15672,7 @@ void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
 		clif_colormes(sd,color_table[COLOR_RED],msg_txt(1511)); // Cash Shop is disabled in this map
 		return;
 	}
-	if( sd->state.trading || !sd->npc_shopid ) {
+	if( sd->state.trading || !sd->npc_shopid || !cash_shop_defined ) {
 		clif_cashshop_ack(sd,1);
 		return;
 	} else {
