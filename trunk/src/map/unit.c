@@ -1733,6 +1733,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 				else if( k > 2 )
 					k = 2;
 				casttime += casttime * k;
+#ifdef RENEWAL
+				casttime += 250 * k;
+#endif
 			}
 			break;
 		case GD_EMERGENCYCALL: //Emergency Call double cast when the user has learned Leap [Daegaladh]
@@ -2058,14 +2061,14 @@ int unit_set_target(struct unit_data *ud, int target_id)
 {
 	nullpo_ret(ud);
 
-	if( ud->target != target_id ) {
+	if(ud->target != target_id) {
 		struct unit_data *ux;
 		struct block_list *target;
 
-		if( ud->target && (target = map_id2bl(ud->target)) && (ux = unit_bl2ud(target)) && ux->target_count > 0 )
-			ux->target_count --;
-		if( target_id && (target = map_id2bl(target_id)) && (ux = unit_bl2ud(target)) )
-			ux->target_count ++;
+		if(ud->target && (target = map_id2bl(ud->target)) && (ux = unit_bl2ud(target)) && ux->target_count > 0)
+			ux->target_count--;
+		if(target_id && (target = map_id2bl(target_id)) && (ux = unit_bl2ud(target)))
+			ux->target_count++;
 	}
 
 	ud->target = target_id;
@@ -2660,7 +2663,38 @@ int unit_changeviewsize(struct block_list *bl,short size)
 	else
 		return 0;
 	if (size != 0)
-		clif_specialeffect(bl,421 + size, AREA);
+		clif_specialeffect(bl,421 + size,AREA);
+	return 0;
+}
+
+/**
+ * Makes 'bl' that attacking 'src' switch to attack 'target'
+ * @param bl
+ * @param ap
+ * @param src Current target
+ * @param target New target
+ */
+int unit_changetarget(struct block_list *bl, va_list ap) {
+	struct unit_data *ud = unit_bl2ud(bl);
+	struct block_list *src = va_arg(ap,struct block_list *);
+	struct block_list *target = va_arg(ap,struct block_list *);
+
+	if (!ud || !target)
+		return 1;
+	if (ud->skilltarget == src->id) //Check if bl using skill to current target
+		ud->skilltarget = target->id;
+	else {
+		if (!ud->target && !ud->target_to) //Check if bl isn't attack anyone
+			return 1;
+		if (ud->target != src->id && ud->target_to != src->id) //Check if bl isn't attack current target
+			return 1;
+		if (ud->target == target->id && ud->target_to == target->id) //Check if bl already attack new target
+			return 1;
+		if (bl->type == BL_MOB)
+			((TBL_MOB *)bl)->target_id = target->id;
+		ud->target_to = target->id;
+		unit_set_target(ud,target->id);
+	}
 	return 0;
 }
 

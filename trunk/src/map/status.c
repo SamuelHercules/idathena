@@ -700,16 +700,15 @@ void initChangeTables(void) {
 	set_sc( SR_GENTLETOUCH_REVITALIZE, SC_GT_REVITALIZE      , SI_GENTLETOUCH_REVITALIZE, SCB_MAXHP|SCB_DEF2|SCB_REGEN );
 	set_sc( SR_FLASHCOMBO            , SC_FLASHCOMBO         , SI_FLASHCOMBO            , SCB_NONE );
 
-	set_sc( WA_SWING_DANCE            , SC_SWINGDANCE           , SI_SWING              , SCB_SPEED|SCB_ASPD );
-	set_sc( WA_SYMPHONY_OF_LOVER      , SC_SYMPHONYOFLOVER      , SI_SYMPHONY_LOVE      , SCB_MDEF );
-	set_sc( WA_MOONLIT_SERENADE       , SC_MOONLITSERENADE      , SI_MOONLIT_SERENADE   , SCB_MATK );
-	set_sc( MI_RUSH_WINDMILL          , SC_RUSHWINDMILL         , SI_RUSH_WINDMILL      , SCB_NONE );
-	set_sc( MI_ECHOSONG               , SC_ECHOSONG             , SI_ECHOSONG           , SCB_DEF );
-	set_sc( MI_HARMONIZE              , SC_HARMONIZE            , SI_HARMONIZE          , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
-	set_sc_with_vfx( WM_POEMOFNETHERWORLD , SC_NETHERWORLD      , SI_NETHERWORLD        , SCB_NONE );
-	add_sc( WM_POEMOFNETHERWORLD      , SC_NETHERWORLD_IMMUNE );
-	set_sc_with_vfx( WM_VOICEOFSIREN      , SC_VOICEOFSIREN     , SI_SIREN                  , SCB_NONE );
-	set_sc_with_vfx( WM_LULLABY_DEEPSLEEP , SC_DEEPSLEEP        , SI_DEEP_SLEEP             , SCB_NONE );
+	set_sc( WA_SWING_DANCE            , SC_SWINGDANCE           , SI_SWING                  , SCB_SPEED|SCB_ASPD );
+	set_sc( WA_SYMPHONY_OF_LOVER      , SC_SYMPHONYOFLOVER      , SI_SYMPHONY_LOVE          , SCB_MDEF );
+	set_sc( WA_MOONLIT_SERENADE       , SC_MOONLITSERENADE      , SI_MOONLIT_SERENADE       , SCB_MATK );
+	set_sc( MI_RUSH_WINDMILL          , SC_RUSHWINDMILL         , SI_RUSH_WINDMILL          , SCB_NONE );
+	set_sc( MI_ECHOSONG               , SC_ECHOSONG             , SI_ECHOSONG               , SCB_DEF );
+	set_sc( MI_HARMONIZE              , SC_HARMONIZE            , SI_HARMONIZE              , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+	set_sc_with_vfx( WM_POEMOFNETHERWORLD, SC_NETHERWORLD       , SI_NETHERWORLD            , SCB_NONE );
+	set_sc_with_vfx( WM_VOICEOFSIREN     , SC_VOICEOFSIREN      , SI_SIREN                  , SCB_NONE );
+	set_sc_with_vfx( WM_LULLABY_DEEPSLEEP, SC_DEEPSLEEP         , SI_DEEP_SLEEP             , SCB_NONE );
 	set_sc( WM_SIRCLEOFNATURE         , SC_SIRCLEOFNATURE       , SI_SIRCLEOFNATURE         , SCB_NONE );
 	set_sc( WM_GLOOMYDAY              , SC_GLOOMYDAY            , SI_GLOOMYDAY              , SCB_FLEE|SCB_SPEED|SCB_ASPD );
 	set_sc( WM_SONG_OF_MANA           , SC_SONGOFMANA           , SI_SONG_OF_MANA           , SCB_NONE );
@@ -9329,7 +9328,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					if( sd->status.pet_id > 0 )
 						pet_menu(sd,3);
 					if( hom_is_active(sd->hd) )
-						hom_vaporize(sd,HOM_ST_REST);
+						hom_vaporize(sd,HOM_ST_ACTIVE);
 					//if( sd->md ) //Info shows nothing about Merc being removed. Probely true since their not a animal [Rytech]
 						//mercenary_delete(sd->md,3);
 					//Are rental mounts stripped as well? Well find out once I add them in
@@ -9383,8 +9382,12 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val4 = tick / tick_time;
 				break;
 			case SC_VACUUM_EXTREME:
-				tick_time = 100;
-				val4 = val3 = tick / tick_time;
+				//Suck target at n second, only if the n second is lower than the duration, doesn't apply to BL_PC
+				if( bl->type != BL_PC && val4 < tick && !unit_blown_immune(bl,0x3) && status->mode&MD_CANMOVE ) {
+					tick_time = val4;
+					val4 = tick - tick_time;
+				} else
+					val4 = 0;
 				break;
 			case SC_SWINGDANCE:
 				val3 = 5 * val1 + val2; //ASPD Increase
@@ -9882,7 +9885,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 						case SC_KSPROTECTED:
 						case SC_HANBOK:
 						case SC_OKTOBERFEST:
-							break; //Avoid the warning, because this status has no skill associated and all values already store in it
+						case SC_NETHERWORLD_POSTDELAY:
+						case SC_VACUUM_EXTREME_POSTDELAY:
+							break; //Avoid the error, because this status has no skill associated and all values already store in it
 						default:
 							ShowError("Unknown Status Change [%d]\n",type);
 							return 0; //Status change with no calc, no icon, and no skill associated?
@@ -10925,8 +10930,8 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				struct block_list *tbl = map_id2bl(sce->val2);
 
 				sce->val2 = 0;
-				if (tbl && (sc = status_get_sc(tbl)) && sc->data[SC_STOP] && sc->data[SC_STOP]->val2 == bl->id)
-					status_change_end(tbl,SC_STOP,INVALID_TIMER);
+				if (tbl && (sc = status_get_sc(tbl)) && sc->data[type] && sc->data[type]->val2 == bl->id)
+					status_change_end(tbl,type,INVALID_TIMER);
 			}
 			break;
 		case SC_CONCENTRATION:
@@ -10934,7 +10939,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				status_change_end(bl,SC_ENDURE,INVALID_TIMER);
 			break;
 		case SC_HALLUCINATIONWALK:
-			sc_start(bl,bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(GC_HALLUCINATIONWALK,sce->val1));
+			sc_start(bl,bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(status_sc2skill(type),sce->val1));
 			break;
 		case SC_ADORAMUS:
 			status_change_end(bl,SC_BLIND,INVALID_TIMER);
@@ -11018,7 +11023,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_NETHERWORLD:
-			sc_start(bl,bl,SC_NETHERWORLD_IMMUNE,100,sce->val1,2000);
+			sc_start(bl,bl,SC_NETHERWORLD_POSTDELAY,100,sce->val1,2000);
 			break;
 		case SC_SATURDAYNIGHTFEVER:
 			if (status->hp > 100 && sce->val2)
@@ -11050,8 +11055,8 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_VACUUM_EXTREME:
-			if (sce->val2 && sc->cant.move > 0)
-				sc->cant.move--;
+			//CHECKME: Seems on official, there's delay before same target can be vacuumed in same area again [Cydh]
+			sc_start2(bl,bl,SC_VACUUM_EXTREME_POSTDELAY,100,sce->val1,sce->val2,skill_get_time2(status_sc2skill(type),sce->val1));
 			break;
 		case SC_INTRAVISION:
 			calc_flag = SCB_ALL; //Required for overlapping
@@ -11964,13 +11969,13 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			break;
 
 		case SC_VACUUM_EXTREME:
-			if( --(sce->val4) >= 0 ) {
-				if( !unit_is_walking(bl) && !sce->val2 ) {
-					sc->cant.move++;
-					sce->val2 = 1;
+			if( sce->val4 ) {
+				if( unit_movepos(bl,sce->val3>>16,sce->val3&0xFFFF,0,false) ) {
+					clif_slide(bl,sce->val3>>16,sce->val3&0xFFFF);
+					clif_fixpos(bl);
 				}
-				sc_timer_next(100 + tick,status_change_timer,bl->id,data);
-				return 0;
+				sc_timer_next(sce->val4 + tick,status_change_timer,bl->id,data);
+				sce->val4 = 0;
 			}
 			break;
 
@@ -12604,7 +12609,14 @@ void status_change_clear_buffs(struct block_list *bl, int type)
 	map_freeblock_unlock();
 }
 
-int status_change_spread(struct block_list *src, struct block_list *bl) {
+/**
+ * Infect a user with status effects (SC_DEADLYINFECT)
+ * @param src: Object initiating change on bl [PC|MOB|HOM|MER|ELEM]
+ * @param bl: Object to change
+ * @param type: false - Shadow Chaser attacking, true - Shadow Chaser being attacked
+ * @return 1: Success 0: Fail
+ */
+int status_change_spread(struct block_list *src, struct block_list *bl, bool type) {
 	int i, flag = 0;
 	struct status_change *sc = status_get_sc(src);
 	const struct TimerData *timer;
@@ -12627,6 +12639,10 @@ int status_change_spread(struct block_list *src, struct block_list *bl) {
 			//Buffs that can be spreaded through Deadly Infect
 			//NOTE: We'll add/delete SCs when we are able to confirm it
 			//First we list the common status's that can be spreaded
+			case SC_DEATHHURT:
+			case SC_PARALYSE:
+				if( type )
+					continue;
 			//case SC_STUN:
 			case SC_CURSE:
 			case SC_SILENCE:
@@ -12650,8 +12666,6 @@ int status_change_spread(struct block_list *src, struct block_list *bl) {
 			//Additional Commons
 			case SC_FREEZING:
 			case SC_VENOMBLEED:
-			case SC_DEATHHURT:
-			case SC_PARALYSE:
 				if( sc->data[i]->timer != INVALID_TIMER ) {
 					timer = get_timer(sc->data[i]->timer);
 					if( timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0 )
@@ -12665,8 +12679,10 @@ int status_change_spread(struct block_list *src, struct block_list *bl) {
 			case SC_DPOISON:
 				data.tick = sc->data[i]->val3 * 1000;
 				break;
-			case SC_FEAR:
 			case SC_LEECHESEND:
+				if( type )
+					continue;
+			case SC_FEAR:
 				data.tick = sc->data[i]->val4 * 1000;
 				break;
 			case SC_BURNING:
@@ -12674,12 +12690,18 @@ int status_change_spread(struct block_list *src, struct block_list *bl) {
 				break;
 			case SC_PYREXIA:
 			//case SC_OBLIVIONCURSE:
+				if( type )
+					continue;
 				data.tick = sc->data[i]->val4 * 3000;
 				break;
 			case SC_MAGICMUSHROOM:
+				if( type )
+					continue;
 				data.tick = sc->data[i]->val4 * 4000;
 				break;
 			case SC_TOXIN:
+				if( type )
+					continue;
 			case SC_BLEEDING:
 				data.tick = sc->data[i]->val4 * 10000;
 				break;

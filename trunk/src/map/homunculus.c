@@ -300,11 +300,19 @@ int hom_delete(struct homun_data *hd, int emote)
 	nullpo_ret(hd);
 
 	sd = hd->master;
+
 	if (!sd)
 		return unit_free(&hd->bl, CLR_DEAD);
 
 	if (emote >= 0)
 		clif_emotion(&sd->bl, emote);
+
+	if (hd->homunculus.class_ == 6052) { //Eleanor
+		struct status_change_entry *sce = hd->sc.data[SC_STYLE_CHANGE];
+
+		if (sce && sce->val1 == MH_MD_FIGHTING)
+			clif_status_load(&sd->bl, SI_STYLE_CHANGE, 0);
+	}
 
 	//This makes it be deleted right away
 	hd->homunculus.intimacy = 0;
