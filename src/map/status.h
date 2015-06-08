@@ -718,7 +718,7 @@ typedef enum sc_type {
 	SC_CRIFOOD,
 	SC_CHASEWALK2,
 	SC_FALLENEMPIRE,
-	SC_NETHERWORLD_IMMUNE,
+	SC_NETHERWORLD_POSTDELAY,
 	SC_MTF_ASPD2,
 	SC_MTF_RANGEATK2,
 	SC_MTF_MATK2,
@@ -735,6 +735,8 @@ typedef enum sc_type {
 	SC_ENERGY_DRINK_RESERCH,
 
 	SC_NORECOVER_STATE,
+
+	SC_VACUUM_EXTREME_POSTDELAY,
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds
 } sc_type;
 
@@ -2183,7 +2185,7 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 bool status_check_skilluse(struct block_list *src, struct block_list *target, uint16 skill_id, int flag); //[Skotlex]
 int status_check_visibility(struct block_list *src, struct block_list *target); //[Skotlex]
 
-int status_change_spread( struct block_list *src, struct block_list *bl );
+int status_change_spread(struct block_list *src, struct block_list *bl, bool type);
 
 #ifndef RENEWAL
 	unsigned short status_base_matk_min(const struct status_data *status);

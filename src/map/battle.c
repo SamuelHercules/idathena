@@ -908,6 +908,8 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 				delay = 200;
 			else
 				delay = 100;
+			if( sd && pc_issit(sd) )
+				pc_setstand(sd);
 			if( sce_d && (d_bl = map_id2bl(sce_d->val1)) &&
 				((d_bl->type == BL_MER && ((TBL_MER *)d_bl)->master && ((TBL_MER *)d_bl)->master->bl.id == bl->id) ||
 				(d_bl->type == BL_PC && ((TBL_PC *)d_bl)->devotion[sce_d->val2] == bl->id)) &&
@@ -1260,7 +1262,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 		}
 
 		if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
-			status_change_spread(bl,src); //Deadly infect attacked side
+			status_change_spread(bl,src,true); //Deadly infect attacked side
 
 		if( (sce = sc->data[SC_STYLE_CHANGE]) ) { //When being hit
 			TBL_HOM *hd = BL_CAST(BL_HOM,bl);
@@ -1311,7 +1313,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			if( (sce = sc->data[SC_POISONINGWEAPON]) && skill_id != GC_VENOMPRESSURE && flag&BF_WEAPON && rnd()%100 < sce->val3 )
 				sc_start2(src,bl,(sc_type)sce->val2,100,sce->val1,src->id,skill_get_time2(GC_POISONINGWEAPON,1));
 			if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
-				status_change_spread(src,bl);
+				status_change_spread(src,bl,false);
 		}
 
 		if( (sce = sc->data[SC_STYLE_CHANGE]) ) { //When attacking
@@ -3484,9 +3486,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 					k = 1;
 				else if( k > 2 && k < 4 )
 					k = 2;
-				else if( k > 3 && k < 5 )
-					k = 3;
 				else
+					k = 3;
+				if( wd.miscflag > 12 )
 					k = 4;
 				skillratio += 100 * k;
 			}

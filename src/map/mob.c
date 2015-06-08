@@ -1518,7 +1518,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		return true; //Processing of slave monster
 
 	//Scan area for targets and items to loot, avoid trying to loot if the mob is full and can't consume the items
-	if(!tbl && (mode&MD_LOOTER) && md->lootitem && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
+	if(!tbl && can_move && (mode&MD_LOOTER) && md->lootitem && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
 		(md->lootitem_count < LOOTITEM_SIZE || battle_config.monster_loot_type != 1))
 		map_foreachinshootrange(mob_ai_sub_hard_lootsearch, &md->bl, view_range, BL_ITEM, md, &tbl);
 

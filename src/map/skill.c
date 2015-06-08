@@ -4169,8 +4169,6 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					clif_blown(src,bl); //Teleport to target (If not in GVG)
 
 				if (path) { //Cause damage and knockback if the path to target was a straight one
-					if (dist > 9)
-						dist = 9;
 					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,dist);
 					skill_blown(src,bl,dist,dir,0);
 					//HACK: Since knockback officially defaults to the left, the client also turns to the left
@@ -5353,9 +5351,15 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 	return 0;
 }
 
-/*==========================================
- *
- *------------------------------------------*/
+/**
+ * Use no-damage skill from 'src' to 'bl
+ * @param src Caster
+ * @param bl Target of the skill, bl maybe same with src for self skill
+ * @param skill_id
+ * @param skill_lv
+ * @param tick
+ * @param flag Various value, &1: Recursive effect
+ */
 int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uint16 skill_id, uint16 skill_lv, unsigned int tick, int flag)
 {
 	struct map_session_data *sd, *dstsd;
@@ -8285,20 +8289,19 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case HAMI_CASTLE: //[orn]
-			if (rnd()%100 < 20 * skill_lv && bl->id != src->id) {
+			if (bl->id != src->id && rnd()%100 < 20 * skill_lv) {
 				int x = src->x, y = src->y;
 
 				if (hd)
 					skill_blockhomun_start(hd,skill_id,skill_get_time2(skill_id,skill_lv));
-				if (unit_movepos(src,bl->x,bl->y,0,false)) {
-					clif_skill_nodamage(src,src,skill_id,skill_lv,1); //Homun
+				if (unit_movepos(src,bl->x,bl->y,0,false)) { //Move source
+					clif_skill_nodamage(src,src,skill_id,skill_lv,1);
 					clif_blown(src,bl);
-					if (unit_movepos(bl,x,y,0,false)) {
-						clif_skill_nodamage(bl,bl,skill_id,skill_lv,1); //Master
+					if (unit_movepos(bl,x,y,0,false)) { //Move target
+						clif_skill_nodamage(bl,bl,skill_id,skill_lv,1);
 						clif_blown(bl,bl);
 					}
-					//@TODO: Make casted skill also change its target
-					map_foreachinrange(skill_changetarget,src,AREA_SIZE,BL_CHAR,bl,src);
+					map_foreachinrange(unit_changetarget,src,AREA_SIZE,BL_MOB,bl,src); //Only affect monsters
 				}
 			} else if (hd && hd->master) //Failed
 				clif_skill_fail(hd->master,skill_id,USESKILL_FAIL_LEVEL,0,0);
@@ -12666,7 +12669,11 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 			skill_clear_group(src,8);
 			break;
 		case SO_VACUUM_EXTREME:
-			range++;
+			//Coordinates
+			val1 = x;
+			val2 = y;
+			//Suck target at n seconds
+			val3 = 0;
 			break;
 		case GN_WALLOFTHORN:
 			if( flag&1 ) //Turned become Firewall
@@ -13750,7 +13757,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 				(map_flag_gvg2(src->m) && battle_check_target(&unit->bl,bl,BCT_PARTY) > 0))
 				break;
 			if (!(tsc && (tsc->data[type] ||
-				tsc->data[SC_NETHERWORLD_IMMUNE]))) { //Immune for 2 secs
+				tsc->data[SC_NETHERWORLD_POSTDELAY]))) { //Immune for 2 secs
 				sc_start(src,bl,type,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 				group->limit = DIFF_TICK(tick,group->tick);
 				group->unit_id = UNT_USED_TRAPS;
@@ -13854,27 +13861,12 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 			}
 			break;
 
-		case UNT_VACUUM_EXTREME: {
-				int sec = group->limit - DIFF_TICK(tick,group->tick);
-				int range = skill_get_unit_range(skill_id,skill_lv);
-
-				if (tsc && (tsc->data[type] || tsc->data[SC_HALLUCINATIONWALK]))
-					break;
-				if (distance_xy(unit->bl.x,unit->bl.y,bl->x,bl->y) <= range) //Don't consider outer bounderies
-					sc_start(src,bl,type,100,skill_lv,sec);
-				if (bl->type != BL_PC) {
-					if (!unit_blown_immune(bl,0x3) && distance_xy(unit->bl.x,unit->bl.y,bl->x,bl->y) <= range) {
-						if (tsc && (!tsc->data[type] || (tsc->data[type] && tsc->data[type]->val4 < 1)))
-							break;
-						if (unit_movepos(bl,unit->bl.x,unit->bl.y,0,false)) //Only snap if the target is inside the range
-							clif_blown(bl,&unit->bl);
-					}
-				} else {
-					if (unit_is_walking(bl) && //Wait until target stop walking
-						(tsc && tsc->data[type] && tsc->data[type]->val4 >= tsc->data[type]->val3 - range))
-						break;
-				}
-			}
+		case UNT_VACUUM_EXTREME:
+			if (tsc && (tsc->data[type] || tsc->data[SC_HALLUCINATIONWALK] ||
+				(tsc->data[SC_VACUUM_EXTREME_POSTDELAY] && tsc->data[SC_VACUUM_EXTREME_POSTDELAY]->val2 == group->group_id)))
+				break; //Ignore post delay from other vacuum (this will make stack effect enabled)
+			else //Apply effect and suck targets one-by-one each n seconds
+				sc_start4(src,bl,type,100,skill_lv,group->group_id,(group->val1<<16)|(group->val2),++group->val3 * 500,(group->limit - DIFF_TICK(tick,group->tick)));
 			break;
 
 		case UNT_BANDING: {
@@ -17197,24 +17189,6 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 		return 1;
 	}
 
-	return 0;
-}
-
-/*==========================================
- *
- *------------------------------------------*/
-int skill_changetarget(struct block_list *bl, va_list ap)
-{
-	struct mob_data *md = (struct mob_data *)bl;
-	struct unit_data *ud = unit_bl2ud(bl);
-	struct block_list *from_bl = va_arg(ap,struct block_list *);
-	struct block_list *to_bl = va_arg(ap,struct block_list *);
-
-	if (ud && ud->target == from_bl->id)
-		ud->target = to_bl->id;
-
-	if (md->bl.type == BL_MOB && md->target_id == from_bl->id)
-		md->target_id = to_bl->id;
 	return 0;
 }
 
