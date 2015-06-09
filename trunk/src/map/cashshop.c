@@ -241,7 +241,7 @@ bool cashshop_buylist( struct map_session_data *sd, uint32 kafrapoints, int n, u
 			return false;
 		}else if( !itemdb_isstackable( nameid ) && quantity > 1 ){
 			stackflag[i] = 1;
-			/*uint32 *quantity_ptr = (uint32*)(item_list + i * 5 + 2);
+			/*uint32 *quantity_ptr = (uint32 *)(item_list + i * 5 + 2);
 			ShowWarning( "Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable cash item %hu!\n", sd->status.name, sd->status.account_id, sd->status.char_id, quantity, nameid );
 			*quantity_ptr = 1;*/
 		}

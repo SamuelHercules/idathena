@@ -641,13 +641,12 @@ void pc_makesavestatus(struct map_session_data *sd)
 	if(!battle_config.save_clothcolor)
 		sd->status.clothes_color = 0;
 
-	//Only copy the Cart/Peco/Falcon options, the rest are handled via
-	//status change load/saving. [Skotlex]
-#ifdef NEW_CARTS
+#ifdef NEW_CARTS //Only copy the Cart/Peco/Falcon options, the rest are handled via status change load/saving [Skotlex]
 	sd->status.option = sd->sc.option&(OPTION_INVISIBLE|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
 #else
 	sd->status.option = sd->sc.option&(OPTION_INVISIBLE|OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
 #endif
+
 	if(sd->sc.data[SC_JAILED]) { //When Jailed, do not move last point
 		if(pc_isdead(sd)) {
 			pc_setrestartvalue(sd,0);
@@ -672,7 +671,7 @@ void pc_makesavestatus(struct map_session_data *sd)
 		sd->status.last_point.y = sd->bl.y;
 	}
 
-	if(map[sd->bl.m].flag.nosave && sd->state.autotrade != 2) {
+	if(map[sd->bl.m].flag.nosave) {
 		struct map_data *m = &map[sd->bl.m];
 
 		if(m->save.map)
@@ -1265,7 +1264,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 
 	clif_authok(sd);
 
-	//Prevent S. Novices from getting the no-death bonus just yet. [Skotlex]
+	//Prevent S. Novices from getting the no-death bonus just yet [Skotlex]
 	sd->die_counter = -1;
 
 	//Display login notice
@@ -1293,26 +1292,20 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 		if (expiration_time != 0)
 			sd->expiration_time = expiration_time;
 
-		/**
-		 * Fixes login-without-aura glitch (the screen won't blink at this point, don't worry :P)
-		 */
+		//Fixes login-without-aura glitch (the screen won't blink at this point, don't worry)
 		clif_changemap(sd,sd->bl.m,sd->bl.x,sd->bl.y);
 	}
 
-	/**
-	 * Check if player have any item cooldowns on
-	 */
-	pc_itemcd_do(sd,true);
+	pc_itemcd_do(sd,true); //Check if player have any item cooldowns on
 
 #ifdef BOUND_ITEMS
 	//Party bound item check
-	if (sd->status.party_id == 0 && (j = pc_bound_chk(sd,3,idxlist))) { //Party was deleted while character offline
+	if (sd->status.party_id == 0 && (j = pc_bound_chk(sd,3,idxlist))) //Party was deleted while character offline
 		for (i = 0; i < j; i++)
 			pc_delitem(sd,idxlist[i],sd->status.inventory[idxlist[i]].amount,0,1,LOG_TYPE_OTHER);
-	}
 #endif
 
-	/* [Ind] */
+	//[Ind]
 	sd->sc_display = NULL;
 	sd->sc_display_count = 0;
 
@@ -4847,8 +4840,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd, struct item *item, in
 	if( (w = data->weight * amount) + sd->cart_weight > sd->cart_weight_max )
 		return 1;
 
-	//ID no longer points to inventory/kafra id, while we get a new one, we don't want to mess up vending creation [Baalberith]
-	item->id = 0;
+	item->id = 0; //ID no longer points to inventory/kafra id, while we get a new one, we don't want to mess up vending creation [Baalberith]
 
 	i = MAX_CART;
 	if( itemdb_isstackable2(data) && !item->expire_time ) {
@@ -11023,9 +11015,10 @@ int pc_autotrade_timer(int tid, unsigned int tick, int id, intptr_t data) {
 
 	sd->autotrade_tid = INVALID_TIMER;
 
-	if( sd->state.autotrade&4 )
+	if( sd->state.autotrade&2 )
 		vending_reopen(sd);
-	if( sd->state.autotrade&8 )
+
+	if( sd->state.autotrade&4 )
 		buyingstore_reopen(sd);
 
 	if( !sd->vender_id && !sd->buyer_id ) {

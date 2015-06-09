@@ -8698,7 +8698,7 @@ void clif_callpartner(struct map_session_data *sd)
 			memcpy(WBUFP(buf,2), p, NAME_LENGTH);
 		else
 			WBUFB(buf,2) = 0;
-	} else // Send zero-length name if no partner, to initialize the client buffer.
+	} else //Send zero-length name if no partner, to initialize the client buffer
 		WBUFB(buf,2) = 0;
 
 	clif_send(buf, packet_len(0x1e6), &sd->bl, AREA);
@@ -11786,11 +11786,11 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	target_id = RFIFOL(fd,info->pos[2]);
 
 	if( skill_lv < 1 )
-		skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
+		skill_lv = 1; //No clue, I have seen the client do this with guild skills [Skotlex]
 
 	tmp = skill_get_inf(skill_id);
 	if( tmp&INF_GROUND_SKILL || !tmp )
-		return; //Using a ground/passive skill on a target? WRONG.
+		return; //Using a ground/passive skill on a target? WRONG
 
 	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL ) {
 		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skill_id, skill_lv, target_id);

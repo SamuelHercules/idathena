@@ -187,23 +187,23 @@ struct map_session_data {
 		unsigned int gangsterparadise : 1;
 		unsigned int rest : 1;
 		unsigned int storage_flag : 2; //0: Closed, 1: Normal Storage open, 2: Guild storage open [Skotlex]
-		unsigned int snovice_dead_flag : 1; //Explosion spirits on death: 0 off, 1 used.
+		unsigned int snovice_dead_flag : 1; //Explosion spirits on death: 0 off, 1 used
 		unsigned int abra_flag : 2; //Abracadabra bugfix by Aru
 		unsigned int autocast : 1; //Autospell flag [Inkfish]
-		unsigned int autotrade : 3;	//&4 Requested by vending autotrade; &8 Requested by buyingstore autotrade [Fantik]
+		unsigned int autotrade : 3; //&2 Requested by vending autotrade; &4 Requested by buyingstore autotrade [Fantik]
 		unsigned int reg_dirty : 4; //Marks whether registry variables have been saved or not yet [Skotlex]
-		unsigned int showdelay :1;
-		unsigned int showexp :1;
-		unsigned int showzeny :1;
-		unsigned int noask :1; //[LuzZza]
-		unsigned int trading :1; //[Skotlex] is 1 only after a trade has started.
-		unsigned int deal_locked :2; //1: Clicked on OK. 2: Clicked on TRADE
-		unsigned int monster_ignore :1; //For monsters to ignore a character [Valaris] [zzo]
-		unsigned int size :2; //For tiny/large types
-		unsigned int night :1; //Holds whether or not the player currently has the SI_NIGHT effect on. [Skotlex]
-		unsigned int blockedmove :1;
-		unsigned int using_fake_npc :1;
-		unsigned int rewarp :1; //Signals that a player should warp as soon as he is done loading a map. [Skotlex]
+		unsigned int showdelay : 1;
+		unsigned int showexp : 1;
+		unsigned int showzeny : 1;
+		unsigned int noask : 1; //[LuzZza]
+		unsigned int trading : 1; //[Skotlex] is 1 only after a trade has started
+		unsigned int deal_locked : 2; //1: Clicked on OK. 2: Clicked on TRADE
+		unsigned int monster_ignore : 1; //For monsters to ignore a character [Valaris] [zzo]
+		unsigned int size : 2; //For tiny/large types
+		unsigned int night : 1; //Holds whether or not the player currently has the SI_NIGHT effect on [Skotlex]
+		unsigned int blockedmove : 1;
+		unsigned int using_fake_npc : 1;
+		unsigned int rewarp : 1; //Signals that a player should warp as soon as he is done loading a map [Skotlex]
 		unsigned int killer : 1;
 		unsigned int killable : 1;
 		unsigned int doridori : 1;
@@ -221,11 +221,11 @@ struct map_session_data {
 		unsigned short autoloottype;
 		unsigned int autolooting : 1; //Performance-saver, autolooting state for @alootid
 		unsigned int autolootingtype : 1; //Performance-saver, autolooting state for @autoloottype
-		unsigned int autobonus; //Flag to indicate if an autobonus is activated. [Inkfish]
+		unsigned int autobonus; //Flag to indicate if an autobonus is activated [Inkfish]
 		unsigned int gmaster_flag : 1;
-		unsigned int prevend : 1; //Used to flag wheather you've spent 40sp to open the vending or not.
+		unsigned int prevend : 1; //Used to flag wheather you've spent 40sp to open the vending or not
 		unsigned int warping : 1; //States whether you're in the middle of a warp processing
-		unsigned int permanent_speed : 1; //When 1, speed cannot be changed through status_calc_pc().
+		unsigned int permanent_speed : 1; //When 1, speed cannot be changed through status_calc_pc()
 		unsigned int hold_recalc : 1;
 		unsigned int snovice_call_flag : 3; //Summon Angel (stage 1~3)
 		unsigned int hpmeter_visible : 1;
@@ -247,7 +247,7 @@ struct map_session_data {
 		unsigned int random_autospell : 1;
 	} special_state;
 	int login_id1, login_id2;
-	unsigned short class_;	//This is the internal job ID used by the map server to simplify comparisons/queries/etc. [Skotlex]
+	unsigned short class_; //This is the internal job ID used by the map server to simplify comparisons/queries/etc [Skotlex]
 	int group_id, group_pos, group_level;
 	unsigned int permissions; //Group permissions
 	int count_rewarp; //Count how many time we being rewarped
@@ -255,7 +255,7 @@ struct map_session_data {
 	uint32 packet_ver;  //5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
 	struct registry save_reg;
-	
+
 	struct item_data *inventory_data[MAX_INVENTORY]; //Direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[EQI_MAX];
 	unsigned int weight,max_weight;

@@ -3419,7 +3419,7 @@ int map_waterheight(char *mapname)
 	rsw = (char *) grfio_read (fn);
 	if (rsw) { // Load water height from file
 		//FIXME Casting between integer* and float* which have an incompatible binary data representation.
-		int wh = (int)*(float*)(rsw + 166);
+		int wh = (int)*(float *)(rsw + 166);
 
 		aFree(rsw);
 		return wh;
@@ -3456,8 +3456,8 @@ int map_readgat (struct map_data *m)
 	for( xy = 0; xy < num_cells; ++xy )
 	{
 		// read cell data
-		float height = *(float*)( gat + off      );
-		uint32 type = *(uint32*)( gat + off + 16 );
+		float height = *(float *)( gat + off      );
+		uint32 type = *(uint32 *)( gat + off + 16 );
 		off += 20;
 
 		if( type == 0 && water_height != NO_WATER && height > water_height )

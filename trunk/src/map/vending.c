@@ -129,8 +129,8 @@ void vending_purchasereq(struct map_session_data *sd, int aid, int uid, const ui
 	z = 0.; //Zeny counter
 	w = 0;  //Weight counter
 	for( i = 0; i < count; i++ ) {
-		short amount = *(uint16*)(data + 4 * i + 0);
-		short idx    = *(uint16*)(data + 4 * i + 2);
+		short amount = *(uint16 *)(data + 4 * i + 0);
+		short idx    = *(uint16 *)(data + 4 * i + 2);
 
 		idx -= 2;
 		if( amount <= 0 )
@@ -195,8 +195,8 @@ void vending_purchasereq(struct map_session_data *sd, int aid, int uid, const ui
 	pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
 
 	for( i = 0; i < count; i++ ) {
-		short amount = *(uint16*)(data + 4 * i + 0);
-		short idx    = *(uint16*)(data + 4 * i + 2);
+		short amount = *(uint16 *)(data + 4 * i + 0);
+		short idx    = *(uint16 *)(data + 4 * i + 2);
 
 		idx -= 2;
 		//Vending item
@@ -299,9 +299,9 @@ int8 vending_openvending(struct map_session_data *sd, const char *message, const
 	//Filter out invalid items
 	i = 0;
 	for( j = 0; j < count; j++ ) {
-		short index        = *(uint16*)(data + 8 * j + 0);
-		short amount       = *(uint16*)(data + 8 * j + 2);
-		unsigned int value = *(uint32*)(data + 8 * j + 4);
+		short index        = *(uint16 *)(data + 8 * j + 0);
+		short amount       = *(uint16 *)(data + 8 * j + 2);
+		unsigned int value = *(uint32 *)(data + 8 * j + 4);
 
 		index -= 2; //Offset adjustment (client says that the first cart position is 2)
 
@@ -318,6 +318,17 @@ int8 vending_openvending(struct map_session_data *sd, const char *message, const
 		sd->vending[i].index = index;
 		sd->vending[i].amount = amount;
 		sd->vending[i].value = min(value, (unsigned int)battle_config.vending_max_value);
+
+		//Player just moved item to cart and we don't have the correct cart ID yet
+		if( sd->status.cart[sd->vending[i].index].id == 0 ) {
+			struct item_data *idb = itemdb_search(sd->status.cart[index].nameid);
+			char msg[256];
+
+			sprintf(msg, msg_txt(725), idb->jname); // Item '%s' has not yet saved well in the cart. Please re-log your character.
+			clif_displaymessage(sd->fd, msg);
+			clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
+			return 4;
+		}
 
 		i++; //Item successfully added
 	}
@@ -455,9 +466,9 @@ void vending_reopen(struct map_session_data *sd) {
 
 		for( j = 0, p = data, count = at->count; j < at->count; j++ ) {
 			struct s_autotrade_entry *entry = at->entries[j];
-			uint16 *index = (uint16*)(p + 0);
-			uint16 *amount = (uint16*)(p + 2);
-			uint32 *value = (uint32*)(p + 4);
+			uint16 *index  = (uint16 *)(p + 0);
+			uint16 *amount = (uint16 *)(p + 2);
+			uint32 *value  = (uint32 *)(p + 4);
 
 			//Find item position in cart
 			ARR_FIND(0, MAX_CART, entry->index, sd->status.cart[entry->index].id == entry->cartinventory_id);
@@ -475,7 +486,7 @@ void vending_reopen(struct map_session_data *sd) {
 		}
 
 		sd->state.prevend = 1; //Set him into a hacked prevend state
-		sd->state.autotrade = 2;
+		sd->state.autotrade = 1;
 
 		//Make sure abort all NPCs
 		npc_event_dequeue(sd);
@@ -563,7 +574,7 @@ void do_init_vending_autotrade(void) {
 				//Initialize player
 				CREATE(at->sd, struct map_session_data, 1);
 				pc_setnewpc(at->sd, at->account_id, at->char_id, 0, gettick(), at->sex, 0);
-				at->sd->state.autotrade = 2|4;
+				at->sd->state.autotrade = 1|2;
 				at->sd->state.monster_ignore = (battle_config.autotrade_monsterignore);
 				chrif_authreq(at->sd, true);
 				uidb_put(vending_autotrader_db, at->char_id, at);

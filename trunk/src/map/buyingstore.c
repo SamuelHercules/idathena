@@ -262,8 +262,7 @@ void buyingstore_open(struct map_session_data *sd, int account_id) {
 		return;
 
 	// Out of view range
-	if( !searchstore_queryremote(sd, account_id) && (sd->bl.m != pl_sd->bl.m ||
-		!check_distance_bl(&sd->bl, &pl_sd->bl, AREA_SIZE)) )
+	if( !searchstore_queryremote(sd, account_id) && (sd->bl.m != pl_sd->bl.m || !check_distance_bl(&sd->bl, &pl_sd->bl, AREA_SIZE)) )
 		return;
 
 	// Success
@@ -528,18 +527,18 @@ void buyingstore_reopen(struct map_session_data *sd) {
 
 		for( j = 0, p = data, count = at->count; j < at->count; j++ ) {
 			struct s_autotrade_entry *entry = at->entries[j];
-			unsigned short *item_id = (uint16*)(p + 0);
-			uint16 *amount = (uint16*)(p + 2);
-			uint32 *price = (uint32*)(p + 4);
+			unsigned short *item_id = (uint16 *)(p + 0);
+			uint16 *amount          = (uint16 *)(p + 2);
+			uint32 *price           = (uint32 *)(p + 4);
 
 			*item_id = entry->item_id;
-			*amount = entry->amount;
-			*price = entry->price;
+			*amount  = entry->amount;
+			*price   = entry->price;
 
 			p += 8;
 		}
 
-		sd->state.autotrade = 2;
+		sd->state.autotrade = 1;
 
 		// Make sure abort all NPCs
 		npc_event_dequeue(sd);
@@ -630,7 +629,7 @@ void do_init_buyingstore_autotrade(void) {
 				// Initialize player
 				CREATE(at->sd, struct map_session_data, 1);
 				pc_setnewpc(at->sd, at->account_id, at->char_id, 0, gettick(), at->sex, 0);
-				at->sd->state.autotrade = (unsigned int)(2|8);
+				at->sd->state.autotrade = 1|4;
 				at->sd->state.monster_ignore = (battle_config.autotrade_monsterignore);
 				chrif_authreq(at->sd, true);
 				uidb_put(buyingstore_autotrader_db, at->char_id, at);
@@ -684,7 +683,7 @@ void do_init_buyingstore_autotrade(void) {
 
 	// Everything is loaded fine, their entries will be reinserted once they are loaded
 	if( Sql_Query(mmysql_handle, "DELETE FROM `%s`;", buyingstores_db) != SQL_SUCCESS ||
-		Sql_Query(mmysql_handle, "DELETE FROM `%s`;", buyingstore_items_db) != SQL_SUCCESS)
+		Sql_Query(mmysql_handle, "DELETE FROM `%s`;", buyingstore_items_db) != SQL_SUCCESS )
 		Sql_ShowDebug(mmysql_handle);
 }
 
