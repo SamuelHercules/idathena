@@ -11789,7 +11789,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
 	tmp = skill_get_inf(skill_id);
-	if (tmp&INF_GROUND_SKILL || !tmp)
+	if( tmp&INF_GROUND_SKILL || !tmp )
 		return; //Using a ground/passive skill on a target? WRONG.
 
 	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL ) {
