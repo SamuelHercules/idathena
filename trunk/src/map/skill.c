@@ -5524,7 +5524,6 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 		case SO_ELEMENTAL_SHIELD: {
 				struct party_data *p;
-				short ret = 0;
 				int x0, y0, x1, y1, range;
 
 				if(sd == NULL || !sd->ed)
