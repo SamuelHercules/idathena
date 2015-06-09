@@ -5681,10 +5681,7 @@ ACMD_FUNC(autotrade)
 		return -1;
 	}
 
-	if( battle_config.feature_autotrade )
-		sd->state.autotrade = 2;
-	else
-		sd->state.autotrade = 1;
+	sd->state.autotrade = 1;
 
 	if( battle_config.autotrade_monsterignore )
 		sd->state.monster_ignore = 1;
@@ -10160,8 +10157,8 @@ bool is_atcommand(const int fd, struct map_session_data *sd, const char *message
 			return true;
 		if ( info->restriction&ATCMD_NOSCRIPT && (type == 0 || type == 3) ) //Scripts prevent
 			return true;
-		if ( info->restriction&ATCMD_NOAUTOTRADE && (type == 0 || type == 3)
-			&& ((*atcmd_msg == atcommand_symbol && sd && sd->state.autotrade) || (ssd && ssd->state.autotrade)) )
+		if ( info->restriction&ATCMD_NOAUTOTRADE && (type == 0 || type == 3) &&
+			((*atcmd_msg == atcommand_symbol && sd && sd->state.autotrade) || (ssd && ssd->state.autotrade)) )
 			return true;
 	}
 

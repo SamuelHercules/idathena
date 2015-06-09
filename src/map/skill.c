@@ -7697,8 +7697,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start4(src,bl,type,100,skill_lv,0,0,6,skill_get_time(skill_id,skill_lv)));
 			break;
 
-		case NPC_SIEGEMODE:
-			//Not sure what it does
+		case NPC_SIEGEMODE: //Not sure what it does
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			break;
 
