@@ -324,7 +324,7 @@ int8 vending_openvending(struct map_session_data *sd, const char *message, const
 			struct item_data *idb = itemdb_search(sd->status.cart[index].nameid);
 			char msg[256];
 
-			sprintf(msg, msg_txt(725), idb->jname); // Item '%s' has not yet saved well in the cart. Please re-log your character.
+			sprintf(msg, msg_txt(725), idb->jname); // Item '%s' has not yet saved well to the cart. Please re-log your character.
 			clif_displaymessage(sd->fd, msg);
 			clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
 			return 4;
