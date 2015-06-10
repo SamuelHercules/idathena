@@ -10561,7 +10561,7 @@ static bool pc_readdb_job_basehpsp(char *fields[], int columns, int current)
 		return false;
 	}
 	endlvl = atoi(fields[1]);
-	if(endlvl < 1 || endlvl < startlvl){
+	if(endlvl < 1 || endlvl < startlvl) {
 		ShowError("pc_readdb_job_basehpsp: Invalid end level %d specified.\n", endlvl);
 		return false;
 	}
@@ -10732,7 +10732,7 @@ void pc_readdb(void)
 			if( line[0] == '/' && line[1] == '/' )
 				continue;
 			for( j = 0, p = line; j < ELE_ALL && p; j++ ) {
-				while( *p > 0 && *p == 32 ) //Skipping newline and space (32 = ' ')
+				while( *p > 0 && *p == 32 ) // Skipping newline and space (32 = ' ')
 					p++;
 				attr_fix_table[lv - 1][i][j] = atoi(p);
 #ifndef RENEWAL
@@ -10805,13 +10805,13 @@ void pc_readdb(void)
 		if( !pcdb_checkid(i) )
 			continue;
 		if( i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK || i == JOB_OKTOBERFEST )
-			continue; // Classes that do not need exp tables.
+			continue; // Classes that do not need exp tables
 		idx = pc_class2idx(i);
 		if( !job_info[idx].max_level[0] )
 			ShowWarning("Class %s (%d) does not have a base exp table.\n", job_name(i), i);
 		if( !job_info[idx].max_level[1] )
 			ShowWarning("Class %s (%d) does not have a job exp table.\n", job_name(i), i);
-		//Init and checking the empty value of Base HP/SP [Cydh]
+		// Init and checking the empty value of Base HP/SP [Cydh]
 		for( j = 0; j < (job_info[idx].max_level[0] ? job_info[idx].max_level[0] : MAX_LEVEL); j++ ) {
 			if( job_info[idx].base_hp[j] == 0 )
 				job_info[idx].base_hp[j] = pc_calc_basehp(j + 1, i);

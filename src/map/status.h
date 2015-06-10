@@ -37,13 +37,14 @@ int status_get_refine_chance(enum refine_type wlv, int refine);
 // Flags to be used with status_change_start and status_get_sc_def
 // NOTE: When updating this enum, also update the documentation in doc/script_commands.txt and the constants
 enum scstart_flag {
-	SCFLAG_NONE      = 0x00, // No special behavior
-	SCFLAG_NOAVOID   = 0x01, // Cannot be avoided (it has to start)
-	SCFLAG_FIXEDTICK = 0x02, // Tick should not be reduced (by vit, luk, lv, etc)
-	SCFLAG_LOADED    = 0x04, // sc_data was loaded, no value has to be altered
-	SCFLAG_FIXEDRATE = 0x08, // Rate should not be reduced (not evaluated in status_change_start, but in some calls to other functions)
-	SCFLAG_NOICON    = 0x10, // Status icon (SI) should not be sent
-	SCFLAG_ALL = SCFLAG_NONE|SCFLAG_NOAVOID|SCFLAG_FIXEDTICK|SCFLAG_LOADED|SCFLAG_FIXEDRATE|SCFLAG_NOICON
+	SCFLAG_NONE             = 0x00, // No special behavior
+	SCFLAG_NOAVOID          = 0x01, // Cannot be avoided (it has to start)
+	SCFLAG_FIXEDTICK        = 0x02, // Tick should not be reduced (by vit, luk, lv, etc)
+	SCFLAG_LOADED           = 0x04, // sc_data was loaded, no value has to be altered
+	SCFLAG_FIXEDRATE        = 0x08, // Rate should not be reduced (not evaluated in status_change_start, but in some calls to other functions)
+	SCFLAG_NOICON           = 0x10, // Status icon (SI) should not be sent
+	SCFLAG_KNOCKBACK_IMMUNE = 0x20, // Immune to knockback
+	SCFLAG_ALL = SCFLAG_NONE|SCFLAG_NOAVOID|SCFLAG_FIXEDTICK|SCFLAG_LOADED|SCFLAG_FIXEDRATE|SCFLAG_NOICON|SCFLAG_KNOCKBACK_IMMUNE
 };
 
 // Status changes listing. These code are for use by the server

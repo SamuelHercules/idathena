@@ -10002,7 +10002,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_FREEZE:
 		case SC_STUN:
 		case SC_STONE:
-			flag |= 0x20;
+			flag |= SCFLAG_KNOCKBACK_IMMUNE;
 		case SC_SLEEP:
 		case SC_WHITEIMPRISON:
 		case SC_DEEPSLEEP:
@@ -10031,7 +10031,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_MEIKYOUSISUI:
 		case SC_PARALYSIS:
 		case SC_KAGEHUMI:
-			if (!(flag&0x20))
+			if (!(flag&SCFLAG_KNOCKBACK_IMMUNE))
 				unit_stop_walking(bl,1);
 			break;
 		case SC_CURSEDCIRCLE_TARGET:
