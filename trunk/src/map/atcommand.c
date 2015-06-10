@@ -8850,7 +8850,7 @@ ACMD_FUNC(accinfo) {
 // [Ind]
 ACMD_FUNC(set) {
 	char reg[32], val[128];
-	struct script_data* data;
+	struct script_data *data;
 	int toset = 0, len;
 	bool is_str = false;
 

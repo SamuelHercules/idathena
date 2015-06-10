@@ -91,7 +91,7 @@ struct script_data {
 	union script_data_val {
 		int num;
 		char *str;
-		struct script_retinfo* ri;
+		struct script_retinfo *ri;
 	} u;
 	struct DBMap **ref;
 };
@@ -119,7 +119,7 @@ struct script_stack {
 enum e_script_state { RUN,STOP,END,RERUNLINE,GOTO,RETFUNC,CLOSE };
 
 struct script_state {
-	struct script_stack* stack;
+	struct script_stack *stack;
 	int start,end;
 	int pos;
 	enum e_script_state state;
