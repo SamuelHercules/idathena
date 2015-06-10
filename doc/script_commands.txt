@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= rAthena Dev Team
 //===== Last Updated: ========================================
-//= 20150330
+//= 20150610
 //===== Description: =========================================
 //= A reference manual for the rAthena scripting language.
 //= Commands are sorted depending on their functionality.
@@ -1292,6 +1292,14 @@ Examples:
 
 Note: even though function objects can have .variables, 
 getvariableofnpc will not work on them.
+
+---------------------------------------
+
+*getvar <variable>,<char_id>;
+
+Get variable value from the specified player. Only player/account variables
+are allowed to be used (temporary character variable "@", permanent
+character "", permanent local account "#", and permanent global account "##").
 
 ---------------------------------------
 
@@ -3429,7 +3437,8 @@ account ID.
 
 *getattachedrid();
 
-Returns RID from running script. Script may does not have RID.
+Returns RID from running script. Script may not be attached to any RID like
+a floating script or function and will return 0.
 
 ---------------------------------------
 
@@ -7068,8 +7077,8 @@ in this way.
 \\
 ---------------------------------------
 
-*unitwalk <GID>,<x>,<y>;
-*unitwalk <GID>,<Target ID>;
+*unitwalk <GID>,<x>,<y>{,"<event label>"};
+*unitwalkto <GID>,<Target GID>{,"<event label>"};
 
 This command will tell a <GID> to walk to a position, defined either as a set of
 coordinates or another object. The command returns a 1 for success and 0 upon failure.
@@ -7078,24 +7087,27 @@ If coordinates are passed, the <GID> will walk to the given x,y coordinates on t
 unit's current map. While there is no way to move across an entire map with 1 command
 use, this could be used in a loop to move long distances.
 
-If an object ID is passed, the initial <GID> will walk to the <Target ID> (similar to
-walking to attack). This is based on the distance from <GID> to <Target ID>. This command
+If an object ID is passed, the initial <GID> will walk to the <Target GID> (similar to
+walking to attack). This is based on the distance from <GID> to <Target GID>. This command
 uses a hard walk check, so it will calculate a walk path with obstacles. Sending a bad
-target ID will result in an error.
+<Target GID> will result in an error.
+
+An optional Event Label can be passed as well which will execute when the <GID> has reached
+the given coordinates or <Target GID>.
 
 Examples:
 
-// Makes player walk to the coordinates (150,150).
+	// Makes player walk to the coordinates (150,150).
 	unitwalk getcharid(3),150,150;
 
-// Performs a conditional check with the command and reports success or failure to the player.
+	// Performs a conditional check with the command and reports success or failure to the player.
 	if(unitwalk(getcharid(3),150,150))
 		dispbottom "Walking you there...";
 	else
 		dispbottom "That's too far away, man.";
 
-// Makes player walk to another character named "WalkToMe".
-	unitwalk getcharid(3),getcharid(3,"WalkToMe");
+	// Makes player walk to another character named "WalkToMe".
+	unitwalkto getcharid(3),getcharid(3,"WalkToMe");
 
 ---------------------------------------
 
@@ -7168,6 +7180,20 @@ Skill ID is the ID of the skill, skill level is the level of the skill.
 Cast time is the amount of seconds to add or remove from the skill. Use a positive value to
 add and negative value to subtract. Using 0 or no value will use the default skill cast time.
 For the position, the x and y are given in the UnitSkillUsePos.
+
+---------------------------------------
+
+*getunittype <GID>;
+
+Returns the type of object from the given Game ID. Returns -1 if the given <GID> does not
+exist.
+
+ 0 - Monster
+ 1 - Homunculus
+ 2 - Pet
+ 3 - Mercenary
+ 4 - Elemental
+ 5 - NPC
 
 ---------------------------------------
 

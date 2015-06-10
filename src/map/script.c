@@ -129,7 +129,7 @@
 #define script_removetop(st,start,end) ( pop_stack((st), ((st)->stack->sp + (start)), (st)->stack->sp + (end)) )
 
 //
-// struct script_data* data;
+// struct script_data *data;
 //
 
 /// Returns if the script data is a string
@@ -547,7 +547,7 @@ static void script_dump_stack(struct script_state *st)
 	ShowMessage("\tdefsp = %d\n", st->stack->defsp);
 	ShowMessage("\tsp    = %d\n", st->stack->sp);
 	for( i = 0; i < st->stack->sp; ++i ) {
-		struct script_data* data = &st->stack->stack_data[i];
+		struct script_data *data = &st->stack->stack_data[i];
 		ShowMessage("\t[%d] %s", i, script_op2name(data->type));
 		switch( data->type ) {
 			case C_INT:
@@ -565,7 +565,7 @@ static void script_dump_stack(struct script_state *st)
 				break;
 
 			case C_RETINFO: {
-					struct script_retinfo* ri = data->u.ri;
+					struct script_retinfo *ri = data->u.ri;
 					ShowMessage(" %p {var_function=%p, script=%p, pos=%d, nargs=%d, defsp=%d}\n", ri, ri->var_function, ri->script, ri->pos, ri->nargs, ri->defsp);
 				}
 				break;
@@ -606,7 +606,7 @@ static void script_reportsrc(struct script_state *st)
 }
 
 /// Reports on the console information about the script data.
-static void script_reportdata(struct script_data* data)
+static void script_reportdata(struct script_data *data)
 {
 	if( data == NULL )
 		return;
@@ -654,7 +654,7 @@ static void script_reportdata(struct script_data* data)
 static void script_reportfunc(struct script_state *st)
 {
 	int params, id;
-	struct script_data* data;
+	struct script_data *data;
 
 	if( !script_hasdata(st,0) ) //No stack
 		return;
@@ -2669,16 +2669,17 @@ TBL_PC *script_rid2sd(struct script_state *st)
 	return sd;
 }
 
-/// Dereferences a variable/constant, replacing it with a copy of the value.
-///
-/// @param st Script state
-/// @param data Variable/constant
-void get_val(struct script_state *st, struct script_data* data)
+/**
+ * Dereferences a variable/constant, replacing it with a copy of the value.
+ * @param st Script state
+ * @param data Variable/constant
+ * @param sd If NULL, will try to use sd from st->rid (for player's variables)
+ */
+void get_val_(struct script_state *st, struct script_data *data, struct map_session_data *sd)
 {
 	const char *name;
 	char prefix;
 	char postfix;
-	TBL_PC *sd = NULL;
 
 	if( !data_isreference(data) )
 		return; // Not a variable/constant
@@ -2689,7 +2690,8 @@ void get_val(struct script_state *st, struct script_data* data)
 
 	// @TODO: Use reference_tovariable(data) when it's confirmed that it works [FlavioJS]
 	if( !reference_toconstant(data) && not_server_variable(prefix) ) {
-		sd = script_rid2sd(st);
+		if( sd == NULL )
+			sd = script_rid2sd(st);
 		if( sd == NULL ) { // Needs player attached
 			if( postfix == '$' ) { // String variable
 				ShowWarning("script:get_val: cannot access player variable '%s', defaulting to \"\"\n", name);
@@ -2705,7 +2707,6 @@ void get_val(struct script_state *st, struct script_data* data)
 	}
 
 	if( postfix == '$' ) { // String variable
-
 		switch( prefix ) {
 			case '@':
 				data->u.str = pc_readregstr(sd, data->u.num);
@@ -2725,7 +2726,7 @@ void get_val(struct script_state *st, struct script_data* data)
 						name[1] == '@' ?  st->stack->var_function: // Instance/scope variable
 										  st->script->script_vars; // Npc variable
 					if( n )
-						data->u.str = (char *)idb_get(n,reference_getuid(data));
+						data->u.str = (char *)idb_get(n, reference_getuid(data));
 					else
 						data->u.str = NULL;
 				}
@@ -2733,7 +2734,7 @@ void get_val(struct script_state *st, struct script_data* data)
 			case '\'': {
 						int instance_id = script_instancegetid(st);
 						if( instance_id )
-							data->u.str = (char *)idb_get(instance_data[instance_id].vars,reference_getuid(data));
+							data->u.str = (char *)idb_get(instance_data[instance_id].vars, reference_getuid(data));
 						else {
 							ShowWarning("script:get_val: cannot access instance variable '%s', defaulting to \"\"\n", name);
 							data->u.str = NULL;
@@ -2781,7 +2782,7 @@ void get_val(struct script_state *st, struct script_data* data)
 							name[1] == '@' ?  st->stack->var_function: // Instance/scope variable
 											  st->script->script_vars; // Npc variable
 						if( n )
-							data->u.num = (int)idb_iget(n,reference_getuid(data));
+							data->u.num = (int)idb_iget(n, reference_getuid(data));
 						else
 							data->u.num = 0;
 					}
@@ -2789,7 +2790,7 @@ void get_val(struct script_state *st, struct script_data* data)
 				case '\'': {
 						int instance_id = script_instancegetid(st);
 						if( instance_id )
-							data->u.num = (int)idb_iget(instance_data[instance_id].vars,reference_getuid(data));
+							data->u.num = (int)idb_iget(instance_data[instance_id].vars, reference_getuid(data));
 						else {
 							ShowWarning("script:get_val: cannot access instance variable '%s', defaulting to 0\n", name);
 							data->u.num = 0;
@@ -2806,13 +2807,19 @@ void get_val(struct script_state *st, struct script_data* data)
 	return;
 }
 
-struct script_data* push_val2(struct script_stack* stack, enum c_op type, int val, struct DBMap **ref);
+void get_val(struct script_state *st, struct script_data *data)
+{
+	get_val_(st, data, NULL);
+}
+
+struct script_data *push_val2(struct script_stack *stack, enum c_op type, int val, struct DBMap **ref);
 
 /// Retrieves the value of a reference identified by uid (variable, constant, param)
 /// The value is left in the top of the stack and needs to be removed manually.
 void *get_val2(struct script_state *st, int uid, struct DBMap **ref)
 {
-	struct script_data* data;
+	struct script_data *data;
+
 	push_val2(st->stack, C_NAME, uid, ref);
 	data = script_getdatatop(st, -1);
 	get_val(st, data);
@@ -2914,22 +2921,27 @@ static int set_reg(struct script_state *st, TBL_PC *sd, int num, const char *nam
 
 int set_var(TBL_PC *sd, char *name, void *val)
 {
-    return set_reg(NULL, sd, reference_uid(add_str(name),0), name, val, NULL);
+    return set_reg(NULL, sd, reference_uid(add_str(name), 0), name, val, NULL);
 }
 
 void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct DBMap **ref)
 {
-	set_reg(st, sd, reference_uid(add_str(varname),elem), varname, value, ref);
+	set_reg(st, sd, reference_uid(add_str(varname), elem), varname, value, ref);
 }
 
-/// Converts the data to a string
-const char *conv_str(struct script_state *st, struct script_data* data)
+/**
+ * Converts the data to a string
+ * @param st
+ * @param data
+ * @param sd
+ */
+const char *conv_str_(struct script_state *st, struct script_data *data, struct map_session_data *sd)
 {
 	char *p;
 
-	get_val(st, data);
+	get_val_(st, data, sd);
 	if( data_isstring(data) ) {
-		// nothing to convert
+		// Nothing to convert
 	} else if( data_isint(data) ) { // int -> string
 		CREATE(p, char, ITEM_NAME_LENGTH);
 		snprintf(p, ITEM_NAME_LENGTH, "%d", data->u.num);
@@ -2940,21 +2952,30 @@ const char *conv_str(struct script_state *st, struct script_data* data)
 		// @TODO: When does this happen (check get_val) [FlavioJS]
 		data->type = C_CONSTSTR;
 		data->u.str = reference_getname(data);
-	} else { // unsupported data type
+	} else { // Unsupported data type
 		ShowError("script:conv_str: cannot convert to string, defaulting to \"\"\n");
 		script_reportdata(data);
 		script_reportsrc(st);
 		data->type = C_CONSTSTR;
 		data->u.str = "";
 	}
-
 	return data->u.str;
 }
 
-/// Converts the data to an int
-int conv_num(struct script_state *st, struct script_data* data)
+const char *conv_str(struct script_state *st, struct script_data *data)
 {
-	get_val(st, data);
+	return conv_str_(st, data, NULL);
+}
+
+/**
+ * Converts the data to an int
+ * @param st
+ * @param data
+ * @param sd
+ */
+int conv_num_(struct script_state *st, struct script_data *data, struct map_session_data *sd)
+{
+	get_val_(st, data, sd);
 	if( data_isint(data) ) {
 		// Nothing to convert
 	} else if( data_isstring(data) ) { // string -> int
@@ -2987,9 +3008,9 @@ int conv_num(struct script_state *st, struct script_data* data)
 		data->u.num = (int)num;
 	}
 #if 0
-	// FIXME this function is being used to retrieve the position of labels and
+	// FIXME: This function is being used to retrieve the position of labels and
 	// probably other stuff [FlavioJS]
-	else { // unsupported data type
+	else { // Unsupported data type
 		ShowError("script:conv_num: cannot convert to number, defaulting to 0\n");
 		script_reportdata(data);
 		script_reportsrc(st);
@@ -3000,12 +3021,17 @@ int conv_num(struct script_state *st, struct script_data* data)
 	return data->u.num;
 }
 
+int conv_num(struct script_state *st, struct script_data *data)
+{
+	return conv_num_(st, data, NULL);
+}
+
 //
 // Stack operations
 //
 
 /// Increases the size of the stack
-void stack_expand(struct script_stack* stack)
+void stack_expand(struct script_stack *stack)
 {
 	stack->sp_max += 64;
 	stack->stack_data = (struct script_data*)aRealloc(stack->stack_data,
@@ -3018,7 +3044,7 @@ void stack_expand(struct script_stack* stack)
 #define push_val(stack,type,val) push_val2(stack, type, val, NULL)
 
 /// Pushes a value into the stack (with reference)
-struct script_data* push_val2(struct script_stack* stack, enum c_op type, int val, struct DBMap **ref)
+struct script_data *push_val2(struct script_stack *stack, enum c_op type, int val, struct DBMap **ref)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
@@ -3030,7 +3056,7 @@ struct script_data* push_val2(struct script_stack* stack, enum c_op type, int va
 }
 
 /// Pushes a string into the stack
-struct script_data* push_str(struct script_stack* stack, enum c_op type, char *str)
+struct script_data *push_str(struct script_stack *stack, enum c_op type, char *str)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
@@ -3042,7 +3068,7 @@ struct script_data* push_str(struct script_stack* stack, enum c_op type, char *s
 }
 
 /// Pushes a retinfo into the stack
-struct script_data* push_retinfo(struct script_stack* stack, struct script_retinfo* ri, DBMap **ref)
+struct script_data *push_retinfo(struct script_stack *stack, struct script_retinfo *ri, DBMap **ref)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
@@ -3054,7 +3080,7 @@ struct script_data* push_retinfo(struct script_stack* stack, struct script_retin
 }
 
 /// Pushes a copy of the target position into the stack
-struct script_data* push_copy(struct script_stack* stack, int pos)
+struct script_data *push_copy(struct script_stack *stack, int pos)
 {
 	switch( stack->stack_data[pos].type ) {
 		case C_CONSTSTR:
@@ -3081,8 +3107,8 @@ struct script_data* push_copy(struct script_stack* stack, int pos)
 /// Adjusts all stack pointers.
 void pop_stack(struct script_state *st, int start, int end)
 {
-	struct script_stack* stack = st->stack;
-	struct script_data* data;
+	struct script_stack *stack = st->stack;
+	struct script_data *data;
 	int i;
 
 	if( start < 0 )
@@ -3098,7 +3124,7 @@ void pop_stack(struct script_state *st, int start, int end)
 		if( data->type == C_STR )
 			aFree(data->u.str);
 		if( data->type == C_RETINFO ) {
-			struct script_retinfo* ri = data->u.ri;
+			struct script_retinfo *ri = data->u.ri;
 
 			if( ri->var_function )
 				script_free_vars(ri->var_function);
@@ -3245,7 +3271,7 @@ int pop_val(struct script_state *st)
 /// test ? if_true : if_false
 void op_3(struct script_state *st, int op)
 {
-	struct script_data* data;
+	struct script_data *data;
 	int flag = 0;
 
 	data = script_getdatatop(st, -3);
@@ -3370,8 +3396,8 @@ void op_2num(struct script_state *st, int op, int i1, int i2)
 /// Binary operators
 void op_2(struct script_state *st, int op)
 {
-	struct script_data* left, leftref;
-	struct script_data* right;
+	struct script_data *left, leftref;
+	struct script_data *right;
 
 	leftref.type = C_NOP;
 
@@ -3435,7 +3461,7 @@ void op_2(struct script_state *st, int op)
 /// LNOT i -> i
 void op_1(struct script_state *st, int op)
 {
-	struct script_data* data;
+	struct script_data *data;
 	int i1;
 
 	data = script_getdatatop(st, -1);
@@ -3476,7 +3502,7 @@ static void script_check_buildin_argtype(struct script_state *st, int func)
 	int idx, invalid = 0;
 
 	for( idx = 2; script_hasdata(st, idx); idx++ ) {
-		struct script_data* data = script_getdata(st, idx);
+		struct script_data *data = script_getdata(st, idx);
 		script_function* sf = &buildin_func[str_data[func].val];
 		char type = sf->arg[idx - 2];
 
@@ -3546,7 +3572,7 @@ static void script_check_buildin_argtype(struct script_state *st, int func)
 /// Stack: C_NAME(<command>) C_ARG <arg0> <arg1> ... <argN>
 int run_func(struct script_state *st)
 {
-	struct script_data* data;
+	struct script_data *data;
 	int i,start_sp,end_sp,func;
 
 	end_sp = st->stack->sp;// position after the last argument
@@ -3593,7 +3619,7 @@ int run_func(struct script_state *st)
 
 	pop_stack(st, st->start, st->end);
 	if( st->state == RETFUNC ) { // return from a user-defined function
-		struct script_retinfo* ri;
+		struct script_retinfo *ri;
 		int olddefsp = st->stack->defsp;
 		int nargs;
 
@@ -4576,7 +4602,7 @@ BUILDIN_FUNC(menu)
 		StringBuf_Init(&buf);
 		sd->npc_menu = 0;
 		for( i = 2; i < script_lastdata(st); i += 2 ) {
-			struct script_data* data = script_getdata(st, i + 1); // Target label
+			struct script_data *data = script_getdata(st, i + 1); // Target label
 
 			// Menu options
 			text = script_getstr(st, i);
@@ -4847,7 +4873,7 @@ BUILDIN_FUNC(goto)
 BUILDIN_FUNC(callfunc)
 {
 	int i, j;
-	struct script_retinfo* ri;
+	struct script_retinfo *ri;
 	struct script_code* scr;
 	const char *str = script_getstr(st,2);
 	DBMap **ref = NULL;
@@ -4860,7 +4886,7 @@ BUILDIN_FUNC(callfunc)
 	}
 
 	for( i = st->start+3, j = 0; i < st->end; i++, j++ ) {
-		struct script_data* data = push_copy(st->stack,i);
+		struct script_data *data = push_copy(st->stack,i);
 		if( data_isreference(data) && !data->ref ) {
 			const char *name = reference_getname(data);
 			if( name[0] == '.' ) {
@@ -4894,7 +4920,7 @@ BUILDIN_FUNC(callfunc)
 BUILDIN_FUNC(callsub)
 {
 	int i,j;
-	struct script_retinfo* ri;
+	struct script_retinfo *ri;
 	int pos = script_getnum(st,2);
 	DBMap **ref = NULL;
 
@@ -4906,7 +4932,7 @@ BUILDIN_FUNC(callsub)
 	}
 
 	for( i = st->start+3, j = 0; i < st->end; i++, j++ ) {
-		struct script_data* data = push_copy(st->stack,i);
+		struct script_data *data = push_copy(st->stack,i);
 		if( data_isreference(data) && !data->ref ) {
 			const char *name = reference_getname(data);
 			if( name[0] == '.' && name[1] == '@' ) {
@@ -4940,7 +4966,7 @@ BUILDIN_FUNC(callsub)
 /// getarg(<index>{,<default_value>}) -> <value>
 BUILDIN_FUNC(getarg)
 {
-	struct script_retinfo* ri;
+	struct script_retinfo *ri;
 	int idx;
 
 	if( st->stack->defsp < 1 || st->stack->stack_data[st->stack->defsp - 1].type != C_RETINFO ) {
@@ -4973,7 +4999,7 @@ BUILDIN_FUNC(getarg)
 BUILDIN_FUNC(return)
 {
 	if( script_hasdata(st,2) ) { // Return value
-		struct script_data* data;
+		struct script_data *data;
 		script_pushcopy(st,2);
 		data = script_getdatatop(st,-1);
 		if( data_isreference(data) ) {
@@ -5465,7 +5491,7 @@ BUILDIN_FUNC(jobname)
 BUILDIN_FUNC(input)
 {
 	TBL_PC *sd;
-	struct script_data* data;
+	struct script_data *data;
 	int uid;
 	const char *name;
 	int min;
@@ -5521,8 +5547,8 @@ BUILDIN_FUNC(input)
 BUILDIN_FUNC(set)
 {
 	TBL_PC *sd = NULL;
-	struct script_data* data;
-	//struct script_data* datavalue;
+	struct script_data *data;
+	//struct script_data *datavalue;
 	int num;
 	const char *name;
 	char prefix;
@@ -5617,7 +5643,7 @@ static int32 getarraysize(struct script_state *st, int32 id, int32 idx, int isst
 /// setarray <array variable>,<value1>{,<value2>...};
 BUILDIN_FUNC(setarray)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	int32 start;
 	int32 end;
@@ -5669,7 +5695,7 @@ BUILDIN_FUNC(setarray)
 /// cleararray <array variable>,<value>,<count>;
 BUILDIN_FUNC(cleararray)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	int32 start;
 	int32 end;
@@ -5721,8 +5747,8 @@ BUILDIN_FUNC(cleararray)
 /// copyarray <destination array variable>,<source array variable>,<count>;
 BUILDIN_FUNC(copyarray)
 {
-	struct script_data* data1;
-	struct script_data* data2;
+	struct script_data *data1;
+	struct script_data *data2;
 	const char *name1;
 	const char *name2;
 	int32 idx1;
@@ -5804,7 +5830,7 @@ BUILDIN_FUNC(copyarray)
 /// getarraysize(<array variable>) -> <int>
 BUILDIN_FUNC(getarraysize)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 
 	data = script_getdata(st, 2);
@@ -5836,7 +5862,7 @@ BUILDIN_FUNC(getarraysize)
 /// deletearray <array variable>,<count>;
 BUILDIN_FUNC(deletearray)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	int start;
 	int end;
@@ -5906,7 +5932,7 @@ BUILDIN_FUNC(deletearray)
 /// getelementofarray(<array variable>,<index>) -> <variable reference>
 BUILDIN_FUNC(getelementofarray)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	int32 id;
 	int i;
@@ -6033,7 +6059,7 @@ BUILDIN_FUNC(countitem)
 {
 	int i = 0, count = 0, aid = 3;
 	struct item_data *id = NULL;
-	struct script_data* data;
+	struct script_data *data;
 	char *command = (char *)script_getfuncname(st);
 	uint8 loc = 0;
 	uint16 size;
@@ -6194,7 +6220,7 @@ BUILDIN_FUNC(checkweight)
 	}
 
 	for( i = 2; i < nbargs; i = i + 2 ) {
-		struct script_data* data = script_getdata(st,i);
+		struct script_data *data = script_getdata(st,i);
 
 		get_val(st,data);  // Convert into value in case of a variable
 		if( data_isstring(data) ) // Item name
@@ -6221,8 +6247,8 @@ BUILDIN_FUNC(checkweight2) {
 	int32 amount[SCRIPT_MAX_ARRAYSIZE], i;
 
 	//Variable for array parsing
-	struct script_data* data_it;
-	struct script_data* data_nb;
+	struct script_data *data_it;
+	struct script_data *data_nb;
 	const char *name_it;
 	const char *name_nb;
 	int32 id_it, id_nb;
@@ -14685,7 +14711,7 @@ BUILDIN_FUNC(substr)
 //-------------------------------------------------------
 BUILDIN_FUNC(explode)
 {
-	struct script_data* data = script_getdata(st, 2);
+	struct script_data *data = script_getdata(st, 2);
 	const char *str = script_getstr(st,3);
 	const char delimiter = script_getstr(st, 4)[0];
 	int32 id;
@@ -14752,7 +14778,7 @@ BUILDIN_FUNC(explode)
 //-------------------------------------------------------
 BUILDIN_FUNC(implode)
 {
-	struct script_data* data = script_getdata(st,2);
+	struct script_data *data = script_getdata(st,2);
 	const char *name;
 	int32 glue_len = 0, array_size, id;
 	TBL_PC *sd = NULL;
@@ -14852,7 +14878,7 @@ BUILDIN_FUNC(sprintf)
 	char *q;
 	char *buf  = NULL;
 	char *buf2 = NULL;
-	struct script_data* data;
+	struct script_data *data;
 	StringBuf final_buf;
 
 	// Fetch init data
@@ -14978,7 +15004,7 @@ BUILDIN_FUNC(sprintf)
 //-------------------------------------------------------
 BUILDIN_FUNC(sscanf){
 	unsigned int argc, arg = 0, len;
-	struct script_data* data;
+	struct script_data *data;
 	struct map_session_data *sd = NULL;
 	const char *str;
 	const char *format;
@@ -15281,7 +15307,7 @@ BUILDIN_FUNC(setnpcdisplay)
 	const char *name;
 	const char *newname = NULL;
 	int class_ = -1, size = -1;
-	struct script_data* data;
+	struct script_data *data;
 	struct npc_data *nd;
 
 	name = script_getstr(st,2);
@@ -15464,7 +15490,7 @@ int buildin_query_sql_sub(struct script_state *st, Sql *handle)
 	int i, j;
 	TBL_PC *sd = NULL;
 	const char *query;
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	int max_rows = SCRIPT_MAX_ARRAYSIZE; //Maximum number of rows
 	int num_vars;
@@ -16104,7 +16130,7 @@ BUILDIN_FUNC(checkidle)
 
 BUILDIN_FUNC(searchitem)
 {
-	struct script_data* data = script_getdata(st,2);
+	struct script_data *data = script_getdata(st,2);
 	const char *itemname = script_getstr(st,3);
 	struct item_data *items[MAX_SEARCH];
 	int count;
@@ -16249,6 +16275,35 @@ BUILDIN_FUNC(pcstopfollow)
 }
 // <--- [zBuffer] List of player cont commands
 // [zBuffer] List of unit control commands --->
+
+/// Gets the type of the given Game ID.
+///
+/// getunittype <unit id>;
+BUILDIN_FUNC(getunittype)
+{
+	struct block_list *bl;
+	uint8 value = 0;
+
+	bl = map_id2bl(script_getnum(st,2));
+
+	if( !bl ) {
+		ShowWarning("buildin_getunittype: Error in finding object with given game ID %d!\n", script_getnum(st,2));
+		script_pushint(st,-1);
+		return 1;
+	}
+
+	switch( bl->type ) {
+		case BL_MOB:  value = 0; break;
+		case BL_HOM:  value = 1; break;
+		case BL_PET:  value = 2; break;
+		case BL_MER:  value = 3; break;
+		case BL_ELEM: value = 4; break;
+		case BL_NPC:  value = 5; break;
+	}
+
+	script_pushint(st,value);
+	return SCRIPT_CMD_SUCCESS;
+}
 
 /// Gets specific live information of a bl
 ///
@@ -16472,7 +16527,7 @@ BUILDIN_FUNC(getunitdata)
 BUILDIN_FUNC(setunitdata)
 {
 	struct block_list *bl = NULL;
-	struct script_data* data;
+	struct script_data *data;
 	const char *mapname = NULL;
 	TBL_MOB *md = NULL;
 	TBL_HOM *hd = NULL;
@@ -16790,33 +16845,50 @@ BUILDIN_FUNC(setunitname)
 	return SCRIPT_CMD_SUCCESS;
 }
 
-/// Makes the unit walk to target position or map
-/// Returns if it was successful
+/// Makes the unit walk to target position or map.
+/// Returns if it was successful.
 ///
-/// unitwalk(<unit_id>,<x>,<y>); -> <bool>
-/// unitwalk(<unit_id>,<target_id>); -> <bool>
+/// unitwalk(<unit_id>,<x>,<y>{,<event_label>}) -> <bool>
+/// unitwalkto(<unit_id>,<target_id>{,<event_label>}) -> <bool>
 BUILDIN_FUNC(unitwalk)
 {
 	struct block_list *bl;
+	struct unit_data *ud = NULL;
+	const char *cmd = script_getfuncname(st), *done_label = "";
+	uint8 off = 5;
 
 	bl = map_id2bl(script_getnum(st,2));
-	if( !bl )
+
+	if( !bl ) {
+		ShowError("buildin_unitwalk: Invalid unit with ID '%d'.\n", script_getnum(st,2));
 		script_pushint(st,0);
-	else if( script_hasdata(st,4) ) {
+		return 1;
+	}
+
+	ud = unit_bl2ud(bl);
+
+	if( !strcmp(cmd, "unitwalk") ) {
 		int x = script_getnum(st,3);
 		int y = script_getnum(st,4);
 
-		if( script_pushint(st,unit_can_reach_pos(bl, x, y, 0)) )
-			add_timer(gettick() + 50,unit_delay_walktoxy_timer,bl->id,(x<<16)|(y&0xFFFF)); //Need timer to avoid mismatches
+		if( script_pushint(st, unit_can_reach_pos(bl, x, y, 0)) )
+			add_timer(gettick() + 50, unit_delay_walktoxy_timer, bl->id, (x<<16)|(y&0xFFFF)); //Need timer to avoid mismatches
 	} else {
 		struct block_list *tbl = map_id2bl(script_getnum(st,3));
 
 		if( !tbl ) {
-			ShowError("buildin_unitwalk: Bad target destination\n");
+			ShowError("buildin_unitwalk: Bad target destination.\n");
 			script_pushint(st,0);
 			return 1;
-		} else if( script_pushint(st,unit_can_reach_bl(bl, tbl, distance_bl(bl, tbl) + 1,0,NULL,NULL)) )
+		} else if( script_pushint(st, unit_can_reach_bl(bl, tbl, distance_bl(bl, tbl) + 1, 0, NULL, NULL)) )
 			add_timer(gettick() + 50, unit_delay_walktobl_timer, bl->id, tbl->id); //Need timer to avoid mismatches
+		off = 4;
+	}
+
+	if( ud && script_hasdata(st,off) ) {
+		done_label = script_getstr(st,off);
+		check_event(st, done_label);
+		safestrncpy(ud->walk_done_event, done_label, sizeof(ud->walk_done_event));
 	}
 
 	return SCRIPT_CMD_SUCCESS;
@@ -16849,7 +16921,7 @@ BUILDIN_FUNC(unitwarp)
 	const char *mapname;
 
 	unit_id = script_getnum(st,2);
-	mapname = script_getstr(st, 3);
+	mapname = script_getstr(st,3);
 	x = (short)script_getnum(st,4);
 	y = (short)script_getnum(st,5);
 
@@ -16882,7 +16954,7 @@ BUILDIN_FUNC(unitattack)
 {
 	struct block_list *unit_bl;
 	struct block_list *target_bl = NULL;
-	struct script_data* data;
+	struct script_data *data;
 	int actiontype = 0;
 
 	unit_bl = map_id2bl(script_getnum(st,2));
@@ -17047,8 +17119,15 @@ BUILDIN_FUNC(unitskilluseid)
 	casttime = (script_hasdata(st,6) ? script_getnum(st,6) : 0);
 	bl = map_id2bl(unit_id);
 
-	if( bl != NULL )
-		unit_skilluse_id2(bl, target_id, skill_id, skill_lv, casttime * 1000 + skill_castfix(bl, skill_id, skill_lv), skill_get_castcancel(skill_id));
+	if( bl != NULL ) {
+		if( bl->type == BL_NPC ) {
+			if( !((TBL_NPC *)bl)->status.hp )
+				status_calc_npc(((TBL_NPC *)bl), true);
+			else
+				status_calc_npc(((TBL_NPC *)bl), false);
+		}
+		unit_skilluse_id2(bl, target_id, skill_id, skill_lv, (casttime * 1000) + skill_castfix(bl, skill_id, skill_lv), skill_get_castcancel(skill_id));
+	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -17074,8 +17153,15 @@ BUILDIN_FUNC(unitskillusepos)
 	casttime = (script_hasdata(st,7) ? script_getnum(st,7) : 0);
 	bl = map_id2bl(unit_id);
 
-	if( bl != NULL )
-		unit_skilluse_pos2(bl, skill_x, skill_y, skill_id, skill_lv, casttime * 1000 + skill_castfix(bl, skill_id, skill_lv), skill_get_castcancel(skill_id));
+	if( bl != NULL ) {
+		if( bl->type == BL_NPC ) {
+			if( !((TBL_NPC *)bl)->status.hp )
+				status_calc_npc(((TBL_NPC *)bl), true);
+			else
+				status_calc_npc(((TBL_NPC *)bl), false);
+		}
+		unit_skilluse_pos2(bl, skill_x, skill_y, skill_id, skill_lv, (casttime * 1000) + skill_castfix(bl, skill_id, skill_lv), skill_get_castcancel(skill_id));
+	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -17175,7 +17261,7 @@ BUILDIN_FUNC(awake)
 /// getvariableofnpc(<variable>, "<npc name>") -> <reference>
 BUILDIN_FUNC(getvariableofnpc)
 {
-	struct script_data* data;
+	struct script_data *data;
 	const char *name;
 	struct npc_data *nd;
 
@@ -18657,7 +18743,7 @@ BUILDIN_FUNC(setmounting) {
  * getargcount() -> amount of arguments received in a function
  */
 BUILDIN_FUNC(getargcount) {
-	struct script_retinfo* ri;
+	struct script_retinfo *ri;
 
 	if( st->stack->defsp < 1 || st->stack->stack_data[st->stack->defsp - 1].type != C_RETINFO ) {
 		ShowError("script:getargcount: used out of function or callsub label!\n");
@@ -19971,7 +20057,7 @@ BUILDIN_FUNC(npcshopupdate) {
 	int i;
 
 	if (!nd || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_ITEMSHOP &&
-		nd->subtype != NPCTYPE_POINTSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found
+		nd->subtype != NPCTYPE_POINTSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { //Not found
 		script_pushint(st,0);
 		return 1;
 	}
@@ -20006,6 +20092,49 @@ BUILDIN_FUNC(npcshopupdate) {
  */
 BUILDIN_FUNC(getattachedrid) {
 	script_pushint(st,st->rid);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/**
+ * Get variable from a Player
+ * getvar <variable>,<char_id>;
+ */
+BUILDIN_FUNC(getvar) {
+	int char_id = script_getnum(st,3);
+	struct map_session_data *sd = map_charid2sd(char_id);
+	struct script_data *data = NULL;
+	const char *name = NULL;
+
+	if (!sd) {
+		ShowError("buildin_getvar: No player found with char id '%d'.\n", char_id);
+		return 1;
+	}
+
+	data = script_getdata(st,2);
+	if (!data_isreference(data)) {
+		ShowError("buildin_getvar: Not a variable\n");
+		script_reportdata(data);
+		script_pushnil(st);
+		st->state = END;
+		return 1;
+	}
+
+	name = reference_getname(data);
+	if (name[0] == '.' || name[0] == '$' || name[0] == '\'') { //Not a PC variable
+		ShowError("buildin_getvar: Invalid scope (not PC variable)\n");
+		script_reportdata(data);
+		script_pushnil(st);
+		st->state = END;
+		return 1;
+	}
+
+	get_val_(st, data, sd);
+	if (data_isint(data))
+		script_pushint(st,conv_num_(st, data, sd));
+	else
+		script_pushstrcopy(st,conv_str_(st, data, sd));
+
+	push_val2(st->stack, C_NAME, reference_getuid(data), reference_getref(data));
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -20416,11 +20545,13 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pcblockmove,"ii"),
 	// <--- [zBuffer] List of player cont commands
 	// [zBuffer] List of mob control commands --->
+	BUILDIN_DEF(getunittype,"i"),
 	BUILDIN_DEF(getunitname,"i"),
 	BUILDIN_DEF(setunitname,"is"),
 	BUILDIN_DEF(getunitdata,"i*"),
 	BUILDIN_DEF(setunitdata,"iii"),
-	BUILDIN_DEF(unitwalk,"ii?"),
+	BUILDIN_DEF(unitwalk,"iii?"),
+	BUILDIN_DEF2(unitwalk,"unitwalkto","ii?"),
 	BUILDIN_DEF(unitkill,"i"),
 	BUILDIN_DEF(unitwarp,"isii"),
 	BUILDIN_DEF(unitattack,"iv?"),
@@ -20561,6 +20692,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(mergeitem,"??"),
 	BUILDIN_DEF(npcshopupdate,"sii?"),
 	BUILDIN_DEF(getattachedrid,""),
+	BUILDIN_DEF(getvar,"vi"),
 
 #include "../custom/script_def.inc"
 
