@@ -10854,13 +10854,11 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			ud->skilltimer = INVALID_TIMER;
 			return 0;
 		}
-
 		//Restore original walk speed
 		if( sd && ud->skilltimer != INVALID_TIMER && (pc_checkskill(sd,SA_FREECAST) > 0 || ud->skill_id == LG_EXEEDBREAK) ) {
 			ud->skilltimer = INVALID_TIMER;
 			status_calc_bl(&sd->bl,SCB_SPEED);
 		}
-
 		ud->skilltimer = INVALID_TIMER;
 	}
 
@@ -10872,10 +10870,8 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 	do { //Use a do so that you can break out of it when the skill fails
 		if( !target || target->prev == NULL )
 			break;
-
 		if( src->m != target->m || status_isdead(src) )
 			break;
-
 		switch( ud->skill_id ) {
 			//These should become skill_castend_pos
 			case WE_CALLPARTNER:
@@ -10917,25 +10913,21 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				ud->skilltimer = tid;
 				return skill_castend_pos(tid,tick,id,data);
 		}
-
 		if( ud->skill_id == RG_BACKSTAP ) {
 			uint8 dir = map_calc_dir(src,target->x,target->y), t_dir = unit_getdir(target);
 
 			if( check_distance_bl(src,target,0) || map_check_dir(dir,t_dir) )
 				break;
 		}
-
 		if( ud->skill_id == PR_TURNUNDEAD ) {
 			struct status_data *tstatus = status_get_status_data(target);
 
 			if( !battle_check_undead(tstatus->race,tstatus->def_ele) )
 				break;
 		}
-
 		if( ud->skill_id == RA_WUGSTRIKE &&
 			!path_search(NULL,src->m,src->x,src->y,target->x,target->y,1,CELL_CHKNOREACH) )
 			break;
-
 		if( ud->skill_id == PR_LEXDIVINA || ud->skill_id == MER_LEXDIVINA ) {
 			//If it's not an enemy, and not silenced, you can't use the skill on them [Skotlex]
 			if( battle_check_target(src,target,BCT_ENEMY) <= 0 && !((sc = status_get_sc(target)) && sc->data[SC_SILENCE]) ) {
@@ -10945,7 +10937,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 		} else { //Check target validity
 			inf = skill_get_inf(ud->skill_id);
 			inf2 = skill_get_inf2(ud->skill_id);
-
 			//Combo skills
 			if( (inf&INF_ATTACK_SKILL) || ((inf&INF_SELF_SKILL) && (inf2&INF2_NO_TARGET_SELF)) ) //Casted through combo
 				inf = BCT_ENEMY; //Offensive skill
@@ -10953,7 +10944,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				inf = BCT_NOENEMY;
 			else
 				inf = 0;
-
 			if( inf2&(INF2_PARTY_ONLY|INF2_GUILD_ONLY) && src != target ) {
 				inf |=
 					(inf2&INF2_PARTY_ONLY ? BCT_PARTY : 0)|
@@ -10961,7 +10951,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				//Remove neutral targets (but allow enemy if skill is designed to be so)
 				inf &= ~BCT_NEUTRAL;
 			}
-
 			if( ud->skill_id >= SL_SKE && ud->skill_id <= SL_SKA && target->type == BL_MOB ) {
 				if( ((TBL_MOB *)target)->mob_id == MOBID_EMPERIUM )
 					break;
@@ -10976,7 +10965,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				if( !map_flag_vs(src->m) && battle_check_target(src,target,BCT_PARTY) <= 0 )
 					break; //You can use Clearance on party members in normal maps too [pakpil]
 			}
-
 			//Fogwall makes all offensive-type targetted skills fail at 75%, and
 			if( (inf&BCT_ENEMY) && (sc = status_get_sc(target)) && (sc->data[SC_FOGWALL] && rnd()%100 < 75) ) {
 				if( sd )
@@ -10984,17 +10972,14 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				break;
 			}
 		}
-
 		//Avoid doing double checks for instant-cast skills
 		if( tid != INVALID_TIMER && !status_check_skilluse(src,target,ud->skill_id,1) )
 			break;
-
 		if( md ) {
 			md->last_thinktime = tick + MIN_MOBTHINKTIME;
 			if( md->skill_idx >= 0 && md->db->skill[md->skill_idx].emotion >= 0 )
 				clif_emotion(src,md->db->skill[md->skill_idx].emotion);
 		}
-
 		if( src != target && battle_config.skill_add_range &&
 			!check_distance_bl(src,target,skill_get_range2(src,ud->skill_id,ud->skill_lv) + battle_config.skill_add_range) ) {
 			if( sd ) {
@@ -11024,29 +11009,22 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			else
 				skill_consume_requirement(sd,ud->skill_id,ud->skill_lv,1);
 		}
-
 		if( (src->type == BL_MER || src->type == BL_HOM) && !skill_check_condition_mercenary(src,ud->skill_id,ud->skill_lv,1) )
 			break;
-
 		if( ud->state.running && ud->skill_id == TK_JUMPKICK ) {
 			ud->state.running = 0;
 			status_change_end(src,SC_RUN,INVALID_TIMER);
 			flag = 1;
 		}
-
 		if( ud->walktimer != INVALID_TIMER && ud->skill_id != TK_RUN && ud->skill_id != RA_WUGDASH )
 			unit_stop_walking(src,1);
-
 		//Tests show wings don't overwrite the delay but skill scrolls do [Inkfish]
 		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 			ud->canact_tick = tick + skill_delayfix(src,ud->skill_id,ud->skill_lv);
-
 		if( sd && (inf = skill_get_cooldown(sd,ud->skill_id,ud->skill_lv)) > 0 )
 			skill_blockpc_start(sd,ud->skill_id,inf);
-
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src,SI_ACTIONDELAY,1,skill_delayfix(src,ud->skill_id,ud->skill_lv),0,0,0);
-
 		if( sd ) {
 			switch( ud->skill_id ) {
 				case GS_DESPERADO:
@@ -11065,27 +11043,19 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 					break;
 			}
 		}
-
 		if( skill_get_state(ud->skill_id) != ST_MOVE_ENABLE )
 			unit_set_walkdelay(src,tick,battle_config.default_walk_delay + skill_get_walkdelay(ud->skill_id,ud->skill_lv),1);
-
 		if( battle_config.skill_log && battle_config.skill_log&src->type )
-			ShowInfo("Type %d, ID %d skill castend id [id =%d, lv=%d, target ID %d]\n",
-				src->type,src->id,ud->skill_id,ud->skill_lv,target->id);
-
+			ShowInfo("Type %d, ID %d skill castend id [id =%d, lv=%d, target ID %d]\n",src->type,src->id,ud->skill_id,ud->skill_lv,target->id);
 		map_freeblock_lock();
 		skill_toggle_magicpower(src,ud->skill_id);
-
 		if( skill_get_casttype(ud->skill_id) == CAST_NODAMAGE )
 			skill_castend_nodamage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
-
 		if( ud->skill_id != RA_CAMOUFLAGE )
 			status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
-
 		sc = status_get_sc(src);
-
 		if( sc && sc->count ) {
 			if( sc->data[SC_SPIRIT] &&
 				sc->data[SC_SPIRIT]->val2 == SL_WIZARD &&
@@ -11095,14 +11065,11 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			if( sc->data[SC_DANCING] && skill_get_inf2(ud->skill_id)&INF2_SONG_DANCE && sd )
 				skill_blockpc_start(sd,BD_ADAPTATION,3000);
 		}
-
 		//They just set the data so leave it as it is [Inkfish]
 		if( sd && ud->skill_id != SA_ABRACADABRA && ud->skill_id != WM_RANDOMIZESPELL )
 			sd->skillitem = sd->skillitemlv = 0;
-
-		if( src->id != target->id )
+		if( !(skill_get_inf(ud->skill_id)&INF_SELF_SKILL) )
 			unit_setdir(src,map_calc_dir(src,target->x,target->y));
-
 		if( ud->skilltimer == INVALID_TIMER ) {
 			if( md )
 				md->skill_idx = -1;
@@ -11150,9 +11117,12 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			clif_skill_damage(src,target,tick,sd->battle_status.amotion,0,0,1,ud->skill_id,ud->skill_lv,DMG_SPLASH);
 		}
 	}
+
 	if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 		ud->canact_tick = tick;
+
 	ud->skill_id = ud->skilltarget = 0;
+
 	//You can't place a skill failed packet here because it would be
 	//sent in ALL cases, even cases where skill_check_condition fails
 	//which would lead to double 'skill failed' messages u.u [Skotlex]
@@ -11257,8 +11227,7 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 				clif_emotion(src,md->db->skill[md->skill_idx].emotion);
 		}
 		if( battle_config.skill_log && battle_config.skill_log&src->type )
-			ShowInfo("Type %d, ID %d skill castend pos [id=%d, lv=%d, (%d,%d)]\n",
-				src->type,src->id,ud->skill_id,ud->skill_lv,ud->skillx,ud->skilly);
+			ShowInfo("Type %d, ID %d skill castend pos [id=%d, lv=%d, (%d,%d)]\n",src->type,src->id,ud->skill_id,ud->skill_lv,ud->skillx,ud->skilly);
 		if( ud->walktimer != INVALID_TIMER )
 			unit_stop_walking(src,1);
 		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
@@ -11280,7 +11249,9 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 		status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
 		if( sd && sd->skillitem != AL_WARP ) //Warp-Portal through items will clear data in skill_castend_map [Inkfish]
 			sd->skillitem = sd->skillitemlv = 0;
-		if( !(skill_get_inf(ud->skill_id)&INF_SELF_SKILL) )
+		if( ud->skill_id == NJ_SHADOWJUMP )
+			unit_setdir(src,ud->dir);
+		else if( !(skill_get_inf(ud->skill_id)&INF_SELF_SKILL) )
 			unit_setdir(src,map_calc_dir(src,ud->skillx,ud->skilly));
 		if( ud->skilltimer == INVALID_TIMER ) {
 			if( md )
@@ -11295,7 +11266,9 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 
 	if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 		ud->canact_tick = tick;
+
 	ud->skill_id = ud->skill_lv = 0;
+
 	if( sd )
 		sd->skillitem = sd->skillitemlv = 0;
 	else if( md )
@@ -11346,6 +11319,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 		case MO_BODYRELOCATION:
 		case CR_CULTIVATION:
 		case HW_GANBANTEIN:
+		case NJ_SHADOWJUMP:
 		case LG_EARTHDRIVE:
 		case SC_ESCAPE:
 			break; //Effect is displayed on respective switch case
@@ -11618,6 +11592,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 				unit_movepos(src,x,y,1,false) ) //You don't move on GVG grounds
 				clif_blown(src,src);
 			status_change_end(src,SC_HIDING,INVALID_TIMER);
+			clif_skill_nodamage(src,src,skill_id,skill_lv,1);
 			break;
 
 		case AM_SPHEREMINE:
