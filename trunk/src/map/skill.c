@@ -10322,6 +10322,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 						if( dstsd && pc_issit(dstsd) )
 							pc_setstand(dstsd);
 						clif_blown(bl,bl);
+						map_foreachinrange(unit_changetarget,src,AREA_SIZE,BL_CHAR,src,bl);
 						sc_start(src,bl,SC_CONFUSION,75,skill_lv,skill_get_time(skill_id,skill_lv));
 					}
 				}

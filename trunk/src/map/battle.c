@@ -2674,11 +2674,11 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 	//Add mastery damage
 	if(sd && battle_skill_stacks_masteries_vvs(skill_id) &&
 		skill_id != MO_INVESTIGATE && skill_id != MO_EXTREMITYFIST && skill_id != CR_GRANDCROSS) {
-
 		wd.damage = battle_addmastery(sd, target, wd.damage, 0);
 #ifdef RENEWAL
 		wd.masteryAtk = battle_addmastery(sd, target, wd.weaponAtk, 0);
 #endif
+
 		if(is_attack_left_handed(src, skill_id)) {
 			wd.damage2 = battle_addmastery(sd, target, wd.damage2, 1);
 #ifdef RENEWAL
