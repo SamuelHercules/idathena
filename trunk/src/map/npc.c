@@ -306,48 +306,50 @@ int npc_event_dequeue(struct map_session_data *sd)
 {
 	nullpo_ret(sd);
 
-	if(sd->npc_id) { //Current script is aborted.
-		if(sd->state.using_fake_npc) {
-			clif_clearunit_single(sd->npc_id, CLR_OUTSIGHT, sd->fd);
+	if( sd->npc_id ) { //Current script is aborted
+		if( sd->state.using_fake_npc ) {
+			clif_clearunit_single(sd->npc_id,CLR_OUTSIGHT,sd->fd);
 			sd->state.using_fake_npc = 0;
 		}
-		if (sd->st) {
+		if( sd->st ) {
 			script_free_state(sd->st);
 			sd->st = NULL;
 		}
 		sd->npc_id = 0;
 	}
 
-	if (!sd->eventqueue[0][0])
+	if( !sd->eventqueue[0][0] )
 		return 0; //Nothing to dequeue
 
-	if (!pc_addeventtimer(sd,100,sd->eventqueue[0])) { //Failed to dequeue, couldn't set a timer.
+	if( !pc_addeventtimer(sd,100,sd->eventqueue[0]) ) { //Failed to dequeue, couldn't set a timer
 		ShowWarning("npc_event_dequeue: event timer is full !\n");
 		return 0;
 	}
-	//Event dequeued successfully, shift other elements.
-	memmove(sd->eventqueue[0], sd->eventqueue[1], (MAX_EVENTQUEUE-1)*sizeof(sd->eventqueue[0]));
-	sd->eventqueue[MAX_EVENTQUEUE-1][0]=0;
+	//Event dequeued successfully, shift other elements
+	memmove(sd->eventqueue[0],sd->eventqueue[1],(MAX_EVENTQUEUE - 1) * sizeof(sd->eventqueue[0]));
+	sd->eventqueue[MAX_EVENTQUEUE - 1][0] = 0;
 	return 1;
 }
 
 /*==========================================
- * exports a npc event label
+ * Exports a npc event label
  * called from npc_parse_script
  *------------------------------------------*/
 static int npc_event_export(struct npc_data *nd, int i)
 {
 	char *lname = nd->u.scr.label_list[i].name;
 	int pos = nd->u.scr.label_list[i].pos;
-	if ((lname[0] == 'O' || lname[0] == 'o') && (lname[1] == 'N' || lname[1] == 'n')) {
+
+	if( (lname[0] == 'O' || lname[0] == 'o') && (lname[1] == 'N' || lname[1] == 'n') ) {
 		struct event_data *ev;
 		char buf[EVENT_NAME_LENGTH];
-		snprintf(buf, ARRAYLENGTH(buf), "%s::%s", nd->exname, lname);
-		// generate the data and insert it
-		CREATE(ev, struct event_data, 1);
+
+		snprintf(buf,ARRAYLENGTH(buf),"%s::%s",nd->exname,lname);
+		//Generate the data and insert it
+		CREATE(ev,struct event_data,1);
 		ev->nd = nd;
 		ev->pos = pos;
-		if (strdb_put(ev_db, buf, ev)) // There was already another event of the same name?
+		if( strdb_put(ev_db,buf,ev) ) //There was already another event of the same name?
 			return 1;
 	}
 	return 0;
@@ -369,20 +371,18 @@ int npc_event_doall_sub(DBKey key, DBData *data, va_list ap)
 	int rid;
 
 	nullpo_ret(ev = db_data2ptr(data));
-	nullpo_ret(c = va_arg(ap, int *));
-	nullpo_ret(name = va_arg(ap, const char *));
-	rid = va_arg(ap, int);
+	nullpo_ret(c = va_arg(ap,int *));
+	nullpo_ret(name = va_arg(ap,const char *));
+	rid = va_arg(ap,int);
 
-	p = strchr(p, ':'); // match only the event name
-	if( p && strcmpi(name, p) == 0 /* && !ev->nd->src_id */ ) // Do not run on duplicates. [Paradox924X]
-	{
-		if(rid) // a player may only have 1 script running at the same time
+	p = strchr(p,':'); //Match only the event name
+	if( p && strcmpi(name,p) == 0 /* && !ev->nd->src_id */ ) { //Do not run on duplicates [Paradox924X]
+		if( rid ) //A player may only have 1 script running at the same time
 			npc_event_sub(map_id2sd(rid),ev,key.str);
 		else
 			run_script(ev->nd->u.scr.script,ev->pos,rid,ev->nd->bl.id);
 		(*c)++;
 	}
-
 	return 0;
 }
 
@@ -397,15 +397,14 @@ static int npc_event_do_sub(DBKey key, DBData *data, va_list ap)
 	const char *name;
 
 	nullpo_ret(ev = db_data2ptr(data));
-	nullpo_ret(c = va_arg(ap, int *));
-	nullpo_ret(name = va_arg(ap, const char *));
-	rid = va_arg(ap, int);
+	nullpo_ret(c = va_arg(ap,int *));
+	nullpo_ret(name = va_arg(ap,const char *));
+	rid = va_arg(ap,int);
 
 	if( p && strcmpi(name, p) == 0 ) {
 		run_script(ev->nd->u.scr.script,ev->pos,rid,ev->nd->bl.id);
 		(*c)++;
 	}
-
 	return 0;
 }
 

@@ -10441,38 +10441,38 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
 {
 	short x, y;
 
-	if (pc_isdead(sd)) {
+	if( pc_isdead(sd) ) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
 		return;
 	}
 
-	if (sd->sc.opt1 && (sd->sc.opt1 == OPT1_STONEWAIT || sd->sc.opt1 == OPT1_BURNING || sd->sc.opt1 == OPT1_FREEZING))
+	if( sd->sc.opt1 && (sd->sc.opt1 == OPT1_STONEWAIT || sd->sc.opt1 == OPT1_BURNING || sd->sc.opt1 == OPT1_FREEZING) )
 		; //You CAN walk on this OPT1 value
 	else if( sd->progressbar.npc_id )
 		clif_progressbar_abort(sd);
-	else if (pc_cant_act(sd))
+	else if( pc_cant_act(sd) )
 		return;
 
-	if(sd->sc.data[SC_RUN] || sd->sc.data[SC_WUGDASH])
+	if( sd->sc.data[SC_RUN] || sd->sc.data[SC_WUGDASH] )
 		return;
 
 	RFIFOPOS(fd, packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0], &x, &y, NULL);
 
 	//A move command one cell west is only valid if the target cell is free
-	if(battle_config.official_cell_stack_limit && sd->bl.x == x + 1 && sd->bl.y == y &&
-		map_count_oncell(sd->bl.m, x, y, BL_CHAR|BL_NPC, 0x1) > battle_config.official_cell_stack_limit)
+	if( battle_config.official_cell_stack_limit && sd->bl.x == x + 1 && sd->bl.y == y &&
+		map_count_oncell(sd->bl.m, x, y, BL_CHAR|BL_NPC, 0x1) > battle_config.official_cell_stack_limit )
 		return;
 
 	//Cloaking wall check is actually updated when you click to process next movement
-	//Not when you move each cell. This is official behaviour.
-	if (sd->sc.data[SC_CLOAKING])
+	//Not when you move each cell, this is official behaviour
+	if( sd->sc.data[SC_CLOAKING] )
 		skill_check_cloaking(&sd->bl, sd->sc.data[SC_CLOAKING]);
 
 	pc_delinvincibletimer(sd);
 
 	//Set last idle time [Skotlex]
 	sd->idletime = last_tick;
-	
+
 	unit_walktoxy(&sd->bl, x, y, 4);
 }
 
@@ -16676,10 +16676,10 @@ void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
 	struct elemental_data *ed;
 	struct status_data *status;
 	int fd;
-	
+
 	if( sd == NULL || (ed = sd->ed) == NULL )
 		return;
-	
+
 	fd = sd->fd;
 	status = &ed->battle_status;
 	WFIFOHEAD(fd,8);

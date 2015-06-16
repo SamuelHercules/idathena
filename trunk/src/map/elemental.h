@@ -92,7 +92,7 @@ int elemental_get_lifetime(struct elemental_data *ed);
 
 int elemental_unlocktarget(struct elemental_data *ed);
 bool elemental_skillnotok(uint16 skill_id, struct elemental_data *ed);
-int elemental_set_target( struct map_session_data *sd, struct block_list *bl );
+int elemental_set_target(struct map_session_data *sd, struct block_list *bl);
 int elemental_clean_single_effect(struct elemental_data *ed, uint16 skill_id);
 int elemental_clean_effect(struct elemental_data *ed);
 int elemental_action(struct elemental_data *ed, struct block_list *bl, unsigned int tick);

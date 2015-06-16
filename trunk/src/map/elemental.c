@@ -610,7 +610,7 @@ struct skill_condition elemental_skill_get_requirements(uint16 skill_id, uint16 
 	return req;
 }
 
-int elemental_set_target( struct map_session_data *sd, struct block_list *bl ) {
+int elemental_set_target(struct map_session_data *sd, struct block_list *bl) {
 	struct elemental_data *ed = sd->ed;
 
 	nullpo_ret(ed);
@@ -638,7 +638,7 @@ static int elemental_ai_sub_timer_activesearch(struct block_list *bl, va_list ap
 	ed = va_arg(ap,struct elemental_data *);
 	target = va_arg(ap,struct block_list**);
 
-	//If can't seek yet, not an enemy, or you can't attack it, skip.
+	//If can't seek yet, not an enemy, or you can't attack it, skip
 	if( (*target) == bl || !status_check_skilluse(&ed->bl, bl, 0, 0) )
 		return 0;
 
@@ -651,7 +651,7 @@ static int elemental_ai_sub_timer_activesearch(struct block_list *bl, va_list ap
 				return 0;
 		default:
 			dist = distance_bl(&ed->bl, bl);
-			if( ((*target) == NULL || !check_distance_bl(&ed->bl, *target, dist)) && battle_check_range(&ed->bl,bl,ed->db->range2) ) { //Pick closest target?
+			if( ((*target) == NULL || !check_distance_bl(&ed->bl, *target, dist)) && battle_check_range(&ed->bl, bl, ed->db->range2) ) { //Pick closest target?
 				(*target) = bl;
 				ed->target_id = bl->id;
 				ed->min_chase = dist + ed->db->range3;
@@ -694,15 +694,15 @@ static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_
 		}
 
 		if( status_get_sp(&sd->bl) < sp ) { //Can't sustain delete it
-			elemental_delete(sd->ed,0);
+			elemental_delete(sd->ed, 0);
 			return 0;
 		}
 
-		status_zap(&sd->bl,0,sp);
+		status_zap(&sd->bl, 0, sp);
 		ed->last_spdrain_time = tick;
 	}
 
-	if( DIFF_TICK(tick,ed->last_thinktime) < MIN_ELETHINKTIME )
+	if( DIFF_TICK(tick, ed->last_thinktime) < MIN_ELETHINKTIME )
 		return 0;
 
 	ed->last_thinktime = tick;
@@ -726,9 +726,9 @@ static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_
 	master_dist = distance_bl(&sd->bl, &ed->bl);
 	if( master_dist > AREA_SIZE ) {	//Master out of vision range
 		elemental_unlocktarget(ed);
-		unit_warp(&ed->bl,sd->bl.m,sd->bl.x,sd->bl.y,CLR_TELEPORT);
-		clif_elemental_updatestatus(sd,SP_HP);
-		clif_elemental_updatestatus(sd,SP_SP);
+		unit_warp(&ed->bl, sd->bl.m, sd->bl.x, sd->bl.y, CLR_TELEPORT);
+		clif_elemental_updatestatus(sd, SP_HP);
+		clif_elemental_updatestatus(sd, SP_SP);
 		return 0;
 	} else if( master_dist > MAX_ELEDISTANCE ) { //Master too far, chase
 		short x = sd->bl.x, y = sd->bl.y;

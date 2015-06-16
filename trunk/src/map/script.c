@@ -4891,7 +4891,7 @@ BUILDIN_FUNC(callfunc)
 			const char *name = reference_getname(data);
 			if( name[0] == '.' ) {
 				if( !ref ) {
-					ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*), 1);
+					ref = (struct DBMap **)aCalloc(sizeof(struct DBMap *), 1);
 					ref[0] = (name[1] == '@' ? st->stack->var_function : st->script->script_vars);
 				}
 				data->ref = ref;
@@ -4931,13 +4931,15 @@ BUILDIN_FUNC(callsub)
 		return 1;
 	}
 
-	for( i = st->start+3, j = 0; i < st->end; i++, j++ ) {
+	for( i = st->start + 3, j = 0; i < st->end; i++, j++ ) {
 		struct script_data *data = push_copy(st->stack,i);
+
 		if( data_isreference(data) && !data->ref ) {
 			const char *name = reference_getname(data);
+
 			if( name[0] == '.' && name[1] == '@' ) {
-				if ( !ref ) {
-					ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*),1);
+				if( !ref ) {
+					ref = (struct DBMap **)aCalloc(sizeof(struct DBMap *),1);
 					ref[0] = st->stack->var_function;
 				}
 				data->ref = ref;
@@ -5000,16 +5002,17 @@ BUILDIN_FUNC(return)
 {
 	if( script_hasdata(st,2) ) { // Return value
 		struct script_data *data;
+
 		script_pushcopy(st,2);
 		data = script_getdatatop(st,-1);
 		if( data_isreference(data) ) {
 			const char *name = reference_getname(data);
+
 			if( name[0] == '.' && name[1] == '@' ) { // Scope variable
-				if( !data->ref || data->ref == (DBMap**)&st->stack->var_function )
+				if( !data->ref || data->ref == (DBMap **)&st->stack->var_function )
 					get_val(st,data); // Current scope, convert to value
-			} else if( name[0] == '.' && !data->ref ) { // Script variable, link to current script
+			} else if( name[0] == '.' && !data->ref ) // Script variable, link to current script
 				data->ref = &st->script->script_vars;
-			}
 		}
 	} else // No return value
 		script_pushnil(st);
@@ -7530,6 +7533,23 @@ BUILDIN_FUNC(strnpcinfo)
 	else
 		script_pushconststr(st,"");
 
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/**
+ * charid2rid(<char_id>)
+ * Returns the RID associated to the given character ID
+ */
+BUILDIN_FUNC(charid2rid)
+{
+	TBL_PC *sd;
+
+	if( !script_charid2sd(2,sd) ) {
+		script_pushint(st,0);
+		return 1;
+	}
+
+	script_pushint(st,sd->status.account_id);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -15412,6 +15432,16 @@ BUILDIN_FUNC(strcmp)
 }
 
 //[zBuffer] List of mathematics commands --->
+BUILDIN_FUNC(log10)
+{
+	double i, a;
+
+	i = script_getnum(st,2);
+	a = log10(i);
+	script_pushint(st,(int)a);
+	return SCRIPT_CMD_SUCCESS;
+}
+
 BUILDIN_FUNC(sqrt)
 {
 	double i, a;
@@ -16736,7 +16766,7 @@ BUILDIN_FUNC(setunitdata)
 			}
 			break;
 		case BL_NPC:
-			if( !md ) {
+			if( !nd ) {
 				ShowWarning("buildin_setunitdata: Error in finding object BL_NPC!\n");
 				return 1;
 			}
@@ -20261,6 +20291,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildmasterid,"i"),
 	BUILDIN_DEF(strcharinfo,"i?"),
 	BUILDIN_DEF(strnpcinfo,"i"),
+	BUILDIN_DEF(charid2rid,"i"),
 	BUILDIN_DEF(getequipid,"i?"),
 	BUILDIN_DEF(getequipuniqueid,"i?"),
 	BUILDIN_DEF(getequipname,"i?"),
@@ -20508,6 +20539,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setiteminfo,"iii"), //[Lupus] set Items Buy / sell Price, etc info
 	BUILDIN_DEF(getequipcardid,"ii"), //[Lupus] returns CARD ID or other info from CARD slot N of equipped item
 	//[zBuffer] List of mathematics commands --->
+	BUILDIN_DEF(log10,"i"),
 	BUILDIN_DEF(sqrt,"i"),
 	BUILDIN_DEF(pow,"ii"),
 	BUILDIN_DEF(distance,"iiii"),

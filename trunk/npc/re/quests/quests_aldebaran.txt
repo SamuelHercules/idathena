@@ -43,7 +43,6 @@ c_tower1,232,222,5	script	Bellzamine Button#ct	968,{
 			mes "give you huge exp and items, and that's dangerous.";
 			mes "Please go back to the safe place.";
 			close;
-			break;
 		case 2:
 			mes "[Bellzamine Button]";
 			mes "That's a dangerous choice.";
@@ -61,7 +60,6 @@ c_tower1,232,222,5	script	Bellzamine Button#ct	968,{
 					mes "give you huge exp and items, and that's dangerous.";
 					mes "Please go back to the safe place.";
 					close;
-					break;
 				case 2:
 					if (Zeny > 9999) {
 						Zeny -= 10000;
@@ -84,7 +82,6 @@ c_tower1,232,222,5	script	Bellzamine Button#ct	968,{
 					mes "That's why I need some pay.";
 					emotion e_swt;
 					close;
-					break;
 			}
 			break;
 		case 3:
@@ -104,7 +101,6 @@ c_tower1,232,222,5	script	Bellzamine Button#ct	968,{
 					mes "give you huge exp and items, and that's dangerous.";
 					mes "Please go back to the safe place.";
 					close;
-					break;
 				case 2:
 					if (Zeny > 9999) {
 						Zeny -= 10000;
@@ -127,7 +123,6 @@ c_tower1,232,222,5	script	Bellzamine Button#ct	968,{
 					mes "That's why I need some pay.";
 					emotion e_swt;
 					close;
-					break;
 			}
 			break;
 	}
@@ -168,7 +163,6 @@ c_tower2_,274,26,3	script	Bellzamine Button#ct1	962,{
 					mes "this place.";
 					mes "Well, do whatever you want.";
 					close;
-					break;
 				case 2:
 					mes "[Bellzamine Button]";
 					mes "Think about the juice in a cup.";
@@ -177,7 +171,6 @@ c_tower2_,274,26,3	script	Bellzamine Button#ct1	962,{
 					close2;
 					warp "c_tower1",235,223;
 					end;
-					break;
 			}
 			break;
 		case 2:
@@ -192,7 +185,6 @@ c_tower2_,274,26,3	script	Bellzamine Button#ct1	962,{
 			close2;
 			warp "c_tower1",235,223;
 			end;
-			break;
 	}
 }
 
@@ -230,7 +222,6 @@ c_tower3_,59,148,5	script	Bellzamine Button#ct2	574,{
 					mes "this place.";
 					mes "Well, do whatever you want.";
 					close;
-					break;
 				case 2:
 					mes "[Bellzamine Button]";
 					mes "Think about the juice in a cup.";
@@ -239,7 +230,6 @@ c_tower3_,59,148,5	script	Bellzamine Button#ct2	574,{
 					close2;
 					warp "c_tower1",235,223;
 					end;
-					break;
 			}
 			break;
 		case 2:

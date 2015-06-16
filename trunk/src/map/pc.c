@@ -197,12 +197,36 @@ static int pc_spiritball_timer(int tid, unsigned int tick, int id, intptr_t data
 }
 
 /**
+ * Get the possible number of spiritball that a player can call.
+ * @param sd the affected player structure
+ * @param min the minimum number of spiritball regardless the level of MO_CALLSPIRITS
+ * @retval total number of spiritball
+ */
+int pc_getmaxspiritball(struct map_session_data *sd, int min) {
+	int result;
+
+	nullpo_ret(sd);
+
+	result = pc_checkskill(sd, MO_CALLSPIRITS);
+
+	if( min && result < min )
+		result = min;
+	else if( sd->sc.data[SC_RAISINGDRAGON] )
+		result += sd->sc.data[SC_RAISINGDRAGON]->val1;
+
+	if( result > MAX_SPIRITBALL )
+		result = MAX_SPIRITBALL;
+
+	return result;
+}
+
+/**
  * Adds a spiritball to player for 'interval' ms
  * @param sd
  * @param interval
  * @param max
  */
-void pc_addspiritball(struct map_session_data *sd,int interval,int max)
+void pc_addspiritball(struct map_session_data *sd, int interval, int max)
 {
 	int tid;
 	uint8 i;
@@ -217,7 +241,7 @@ void pc_addspiritball(struct map_session_data *sd,int interval,int max)
 
 	if( sd->spiritball && sd->spiritball >= max ) {
 		if(sd->spiritball_timer[0] != INVALID_TIMER)
-			delete_timer(sd->spiritball_timer[0],pc_spiritball_timer);
+			delete_timer(sd->spiritball_timer[0], pc_spiritball_timer);
 		sd->spiritball--;
 		if( sd->spiritball != 0 )
 			memmove(sd->spiritball_timer + 0, sd->spiritball_timer + 1, (sd->spiritball) * sizeof(int));
@@ -234,7 +258,7 @@ void pc_addspiritball(struct map_session_data *sd,int interval,int max)
 	sd->spiritball++;
 
 	if( (sd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD )
-		clif_millenniumshield(&sd->bl,sd->spiritball);
+		clif_millenniumshield(&sd->bl, sd->spiritball);
 	else
 		clif_spiritball(&sd->bl);
 }
@@ -245,7 +269,7 @@ void pc_addspiritball(struct map_session_data *sd,int interval,int max)
  * @param count
  * @param type 1 = doesn't give client effect
  */
-void pc_delspiritball(struct map_session_data *sd,int count,int type)
+void pc_delspiritball(struct map_session_data *sd, int count, int type)
 {
 	uint8 i;
 
@@ -269,7 +293,7 @@ void pc_delspiritball(struct map_session_data *sd,int count,int type)
 
 	for( i = 0; i < count; i++ ) {
 		if( sd->spiritball_timer[i] != INVALID_TIMER ) {
-			delete_timer(sd->spiritball_timer[i],pc_spiritball_timer);
+			delete_timer(sd->spiritball_timer[i], pc_spiritball_timer);
 			sd->spiritball_timer[i] = INVALID_TIMER;
 		}
 	}
@@ -281,7 +305,7 @@ void pc_delspiritball(struct map_session_data *sd,int count,int type)
 
 	if( !type ) {
 		if( (sd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD )
-			clif_millenniumshield(&sd->bl,sd->spiritball);
+			clif_millenniumshield(&sd->bl, sd->spiritball);
 		else
 			clif_spiritball(&sd->bl);
 	}
@@ -2453,10 +2477,10 @@ void pc_bonus(struct map_session_data *sd, int type, int val)
 						case W_GATLING:
 						case W_SHOTGUN:
 						case W_GRENADE:
-							//Become weapon element.
+							//Become weapon element
 							status->rhw.ele = val;
 							break;
-						default: //Become arrow element.
+						default: //Become arrow element
 							sd->bonus.arrow_ele = val;
 							break;
 					}
@@ -7848,7 +7872,6 @@ void pc_heal(struct map_session_data *sd, unsigned int hp, unsigned int sp, int 
 		if(sp)
 			clif_updatestatus(sd,SP_SP);
 	}
-	return;
 }
 
 /*==========================================

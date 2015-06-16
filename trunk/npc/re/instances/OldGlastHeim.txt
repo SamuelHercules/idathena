@@ -110,7 +110,7 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 			switch (instance_create(.@md_name$)) {
 			case -3:
 				dispbottom "Memorial Dungeon, 'Old Glast Heim' is already in progress.",0xFFFFFF;
-				break;
+				close;
 			case -4:
 			case -2:
 			case -1:
@@ -118,40 +118,33 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 				mes "Party Leader: "+strcharinfo(0);
 				mes "^0000ff"+.@md_name$+"^000000 - time gap generation failed.";
 				close;
-				break;
 			}
 			mes "[Hugin]";
 			mes "After the time gap opens, please tell me again.";
 			close;
-			break;
 		case 2:
 			switch(instance_enter(.@md_name$)) {
 			case 3: //Custom text
 				mes "[Hugin]";
 				mes "Sorry, I won't let you enter the time gap. There's something wrong with the dimension right now.";
 				close;
-				break;
 			case 2:
 				mes "[Hugin]";
 				mes "The time gap is not yet open.";
 				close;
-				break;
 			case 1:
 				mes "[Hugin]";
 				mes "Your body is not fit to enter the time gap. You won't be able to get in if you're not in a party.";
 				close;
-				break;
 			case 0:
 				mapannounce "glast_01",.@p_name$ + " party member " + strcharinfo(0) + " enters the Old Glast Heim",bc_map,"0x00ff99";
 				setquest 12317;
 				//warp "1@gl_k",150,20;
 				close;
-				break;
 			}
 			break;
 		case 3:
 			close;
-			break;
 		}
 	} else if (.@ghins_time == 0 || .@ghins_time == 1) {
 		mes "[Hugin]";
@@ -2029,12 +2022,10 @@ OnTimer80000:
 			mes "[Hugin]";
 			mes "Really? This place will be broke down so, please look around quickly.";
 			close;
-			break;
 		case 2:
 			close2;
 			warp "glast_01",204,270;
 			end;
-			break;
 		}
 	}
 OnInstanceInit:
@@ -2225,7 +2216,6 @@ glast_01,210,273,5	script	Hugin's Buttler	69,{
 		mes "[Hugin's Buttler]";
 		mes "Come back whenever you want.";
 		close;
-		break;
 	case 2:
 		if (countitem(6607) > 0) {
 			mes "[Hugin's Buttler]";
@@ -2233,12 +2223,10 @@ glast_01,210,273,5	script	Hugin's Buttler	69,{
 			delitem 6607,1; //Temporal_Crystal
 			getitem 2499,1; //Temporal_Boots
 			close;
-			break;
 		}
 		mes "[Hugin's Buttler]";
 		mes "You need more Temporal Crystals. Come back when you get some more Temporal Crystals during your travel through Old Glast Heim.";
 		close;
-		break;
 	case 3:
 		set .@part,EQI_SHOES;
 		if (!getequipisequiped(.@part)) {
@@ -2246,7 +2234,6 @@ glast_01,210,273,5	script	Hugin's Buttler	69,{
 			mes "Only the item you are wearing can be upgraded.";
 			mes "Wear the ^0000FFTemporal Boots^000000 you want to upgrade, and then talk to me once again.";
 			close;
-			break;
 		}
 		if (isequipped(2499)) {
 			if (countitem(6607) > 4) {
@@ -2261,7 +2248,6 @@ glast_01,210,273,5	script	Hugin's Buttler	69,{
 					mes "[Hugin's Buttler]";
 					mes "Come back anytime you want.";
 					close;
-					break;
 				case 2:
 				case 3:
 				case 4:
@@ -2278,23 +2264,19 @@ glast_01,210,273,5	script	Hugin's Buttler	69,{
 						delitem 6607,5; //Temporal_Crystal
 						getitem .@equip_type[.@select-2],1; //Temporal_Str_Boots,Temporal_Int_Boots,Temporal_Agi_Boots,Temporal_Vit_Boots,Temporal_Dex_Boots,Temporal_Luk_Boots
 						close;
-						break;
 					}
 					mes "[Hugin's Buttler]";
 					mes "Ok, come back again when you are sure.";
 					close;
-					break;
 				}
 			}
 			mes "[Hugin's Buttler]";
 			mes "Not enough Temporal Crystals. You need 5 Temporal Crystals to upgrade your item.";
 			close;
-			break;
 		}
 		mes "[Hugin's Buttler]";
 		mes "You are not wearing the Temporal Boots. Talk to me once you're wearing them.";
 		close;
-		break;
 	}
 }
 
@@ -2373,7 +2355,6 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 				mes "[Hugin's Magic Master]";
 				mes "Ok, come back when you are ready.";
 				close;
-				break;
 			case 2:
 				set .@enchant,.@enchant1st[.@select-2];
 				break;
@@ -2415,7 +2396,6 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 					mes "Your shoes have reached the maximum option to enchant.";
 					mes "Please bring me a new one if you want me to enchant again.";
 					close;
-					break;
 				}
 				//3rd slot random enchanting
 				switch (.@card3) {
@@ -2437,13 +2417,11 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 							mes "[Hugin's Magic Master]";
 							mes "Ok, come back when you are ready.";
 							close;
-							break;
 						}
 						if (countitem(6608) < .@cost) {
 							mes "[Hugin's Magic Master]";
 							mes "Hmm, you are missing "+(.@cost - countitem(6608))+" Coagulated Spell items. Go get more, and then we can talk about more enchants.";
 							close;
-							break;
 						}
 						specialeffect2 EF_REPAIRWEAPON;
 						set .@equip_refine,getequiprefinerycnt(.@part);
@@ -2455,7 +2433,6 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 						mes "Thank you for believing in me.";
 						getitem2 .@equip_id,1,1,.@equip_refine,0,0,0,.@enchant,.@card3;
 						close;
-						break;
 				}
 			}
 			//4th slot 2nd try enchanting
@@ -2504,13 +2481,11 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 				mes "[Hugin's Magic Master]";
 				mes "Ok, come back when you are ready.";
 				close;
-				break;
 			}
 			if (countitem(6608) < .@cost) {
 				mes "[Hugin's Magic Master]";
 				mes "Hmm, you are missing "+(.@cost - countitem(6608))+" Coagulated Spell items. Go get more, and then we can talk about more enchants.";
 				close;
-				break;
 			}
 		}
 		break;
@@ -2519,7 +2494,6 @@ glast_01,212,273,4	script	Hugin's Magic Master	66,{
 		mes "This is not the right item for this enchant.";
 		mes "Remember, only those 6 types of Temporal Boots are available for enchanting.";
 		close;
-		break;
 	}
 	specialeffect2 EF_REPAIRWEAPON;
 	set .@equip_refine,getequiprefinerycnt(.@part);
@@ -2596,7 +2570,6 @@ glast_01,210,270,8	script	Hugin's Craftsman	726,{
 			delitem 6607,5; //Temporal_Crystal
 			delequip .@part;
 			close;
-			break;
 		}
 		mes "[Hugin's Craftsman]"; //Custom text
 		mes "Yuhuu~ we succeed. Here you are...";
@@ -2619,12 +2592,10 @@ glast_01,210,270,8	script	Hugin's Craftsman	726,{
 			getitem 22011,1; //Temporal_Luk_Boots_
 		}
 		close;
-		break;
 	default:
 		mes "[Hugin's Craftsman]";
 		mes "This is not it! We need ^0000FFAdvanced Temporal Boots^000000 items! The item ^0000FFwith a stat effect and without a slot^000000!";
 		close;
-		break;
 	}
 }
 
@@ -2664,29 +2635,24 @@ glast_01,195,273,4	script	Hugin's Follower#n_gh	123,{
 		mes "[Hugin's Follower]";
 		mes "Alright, please come back whenever you change mind. I think you will have lots of thing to talk with me...";
 		close;
-		break;
 	case 2:
 		if (Zeny < 5000) {
 			mes "[Hugin's Follower]";
 			mes "Please make sure you already have all of the money.";
 			close;
-			break;
 		}
 		set Zeny,Zeny-5000;
 		warp "gl_chyard_",148,144;
 		end;
-		break;
 	case 3:
 		if (Zeny < 10000) {
 			mes "[Hugin's Follower]";
 			mes "Please make sure you already have all of the money.";
 			close;
-			break;
 		}
 		set Zeny,Zeny-10000;
 		warp "gl_cas02_",104,31;
 		end;
-		break;
 	}
 }
 

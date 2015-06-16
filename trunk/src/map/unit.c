@@ -1625,17 +1625,20 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		}
 	}
 
-	if( sd || src->type == BL_HOM ) {
-		if( !sd && (target = battle_get_master(src)) )
-			sd = map_id2sd(target->id);
-		if( sd ) { //Temporarily disabled, awaiting for confirmation
+	if( src->type == BL_HOM ) { //In case of homunuculus, set the sd to the homunculus' master, as needed below
+		struct block_list *m_src = battle_get_master(src);
+
+		if( m_src )
+			sd = map_id2sd(m_src->id);
+	}
+
+	if( sd ) { //Temporarily disabled, awaiting for confirmation
 #if 0
-			if( sd->skillitem != skill_id && !skill_check_condition_castbegin(sd, skill_id, skill_lv) )
+		if( sd->skillitem != skill_id && !skill_check_condition_castbegin(sd, skill_id, skill_lv) )
 #else
-			if( !skill_check_condition_castbegin(sd, skill_id, skill_lv) )
+		if( !skill_check_condition_castbegin(sd, skill_id, skill_lv) )
 #endif
-				return 0;
-		}
+			return 0;
 	}
 
 	if( src->type == BL_MOB ) {
@@ -2775,6 +2778,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char *file, 
 		status_change_end(bl,SC__MANHOLE,INVALID_TIMER);
 		status_change_end(bl,SC_VACUUM_EXTREME,INVALID_TIMER);
 		status_change_end(bl,SC_CURSEDCIRCLE_ATKER,INVALID_TIMER);
+		status_change_end(bl,SC_NETHERWORLD,INVALID_TIMER);
 	}
 
 	if (bl->type&(BL_CHAR|BL_PET)) {

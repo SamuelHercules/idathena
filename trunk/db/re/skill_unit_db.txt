@@ -95,11 +95,11 @@
 488,0xb9,    ,  3, 0,  -1,all,   0x200	//CG_HERMODE
 516,0x86,    ,  3, 0, 100,enemy, 0x000	//GS_DESPERADO
 521,0xbe,    ,  0, 1,1000,enemy, 0x000	//GS_GROUNDDRIFT
-525,0x86,    ,  0, 2,1000,enemy, 0x018  //NJ_HUUMA
+525,0x86,    ,  0, 2, 100,enemy, 0x018  //NJ_HUUMA
 527,0xbc,    , -1, 0,2000,enemy, 0x018	//NJ_TATAMIGAESHI
 535,0xbd,    , -1, 0,  20,enemy, 0x010	//NJ_KAENSIN
 538,0xbb,    ,  1:1:1:2:2:2:3:3:3:4,0,-1,all, 0x010 //NJ_SUITON
-541,0x86,    ,  0, 3:3:4:4:5, 200,enemy, 0x018 //NJ_RAIGEKISAI
+541,0x86,    ,  0, 3:3:4:4:5, 100,enemy, 0x018 //NJ_RAIGEKISAI
 653,0xc6,    ,  0, 5:7:9:11:13:5:7:9:11:13,300,enemy, 0x010 //NPC_EARTHQUAKE
 670,0xc7,    ,  1, 4:7:10:13:16:19:22:25:28:31,1000,all, 0x008 //NPC_EVILLAND
 
@@ -107,10 +107,10 @@
 
 2044,0xca,    ,  0, 2,1000,all,   0x018 //AB_EPICLESIS
 
-2032,0xe1,    ,  2, 0,1000,enemy, 0x018	//GC_POISONSMOKE
+2032,0xe1,    ,  2, 0,2000,enemy, 0x018	//GC_POISONSMOKE
 
-2213,0x86,    ,  0, 9,1000,enemy, 0x018	//WL_COMET
-2216,0xcb,    , -1, 2,2000,enemy, 0x018	//WL_EARTHSTRAIN
+2213,0x86,    ,  0, 9, 100,enemy, 0x018	//WL_COMET
+2216,0xcb,    , -1, 2, 100,enemy, 0x018	//WL_EARTHSTRAIN
 
 2238,0xd8,    ,  0, 1,1000,enemy, 0x006	//RA_ELECTRICSHOCKER
 2239,0xd9,    ,  0, 1,1000,enemy, 0x006	//RA_CLUSTERBOMB
@@ -159,10 +159,10 @@
 2490,0xea,    ,  0, 1,1000,all,   0x006	//GN_HELLS_PLANT
 
 2555,0x104,   ,  0, 1:2:2:3:3,500,enemy,0x002	//RL_B_TRAP
-2567,0x105,   , -1, 0,2000,enemy, 0x098	//RL_FIRE_RAIN
+2567,0x105,   , -1, 0, 100,enemy, 0x098	//RL_FIRE_RAIN
 
-3006,0x86,    ,  0, 1,1000,enemy, 0x018	//KO_BAKURETSU
-3009,0x86,    ,  0, 3,1000,enemy, 0x018 //KO_HUUMARANKA
+3006,0x86,    ,  0, 1, 100,enemy, 0x018	//KO_BAKURETSU
+3009,0x86,    ,  0, 3, 100,enemy, 0x018 //KO_HUUMARANKA
 3010,0xfc,    ,  0, 1,5000,enemy, 0x018 //KO_MAKIBISHI
 3020,0xf8,    ,  0, 2, 500,all, 0x018   //KO_ZENKAI
 

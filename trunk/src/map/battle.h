@@ -420,11 +420,11 @@ extern struct Battle_Config
 
 	int mob_npc_event_type; //Determines on who the npc_event is executed [Skotlex]
 
-	int character_size; //if riders have size=2, and baby class riders size=1 [Lupus]
+	int character_size; //If riders have size = 2, and baby class riders size = 1 [Lupus]
 	int mob_max_skilllvl; //Max possible skill level [Lupus]
-	int rare_drop_announce; //chance <= to show rare drops global announces
+	int rare_drop_announce; //Chance to show rare drops global announces
 
-	int retaliate_to_master;	//Whether when a mob is attacked by another mob, it will retaliate versus the mob or the mob's master. [Skotlex]
+	int retaliate_to_master; //Whether when a mob is attacked by another mob, it will retaliate versus the mob or the mob's master [Skotlex]
 
 	int duel_allow_pvp; //[LuzZza]
 	int duel_allow_gvg; //[LuzZza]
@@ -433,7 +433,7 @@ extern struct Battle_Config
 	int duel_time_interval; //[LuzZza]
 	int duel_only_on_same_map; //[Toms]
 
-	int skip_teleport_lv1_menu; //possibility to disable (skip) Teleport Lv1 menu, that have only two lines `Random` and `Cancel` [LuzZza]
+	int skip_teleport_lv1_menu; //Possibility to disable (skip) Teleport Lv1 menu, that have only two lines `Random` and `Cancel` [LuzZza]
 
 	int allow_skill_without_day; //[Komurka]
 	int allow_es_magic_pc; //[Skotlex]
