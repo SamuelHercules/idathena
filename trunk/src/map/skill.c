@@ -9539,14 +9539,15 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case SR_RAISINGDRAGON:
 			if( sd ) {
-				int max = pc_getmaxspiritball(sd,0);
+				int max;
 
 				if( pc_checkskill(sd,MO_EXPLOSIONSPIRITS) > 0 ) //Only starts the status at the highest learned level if you learned it
 					sc_start(src,bl,SC_EXPLOSIONSPIRITS,100,pc_checkskill(sd,MO_EXPLOSIONSPIRITS),skill_get_time(skill_id,skill_lv));
-				for( i = 0; i < max; i++ ) //Don't call more than max available spheres
-					pc_addspiritball(sd,skill_get_time(MO_CALLSPIRITS,1),max);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,
 					sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
+				max = pc_getmaxspiritball(sd,0);
+				for( i = 0; i < max; i++ ) //Don't call more than max available spheres
+					pc_addspiritball(sd,skill_get_time(MO_CALLSPIRITS,1),max);
 			}
 			break;
 
