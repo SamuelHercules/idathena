@@ -14,7 +14,6 @@
 //============================================================
 
 nif_fild01,332,327,4	script	Deadman	795,{
-
 	if (checkquest(60173) != -1) {
 		if (checkquest(60173,HUNTING) != 2 ) {
 			mes "[Deadman]";

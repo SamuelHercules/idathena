@@ -234,7 +234,7 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 					switch(instance_create(.@md_name$)) {
 						case -3:
 							dispbottom "Memorial Dungeon, '" + .@md_name$ + "' is already in progress.",0xFFFFFF;
-							break;
+							end;
 						case -4:
 						case -2:
 						case -1:
@@ -265,11 +265,11 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 							mapannounce "dali","A member of party" + .@p_name$ + ", " + .@p_reader$ + "entered " +.@md_name$,bc_map,"0x00ff99";
 							setquest 15002;
 							//warp "1@sara",250,155;
-							break;
+							end;
 					}
 					break;
 				case 3:
-					close;
+					end;
 			}
 		}
 	} else {

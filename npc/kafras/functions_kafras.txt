@@ -293,7 +293,7 @@ function	script	F_KafTele	{
 	mes "your destination.";
 	next;
 	set .@menu$, "";
-	for (set .@i, 0; .@i <= 6; set .@i, .@i + 1)
+	for (set .@i, 0; .@i <= getarraysize(@wrpD$); set .@i, .@i + 1)
 		set .@menu$, .@menu$ + @wrpC$[.@i] + ":";
 	set .@j, select (.@menu$) - 1;
 	if (@wrpC$[.@j] == "Cancel") return;

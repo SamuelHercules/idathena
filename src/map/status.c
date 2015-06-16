@@ -1422,7 +1422,7 @@ int status_damage(struct block_list *src, struct block_list *target, int64 in_hp
 	if (!status->hp)
 		flag |= 8;
 
-	//Let through. battle.c/skill.c have the whole logic of when it's possible or
+	//Let through, battle.c/skill.c have the whole logic of when it's possible or
 	//not to hurt someone (and this check breaks pet catching) [Skotlex]
 	//if (!target->prev && !(flag&2))
 		//return 0; //Cannot damage a bl not on a map, except when "charging" hp/sp
@@ -1883,10 +1883,15 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			(sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_id != PA_GOSPEL))
 			return false;
 		if (sc->data[SC_WINKCHARM] && target && !flag) { //Prevents skill usage
-			if (unit_bl2ud(src) && (unit_bl2ud(src))->walktimer == INVALID_TIMER)
-				unit_walktobl(src, map_id2bl(sc->data[SC_WINKCHARM]->val2), 3, 1);
-			clif_emotion(src, E_LV);
-			return false;
+			struct block_list *winkcharm_target = map_id2bl(sc->data[SC_WINKCHARM]->val2);
+
+			if (winkcharm_target != NULL) {
+				if (unit_bl2ud(src) && (unit_bl2ud(src))->walktimer == INVALID_TIMER)
+					unit_walktobl(src, map_id2bl(sc->data[SC_WINKCHARM]->val2), 3, 1);
+				clif_emotion(src, E_LV);
+				return false;
+			} else
+				status_change_end(src, SC_WINKCHARM, INVALID_TIMER);
 		}
 		if (sc->data[SC_BLADESTOP]) {
 			switch (sc->data[SC_BLADESTOP]->val1) {
@@ -4525,7 +4530,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if( flag&SCB_MODE ) {
 		status->mode = status_calc_mode(bl, sc, b_status->mode);
-		//Since mode changed, reset their state.
+		//Since mode changed, reset their state
 		if( !(status->mode&MD_CANATTACK) )
 			unit_stop_attack(bl);
 		if( !(status->mode&MD_CANMOVE) )
@@ -4804,7 +4809,7 @@ void status_calc_bl_(struct block_list *bl, enum scb_flag flag, enum e_status_ca
 		if( hd->master && memcmp(&b_status, status, sizeof(struct status_data)) != 0 )
 			clif_hominfo(hd->master, hd, 0);
 	} else if( bl->type == BL_MER ) {
-		TBL_MER* md = BL_CAST(BL_MER, bl);
+		TBL_MER *md = BL_CAST(BL_MER, bl);
 
 		if( b_status.rhw.atk != status->rhw.atk || b_status.rhw.atk2 != status->rhw.atk2 )
 			clif_mercenary_updatestatus(md->master, SP_ATK1);
@@ -4831,7 +4836,7 @@ void status_calc_bl_(struct block_list *bl, enum scb_flag flag, enum e_status_ca
 		if( b_status.sp != status->sp )
 			clif_mercenary_updatestatus(md->master, SP_SP);
 	} else if( bl->type == BL_ELEM ) {
-		TBL_ELEM* ed = BL_CAST(BL_ELEM, bl);
+		TBL_ELEM *ed = BL_CAST(BL_ELEM, bl);
 
 		if( b_status.max_hp != status->max_hp )
 			clif_elemental_updatestatus(ed->master, SP_MAXHP);
@@ -7017,7 +7022,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	int sc_def = 0, tick_def = -1; //-1 = use sc_def
 	//Fixed resistance value (after rate calculation)
 	//Example:  25% (2500) -> sc_def2 = 2000 -> 5%;
-	//          2500ms -> tick_def2=2000 -> 500ms
+	//          2500ms -> tick_def2 = 2000 -> 500ms
 	int sc_def2 = 0, tick_def2 = 0;
 
 	struct status_data *status, *status_src, *b_status;
@@ -7033,6 +7038,8 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 #define SCDEF_LVL_CAP(bl,cap) ((bl) ? (status_get_lv(bl) > (cap) ? (cap) : status_get_lv(bl)) : 0)
 //Returns the difference between the levels of 'bl' and 'src', both capped to 'maxlv', multiplied by 'factor'
 #define SCDEF_LVL_DIFF(bl,src,maxlv,factor) ((SCDEF_LVL_CAP((bl),(maxlv)) - SCDEF_LVL_CAP((src),(maxlv))) * (factor))
+//Returns the 'sd's job level, capped to 'cap'
+#define SCDEF_JOBLVL_CAP(sd,cap) ((sd) ? ((sd)->status.job_level > (cap) ? (cap) : (sd)->status.job_level) : 0)
 
 	if (status_isimmune(bl)) {
 		switch (type) { //Status effects that are blocked by Golden Thief Bug card or Wand of Hermod
@@ -7176,18 +7183,18 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			tick_def = 0; //No duration reduction
 			break;
 		case SC_ANKLE:
-			if (status->mode&MD_BOSS) //Lasts 5 times less on bosses
-				tick /= 5;
-			sc_def = status->agi * 50;
+			if (status->mode&MD_BOSS)
+				tick /= 5; //Lasts 5 times less on bosses
+			tick_def2 = status->agi * 100;
 			break;
-		case SC_MARSHOFABYSS: //5 second (Fixed) + 25 second - { (INT + LUK) / 20 second }
+		case SC_MARSHOFABYSS: //5 secs (Fixed) + 25 secs - {((INT + LUK) / 20 secs)}
 			tick_def2 = (status->int_ + status->luk) * 50;
 			break;
 		case SC_WHITEIMPRISON:
 			if (bl->type != BL_PC)
 				tick_def2 = (status->vit + status->luk) * 50;
 			break;
-		case SC_STASIS: //10 second (fixed) + { Stasis Skill level * 10 - (Target VIT + DEX) / 20 }
+		case SC_STASIS: //10 secs (fixed) + {(Stasis Skill level * 10 - (Target VIT + DEX) / 20)}
 			tick_def2 = (status->vit + status->dex) * 50;
 			break;
 		case SC_BURNING:
@@ -7198,6 +7205,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			break;
 		case SC_OBLIVIONCURSE: //(100 - 0.8 x INT)%
 			sc_def = status->int_ * 80;
+			tick_def = 0;
 		//Fall through
 		case SC_TOXIN:
 		case SC_PARALYSE:
@@ -7215,12 +7223,10 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			tick_def2 = (status->vit + status->agi) * 70;
 			break;
 		case SC_DEEPSLEEP:
-			//sc_def = b_status->int_ * 50; //Needs more info
-			//tick_def = 0; //Linear reduction instead
 			tick_def2 = b_status->int_ * 50 + SCDEF_LVL_CAP(bl,150) * 50; //kRO balance update lists this formula
 			break;
 		case SC_NETHERWORLD:
-			tick_def2 = SCDEF_LVL_CAP(bl,150) * 20 + (sd ? (sd->status.job_level > 50 ? 50 : sd->status.job_level) * 100 : 0);
+			tick_def2 = SCDEF_LVL_CAP(bl,150) * 20 + SCDEF_JOBLVL_CAP(sd,50) * 100;
 			break;
 		case SC_CRYSTALIZE:
 			if (bl->type == BL_PC)
@@ -7292,10 +7298,10 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 		rate -= sc_def2;
 		switch (type) { //Minimum chances
 			case SC_OBLIVIONCURSE:
-				rate = max(rate,500); //Minimum of 5%
+				rate = max(rate,500); //5%
 				break;
 			case SC_BITE:
-				rate = max(rate,5000); //Minimum of 50%
+				rate = max(rate,5000); //50%
 				break;
 		}
 		if (sd && SC_COMMON_MIN <= type && type <= SC_COMMON_MAX) { //Item resistance (only applies to rate%)
@@ -7325,20 +7331,25 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	tick -= tick_def2;
 
 	switch (type) { //Minimum durations
+		case SC_NETHERWORLD:
+			tick = max(tick,4000); //4 secs
+			break;
 		case SC_ANKLE:
+			tick = max(tick,5000 + status_get_lv(bl) * 10); //5 secs + (Target AGI * 0.01)
+			break;
 		case SC_BURNING:
 		case SC_MARSHOFABYSS:
 		case SC_DEEPSLEEP:
-			tick = max(tick,5000); //Minimum duration 5s
+			tick = max(tick,5000); //5 secs
 			break;
 		case SC_FREEZING:
-			tick = max(tick,6000); //Minimum duration 6s
+			tick = max(tick,6000); //6 secs
 			break;
 		case SC_WHITEIMPRISON:
 			if (bl->type != BL_PC)
 		//Fall through
 		case SC_STASIS:
-			tick = max(tick,10000); //Minimum duration 10s
+			tick = max(tick,10000); //10 secs
 			break;
 		default: //Skills need to trigger even if the duration is reduced below 1ms
 			tick = max(tick,1);
@@ -7348,6 +7359,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	return tick;
 #undef SCDEF_LVL_CAP
 #undef SCDEF_LVL_DIFF
+#undef SCDEF_JOBLVL_CAP
 }
 
 //[Ind] Fast-Checking sc-display array
@@ -7882,6 +7894,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC__UNLUCKY:
 			case SC__WEAKNESS:
 			case SC_CURSEDCIRCLE_TARGET:
+			case SC_NETHERWORLD:
 			case SC_DEEPSLEEP:
 			case SC_CRYSTALIZE:
 			case SC_BLOODSUCKER:
@@ -7905,8 +7918,6 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 
 	switch (type) { //Before overlapping fail, one must check for status cured
 		case SC_BLESSING:
-			//@TODO: Blessing and Agi up should do 1 damage against players on Undead Status, even on PVM,
-			//but cannot be plagiarized (this requires aegis investigation on packets and official behavior) [Brainstorm]
 			if ((!undead_flag && status->race != RC_DEMON) || bl->type == BL_PC) {
 				status_change_end(bl,SC_CURSE,INVALID_TIMER);
 				if (sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
@@ -8909,7 +8920,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				if( (!undead_flag && status->race != RC_DEMON) || bl->type == BL_PC )
 					val2 = val1;
 				else
-					val2 = 0; //0 -> Half stat
+					val2 = 0; //Offensive blessing -> Half stat
 				break;
 			case SC_TRICKDEAD:
 				if( vd )
@@ -10095,7 +10106,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 	opt_flag = 1;
 	switch (type) {
 		//OPT1
-		case SC_STONE: 
+		case SC_STONE:
 			sc->opt1 = OPT1_STONEWAIT;
 			break;
 		case SC_FREEZE:
@@ -10820,9 +10831,10 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				enum sc_type type2 = (type == SC_CLOSECONFINE2 ? SC_CLOSECONFINE : SC_TINDER_BREAKER);
 
 				if (src && sc2 && sc2->data[type2]) //If status was already ended, do nothing
-					if (type == SC_TINDER_BREAKER2 || (--(sc2->data[type2]->val1) <= 0)) //Decrease count
+					if (type == SC_TINDER_BREAKER2 || (--(sc2->data[type2]->val2) <= 0)) //Decrease count
 						status_change_end(src,type2,INVALID_TIMER); //No more holds, free him up
 			}
+			break;
 		case SC_TINDER_BREAKER:
 		case SC_CLOSECONFINE:
 			if (sce->val2 > 0) { //Caster has been unlocked, nearby chars need to be unlocked
@@ -11012,14 +11024,11 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 			break;
 		case SC_RAISINGDRAGON:
 			if (sd && sce->val2 && !pc_isdead(sd)) {
-				int i = min(sd->spiritball,5);
+				int i;
 
-				pc_delspiritball(sd,sd->spiritball,0);
+				if ((i = (sd->spiritball - 5)) > 0)
+					pc_delspiritball(sd,i,0);
 				status_change_end(bl,SC_EXPLOSIONSPIRITS,INVALID_TIMER);
-				while (i > 0) {
-					pc_addspiritball(sd,skill_get_time(MO_CALLSPIRITS,pc_checkskill(sd,MO_CALLSPIRITS)),5);
-					--i;
-				}
 			}
 			break;
 		case SC_NETHERWORLD:

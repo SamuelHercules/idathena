@@ -2758,7 +2758,7 @@ int mob_class_change(struct mob_data *md, int mob_id)
 		return 0; //Treasure Boxes
 
 	if( md->special_state.ai > AI_ATTACK )
-		return 0; //Marine Spheres and Floras
+		return 0; //Marine Spheres, Floras, Zanzou, Legion, FAW
 
 	if( mob_is_clone(md->mob_id) )
 		return 0; //Clones

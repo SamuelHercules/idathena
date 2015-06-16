@@ -603,7 +603,7 @@ struct map_data {
 		unsigned pvp_nightmaredrop :1;
 		unsigned pvp_nocalcrank : 1;
 		unsigned gvg_castle : 1;
-		unsigned gvg : 1; // Now it identifies gvg versus maps that are active 24/7
+		unsigned gvg : 1; // Now it identifies gvg vs-maps that are active 24/7
 		unsigned gvg_dungeon : 1; // Celest
 		unsigned gvg_noparty : 1;
 		unsigned battleground : 2; // [BattleGround System]

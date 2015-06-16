@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= rAthena Dev Team
 //===== Last Updated: ========================================
-//= 20150610
+//= 20150615
 //===== Description: =========================================
 //= A reference manual for the rAthena scripting language.
 //= Commands are sorted depending on their functionality.
@@ -2277,6 +2277,14 @@ Whatever it returns is determined by type.
  2 - The hidden part of the NPC's display name
  3 - The NPC's unique name (::name)
  4 - The name of the map the NPC is in.
+
+---------------------------------------
+
+*charid2sd(<char id>)
+
+This function returns the RID of the character with the given character ID.
+
+If the character is offline or doesn't exist, 0 is returned.
 
 ---------------------------------------
 
@@ -5421,7 +5429,7 @@ expected, refer only to an invoking character.
 What these commands do is 'attach' a script to the player which will get
 executed on attack (or when attacked in the case of autobonus2).
 
-Rate is the trigger rate of the script (10000 = 100%). 
+Rate is the trigger rate of the script (1000 = 100%). 
 
 Duration is the time that the bonus will last for since the script has triggered.
 
@@ -7448,9 +7456,22 @@ Example:
 
 ---------------------------------------
 
+*log10(<number>)
+
+Returns log base 10 of the number.
+
+Note: The value is truncated to integer.
+
+Example:
+	.@i = log10(100); // .@i will be 2
+
+---------------------------------------
+
 *sqrt(<number>)
 
 Returns the square-root of a number.
+
+Note: The value is truncated to integer.
 
 Example:
 	.@i = sqrt(25); // .@i will be 5
@@ -7460,6 +7481,10 @@ Example:
 *distance(<x0>,<y0>,<x1>,<y1>)
 
 Returns distance between 2 points.
+
+Note: When server is configured to use circular areas, the Euclidean distance
+is returned, otherwise the Chebyshev distance. The value is truncated to
+integer.
 
 Example:
 	.@i = distance(100,200,101,202);
