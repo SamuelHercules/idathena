@@ -3666,19 +3666,19 @@ static const char *npc_parse_mapflag(char *w1, char *w2, char *w3, char *w4, con
 	int state = 1;
 
 	//w1 = <mapname>
-	if( sscanf(w1,"%31[^,]",mapname) != 1 ) {
+	if (sscanf(w1,"%31[^,]",mapname) != 1) {
 		ShowError("npc_parse_mapflag: Invalid mapflag definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n",filepath,strline(buffer,start-buffer),w1,w2,w3,w4);
 		return strchr(start,'\n'); //Skip and continue
 	}
 	m = map_mapname2mapid(mapname);
-	if( m < 0 ) {
+	if (m < 0) {
 		ShowWarning("npc_parse_mapflag: Unknown map in file '%s', line '%d': %s\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n",mapname,filepath,strline(buffer,start-buffer),w1,w2,w3,w4);
 		return strchr(start,'\n'); //Skip and continue
 	}
 
 	if (w4 && !strcmpi(w4,"off"))
 		state = 0; //Disable mapflag rather than enable it [Skotlex]
-	
+
 	if (!strcmpi(w3,"nosave")) {
 		char savemap[32];
 		int savex, savey;
@@ -3969,9 +3969,9 @@ static const char *npc_parse_mapflag(char *w1, char *w2, char *w3, char *w4, con
 		char *mod;
 		int skill_id;
 
-		strtok(w4,"\t"); /* Makes w4 contain only 4th param */
+		strtok(w4,"\t"); //Makes w4 contain only 4th param
 
-		if (!(mod = strtok(NULL,"\t"))) /* Makes mod contain only the 5th param */
+		if (!(mod = strtok(NULL,"\t"))) //Makes mod contain only the 5th param
 			ShowWarning("npc_parse_mapflag: Missing 5th param for 'adjust_skill_damage' flag! removing flag from %s in file '%s', line '%d'.\n",map[m].name,filepath,strline(buffer,start - buffer));
 		else if(!(skill_id = skill_name2id(w4)))
 			ShowWarning("npc_parse_mapflag: Unknown skill (%s) for 'adjust_skill_damage' flag! removing flag from %s in file '%s', line '%d'.\n",w4,map[m].name,filepath,strline(buffer,start - buffer));

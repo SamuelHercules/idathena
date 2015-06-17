@@ -1669,8 +1669,7 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 
 	damage = atkmax;
 
-	if ((sc && sc->data[SC_WEAPONPERFECTION]) ||
-		skill_id == NJ_ISSEN || skill_id == PA_SHIELDCHAIN)
+	if ((sc && sc->data[SC_WEAPONPERFECTION]) || skill_id == NJ_ISSEN || skill_id == PA_SHIELDCHAIN)
 		weapon_perfection = true;
 
 	damage = battle_calc_sizefix(damage, sd, tstatus->size, type, weapon_perfection);
@@ -1868,7 +1867,7 @@ static bool battle_skill_damage_iscaster(uint8 caster, enum bl_type src_type)
 	if(caster == 0)
 		return false;
 
-	switch (src_type) {
+	switch(src_type) {
 		case BL_PC: if(caster&SDC_PC) return true; break;
 		case BL_MOB: if(caster&SDC_MOB) return true; break;
 		case BL_PET: if(caster&SDC_PET) return true; break;

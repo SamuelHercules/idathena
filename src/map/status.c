@@ -11160,6 +11160,10 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				map_addflooritem(&it,it.amount,bl->m,bl->x,bl->y,sd->status.char_id,0,0,4);
 			}
 			break;
+		case SC_ALL_RIDING:
+			if (sd && sd->state.autocast)
+				sd->state.autocast = 0;
+			break;
 	}
 
 	opt_flag = 1;

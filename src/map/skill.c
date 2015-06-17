@@ -535,7 +535,7 @@ bool skill_isNotOk(uint16 skill_id, struct map_session_data *sd)
 	//Epoque:
 	//This code will compare the player's attack motion value which is influenced by ASPD before
 	//allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
-	//AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion.
+	//AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion
 	//Attempted to cast a skill before the attack motion has finished
 	if (!sd->state.autocast && sd->skillitem != skill_id && sd->canskill_tick &&
 		DIFF_TICK(gettick(), sd->canskill_tick) < sd->battle_status.amotion * battle_config.skill_amotion_leniency / 100)
@@ -2045,6 +2045,7 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 
 			dstsd->state.autocast = 1;
 			skill_consume_requirement(dstsd,skill_id,skill_lv,1);
+
 			switch(type) {
 				case CAST_GROUND:
 					skill_castend_pos2(bl,tbl->x,tbl->y,skill_id,skill_lv,tick,0);
@@ -2056,8 +2057,10 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 					skill_castend_damage_id(bl,tbl,skill_id,skill_lv,tick,0);
 					break;
 			}
+
 			dstsd->state.autocast = 0;
 			ud = unit_bl2ud(bl);
+
 			if(ud) {
 				rate = skill_delayfix(bl, skill_id, skill_lv);
 				if(DIFF_TICK(ud->canact_tick, tick + rate) < 0) {
@@ -2072,6 +2075,7 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 	//Autobonus when attacked
 	if(dstsd && !status_isdead(bl) && dstsd->autobonus2[0].rate && !(skill_id && skill_get_nk(skill_id)&NK_NO_DAMAGE)) {
 		int i;
+
 		for(i = 0; i < ARRAYLENGTH(dstsd->autobonus2); i++) {
 			if(rnd()%1000 >= dstsd->autobonus2[i].rate)
 				continue;
@@ -12152,17 +12156,15 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 		return 0;
 	}
 
-	switch(skill_id) {
+	switch( skill_id ) {
 		case AL_TELEPORT:
 		case ALL_ODINS_RECALL:
-			//The storage window is closed automatically by the client when there's
-			//any kind of map change, so we need to restore it automatically
-			//bugreport:8027
-			if(strcmp(map,"Random") == 0)
+			//The storage window is closed automatically by the client
+			//When there's any kind of map change, so we need to restore it automatically [bugreport:8027]
+			if( strcmp(map,"Random") == 0 )
 				pc_randomwarp(sd,CLR_TELEPORT);
-			else if (sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
+			else if( sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL ) //Need lv2 to be able to warp here
 				pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
-
 			clif_refresh_storagewindow(sd);
 			break;
 
@@ -12175,7 +12177,7 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 				unsigned short mapindex;
 
 				mapindex  = mapindex_name2id((char *)map);
-				if(!mapindex) { //Given map not found?
+				if( !mapindex ) { //Given map not found?
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					skill_failed(sd);
 					return 0;
@@ -12186,12 +12188,12 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 				p[2] = &sd->status.memo_point[1];
 				p[3] = &sd->status.memo_point[2];
 
-				if((maxcount = skill_get_maxcount(skill_id, sd->menuskill_val)) > 0) {
-					for(i = 0; i < MAX_SKILLUNITGROUP && sd->ud.skillunit[i] && maxcount; i++) {
-						if(sd->ud.skillunit[i]->skill_id == skill_id)
+				if( (maxcount = skill_get_maxcount(skill_id, sd->menuskill_val)) > 0 ) {
+					for( i = 0; i < MAX_SKILLUNITGROUP && sd->ud.skillunit[i] && maxcount; i++ ) {
+						if( sd->ud.skillunit[i]->skill_id == skill_id )
 							maxcount--;
 					}
-					if(!maxcount) {
+					if( !maxcount ) {
 						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 						skill_failed(sd);
 						return 0;
@@ -12202,10 +12204,10 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 				wx = sd->menuskill_val>>16;
 				wy = sd->menuskill_val&0xffff;
 
-				if(lv <= 0)
+				if( lv <= 0 )
 					return 0;
 
-				if(lv > 4)
+				if( lv > 4 )
 					lv = 4; //Crash prevention
 
 				//Check if the chosen map exists in the memo list
@@ -12218,7 +12220,7 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 					return 0;
 				}
 
-				if(!skill_check_condition_castend(sd,sd->menuskill_id,lv)) { //This checks versus skill_id/skill_lv
+				if( !skill_check_condition_castend(sd,sd->menuskill_id,lv) ) { //This checks versus skill_id/skill_lv
 					skill_failed(sd);
 					return 0;
 				}
@@ -12226,7 +12228,7 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 				skill_consume_requirement(sd,sd->menuskill_id,lv,2);
 				sd->skillitem = sd->skillitemlv = 0; //Clear data that's skipped in 'skill_castend_pos' [Inkfish]
 
-				if((group = skill_unitsetting(&sd->bl,skill_id,lv,wx,wy,0)) == NULL) {
+				if( (group = skill_unitsetting(&sd->bl,skill_id,lv,wx,wy,0)) == NULL ) {
 					skill_failed(sd);
 					return 0;
 				}
@@ -12244,7 +12246,7 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 #undef skill_failed
 }
 
-///transforms 'target' skill unit into dissonance (if conditions are met)
+///Transforms 'target' skill unit into dissonance (if conditions are met)
 static int skill_dance_overlap_sub(struct block_list *bl, va_list ap)
 {
 	struct skill_unit *target = (struct skill_unit *)bl;
@@ -16177,7 +16179,7 @@ int skill_vfcastfix(struct block_list *bl, double time, uint16 skill_id, uint16 
 			reduce_ct_r += sc->data[SC_POEMBRAGI]->val2;
 		if( sc->data[SC_IZAYOI] )
 			VARCAST_REDUCTION(50);
-		if( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 && (skill_get_ele(skill_id, skill_lv) == ELE_WATER) )
+		if( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 && skill_get_ele(skill_id, skill_lv) == ELE_WATER )
 			VARCAST_REDUCTION(30); //Reduces 30% Variable Cast Time of Water spells
 		if( sc->data[SC_TELEKINESIS_INTENSE] )
 			VARCAST_REDUCTION(sc->data[SC_TELEKINESIS_INTENSE]->val2);
@@ -16298,7 +16300,7 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		if (sc && sc->count) {
 			if (sc->data[SC_POEMBRAGI])
 				time -= time * sc->data[SC_POEMBRAGI]->val3 / 100;
-			if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3 && (skill_get_ele(skill_id, skill_lv) == ELE_WIND))
+			if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3 && skill_get_ele(skill_id, skill_lv) == ELE_WIND)
 				time /= 2; //After Delay of Wind element spells reduced by 50%
 		}
 	}
