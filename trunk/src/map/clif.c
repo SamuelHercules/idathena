@@ -5652,7 +5652,7 @@ void clif_skill_poseffect(struct block_list *src,uint16 skill_id,int val,int x,i
 	WBUFW(buf,10) = x;
 	WBUFW(buf,12) = y;
 	WBUFL(buf,14) = tick;
-	if(disguised(src)) {
+	if (disguised(src)) {
 		clif_send(buf,packet_len(0x117),src,AREA_WOS);
 		WBUFL(buf,4) = -src->id;
 		clif_send(buf,packet_len(0x117),src,SELF);
@@ -5673,12 +5673,17 @@ void clif_skill_warppoint(struct map_session_data *sd, uint16 skill_id, uint16 s
 	WFIFOW(fd,0) = 0x11c;
 	WFIFOW(fd,2) = skill_id;
 	memset(WFIFOP(fd,4), 0x00, 4 * MAP_NAME_LENGTH_EXT);
-	if (map1 == (unsigned short) - 1) strcpy((char *)WFIFOP(fd,4), "Random");
-	else // normal map name
-	if (map1 > 0) mapindex_getmapname_ext(mapindex_id2name(map1), (char *)WFIFOP(fd,4));
-	if (map2 > 0) mapindex_getmapname_ext(mapindex_id2name(map2), (char *)WFIFOP(fd,20));
-	if (map3 > 0) mapindex_getmapname_ext(mapindex_id2name(map3), (char *)WFIFOP(fd,36));
-	if (map4 > 0) mapindex_getmapname_ext(mapindex_id2name(map4), (char *)WFIFOP(fd,52));
+	if (map1 == (unsigned short) - 1)
+		strcpy((char *)WFIFOP(fd,4), "Random");
+	else //Normal map name
+	if (map1 > 0)
+		mapindex_getmapname_ext(mapindex_id2name(map1), (char *)WFIFOP(fd,4));
+	if (map2 > 0)
+		mapindex_getmapname_ext(mapindex_id2name(map2), (char *)WFIFOP(fd,20));
+	if (map3 > 0)
+		mapindex_getmapname_ext(mapindex_id2name(map3), (char *)WFIFOP(fd,36));
+	if (map4 > 0)
+		mapindex_getmapname_ext(mapindex_id2name(map4), (char *)WFIFOP(fd,52));
 	WFIFOSET(fd,packet_len(0x11c));
 
 	sd->menuskill_id = skill_id;
