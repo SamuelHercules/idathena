@@ -442,3 +442,11 @@ bonus bAddMaxWeight,n;			MaxWeight + n (in units of 0.1)
 bonus3 bHPVanishRate,n,x,t;		Same as bonus2 but works only if trigger t activates (see BF_* flags) when attacking.
 bonus3 bSPVanishRate,n,x,t;		Same as bonus2 but works only if trigger t activates (see BF_* flags) when attacking.
 bonus3 bStateNoRecoverRace,n,x,r;	Set no recovery state of an enemy of race n at x% for r milliseconds with normal attack.
+
+bonus4 bAddEff,n,x,y,t;			Adds a x/100 chance to cause effect n to the target when attacking (e.g. x=100 makes 1% chance, x=10000 makes 100% chance, etc).
+					y is the trigger criteria:
+						ATF_SELF: Trigger effect on self.
+						ATF_TARGET: Trigger effect on target (default)
+						ATF_SHORT: Trigger on melee attacks
+						ATF_LONG: Trigger in ranged attacks (default: trigger on all attacks)
+					t is the effect duration in milliseconds. Valid range is 0 ~ 65535. If set and greater than 0, the effect can't be avoided nor its duration reduced.

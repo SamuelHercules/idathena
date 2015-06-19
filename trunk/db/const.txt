@@ -686,7 +686,9 @@ Eff_Bleeding	9
 Eff_DPoison	10
 Eff_Fear	309
 Eff_Burning	310
+Eff_Freezing	311
 Eff_Crystalize	388
+Eff_Voiceofsiren	399
 Eff_Deepsleep	400
 
 Ele_Neutral	0

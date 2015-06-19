@@ -1913,12 +1913,12 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 		if (skill_id &&
 			(src->type != BL_PC || ((TBL_PC *)src)->skillitem != skill_id)) //Do not block item-casted skills
 		{ //Skills blocked through status changes
-			if ((sc->cant.cast ||
+			if (sc->cant.cast ||
 				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || //Only Basilica's caster that can cast, and only Basilica to cancel it
 				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
 				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				(sc->data[SC_STASIS] && skill_block_check(src, SC_STASIS, skill_id)) ||
-				(sc->data[SC_KAGEHUMI] && skill_block_check(src, SC_KAGEHUMI, skill_id))))
+				(sc->data[SC_KAGEHUMI] && skill_block_check(src, SC_KAGEHUMI, skill_id)))
 			{
 				if (flag == 2)
 					return false;

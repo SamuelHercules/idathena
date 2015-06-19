@@ -103,10 +103,14 @@ struct s_autospell {
 	bool lock; //bAutoSpellOnSkill: blocks autospell from triggering again, while being executed
 };
 
+//AddEff bonus data
 struct s_addeffect {
-	enum sc_type id;
-	short rate, arrow_rate;
-	unsigned char flag;
+	enum sc_type id;  //Effect ID
+	int16 rate;       //Base success rate
+	int16 arrow_rate; //Success rate modifier for ranged attacks (adds to the base rate)
+	uint8 flag;       //Trigger flag (@see enum auto_trigger_flag)
+	uint16 duration;  //Optional, non-reducible duration in ms, if 0, the default, reducible effect's duration is used
+	//TODO: Duration is only used in addeff (set through bonus4 bAddEff), while the other addeffect types should also can use it [Haru]
 };
 
 struct s_addeffectonskill {
