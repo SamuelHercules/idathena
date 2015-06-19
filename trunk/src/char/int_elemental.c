@@ -111,6 +111,7 @@ static void mapif_parse_elemental_create(int fd, struct s_elemental* ele) {
 
 static void mapif_parse_elemental_load(int fd, int ele_id, int char_id) {
 	struct s_elemental ele;
+
 	bool result = mapif_elemental_load(ele_id, char_id, &ele);
 	mapif_elemental_send(fd, &ele, result);
 }

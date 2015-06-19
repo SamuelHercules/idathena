@@ -729,10 +729,10 @@ void initChangeTables(void) {
 	set_sc( SO_WARMER            , SC_WARMER          , SI_WARMER          , SCB_NONE );
 	set_sc( SO_VACUUM_EXTREME    , SC_VACUUM_EXTREME  , SI_VACUUM_EXTREME  , SCB_NONE );
 	set_sc( SO_ARRULLO           , SC_DEEPSLEEP       , SI_DEEP_SLEEP      , SCB_NONE );
-	set_sc( SO_FIRE_INSIGNIA     , SC_FIRE_INSIGNIA   , SI_FIRE_INSIGNIA   , SCB_BATK|SCB_WATK|SCB_MATK|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_WATER_INSIGNIA    , SC_WATER_INSIGNIA  , SI_WATER_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_WIND_INSIGNIA     , SC_WIND_INSIGNIA   , SI_WIND_INSIGNIA   , SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_EARTH_INSIGNIA    , SC_EARTH_INSIGNIA  , SI_EARTH_INSIGNIA  , SCB_MDEF|SCB_DEF|SCB_MAXHP|SCB_MAXSP|SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
+	set_sc( SO_FIRE_INSIGNIA     , SC_FIRE_INSIGNIA   , SI_FIRE_INSIGNIA   , SCB_WATK|SCB_MATK|SCB_ATK_ELE|SCB_REGEN );
+	set_sc( SO_WATER_INSIGNIA    , SC_WATER_INSIGNIA  , SI_WATER_INSIGNIA  , SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
+	set_sc( SO_WIND_INSIGNIA     , SC_WIND_INSIGNIA   , SI_WIND_INSIGNIA   , SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
+	set_sc( SO_EARTH_INSIGNIA    , SC_EARTH_INSIGNIA  , SI_EARTH_INSIGNIA  , SCB_MDEF|SCB_DEF|SCB_MAXHP|SCB_MAXSP|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
 
 	set_sc( GN_CARTBOOST                  , SC_GN_CARTBOOST, SI_GN_CARTBOOST               , SCB_SPEED );
 	set_sc( GN_THORNS_TRAP                , SC_THORNSTRAP  , SI_THORNS_TRAP                , SCB_NONE );
@@ -1846,11 +1846,6 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 	}
 
 	switch (skill_id) {
-		case PA_PRESSURE:
-			if (flag && target) //Gloria Avoids pretty much everything
-				if (tsc && (tsc->option&OPTION_HIDE))
-					return false;
-			break;
 		case GN_WALLOFTHORN:
 			if (target && status_isdead(target))
 				return false;
@@ -1868,21 +1863,21 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 		if (sc->data[SC_ALL_RIDING])
 			return false; //New mounts can't attack nor use skills in the client, this check makes it cheat-safe [Ind]
 		if (sc->data[SC_ASH] && rnd()%100 < 50 && src->type == BL_PC) { //Gain 50% of failing rate when casting skills
-			clif_skill_fail((TBL_PC *)src, skill_id, 0, 0, 0);
+			clif_skill_fail((TBL_PC *)src, skill_id, USESKILL_FAIL_LEVEL, 0, 0);
 			return false;
 		}
 		if (sc->opt1 && sc->opt1 != OPT1_BURNING && sc->opt1 != OPT1_FREEZING &&
 			skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE) { //Stuned/Frozen/etc
-			if (flag != 1)
-				return false; //Can't cast, casted stuff can't damage
+			if (flag == 2)
+				return false; //Casted ground spells can't damage
 			if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
-				return false; //Targetted spells can't come off
+				return false; //Can't cast
 		}
 		if ((sc->data[SC_TRICKDEAD] && skill_id != NV_TRICKDEAD) ||
 			(sc->data[SC_AUTOCOUNTER] && !flag && skill_id) ||
 			(sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_id != PA_GOSPEL))
 			return false;
-		if (sc->data[SC_WINKCHARM] && target && !flag) { //Prevents skill usage
+		if (sc->data[SC_WINKCHARM] && target && flag != 2) {
 			struct block_list *winkcharm_target = map_id2bl(sc->data[SC_WINKCHARM]->val2);
 
 			if (winkcharm_target != NULL) {
@@ -1904,9 +1899,8 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			}
 		}
 		if (sc->data[SC_DANCING] && flag != 2) {
-			//Lvl 5 Lesson or higher allow you use 3rd job skills while dancing
 			if (src->type == BL_PC && ((skill_id >= WA_SWING_DANCE && skill_id <= WM_UNLIMITED_HUMMING_VOICE) || skill_id == WM_FRIGG_SONG)) {
-				if (pc_checkskill((TBL_PC *)src, WM_LESSON) < 5)
+				if (pc_checkskill((TBL_PC *)src, WM_LESSON) < 5) //Lvl 5 Lesson or higher allow you use 3rd job skills while dancing
 					return false;
 			} else if (sc->data[SC_LONGING]) { //Allow everything except dancing/re-dancing [Skotlex]
 				if (skill_id == BD_ENCORE || (skill_get_inf2(skill_id)&(INF2_SONG_DANCE|INF2_ENSEMBLE_SKILL)))
@@ -1919,14 +1913,18 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 		if (skill_id &&
 			(src->type != BL_PC || ((TBL_PC *)src)->skillitem != skill_id)) //Do not block item-casted skills
 		{ //Skills blocked through status changes
-			if (!flag && //Blocked only from using the skill (stuff like autospell may still go through
-				(sc->cant.cast ||
-				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || // Only Basilica's caster that can cast, and only Basilica to cancel it
+			if ((sc->cant.cast ||
+				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || //Only Basilica's caster that can cast, and only Basilica to cancel it
 				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
 				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				(sc->data[SC_STASIS] && skill_block_check(src, SC_STASIS, skill_id)) ||
 				(sc->data[SC_KAGEHUMI] && skill_block_check(src, SC_KAGEHUMI, skill_id))))
-				return false;
+			{
+				if (flag == 2)
+					return false;
+				if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
+					return false;
+			}
 			//Skill blocking
 			if ((sc->data[SC_VOLCANO] && skill_id == WZ_ICEWALL) ||
 				(sc->data[SC_ROKISWEIL] && skill_id != BD_ADAPTATION) ||
@@ -3807,14 +3805,6 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 			sd->subele[ELE_NEUTRAL] += sc->data[SC_MTF_MLEATKED]->val1;
 		if(sc->data[SC_MTF_CRIDAMAGE])
 			sd->bonus.crit_atk_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;
-		if(sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 3)
-			sd->magic_addele[ELE_FIRE] += 25;
-		if(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3)
-			sd->magic_addele[ELE_WATER] += 25;
-		if(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3)
-			sd->magic_addele[ELE_WIND] += 25;
-		if(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
-			sd->magic_addele[ELE_EARTH] += 25;
 	}
 	status_cpy(&sd->battle_status,status);
 
@@ -3974,7 +3964,7 @@ int status_calc_elemental_(struct elemental_data *ed, enum e_status_calc_opt opt
 		if( !ele->mode )
 			status->mode = EL_MODE_PASSIVE;
 		else
-			status->mode = ele->mode;
+			status->mode = (enum e_mode)ele->mode;
 
 		status->class_ = CLASS_NORMAL;
 		status_calc_misc(&ed->bl, status, 0);
@@ -4150,46 +4140,42 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 //Calculates SC related regen rates
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc)
 {
-	if (!(bl->type&BL_REGEN) || !regen)
+	if( !(bl->type&BL_REGEN) || !regen )
 		return;
 
 	regen->flag = RGN_HP|RGN_SP;
 
-	if (regen->sregen) {
-		if (regen->sregen->hp)
+	if( regen->sregen ) {
+		if( regen->sregen->hp )
 			regen->flag |= RGN_SHP;
-
-		if (regen->sregen->sp)
+		if( regen->sregen->sp )
 			regen->flag |= RGN_SSP;
-
 		regen->sregen->rate.hp = regen->sregen->rate.sp = 100;
 	}
 
-	if (regen->ssregen) {
-		if (regen->ssregen->hp)
+	if( regen->ssregen ) {
+		if( regen->ssregen->hp )
 			regen->flag |= RGN_SHP;
-
-		if (regen->ssregen->sp)
+		if( regen->ssregen->sp )
 			regen->flag |= RGN_SSP;
-
 		regen->ssregen->rate.hp = regen->ssregen->rate.sp = 100;
 	}
 
 	regen->rate.hp = regen->rate.sp = 100;
 
-	if (!sc || !sc->count)
+	if( !sc || !sc->count )
 		return;
 
-	if ((sc->data[SC_POISON] && !sc->data[SC_SLOWPOISON]) ||
+	if( (sc->data[SC_POISON] && !sc->data[SC_SLOWPOISON]) ||
 		(sc->data[SC_DPOISON] && !sc->data[SC_SLOWPOISON]) ||
 		sc->data[SC_BERSERK] ||
 		sc->data[SC_TRICKDEAD] ||
 		sc->data[SC_BLEEDING] ||
 		sc->data[SC_SATURDAYNIGHTFEVER] ||
-		sc->data[SC_REBOUND])
+		sc->data[SC_REBOUND] )
 		regen->flag = RGN_NONE;
 
-	if (sc->data[SC_DANCING] ||
+	if( sc->data[SC_DANCING] ||
 #ifdef RENEWAL
 		sc->data[SC_MAXIMIZEPOWER] ||
 #else
@@ -4197,42 +4183,67 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		(sc->data[SC_EXPLOSIONSPIRITS] || sc->data[SC_EXTREMITYFIST]) &&
 		(!sc->data[SC_SPIRIT] || sc->data[SC_SPIRIT]->val2 != SL_MONK)) ||
 #endif
-		sc->data[SC_VITALITYACTIVATION] || sc->data[SC_TOXIN] || sc->data[SC_OBLIVIONCURSE])
+		sc->data[SC_VITALITYACTIVATION] || sc->data[SC_TOXIN] || sc->data[SC_OBLIVIONCURSE] )
 		regen->flag &= ~RGN_SP; //No natural SP regen
 
-	if (sc->data[SC_MAGNIFICAT])
+	if( sc->data[SC_MAGNIFICAT] )
 		regen->rate.sp += 100; //2x SP regen
 
-	if (sc->data[SC_TENSIONRELAX]) {
-		if (sc->data[SC_WEIGHT50] || sc->data[SC_WEIGHT90])
+	if( sc->data[SC_TENSIONRELAX] ) {
+		if( sc->data[SC_WEIGHT50] || sc->data[SC_WEIGHT90] )
 			regen->state.overweight = 0; //1x HP regen
 		else {
 			regen->rate.hp += 200; //3x natural HP regen
-			if (regen->sregen)
+			if( regen->sregen )
 				regen->sregen->rate.hp += 200; //3x HP Recovery skill regen
 		}
 	}
 
-	if (sc->data[SC_REGENERATION]) {
+	if( sc->data[SC_REGENERATION] ) {
 		const struct status_change_entry *sce = sc->data[SC_REGENERATION];
 
-		if (!sce->val4) {
+		if( !sce->val4 ) {
 			regen->rate.hp += sce->val2 * 100;
 			regen->rate.sp += sce->val3 * 100;
 		} else
 			regen->flag &= ~sce->val4; //Remove regen as specified by val4
 	}
 
-	if (sc->data[SC_GT_REVITALIZE]) {
+	if( sc->data[SC_GT_REVITALIZE] ) {
 		regen->hp += cap_value(regen->hp * sc->data[SC_GT_REVITALIZE]->val3 / 100, 1, SHRT_MAX);
 		regen->state.walk = 1;
 	}
 
-	if ((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1) || //If insignia lvl 1
-		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1) ||
-		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1) ||
-		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1))
-		regen->rate.hp *= 2;
+	if( bl->type == BL_ELEM ) {
+		int class_ = status_get_class(bl);
+
+		switch( class_ ) {
+			case ELEMENTALID_AGNI_S:
+			case ELEMENTALID_AGNI_M:
+			case ELEMENTALID_AGNI_L:
+				if(sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1)
+					regen->rate.hp <<= 1;
+				break;
+			case ELEMENTALID_AQUA_S:
+			case ELEMENTALID_AQUA_M:
+			case ELEMENTALID_AQUA_L:
+				if(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1)
+					regen->rate.hp <<= 1;
+				break;
+			case ELEMENTALID_VENTUS_S:
+			case ELEMENTALID_VENTUS_M:
+			case ELEMENTALID_VENTUS_L:
+				if(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1)
+					regen->rate.hp <<= 1;
+				break;
+			case ELEMENTALID_TERA_S:
+			case ELEMENTALID_TERA_M:
+			case ELEMENTALID_TERA_L:
+				if(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1)
+					regen->rate.hp <<= 1;
+				break;
+		}
+	}
 }
 
 void status_calc_state(struct block_list *bl, struct status_change *sc, enum scs_flag flag, bool start)
@@ -4253,9 +4264,8 @@ void status_calc_state(struct block_list *bl, struct status_change *sc, enum scs
 		sc->cant.move = max(sc->cant.move, 0); //Safe check
 	}
 
-	if( flag&SCS_NOCAST ) //Can't use skills
-		if( !(flag&SCS_NOCASTCOND) )
-			sc->cant.cast += (start ? 1 : -1);
+	if( flag&SCS_NOCAST && !(flag&SCS_NOCASTCOND) ) //Can't use skills
+		sc->cant.cast += (start ? 1 : -1);
 
 	if( flag&SCS_NOCHAT ) { //Can't chat
 		if( !(flag&SCS_NOCHATCOND) )
@@ -5210,14 +5220,6 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 #endif
 	if(sc->data[SC_BATKFOOD])
 		batk += sc->data[SC_BATKFOOD]->val1;
-	if(sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2)
-		batk += 50;
-	if(bl->type == BL_ELEM &&
-		((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1) ||
-		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1) ||
-		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1) ||
-		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1)))
-		batk += batk / 5;
 	if(sc->data[SC_ANGRIFFS_MODUS])
 		batk += sc->data[SC_ANGRIFFS_MODUS]->val2;
 	if(sc->data[SC_SKE])
@@ -5290,11 +5292,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 40 * sc->data[SC_INSPIRATION]->val1 + 3 * sc->data[SC_INSPIRATION]->val2;
 	if(sc->data[SC_STRIKING])
 		watk += sc->data[SC_STRIKING]->val2;
-	if((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) ||
-		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) ||
-		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) ||
-		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
-		watk += watk / 10;
+	if(sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2)
+		watk += 50;
 	if(sc->data[SC_PYROCLASTIC] && bl->type == BL_PC)
 		watk += sc->data[SC_PYROCLASTIC]->val2;
 	if(sc->data[SC_ODINS_POWER])
@@ -5317,6 +5316,11 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_PROVOKE]->val3 / 100;
 	if(sc->data[SC_FLEET])
 		watk += watk * sc->data[SC_FLEET]->val3 / 100;
+	if((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
+		watk += watk * 10 / 100;
 	if(sc->data[SC_TIDAL_WEAPON])
 		watk += watk * sc->data[SC_TIDAL_WEAPON]->val2 / 100;
 	if(sc->data[SC_CURSE])
@@ -7043,6 +7047,10 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 
 	if (status_isimmune(bl)) {
 		switch (type) { //Status effects that are blocked by Golden Thief Bug card or Wand of Hermod
+			case SC_CONFUSION:
+				if (!val4)
+					break;
+			//Fall through
 			case SC_DECREASEAGI:	case SC_SILENCE:	case SC_COMA:
 			case SC_INCREASEAGI:	case SC_BLESSING:	case SC_SLOWPOISON:
 			case SC_IMPOSITIO:	case SC_AETERNA:	case SC_SUFFRAGIUM:
@@ -7051,6 +7059,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			case SC_GLORIA:		case SC_WINDWALK:	case SC_MAGICROD:
 			case SC_HALLUCINATION:	case SC_STONE:		case SC_QUAGMIRE:
 			case SC_SUITON:		case SC_SECRAMENT:	case SC_ADORAMUS:
+			case SC__MANHOLE:	case SC__BLOODYLUST:
 				return 0;
 		}
 	}
@@ -8250,6 +8259,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC__UNLUCKY:
 			case SC__WEAKNESS:
 			case SC_DEEPSLEEP:
+			case SC_NETHERWORLD:
 			case SC_CRYSTALIZE:
 			case SC_DEFSET:
 			case SC_MDEFSET:
@@ -9399,6 +9409,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					val4 = tick - tick_time;
 				} else
 					val4 = 0;
+				break;
+			case SC_FIRE_INSIGNIA:
+			case SC_WATER_INSIGNIA:
+			case SC_WIND_INSIGNIA:
+			case SC_EARTH_INSIGNIA:
+				tick_time = 5000;
+				val4 = tick / tick_time;
 				break;
 			case SC_SWINGDANCE:
 				val3 = 5 * val1 + val2; //ASPD Increase
@@ -11989,6 +12006,50 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				}
 				sc_timer_next(sce->val4 + tick,status_change_timer,bl->id,data);
 				sce->val4 = 0;
+			}
+			break;
+
+		case SC_FIRE_INSIGNIA:
+			if( --(sce->val4) >= 0 ) {
+				if( status->def_ele == ELE_FIRE )
+					status_heal(bl,status->max_hp / 100,0,1);
+				else if( status->def_ele == ELE_EARTH )
+					status_zap(bl,status->max_hp / 100,0);
+				sc_timer_next(5000 + tick,status_change_timer,bl->id,data);
+				return 0;
+			}
+			break;
+
+		case SC_WATER_INSIGNIA:
+			if( --(sce->val4) >= 0 ) {
+				if( status->def_ele == ELE_WATER )
+					status_heal(bl,status->max_hp / 100,0,1);
+				else if( status->def_ele == ELE_FIRE )
+					status_zap(bl,status->max_hp / 100,0);
+				sc_timer_next(5000 + tick,status_change_timer,bl->id,data);
+				return 0;
+			}
+			break;
+
+		case SC_WIND_INSIGNIA:
+			if( --(sce->val4) >= 0 ) {
+				if( status->def_ele == ELE_WIND )
+					status_heal(bl,status->max_hp / 100,0,1);
+				else if( status->def_ele == ELE_WATER )
+					status_zap(bl,status->max_hp / 100,0);
+				sc_timer_next(5000 + tick,status_change_timer,bl->id,data);
+				return 0;
+			}
+			break;
+
+		case SC_EARTH_INSIGNIA:
+			if( --(sce->val4) >= 0 ) {
+				if( status->def_ele == ELE_EARTH )
+					status_heal(bl,status->max_hp / 100,0,1);
+				else if( status->def_ele == ELE_WIND )
+					status_zap(bl,status->max_hp / 100,0);
+				sc_timer_next(5000 + tick,status_change_timer,bl->id,data);
+				return 0;
 			}
 			break;
 

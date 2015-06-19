@@ -432,6 +432,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 				hp += hp * tsc->data[SC_INCHEALRATE]->val1 / 100;
 			if( tsc->data[SC_EXTRACT_WHITE_POTION_Z] )
 				hp += hp * tsc->data[SC_EXTRACT_WHITE_POTION_Z]->val1 / 100;
+			if( tsc->data[SC_WATER_INSIGNIA] && tsc->data[SC_WATER_INSIGNIA]->val1 == 2 )
+				hp += hp / 10;
 		}
 		if( heal ) { //Has no effect on offensive heal [Inkfish]
 			uint8 penalty = 0;
@@ -445,8 +447,6 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, uint16 sk
 			if( penalty > 0 )
 				hp -= hp * penalty / 100;
 		}
-		if( tsc->data[SC_WATER_INSIGNIA] && tsc->data[SC_WATER_INSIGNIA]->val1 == 2)
-			hp += hp / 10;
 	}
 
 #ifdef RENEWAL
@@ -2659,6 +2659,8 @@ void skill_attack_blow(struct block_list *src, struct block_list *dsrc, struct b
 			}
 			break;
 	}
+
+	clif_fixpos(target);
 }
 
 /**
@@ -2886,24 +2888,19 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 
 	switch (skill_id) {
 		case WL_HELLINFERNO: //Hell Inferno burning status only starts if Fire part hits
-			if (dmg.dmg_lv < ATK_DEF && !(tsc && tsc->data[SC_PNEUMA]))
+			if (dmg.dmg_lv < ATK_DEF)
 				break;
 			if (!(flag&ELE_DARK))
 				sc_start4(src, bl, SC_BURNING, 55 + 5 * skill_lv, skill_lv, 1000, src->id, 0, skill_get_time(skill_id, skill_lv));
 			break;
 		case SC_TRIANGLESHOT:
-			if (rnd()%100 > (1 + skill_lv))
+			if (rnd()%100 > skill_lv + 1)
 				dmg.blewcount = 0;
 			break;
-		default:
-			if (damage < dmg.div_) {
-				if (tsc && tsc->data[SC_PNEUMA])
-					break; //Keep retaining its knockback ability
-				else if (skill_id != CH_PALMSTRIKE)
-					dmg.blewcount = 0; //Only pushback when it hit for other
-			}
-			break;
 	}
+
+	if (damage < dmg.div_ && skill_id != CH_PALMSTRIKE)
+		dmg.blewcount = 0; //Only pushback when it hit for other
 
 	switch (skill_id) {
 		case CR_GRANDCROSS:
@@ -3080,8 +3077,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 	map_freeblock_lock();
 
 	//Can't copy skills if the blow will kill you [Skotlex]
-	if (skill_id && skill_get_index(skill_id) > 0 && (dmg.flag&BF_SKILL) &&
-		dmg.damage + dmg.damage2 > 0 && damage < status_get_hp(bl))
+	if (skill_id && skill_get_index(skill_id) > 0 && (dmg.flag&BF_SKILL) && dmg.damage + dmg.damage2 > 0 && damage < status_get_hp(bl))
 		skill_do_copy(src, bl, skill_id, skill_lv);
 
 	//Skills with can't walk delay also stop normal attacking for that duration when the attack connects [Skotlex]
@@ -3096,7 +3092,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 
 	if (!dmg.amotion) { //Instant damage
 		if ((!tsc || (!tsc->data[SC_DEVOTION] && !tsc->data[SC_WATER_SCREEN_OPTION] && skill_id != CR_REFLECTSHIELD) || skill_id == HW_GRAVITATION) && !shadow_flag)
-			status_fix_damage(src, bl, damage, dmg.dmotion); //Deal damage before knockback to allow stuff like firewall + storm gust combo
+			status_fix_damage(src, bl, damage, dmg.dmotion); //Deal damage before knockback to allow stuff like Fire Wall + Storm Gust combo
 		if (!status_isdead(bl) && additional_effects)
 			skill_additional_effect(src, bl, skill_id, skill_lv, dmg.flag, dmg.dmg_lv, tick);
 		if (damage > 0) //Counter status effects [Skotlex]
@@ -5551,9 +5547,24 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case SO_ELEMENTAL_SHIELD: {
 				struct party_data *p;
 				int x0, y0, x1, y1, range;
+				uint8 ele_bonus = 0;
 
 				if(sd == NULL || !sd->ed)
 					break;
+				switch(sd->ed->db->class_) {
+					case ELEMENTALID_AGNI_M:
+					case ELEMENTALID_AQUA_M:
+					case ELEMENTALID_VENTUS_M:
+					case ELEMENTALID_TERA_M:
+						ele_bonus = 2;
+						break;
+					case ELEMENTALID_AGNI_L:
+					case ELEMENTALID_AQUA_L:
+					case ELEMENTALID_VENTUS_L:
+					case ELEMENTALID_TERA_L:
+						ele_bonus = 4;
+						break;
+				}
 				range = skill_get_splash(skill_id,skill_lv);
 				x0 = sd->bl.x - range;
 				y0 = sd->bl.y - range;
@@ -5561,7 +5572,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				y1 = sd->bl.y + range;
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				elemental_delete(sd->ed,0);
-				skill_unitsetting(src,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,0);
+				skill_unitsetting(src,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,ele_bonus);
 				skill_unitsetting(src,AL_PNEUMA,1,src->x,src->y,0);
 				if((p = party_search(sd->status.party_id))) {
 					for(i = 0; i < MAX_PARTY; i++) {
@@ -5571,7 +5582,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 							continue;
 						if(range && (psd->bl.x < x0 || psd->bl.y < y0 || psd->bl.x > x1 || psd->bl.y > y1))
 							continue;
-						skill_unitsetting(&psd->bl,MG_SAFETYWALL,skill_lv + 5,psd->bl.x,psd->bl.y,0);
+						skill_unitsetting(&psd->bl,MG_SAFETYWALL,skill_lv + 5,psd->bl.x,psd->bl.y,ele_bonus);
 						skill_unitsetting(&psd->bl,AL_PNEUMA,1,psd->bl.x,psd->bl.y,0);
 					}
 				}
@@ -7150,6 +7161,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				if( tsc && tsc->count ) {
 					uint8 penalty = 0;
 
+					if( tsc->data[SC_WATER_INSIGNIA] && tsc->data[SC_WATER_INSIGNIA]->val1 == 2 ) {
+						hp += hp / 10;
+						sp += sp / 10;
+					}
 					if( tsc->data[SC_CRITICALWOUND] )
 						penalty += tsc->data[SC_CRITICALWOUND]->val2;
 					if( tsc->data[SC_DEATHHURT] )
@@ -7159,10 +7174,6 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					if( penalty > 0 ) {
 						hp -= hp * penalty / 100;
 						sp -= sp * penalty / 100;
-					}
-					if( tsc->data[SC_WATER_INSIGNIA] && tsc->data[SC_WATER_INSIGNIA]->val1 == 2 ) {
-						hp += hp / 10;
-						sp += sp / 10;
 					}
 				}
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
@@ -7987,19 +7998,19 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				if (tsc && tsc->count) {
 					uint8 penalty = 0;
 
-					if( tsc->data[SC_CRITICALWOUND] )
-						penalty += tsc->data[SC_CRITICALWOUND]->val2;
-					if( tsc->data[SC_DEATHHURT] )
-						penalty += 20;
-					if( tsc->data[SC_NORECOVER_STATE] )
-						penalty = 100;
-					if( penalty > 0 ) {
-						hp -= hp * penalty / 100;
-						sp -= sp * penalty / 100;
-					}
 					if (tsc->data[SC_WATER_INSIGNIA] && tsc->data[SC_WATER_INSIGNIA]->val1 == 2) {
 						hp += hp / 10;
 						sp += sp / 10;
+					}
+					if (tsc->data[SC_CRITICALWOUND])
+						penalty += tsc->data[SC_CRITICALWOUND]->val2;
+					if (tsc->data[SC_DEATHHURT])
+						penalty += 20;
+					if (tsc->data[SC_NORECOVER_STATE])
+						penalty = 100;
+					if (penalty > 0) {
+						hp -= hp * penalty / 100;
+						sp -= sp * penalty / 100;
 					}
 				}
 				if (hp > 0)
@@ -11411,8 +11422,9 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 				//Does not consumes if the skill is already active [Skotlex]
 				struct skill_unit_group *sg;
 
-				if( (sg = skill_locate_element_field(src)) != NULL && (sg->skill_id == SA_VOLCANO || sg->skill_id == SA_DELUGE || sg->skill_id == SA_VIOLENTGALE) ) {
-					if( sg->limit - DIFF_TICK(gettick(),sg->tick) > 0 ) {
+				if( (sg = skill_locate_element_field(src)) != NULL &&
+					(sg->skill_id == SA_VOLCANO || sg->skill_id == SA_DELUGE || sg->skill_id == SA_VIOLENTGALE) ) {
+					if( sg->limit - DIFF_TICK(tick,sg->tick) > 0 ) {
 						skill_unitsetting(src,skill_id,skill_lv,x,y,0);
 						return 0; //Not to consume items
 					} else
@@ -11514,15 +11526,15 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 		case WM_POEMOFNETHERWORLD:
 		case SO_PSYCHIC_WAVE:
 		case SO_VACUUM_EXTREME:
+		case SO_FIRE_INSIGNIA:
+		case SO_WATER_INSIGNIA:
+		case SO_WIND_INSIGNIA:
+		case SO_EARTH_INSIGNIA:
 		case GN_THORNS_TRAP:
 		case GN_DEMONIC_FIRE:
 		case GN_HELLS_PLANT:
 		case SO_EARTHGRAVE:
 		case SO_DIAMONDDUST:
-		case SO_FIRE_INSIGNIA:
-		case SO_WATER_INSIGNIA:
-		case SO_WIND_INSIGNIA:
-		case SO_EARTH_INSIGNIA:
 		case KO_HUUMARANKA:
 		case KO_BAKURETSU:
 		case KO_ZENKAI:
@@ -11556,7 +11568,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 			if( sce ) { //Cancel Basilica and return so requirement isn't consumed again
 				status_change_end(src,SC_BASILICA,INVALID_TIMER);
 				return 0;
-			} else { //Create Basilica. Start SC on caster. Unit timer start SC on others
+			} else { //Create Basilica, start SC on caster, unit timer start SC on others
 				if( sd && map_getcell(src->m,x,y,CELL_CHKLANDPROTECTOR) ) {
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL,0,0);
 					return 0;
@@ -12141,7 +12153,7 @@ int skill_castend_map(struct map_session_data *sd, uint16 skill_id, const char *
 		return 0;
 	}
 
-	if( (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING && sd->sc.opt1 != OPT1_FREEZING) || (sd->sc.option&OPTION_HIDE) ) {
+	if( !status_check_skilluse(&sd->bl,NULL,skill_id,1) ) {
 		skill_failed(sd);
 		return 0;
 	}
@@ -12401,6 +12413,8 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 #else
 			val2 = skill_lv + 1;
 #endif
+			if( flag ) //Hit bonus from each elemental class [exneval]
+				val2 += flag;
 			break;
 		case MG_FIREWALL:
 			if( sc && sc->data[SC_VIOLENTGALE] )
@@ -12668,6 +12682,7 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 		case WM_POEMOFNETHERWORLD:
 			if( skill_id == WM_POEMOFNETHERWORLD && map_flag_gvg2(src->m) )
 				target = BCT_ALL;
+		//Fall through
 		case SO_FIRE_INSIGNIA:
 		case SO_WATER_INSIGNIA:
 		case SO_WIND_INSIGNIA:
@@ -12772,7 +12787,7 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 			continue; //Don't place skill units on walls (except for songs/dances/encores)
 
 		if( battle_config.skill_wall_check && (unit_flag&UF_PATHCHECK) && !path_search_long(NULL,src->m,ux,uy,x,y,CELL_CHKWALL) )
-			continue; //No path between cell and center of casting.
+			continue; //No path between cell and center of casting
 
 		switch( skill_id ) {
 			//HP for Skill unit that can be damaged, see also skill_unit_ondamaged
@@ -12831,11 +12846,11 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 				break;
 			default:
 				if( group->state.song_dance&0x1 )
-					val2 = unit_flag&(UF_DANCE|UF_SONG); //Store whether this is a song/dance
+					val2 = (unit_flag&(UF_DANCE|UF_SONG)); //Store whether this is a song/dance
 				break;
 		}
 
-		if( unit_flag&UF_RANGEDSINGLEUNIT && i == (layout->count / 2) )
+		if( (unit_flag&UF_RANGEDSINGLEUNIT) && i == (layout->count / 2) && !val2 )
 			val2 |= UF_RANGEDSINGLEUNIT; //Center
 
 		if( sd && sc && sc->data[SC__MAELSTROM] ) //Does not recover SP from monster skills
@@ -12993,7 +13008,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 			break;
 
 		case UNT_BLOODYLUST:
-			if( group->src_id == bl->id )
+			if( bl->id == src->id )
 				break; //Doesn't affect the caster
 			if( !sce )
 				sc_start4(src,bl,type,100,skill_lv,0,SC__BLOODYLUST,0,group->limit);
@@ -13038,6 +13053,19 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 		case UNT_VOLCANO:
 		case UNT_DELUGE:
 		case UNT_VIOLENTGALE:
+		case UNT_FIRE_INSIGNIA:
+		case UNT_WATER_INSIGNIA:
+		case UNT_WIND_INSIGNIA:
+		case UNT_EARTH_INSIGNIA:
+			if( !sce )
+				sc_start(src,bl,type,100,skill_lv,group->limit);
+			break;
+
+		case UNT_WATER_BARRIER:
+		case UNT_ZEPHYR:
+		case UNT_POWER_OF_GAIA:
+			if( bl->id == src->id )
+				break; //Doesn't affect the elemental
 			if( !sce )
 				sc_start(src,bl,type,100,skill_lv,group->limit);
 			break;
@@ -13050,7 +13078,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 			break;
 
 		case UNT_HERMODE:
-			if( group->src_id != bl->id && battle_check_target(&unit->bl,bl,BCT_PARTY|BCT_GUILD) > 0 )
+			if( bl->id != src->id && battle_check_target(&unit->bl,bl,BCT_PARTY|BCT_GUILD) > 0 )
 				status_change_clear_buffs(bl,1); //Should dispell only allies
 		//Fall through
 		case UNT_RICHMANKIM:
@@ -13061,7 +13089,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 		case UNT_INTOABYSS:
 		case UNT_SIEGFRIED:
 			 //Needed to check when a dancer/bard leaves their ensemble area
-			if( group->src_id == bl->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
+			if( bl->id == src->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 				return skill_id;
 			if( !sce )
 				sc_start4(src,bl,type,100,skill_lv,group->val1,group->val2,0,group->limit);
@@ -13074,7 +13102,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 		case UNT_DONTFORGETME:
 		case UNT_FORTUNEKISS:
 		case UNT_SERVICEFORYOU:
-			if( group->src_id == bl->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
+			if( bl->id == src->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 				return 0;
 			if( !sce )
 				sc_start4(src,bl,type,100,skill_lv,group->val1,group->val2,0,group->limit);
@@ -13769,8 +13797,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 		case UNT_POEMOFNETHERWORLD:
 			if (bl->id == src->id || (map_flag_gvg2(src->m) && battle_check_target(&unit->bl,bl,BCT_PARTY) > 0))
 				break;
-			if (!(tsc && (tsc->data[type] ||
-				tsc->data[SC_NETHERWORLD_POSTDELAY]))) { //Immune for 2 secs
+			if (!(tsc && (tsc->data[type] || tsc->data[SC_NETHERWORLD_POSTDELAY]))) {
 				sc_start(src,bl,type,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 				group->limit = DIFF_TICK(tick,group->tick);
 				group->unit_id = UNT_USED_TRAPS;
@@ -13840,37 +13867,6 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 					status_heal(bl,hp,0,1);
 				}
 				status_change_start(src,bl,type,10000,skill_lv,0,0,0,group->interval + 100,SCFLAG_NOICON);
-			}
-			break;
-
-		case UNT_WATER_BARRIER:
-		case UNT_ZEPHYR:
-		case UNT_POWER_OF_GAIA:
-			if (bl->id == src->id)
-				break; //Doesn't affect the elemental
-			sc_start(src,bl,type,100,skill_lv,group->interval + 100);
-			break;
-
-		case UNT_FIRE_INSIGNIA:
-		case UNT_WATER_INSIGNIA:
-		case UNT_WIND_INSIGNIA:
-		case UNT_EARTH_INSIGNIA:
-			sc_start(src,bl,type,100,skill_lv,group->interval + 100);
-			if (!battle_check_undead(tstatus->race,tstatus->def_ele)) {
-				int hp = tstatus->max_hp / 100; //+1% each 5s
-
-				if ((group->val3)%5) { //Each 5s
-					if (tstatus->def_ele == skill_get_ele(skill_id,skill_lv))
-						status_heal(bl,hp,0,2);
-					else if ((group->unit_id ==  UNT_FIRE_INSIGNIA && tstatus->def_ele == ELE_EARTH) ||
-						(group->unit_id ==  UNT_WATER_INSIGNIA && tstatus->def_ele == ELE_FIRE) ||
-						(group->unit_id ==  UNT_WIND_INSIGNIA && tstatus->def_ele == ELE_WATER) ||
-						(group->unit_id ==  UNT_EARTH_INSIGNIA && tstatus->def_ele == ELE_WIND))
-						status_heal(bl,-hp,0,0);
-				}
-				group->val3++; //Timer
-				if (group->val3 > 5)
-					group->val3 = 0;
 			}
 			break;
 
@@ -14100,9 +14096,16 @@ int skill_unit_onleft(uint16 skill_id, struct block_list *bl, unsigned int tick)
 		case CG_HERMODE:
 		case SC_MAELSTROM:
 		case SC_BLOODYLUST:
+		case SO_FIRE_INSIGNIA:
+		case SO_WATER_INSIGNIA:
+		case SO_WIND_INSIGNIA:
+		case SO_EARTH_INSIGNIA:
 		case GN_FIRE_EXPANSION_SMOKE_POWDER:
 		case GN_FIRE_EXPANSION_TEAR_GAS:
 		case MH_STEINWAND:
+		case EL_WATER_BARRIER:
+		case EL_ZEPHYR:
+		case EL_POWER_OF_GAIA:
 		case LG_KINGS_GRACE:
 			if (sce)
 				status_change_end(bl, type, INVALID_TIMER);
@@ -16179,7 +16182,8 @@ int skill_vfcastfix(struct block_list *bl, double time, uint16 skill_id, uint16 
 			reduce_ct_r += sc->data[SC_POEMBRAGI]->val2;
 		if( sc->data[SC_IZAYOI] )
 			VARCAST_REDUCTION(50);
-		if( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 && skill_get_ele(skill_id, skill_lv) == ELE_WATER )
+		if( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 &&
+			skill_get_type(skill_id) == BF_MAGIC && skill_get_ele(skill_id, skill_lv) == ELE_WATER )
 			VARCAST_REDUCTION(30); //Reduces 30% Variable Cast Time of Water spells
 		if( sc->data[SC_TELEKINESIS_INTENSE] )
 			VARCAST_REDUCTION(sc->data[SC_TELEKINESIS_INTENSE]->val2);
@@ -16300,7 +16304,8 @@ int skill_delayfix(struct block_list *bl, uint16 skill_id, uint16 skill_lv)
 		if (sc && sc->count) {
 			if (sc->data[SC_POEMBRAGI])
 				time -= time * sc->data[SC_POEMBRAGI]->val3 / 100;
-			if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3 && skill_get_ele(skill_id, skill_lv) == ELE_WIND)
+			if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3 &&
+				skill_get_type(skill_id) == BF_MAGIC && skill_get_ele(skill_id, skill_lv) == ELE_WIND)
 				time /= 2; //After Delay of Wind element spells reduced by 50%
 		}
 	}
@@ -16961,11 +16966,12 @@ struct skill_unit_group *skill_locate_element_field(struct block_list *bl)
 			case SA_VIOLENTGALE:
 			case SA_LANDPROTECTOR:
 			case NJ_SUITON:
-			case NJ_KAENSIN:
 			case SO_CLOUD_KILL:
 			case SO_WARMER:
-			case SC_CHAOSPANIC:
-			case SC_BLOODYLUST:
+			case SO_FIRE_INSIGNIA:
+			case SO_WATER_INSIGNIA:
+			case SO_WIND_INSIGNIA:
+			case SO_EARTH_INSIGNIA:
 				return ud->skillunit[i];
 		}
 	}
@@ -17619,15 +17625,13 @@ int skill_delunit(struct skill_unit *unit)
 	unit->alive = 0;
 	group = unit->group;
 
-	if( group->state.song_dance&0x1 ) //Cancel dissonance effect
-		skill_dance_overlap(unit,0);
+	if( group->state.song_dance&0x1 )
+		skill_dance_overlap(unit,0); //Cancel dissonance effect
 
-	//Invoke onout event
-	if( !unit->range )
+	if( !unit->range ) //Invoke onout event
 		map_foreachincell(skill_unit_effect,unit->bl.m,unit->bl.x,unit->bl.y,group->bl_flag,&unit->bl,gettick(),4);
 
-	//Perform ondelete actions
-	switch( group->skill_id ) {
+	switch( group->skill_id ) { //Perform ondelete actions
 		case HT_ANKLESNARE:
 		case GN_THORNS_TRAP:
 		case SC_ESCAPE:

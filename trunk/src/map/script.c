@@ -153,9 +153,9 @@
 /// Returns the unique id of the reference (id and index)
 #define reference_getuid(data) ( (data)->u.num )
 /// Returns the id of the reference
-#define reference_getid(data) ( (int32)(reference_getuid(data) & 0x00ffffff) )
+#define reference_getid(data) ( (int32)(reference_getuid(data)&0x00ffffff) )
 /// Returns the array index of the reference
-#define reference_getindex(data) ( (int32)(((uint32)(reference_getuid(data) & 0xff000000)) >> 24) )
+#define reference_getindex(data) ( (int32)(((uint32)(reference_getuid(data)&0xff000000))>>24) )
 /// Returns the name of the reference
 #define reference_getname(data) ( str_buf + str_data[reference_getid(data)].str )
 /// Returns the linked list of uid-value pairs of the reference (can be NULL)
@@ -166,7 +166,7 @@
 #define reference_getparamtype(data) ( str_data[reference_getid(data)].val )
 
 /// Composes the uid of a reference from the id and the index
-#define reference_uid(id,idx) ( (int32)((((uint32)(id)) & 0x00ffffff) | (((uint32)(idx)) << 24)) )
+#define reference_uid(id,idx) ( (int32)((((uint32)(id))&0x00ffffff) | (((uint32)(idx))<<24)) )
 
 #define not_server_variable(prefix) ( (prefix) != '$' && (prefix) != '.' && (prefix) != '\'')
 #define not_array_variable(prefix) ( (prefix) != '$' && (prefix) != '@' && (prefix) != '.' && (prefix) != '\'' )
@@ -181,7 +181,10 @@
 #define SCRIPT_CMD_FAILURE 1 /// When an errors appear in cmd, show_debug will follow
 
 #define SCRIPT_BLOCK_SIZE 512
-enum { LABEL_NEXTLINE = 1, LABEL_START };
+enum {
+	LABEL_NEXTLINE = 1,
+	LABEL_START
+};
 
 TBL_PC *script_rid2sd(struct script_state *st);
 
@@ -16373,7 +16376,7 @@ BUILDIN_FUNC(getunitdata)
 	}
 
 	num = st->stack->stack_data[st->start + 3].u.num;
-	name = (char *)(str_buf+str_data[num&0x00ffffff].str);
+	name = (char *)(str_buf + str_data[num&0x00ffffff].str);
 
 #define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)__64BPRTSIZE((int)(var__)),script_getref(st,3))
 

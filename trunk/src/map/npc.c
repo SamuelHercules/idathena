@@ -75,6 +75,7 @@ int npc_get_new_npc_id(void) {
 		return npc_id++; //Available
 	else { //Find next id
 		int base_id = npc_id;
+
 		while( base_id != ++npc_id ) {
 			if( npc_id < START_NPC_NUM )
 				npc_id = START_NPC_NUM;
