@@ -17490,7 +17490,7 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd) {
 	if( sd->menuskill_id != SC_AUTOSHADOWSPELL )
 		return;
 	if( pc_istrading(sd) ) {
-		clif_skill_fail(sd,sd->ud.skill_id,0,0,0);
+		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 		clif_menuskill_clear(sd);
 		return;
 	}

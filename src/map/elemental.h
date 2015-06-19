@@ -73,7 +73,7 @@ struct elemental_data {
 };
 
 bool elemental_class(int class_);
-struct view_data * elemental_get_viewdata(int class_);
+struct view_data *elemental_get_viewdata(int class_);
 
 int elemental_create(struct map_session_data *sd, int class_, unsigned int lifetime);
 int elemental_data_received(struct s_elemental *ele, bool flag);

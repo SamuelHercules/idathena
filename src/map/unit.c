@@ -524,7 +524,7 @@ static int unit_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data
 			unit_walktobl(bl,tbl,ud->chaserange,ud->state.walk_easy|(ud->state.attack_continue ? 1 : 0));
 			return 0;
 		}
-	} else { //Stopped walking. Update to_x and to_y to current location [Skotlex]
+	} else { //Stopped walking, update to_x and to_y to current location [Skotlex]
 		ud->to_x = bl->x;
 		ud->to_y = bl->y;
 		//Walked on occupied cell, call unit_walktoxy again
@@ -1905,9 +1905,9 @@ int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, uint
 int unit_skilluse_pos2(struct block_list *src, short skill_x, short skill_y, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel)
 {
 	struct map_session_data *sd = NULL;
-	struct unit_data        *ud = NULL;
+	struct unit_data *ud = NULL;
 	struct status_change *sc;
-	struct block_list    bl;
+	struct block_list bl;
 	unsigned int tick = gettick();
 	int range;
 

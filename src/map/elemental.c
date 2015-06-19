@@ -50,8 +50,9 @@ bool elemental_class(int class_) {
 	return (bool)(elemental_search_index(class_) > -1);
 }
 
-struct view_data * elemental_get_viewdata(int class_) {
+struct view_data *elemental_get_viewdata(int class_) {
 	int i = elemental_search_index(class_);
+
 	if( i < 0 )
 		return 0;
 

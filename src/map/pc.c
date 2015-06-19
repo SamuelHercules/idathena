@@ -8530,7 +8530,7 @@ int pc_readreg(struct map_session_data *sd, int reg)
 
 	nullpo_ret(sd);
 
-	ARR_FIND(0, sd->reg_num, i,  sd->reg[i].index == reg);
+	ARR_FIND(0, sd->reg_num, i, sd->reg[i].index == reg);
 	return (i < sd->reg_num) ? sd->reg[i].data : 0;
 }
 
