@@ -869,11 +869,12 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 						continue; //Range Failed
 				}
 				type =  sd->addeff[i].id;
-				time = skill_get_time2(status_sc2skill(type),7);
-				sc_flag = SCFLAG_NONE;
-				if( type == SC_CRYSTALIZE ) {
-					time = 3000;
-					sc_flag = SCFLAG_FIXEDTICK;
+				if( sd->addeff[i].duration > 0 ) { //Fixed duration
+					time = sd->addeff[i].duration;
+					sc_flag = SCFLAG_FIXEDRATE|SCFLAG_FIXEDTICK;
+				} else { //Default duration
+					time = skill_get_time2(status_sc2skill(type),7);
+					sc_flag = SCFLAG_NONE;
 				}
 				if( sd->addeff[i].flag&ATF_TARGET )
 					status_change_start(src,bl,type,rate,7,0,(type == SC_BURNING) ? src->id : 0,0,time,sc_flag);
@@ -11524,6 +11525,8 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 		case SC_MAELSTROM:
 		case WM_REVERBERATION:
 		case WM_POEMOFNETHERWORLD:
+		case SO_EARTHGRAVE:
+		case SO_DIAMONDDUST:
 		case SO_PSYCHIC_WAVE:
 		case SO_VACUUM_EXTREME:
 		case SO_FIRE_INSIGNIA:
@@ -11533,8 +11536,6 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 		case GN_THORNS_TRAP:
 		case GN_DEMONIC_FIRE:
 		case GN_HELLS_PLANT:
-		case SO_EARTHGRAVE:
-		case SO_DIAMONDDUST:
 		case KO_HUUMARANKA:
 		case KO_BAKURETSU:
 		case KO_ZENKAI:

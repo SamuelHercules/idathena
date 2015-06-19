@@ -2029,7 +2029,18 @@ static void pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short
 	spell[i].card_id = card_id;
 }
 
-static void pc_bonus_addeff(struct s_addeffect* effect, int max, enum sc_type id, short rate, short arrow_rate, unsigned char flag)
+/**
+ * Adds an AddEff/AddEff2/AddEffWhenHit bonus to a character.
+ *
+ * @param effect     Effects array to append to.
+ * @param max        Size of the effect array.
+ * @param id         Effect ID (@see enum sc_type).
+ * @param rate       Trigger rate.
+ * @param arrow_rate Trigger rate modifier for ranged attacks (adds to the base rate).
+ * @param flag       Trigger flags (@see enum auto_trigger_flag).
+ * @param duration   Fixed (non-reducible) duration in ms. If 0, uses the default (reducible) duration of the given effect.
+ */
+static void pc_bonus_addeff(struct s_addeffect *effect, int max, enum sc_type id, int16 rate, int16 arrow_rate, uint8 flag, uint16 duration)
 {
 	uint16 i;
 
@@ -2040,7 +2051,7 @@ static void pc_bonus_addeff(struct s_addeffect* effect, int max, enum sc_type id
 	if( !(flag&(ATF_WEAPON|ATF_MAGIC|ATF_MISC)) )
 		flag |= ATF_WEAPON; //Default type: weapon
 	for( i = 0; i < max && effect[i].flag; i++ ) {
-		if( effect[i].id == id && effect[i].flag == flag ) {
+		if( effect[i].id == id && effect[i].flag == flag && effect[i].duration == duration ) { //Update existing effect if any
 			effect[i].rate += rate;
 			effect[i].arrow_rate += arrow_rate;
 			return;
@@ -2054,6 +2065,7 @@ static void pc_bonus_addeff(struct s_addeffect* effect, int max, enum sc_type id
 	effect[i].rate = rate;
 	effect[i].arrow_rate = arrow_rate;
 	effect[i].flag = flag;
+	effect[i].duration = duration;
 }
 
 static void pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, enum sc_type id, short rate, short skill, unsigned char target)
@@ -3034,7 +3046,7 @@ void pc_bonus2(struct map_session_data *sd, int type, int type2, int val)
 				break;
 			}
 			pc_bonus_addeff(sd->addeff, ARRAYLENGTH(sd->addeff), (sc_type)type2,
-				sd->state.lr_flag != 2 ? val : 0, sd->state.lr_flag == 2 ? val : 0, 0);
+				(sd->state.lr_flag != 2 ? val : 0), (sd->state.lr_flag == 2 ? val : 0), 0, 0);
 			break;
 		case SP_ADDEFF2: // bonus2 bAddEff2,eff,n;
 			if(type2 <= SC_NONE || type2 >= SC_MAX) {
@@ -3042,7 +3054,7 @@ void pc_bonus2(struct map_session_data *sd, int type, int type2, int val)
 				break;
 			}
 			pc_bonus_addeff(sd->addeff, ARRAYLENGTH(sd->addeff), (sc_type)type2,
-				sd->state.lr_flag != 2 ? val : 0, sd->state.lr_flag == 2 ? val : 0, ATF_SELF);
+				(sd->state.lr_flag != 2 ? val : 0), (sd->state.lr_flag == 2 ? val : 0), ATF_SELF, 0);
 			break;
 		case SP_RESEFF: // bonus2 bResEff,eff,n;
 			if(type2 < SC_COMMON_MIN || type2 > SC_COMMON_MAX) {
@@ -3262,7 +3274,7 @@ void pc_bonus2(struct map_session_data *sd, int type, int type2, int val)
 				break;
 			}
 			if(sd->state.lr_flag != 2)
-				pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, val, 0, 0);
+				pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, val, 0, 0, 0);
 			break;
 		case SP_SKILL_ATK: // bonus2 bSkillAtk,sk,n;
 			if(sd->state.lr_flag == 2)
@@ -3690,7 +3702,7 @@ void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int 
 				break;
 			}
 			pc_bonus_addeff(sd->addeff, ARRAYLENGTH(sd->addeff), (sc_type)type2,
-				(sd->state.lr_flag != 2 ? type3 : 0), (sd->state.lr_flag == 2 ? type3 : 0), val);
+				(sd->state.lr_flag != 2 ? type3 : 0), (sd->state.lr_flag == 2 ? type3 : 0), val, 0);
 			break;
 		case SP_ADDEFF_WHENHIT: // bonus3 bAddEffWhenHit,eff,n,y;
 			if(type2 <= SC_NONE || type2 >= SC_MAX) {
@@ -3698,7 +3710,7 @@ void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int 
 				break;
 			}
 			if(sd->state.lr_flag != 2)
-				pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, type3, 0, val);
+				pc_bonus_addeff(sd->addeff2, ARRAYLENGTH(sd->addeff2), (sc_type)type2, type3, 0, val, 0);
 			break;
 		case SP_ADDEFF_ONSKILL: // bonus3 bAddEffOnSkill,sk,eff,n;
 			if(type3 <= SC_NONE || type3 >= SC_MAX) {
@@ -3734,7 +3746,7 @@ void pc_bonus3(struct map_session_data *sd, int type, int type2, int type3, int 
 			break;
 		case SP_STATE_NORECOVER_RACE: // bonus3 bStateNoRecoverRace,n,x,r;
 			PC_BONUS_CHK_RACE(type2, SP_STATE_NORECOVER_RACE);
-			if( sd->state.lr_flag == 2 )
+			if(sd->state.lr_flag == 2)
 				break;
 			sd->norecover_state_race[type2].rate = type3;
 			sd->norecover_state_race[type2].tick = val;
@@ -3759,32 +3771,32 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 
 	switch( type ) {
 		case SP_AUTOSPELL: // bonus4 bAutoSpell,sk,y,n,i;
-			if( sd->state.lr_flag != 2 )
-				pc_bonus_autospell(sd->autospell, ARRAYLENGTH(sd->autospell), (val&1?type2:-type2), (val&2?-type3:type3), type4, 0, current_equip_card_id);
+			if(sd->state.lr_flag != 2)
+				pc_bonus_autospell(sd->autospell, ARRAYLENGTH(sd->autospell), (val&1 ? type2 : -type2), (val&2 ? -type3 : type3), type4, 0, current_equip_card_id);
 			break;
 		case SP_AUTOSPELL_WHENHIT: // bonus4 bAutoSpellWhenHit,sk,y,n,i;
-			if( sd->state.lr_flag != 2 )
-				pc_bonus_autospell(sd->autospell2, ARRAYLENGTH(sd->autospell2), (val&1?type2:-type2), (val&2?-type3:type3), type4, BF_NORMAL|BF_SKILL, current_equip_card_id);
+			if(sd->state.lr_flag != 2)
+				pc_bonus_autospell(sd->autospell2, ARRAYLENGTH(sd->autospell2), (val&1 ? type2 : -type2), (val&2 ? -type3 : type3), type4, BF_NORMAL|BF_SKILL, current_equip_card_id);
 			break;
 		case SP_AUTOSPELL_ONSKILL: // bonus4 bAutoSpellOnSkill,sk,x,y,n;
-			if( sd->state.lr_flag != 2 ) {
-				int target = skill_get_inf(type2); //Support or Self (non-auto-target) skills should pick self.
+			if(sd->state.lr_flag != 2) {
+				int target = skill_get_inf(type2); //Support or Self (non-auto-target) skills should pick self
 
 				target = (target&INF_SUPPORT_SKILL) || ((target&INF_SELF_SKILL) && !(skill_get_inf2(type2)&INF2_NO_TARGET_SELF));
-				pc_bonus_autospell_onskill(sd->autospell3, ARRAYLENGTH(sd->autospell3), type2, target?-type3:type3, type4, val, current_equip_card_id);
+				pc_bonus_autospell_onskill(sd->autospell3, ARRAYLENGTH(sd->autospell3), type2, (target ? -type3 : type3), type4, val, current_equip_card_id);
 			}
 			break;
 		case SP_ADDEFF_ONSKILL: // bonus4 bAddEffOnSkill,sk,eff,n,y;
-			if( type2 <= SC_NONE || type2 >= SC_MAX ) {
+			if(type2 <= SC_NONE || type2 >= SC_MAX) {
 				ShowError("pc_bonus4: SP_ADDEFF_ONSKILL: %d is not supported.\n", type2);
 				break;
 			}
-			if( sd->state.lr_flag != 2 )
+			if(sd->state.lr_flag != 2)
 				pc_bonus_addeff_onskill(sd->addeff3, ARRAYLENGTH(sd->addeff3), (sc_type)type3, type4, type2, val);
 			break;
 		case SP_SET_DEF_RACE: // bonus4 bSetDefRace,n,x,r,y;
 			PC_BONUS_CHK_RACE(type2, SP_SET_DEF_RACE);
-			if( sd->state.lr_flag == 2 )
+			if(sd->state.lr_flag == 2)
 				break;
 			sd->def_set_race[type2].rate = type3;
 			sd->def_set_race[type2].tick = type4;
@@ -3792,11 +3804,27 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 			break;
 		case SP_SET_MDEF_RACE: // bonus4 bSetMdefRace,n,x,r,y;
 			PC_BONUS_CHK_RACE(type2, SP_SET_MDEF_RACE);
-			if( sd->state.lr_flag == 2 )
+			if(sd->state.lr_flag == 2)
 				break;
 			sd->mdef_set_race[type2].rate = type3;
 			sd->mdef_set_race[type2].tick = type4;
 			sd->mdef_set_race[type2].value = val;
+			break;
+		case SP_ADDEFF: {
+				uint16 duration;
+
+				if(type2 <= SC_NONE || type2 >= SC_MAX) {
+					ShowWarning("pc_bonus4: SP_ADDEFF: %d is not supported.\n", type2);
+					break;
+				}
+				if(val < 0 || val > UINT16_MAX) {
+					ShowWarning("pc_bonus4: SP_ADDEFF: invalid duration %d. Valid range: [0:%d].\n", val, UINT16_MAX);
+					duration = (val < 0 ? 0 : UINT16_MAX);
+				} else
+					duration = (uint16)val;
+				pc_bonus_addeff(sd->addeff, ARRAYLENGTH(sd->addeff), (sc_type)type2,
+					(sd->state.lr_flag != 2 ? type3 : 0), (sd->state.lr_flag == 2 ? type3 : 0), type4, duration);
+			}
 			break;
 		default:
 			ShowWarning("pc_bonus4: unknown type %d %d %d %d %d!\n", type, type2, type3, type4, val);
