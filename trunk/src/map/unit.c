@@ -97,16 +97,15 @@ int unit_walktoxy_sub(struct block_list *bl)
 
 #ifdef OFFICIAL_WALKPATH
 	if( !path_search_long(NULL,bl->m,bl->x,bl->y,ud->to_x,ud->to_y,CELL_CHKNOPASS) && //Check if there is an obstacle between
-		wpd.path_len > 14 && //Official number of walkable cells is 14 if and only if there is an obstacle between [malufett]
+		wpd.path_len > battle_config.max_walk_path && //Official number of walkable cells is 14 if and only if there is an obstacle between [malufett]
 		(bl->type != BL_NPC) ) //If type is a NPC, please disregard
 		return 0;
 #endif
 
 	memcpy(&ud->walkpath,&wpd,sizeof(wpd));
 
+	//Generally speaking, the walk path is already to an adjacent tile so we only need to shorten the path if the range is greater than 1
 	if( ud->target_to && ud->chaserange > 1 ) {
-		//Generally speaking, the walk path is already to an adjacent tile
-		//so we only need to shorten the path if the range is greater than 1
 		uint8 dir;
 
 		//Trim the last part of the path to account for range,
@@ -619,19 +618,19 @@ int unit_walktoxy(struct block_list *bl, short x, short y, unsigned char flag)
 		return 0;
 
 #ifdef OFFICIAL_WALKPATH
-	if( !path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKNOPASS) // Check if there is an obstacle between
-		&& wpd.path_len > 14 // Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
-		&& (bl->type != BL_NPC) ) // If type is a NPC, please disregard.
-			return 0;
+	if( !path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKNOPASS) && // Check if there is an obstacle between
+		wpd.path_len > battle_config.max_walk_path && // Official number of walkable cells is 14 if and only if there is an obstacle between [malufett]
+		(bl->type != BL_NPC) ) // If type is a NPC, please disregard
+		return 0;
 #endif
 
-	if( (wpd.path_len > battle_config.max_walk_path) && (bl->type != BL_NPC) )
+	if( wpd.path_len > battle_config.max_walk_path && bl->type != BL_NPC )
 		return 0;
 
 	if( flag&4 ) {
 		unit_unattackable(bl);
 		unit_stop_attack(bl);
-		// Delay walking command. [Skotlex]
+		// Delay walking command [Skotlex]
 		if( DIFF_TICK(ud->canmove_tick, gettick()) > 0 && DIFF_TICK(ud->canmove_tick, gettick()) < 2000 ) {
 			add_timer(ud->canmove_tick + 1, unit_delay_walktoxy_timer, bl->id, (x<<16)|(y&0xFFFF));
 			return 1;

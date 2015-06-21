@@ -803,7 +803,7 @@ ACMD_FUNC(save)
 {
 	nullpo_retr(-1, sd);
 
-	if( map[sd->bl.m].instance_id ) {
+	if (map[sd->bl.m].instance_id) {
 		clif_displaymessage(fd, msg_txt(383)); // You cannot create a savepoint in an instance.
 		return 1;
 	}
@@ -813,7 +813,7 @@ ACMD_FUNC(save)
 		intif_save_petdata(sd->status.account_id, &sd->pd->pet);
 
 	chrif_save(sd,0);
-	
+
 	clif_displaymessage(fd, msg_txt(6)); // Your save point has been changed.
 
 	return 0;
