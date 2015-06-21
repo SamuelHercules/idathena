@@ -1837,8 +1837,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 	if (!skill_id) { //Normal attack checks
 		if (!(status->mode&MD_CANATTACK))
 			return false; //This mode is only needed for melee attacking
-		//Dead state is not checked for skills as some skills can be used
-		//on dead characters, said checks are left to skill.c [Skotlex]
+		//Dead state is not checked for skills as some skills can be used on dead characters, said checks are left to skill.c [Skotlex]
 		if (target && status_isdead(target))
 			return false;
 		if (src && sc && sc->data[SC_CRYSTALIZE])
@@ -1868,10 +1867,10 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 		}
 		if (sc->opt1 && sc->opt1 != OPT1_BURNING && sc->opt1 != OPT1_FREEZING &&
 			skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE) { //Stuned/Frozen/etc
-			if (flag == 2)
-				return false; //Casted ground spells can't damage
+			if (flag != 1)
+				return false; //Can't cast, casted spells can't damage
 			if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
-				return false; //Can't cast
+				return false; //Target/self casted spells can't come off
 		}
 		if ((sc->data[SC_TRICKDEAD] && skill_id != NV_TRICKDEAD) ||
 			(sc->data[SC_AUTOCOUNTER] && !flag && skill_id) ||
@@ -1883,7 +1882,6 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			if (winkcharm_target != NULL) {
 				if (unit_bl2ud(src) && (unit_bl2ud(src))->walktimer == INVALID_TIMER)
 					unit_walktobl(src, map_id2bl(sc->data[SC_WINKCHARM]->val2), 3, 1);
-				clif_emotion(src, E_LV);
 				return false;
 			} else
 				status_change_end(src, SC_WINKCHARM, INVALID_TIMER);
@@ -1910,26 +1908,24 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 			if ((sc->data[SC_DANCING]->val1&0xFFFF) == CG_HERMODE && skill_id == BD_ADAPTATION)
 				return false; //Can't amp out of Wand of Hermode [Skotlex]
 		}
-		if (skill_id &&
-			(src->type != BL_PC || ((TBL_PC *)src)->skillitem != skill_id)) //Do not block item-casted skills
-		{ //Skills blocked through status changes
-			if (sc->cant.cast ||
-				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || //Only Basilica's caster that can cast, and only Basilica to cancel it
-				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
-				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
-				(sc->data[SC_STASIS] && skill_block_check(src, SC_STASIS, skill_id)) ||
-				(sc->data[SC_KAGEHUMI] && skill_block_check(src, SC_KAGEHUMI, skill_id)))
-			{
-				if (flag == 2)
+		if (skill_id && (src->type != BL_PC || ((TBL_PC *)src)->skillitem != skill_id)) { //'itemskill' still can be casted
+			if (sc->cant.cast) { //Through SCS_NOCAST
+				if (flag != 1)
 					return false;
 				if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
 					return false;
 			}
 			//Skill blocking
-			if ((sc->data[SC_VOLCANO] && skill_id == WZ_ICEWALL) ||
+			if ((sc->data[SC_NOCHAT] && (sc->data[SC_NOCHAT]->val1&MANNER_NOSKILL)) ||
+				(sc->data[SC_VOLCANO] && skill_id == WZ_ICEWALL) ||
 				(sc->data[SC_ROKISWEIL] && skill_id != BD_ADAPTATION) ||
 				(sc->data[SC_HERMODE] && (skill_get_inf(skill_id)&INF_SUPPORT_SKILL)) ||
-				(sc->data[SC_NOCHAT] && (sc->data[SC_NOCHAT]->val1&MANNER_NOSKILL)))
+				(sc->data[SC_BASILICA] && //Only Basilica's caster that can cast, and only Basilica to cancel it
+				(sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) ||
+				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
+				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
+				(sc->data[SC_STASIS] && skill_block_check(src, SC_STASIS, skill_id)) ||
+				(sc->data[SC_KAGEHUMI] && skill_block_check(src, SC_KAGEHUMI, skill_id)))
 				return false;
 		}
 		if (sc->option) {
@@ -9433,6 +9429,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_HARMONIZE:
 				val2 = 5 + 5 * val1;
 				break;
+			case SC_WINKCHARM:
+				clif_emotion(bl,E_LV);
+			//Fall through
 			case SC_VOICEOFSIREN:
 				tick_time = 2000;
 				val4 = tick / tick_time;
@@ -12115,6 +12114,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			}
 			break;
 
+		case SC_WINKCHARM:
 		case SC_VOICEOFSIREN:
 			if( --(sce->val4) >= 0 ) {
 				clif_emotion(bl,E_LV);

@@ -92,14 +92,14 @@ enum e_skill_inf3 {
 	INF3_SC_DANCEWITHWUG    = 0x08000, //Skill that affected by SC_DANCEWITHWUG
 };
 
-//Walk intervals at which chase-skills are attempted to be triggered.
-//If you change this, make sure it's an odd value (for icewall block behavior).
+//Walk intervals at which chase-skills are attempted to be triggered
+//If you change this, make sure it's an odd value (for icewall block behavior)
 #define WALK_SKILL_INTERVAL 5
 
 //Flags passed to skill_attack/skill_area_sub
 enum e_skill_display {
 	SD_LEVEL     = 0x1000, //skill_attack will send -1 instead of skill level (affects display of some skills)
-	SD_ANIMATION = 0x2000, //skill_attack will use '5' instead of the skill's 'type' (this makes skills show an animation). Also being used in skill_attack for splash skill (NK_SPLASH) to check status_check_skilluse
+	SD_ANIMATION = 0x2000, //skill_attack will use '5' instead of the skill's 'type' (this makes skills show an animation), also being used in skill_attack for splash skill (NK_SPLASH) to check status_check_skilluse
 	SD_SPLASH    = 0x4000, //skill_area_sub will count targets in skill_area_temp[2]
 	SD_PREAMBLE  = 0x8000, //skill_area_sub will transmit a 'magic' damage packet (-30000 dmg) for the first target selected
 };

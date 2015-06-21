@@ -2713,8 +2713,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, bl);
 
-	//To block skills that aren't called via battle_check_target [Panikon]
-	//issue: 8203
+	//To block skills that aren't called via battle_check_target (bugreport:8203) [Panikon]
 	if (sd && ((bl->type == BL_MOB && pc_has_permission(sd, PC_PERM_DISABLE_PVM)) ||
 		(bl->type == BL_PC && pc_has_permission(sd, PC_PERM_DISABLE_PVP))))
 		return 0;
@@ -10455,8 +10454,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 				if( tsc ) {
 					const enum sc_type scs[] = {
-						SC_MANDRAGORA,SC_HARMONIZE,SC_DEEPSLEEP,SC_VOICEOFSIREN,
-						SC_SLEEP,SC_CONFUSION,SC_HALLUCINATION
+						SC_MANDRAGORA,SC_HARMONIZE,SC_DEEPSLEEP,SC_VOICEOFSIREN,SC_SLEEP,SC_CONFUSION,SC_HALLUCINATION
 					};
 
 					for( i = 0; i < ARRAYLENGTH(scs); i++ )
@@ -14300,7 +14298,7 @@ int skill_check_condition_char_sub(struct block_list *bl, va_list ap)
 	if( pc_isdead(tsd) )
 		return 0;
 
-	if( tsd->sc.data[SC_SILENCE] || (tsd->sc.opt1 && tsd->sc.opt1 != OPT1_BURNING && tsd->sc.opt1 != OPT1_FREEZING) )
+	if( !status_check_skilluse(src,bl,skill_id,0) )
 		return 0;
 
 	if( skill_get_inf2(skill_id)&INF2_CHORUS_SKILL ) {
