@@ -1915,7 +1915,7 @@ bool status_check_skilluse(struct block_list *src, struct block_list *target, ui
 				if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
 					return false;
 			}
-			//Skill blocking
+			//Specific skill blocking
 			if ((sc->data[SC_NOCHAT] && (sc->data[SC_NOCHAT]->val1&MANNER_NOSKILL)) ||
 				(sc->data[SC_VOLCANO] && skill_id == WZ_ICEWALL) ||
 				(sc->data[SC_ROKISWEIL] && skill_id != BD_ADAPTATION) ||

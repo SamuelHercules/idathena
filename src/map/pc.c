@@ -6132,30 +6132,29 @@ int pc_follow_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 	sd->followtimer = INVALID_TIMER;
 	tbl = map_id2bl(sd->followtarget);
-	
+
 	if (tbl == NULL || pc_isdead(sd) || status_isdead(tbl)){
 		pc_stop_following(sd);
 		return 0;
 	}
 
-	// either player or target is currently detached from map blocks (could be teleporting),
-	// but still connected to this map, so we'll just increment the timer and check back later
+	// Either player or target is currently detached from map blocks (could be teleporting)
+	// But still connected to this map, so we'll just increment the timer and check back later
 	if (sd->bl.prev != NULL && tbl->prev != NULL &&
-		sd->ud.skilltimer == INVALID_TIMER && sd->ud.attacktimer == INVALID_TIMER && sd->ud.walktimer == INVALID_TIMER)
-	{
-		if((sd->bl.m == tbl->m) && unit_can_reach_bl(&sd->bl,tbl, AREA_SIZE, 0, NULL, NULL)) {
+		sd->ud.skilltimer == INVALID_TIMER && sd->ud.attacktimer == INVALID_TIMER && sd->ud.walktimer == INVALID_TIMER) {
+		if (sd->bl.m == tbl->m && unit_can_reach_bl(&sd->bl,tbl, AREA_SIZE, 0, NULL, NULL)) {
 			if (!check_distance_bl(&sd->bl, tbl, 5))
 				unit_walktobl(&sd->bl, tbl, 5, 0);
 		} else
 			pc_setpos(sd, map_id2index(tbl->m), tbl->x, tbl->y, CLR_TELEPORT);
 	}
 	sd->followtimer = add_timer(
-		tick + 1000,	// increase time a bit to loosen up map's load
+		tick + 1000, // Increase time a bit to loosen up map's load
 		pc_follow_timer, sd->bl.id, 0);
 	return 0;
 }
 
-int pc_stop_following (struct map_session_data *sd)
+int pc_stop_following(struct map_session_data *sd)
 {
 	nullpo_ret(sd);
 
