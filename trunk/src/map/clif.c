@@ -2711,7 +2711,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 		if( !itemdb_isstackable2(sd->inventory_data[i]) ) { //Non-stackable (Equippable)
 			clif_item_sub(bufe, ne * se + 4, i + 2, &sd->status.inventory[i], sd->inventory_data[i], pc_equippoint(sd, i));
 			ne++;
-		} else { //Stackable.
+		} else { //Stackable
 			clif_item_sub(buf, n * s + 4, i + 2, &sd->status.inventory[i], sd->inventory_data[i], -2);
 			if( sd->inventory_data[i]->equip == EQP_AMMO && sd->status.inventory[i].equip )
 				arrow = i;

@@ -19075,10 +19075,16 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 				if( skill_changematerial_db[i].nameid == nameid ) {
 					for( j = 0; j < MAX_SKILL_CHANGEMATERIAL_SET; j++ ) {
 						if( rnd()%1000 < skill_changematerial_db[i].qty_rate[j] ) {
-							tmp_item.amount = qty * skill_changematerial_db[i].qty[j];
-							if( (flag = pc_additem(sd,&tmp_item,tmp_item.amount,LOG_TYPE_PRODUCE)) ) {
-								clif_additem(sd,0,0,flag);
-								map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+							int val, amt;
+
+							amt = tmp_item.amount = qty * skill_changematerial_db[i].qty[j];
+							if( !itemdb_isstackable2(itemdb_search(nameid)) )
+								amt = 1;
+							for( val = 0; val < tmp_item.amount; val += amt ) {
+								if( (flag = pc_additem(sd,&tmp_item,amt,LOG_TYPE_PRODUCE)) ) {
+									clif_additem(sd,0,0,flag);
+									map_addflooritem(&tmp_item,amt,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+								}
 							}
 							k++;
 						}
@@ -19505,13 +19511,13 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 	nullpo_ret(sd);
 	nullpo_ret(item_list);
 
-	//Search for objects that can be created.
+	//Search for objects that can be created
 	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
 		if( skill_produce_db[i].itemlv == 26 ) {
 			p = 0;
 			do {
 				c = 0;
-				//Verification of overlap between the objects required and the list submitted.
+				//Verification of overlap between the objects required and the list submitted
 				for( j = 0; j < MAX_PRODUCE_RESOURCE; j++ ) {
 					if( skill_produce_db[i].mat_id[j] > 0 ) {
 						for( k = 0; k < n; k++ ) {
@@ -20954,9 +20960,8 @@ static bool skill_parse_row_changematerialdb(char *split[], int columns, int cur
 		return false;
 	}
 	for( x = 0; x < MAX_SKILL_PRODUCE_DB; x++ ) {
-		if( skill_produce_db[x].nameid == nameid )
-			if( skill_produce_db[x].req_skill == GN_CHANGEMATERIAL )
-				break;
+		if( skill_produce_db[x].nameid == nameid && skill_produce_db[x].req_skill == GN_CHANGEMATERIAL )
+			break;
 	}
 	if( x >= MAX_SKILL_PRODUCE_DB ) {
 		ShowError("skill_parse_row_changematerialdb: Not supported item ID(%d) for Change Material. \n", nameid);

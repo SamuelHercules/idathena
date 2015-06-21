@@ -927,7 +927,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 
 	if(pd->ud.target == target->id &&
 		(pd->ud.attacktimer != INVALID_TIMER || pd->ud.walktimer != INVALID_TIMER))
-		return 0; //Target already locked.
+		return 0; //Target already locked
 
 	if(target->type != BL_ITEM) { //enemy targetted
 		if(!battle_check_range(&pd->bl,target,pd->status.rhw.range)) { //Chase
@@ -935,11 +935,10 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 				pet_unlocktarget(pd); //Unreachable target.
 			return 0;
 		}
-		//Continuous attack.
-		unit_attack(&pd->bl,pd->target_id,1);
+		unit_attack(&pd->bl,pd->target_id,1); //Continuous attack
 	} else { //Item Targeted, attempt loot
 		if(!check_distance_bl(&pd->bl,target,1)) { //Out of range
-			if(!unit_walktobl(&pd->bl,target,1,1)) //Unreachable target.
+			if(!unit_walktobl(&pd->bl,target,1,1)) //Unreachable target
 				pet_unlocktarget(pd);
 			return 0;
 		} else {
@@ -950,8 +949,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, uns
 				pd->loot->weight += itemdb_weight(fitem->item.nameid) * fitem->item.amount;
 				map_clearflooritem(target);
 			}
-			//Target is unlocked regardless of whether it was picked or not.
-			pet_unlocktarget(pd);
+			pet_unlocktarget(pd); //Target is unlocked regardless of whether it was picked or not
 		}
 	}
 	return 0;

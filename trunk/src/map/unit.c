@@ -130,7 +130,7 @@ int unit_walktoxy_sub(struct block_list *bl)
 	}
 	clif_move(ud);
 
-	if( ud->walkpath.path_pos>=ud->walkpath.path_len )
+	if( ud->walkpath.path_pos >= ud->walkpath.path_len )
 		i = -1;
 	else if( ud->walkpath.path[ud->walkpath.path_pos]&1 )
 		i = status_get_speed(bl) * MOVE_DIAGONAL_COST / MOVE_COST;
@@ -348,7 +348,7 @@ static int unit_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data
 		return 0;
 
 	if(ud->walktimer != tid) {
-		ShowError("unit_walk_timer mismatch %d != %d\n",ud->walktimer,tid);
+		ShowError("unit_walktoxy_timer mismatch %d != %d\n",ud->walktimer,tid);
 		return 0;
 	}
 
@@ -372,7 +372,7 @@ static int unit_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data
 	dx = dirx[(int)dir];
 	dy = diry[(int)dir];
 
-	//Get icewall walk block depending on boss mode (players can't be trapped)
+	//Get 'icewall_walk_block' depending on boss mode (players can't be trapped)
 	if(md && md->status.mode&MD_BOSS)
 		icewall_walk_block = battle_config.boss_icewall_walk_block;
 	else if(md)
@@ -574,6 +574,7 @@ int unit_delay_walktobl_timer(int tid, unsigned int tick, int id, intptr_t data)
 		return 0;
 	else {
 		struct unit_data *ud = unit_bl2ud(bl);
+
 		unit_walktobl(bl, map_id2bl(data), 0, 0);
 		ud->target_to = 0;
 	}
@@ -701,7 +702,7 @@ static int unit_walktobl_sub(int tid, unsigned int tick, int id, intptr_t data)
 
 	if (ud && ud->walktimer == INVALID_TIMER && ud->target == data) {
 		if (DIFF_TICK(ud->canmove_tick, tick) > 0) //Keep waiting?
-			add_timer(ud->canmove_tick+1, unit_walktobl_sub, id, data);
+			add_timer(ud->canmove_tick + 1, unit_walktobl_sub, id, data);
 		else if (unit_can_move(bl)) {
 			if (unit_walktoxy_sub(bl))
 				set_mobstate(bl, ud->state.attack_continue);
@@ -857,7 +858,7 @@ bool unit_run(struct block_list *bl, struct map_session_data *sd, enum sc_type t
 	if( unit_walktoxy(bl, to_x, to_y, 1) )
 		return true;
 
-	//There must be an obstacle nearby. Attempt walking one cell at a time.
+	//There must be an obstacle nearby, attempt walking one cell at a time
 	do {
 		to_x -= dir_x;
 		to_y -= dir_y;
@@ -1672,11 +1673,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	//Check range when not using skill on yourself or is a combo-skill during attack
 	//(these are supposed to always have the same range as your attack)
 	if( src->id != target_id && (!combo || ud->attacktimer == INVALID_TIMER) ) {
-		if( skill_get_state(ud->skill_id) == ST_MOVE_ENABLE &&
-			!unit_can_reach_bl(src, target, range + 1, 1, NULL, NULL) )
+		if( skill_get_state(ud->skill_id) == ST_MOVE_ENABLE && !unit_can_reach_bl(src, target, range + 1, 1, NULL, NULL) )
 			return 0; //Walk-path check failed
-		else if( src->type == BL_MER && skill_id == MA_REMOVETRAP &&
-			!battle_check_range(battle_get_master(src), target, range + 1) )
+		else if( src->type == BL_MER && skill_id == MA_REMOVETRAP && !battle_check_range(battle_get_master(src), target, range + 1) )
 			return 0; //Aegis calc remove trap based on Master position, ignoring mercenary
 		else if( !battle_check_range(src, target, range + (skill_id == RG_CLOSECONFINE ? 0 : 2)) )
 			return 0; //Arrow-path check failed
@@ -2313,15 +2312,19 @@ bool unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, 
 		int i;
 
 		//Look for a suitable cell to place in
-		for( i = 0; i < 8 && map_getcell(tbl->m,tbl->x - dirx[i],tbl->y - diry[i],CELL_CHKNOPASS); i++ );
-		if( i == 8 ) return false; //No valid cells
+		for( i = 0; i < 8 && map_getcell(tbl->m,tbl->x - dirx[i],tbl->y - diry[i],CELL_CHKNOPASS); i++ )
+			;
+		if( i == 8 )
+			return false; //No valid cells
 		dx = dirx[i];
 		dy = diry[i];
 	}
 
-	if( x ) *x = tbl->x-dx;
-	if( y ) *y = tbl->y-dy;
-	return path_search(NULL,bl->m,bl->x,bl->y,tbl->x-dx,tbl->y-dy,easy,CELL_CHKNOREACH);
+	if( x )
+		*x = tbl->x - dx;
+	if( y )
+		*y = tbl->y - dy;
+	return path_search(NULL,bl->m,bl->x,bl->y,tbl->x - dx,tbl->y - dy,easy,CELL_CHKNOREACH);
 }
 
 /**
