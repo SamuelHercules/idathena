@@ -9396,7 +9396,7 @@ bool pc_equipitem(struct map_session_data *sd, short n, int req_pos)
 	}
 	if( pos&EQP_SHOES )
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
-	if( pos & EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT) == -1 ) {
+	if( pos&EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT) == -1 ) {
 		sd->status.robe = id->look;
 		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
 	}
@@ -9542,7 +9542,7 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag) {
 	status_change_end(&sd->bl,SC_HEAT_BARREL,INVALID_TIMER);
 	//On weapon change (right and left hand)
 	if( (sd->status.inventory[n].equip&EQP_ARMS) && sd->inventory_data[n]->type == IT_WEAPON ) {
-		if( (!sd->sc.data[SC_SEVENWIND] || sd->sc.data[SC_ASPERSIO]) ) //Check for seven wind
+		if( (!sd->sc.data[SC_SEVENWIND] || sd->sc.data[SC_ASPERSIO]) ) //Seven wind need to be checked
 			skill_enchant_elemental_end(&sd->bl,SC_NONE);
 		status_change_end(&sd->bl,SC_FEARBREEZE,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_EXEEDBREAK,INVALID_TIMER);
