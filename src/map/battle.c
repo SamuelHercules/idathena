@@ -2231,7 +2231,7 @@ static int is_attack_piercing(struct Damage wd, struct block_list *src, struct b
 		struct map_session_data *sd = BL_CAST(BL_PC, src);
 		struct status_data *tstatus = status_get_status_data(target);
 
-		if(skill_id != CR_GRANDCROSS && skill_id != NPC_GRANDDARKNESS && skill_id != CR_SHIELDBOOMERANG &&	skill_id != PA_SHIELDCHAIN &&
+		if(skill_id != CR_GRANDCROSS && skill_id != NPC_GRANDDARKNESS && skill_id != CR_SHIELDBOOMERANG && skill_id != PA_SHIELDCHAIN &&
 			skill_id != PA_SACRIFICE && skill_id != NC_SELFDESTRUCTION && skill_id != KO_HAPPOKUNAI &&
 #ifdef RENEWAL //Soul Breaker no longer gains ice pick effect and ice pick effect gets crit benefit [helvetica]
 			skill_id != ASC_BREAKER
