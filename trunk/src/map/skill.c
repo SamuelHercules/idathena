@@ -1144,9 +1144,6 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			if( dstsd || dstmd )
 				sc_start(src,bl,SC_STOP,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 			break;
-		case ST_REJECTSWORD:
-			sc_start(src,bl,SC_AUTOCOUNTER,(skill_lv * 15),skill_lv,skill_get_time(skill_id,skill_lv));
-			break;
 		case PF_FOGWALL:
 			if( bl->id != src->id && !tsc->data[SC_DELUGE] )
 				sc_start(src,bl,SC_BLIND,100,skill_lv,skill_get_time2(skill_id,skill_lv));
@@ -4242,9 +4239,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			status_change_end(src,SC_BLADESTOP,INVALID_TIMER);
 			break;
 
-#ifndef RENEWAL
 		case NJ_ISSEN:
-#endif
 		case MO_EXTREMITYFIST:
 			{
 				struct block_list *mbl = bl; //For NJ_ISSEN
@@ -4267,7 +4262,6 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					y = i;
 				else
 					y = 0;
-				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 				if ((mbl == src || //Ashura Strike still has slide effect in GVG
 					(!map_flag_gvg2(src->m) && !map[src->m].flag.battleground))) {
 					//The cell is not reachable (wall, object, ...), move next to the target
@@ -4285,6 +4279,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					clif_blown(src,mbl);
 					clif_spiritball(src);
 				}
+				skill_attack(skill_get_type(skill_id),src,src,bl,skill_id,skill_lv,tick,flag);
 				if (skill_id == MO_EXTREMITYFIST) {
 					status_set_sp(src,0,0);
 					status_change_end(src,SC_EXPLOSIONSPIRITS,INVALID_TIMER);
@@ -4293,7 +4288,11 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 					sc_start(src,src,SC_EXTREMITYFIST2,100,skill_lv,skill_get_time(skill_id,skill_lv));
 #endif
 				} else {
+#ifdef RENEWAL
+					status_set_hp(src,max(status_get_max_hp(src) / 100,1),0);
+#else
 					status_set_hp(src,1,0);
+#endif
 					status_change_end(src,SC_NEN,INVALID_TIMER);
 					status_change_end(src,SC_HIDING,INVALID_TIMER);
 				}
@@ -4301,7 +4300,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			break;
 
 		case HT_POWER:
-			if( tstatus->race == RC_BRUTE || tstatus->race == RC_INSECT )
+			if (tstatus->race == RC_BRUTE || tstatus->race == RC_INSECT)
 				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			break;
 
@@ -4718,55 +4717,13 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			skill_attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
 			break;
 
-#ifdef RENEWAL
-		case NJ_ISSEN: {
-			short x, y;
-			short dir = map_calc_dir(src,bl->x,bl->y);
-
-			//Move 2 cells (From target)
-			if (dir > 0 && dir < 4)
-				x = -2;
-			else if (dir > 4)
-				x = 2;
-			else
-				x = 0;
-			if (dir > 2 && dir < 6)
-				y = -2;
-			else if (dir == 7 || dir < 2)
-				y = 2;
-			else
-				y = 0;
-			if (!map_flag_gvg2(src->m) && !map[src->m].flag.battleground) { //Doesn't have slide effect in GVG
-				if (!(unit_movepos(src,bl->x + x,bl->y + y,1,true))) {
-					if (x > 0)
-						x = -1;
-					else if (x < 0)
-						x = 1;
-					if (y > 0)
-						y = -1;
-					else if (y < 0)
-						y = 1;
-					unit_movepos(src,bl->x + x,bl->y + y,1,true);
-				}
-				clif_blown(src,bl);
-				clif_spiritball(src);
-			}
-			skill_attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
-			status_set_hp(src,max(status_get_max_hp(src) / 100,1),0);
-			status_change_end(src,SC_NEN,INVALID_TIMER);
-			status_change_end(src,SC_HIDING,INVALID_TIMER);
-		}
-		break;
-#endif
-
 		case NPC_SELFDESTRUCTION:
 		case HVAN_EXPLOSION:
 			if (bl->id != src->id)
 				skill_attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
 			break;
 
-		//Celest
-		case PF_SOULBURN:
+		case PF_SOULBURN: //[Celest]
 			if (rnd()%100 < (skill_lv < 5 ? 30 + skill_lv * 10 : 70)) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				if (skill_lv == 5)
