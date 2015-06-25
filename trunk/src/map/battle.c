@@ -1650,7 +1650,7 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 		float strdex_bonus, variance;
 		short dstr;
 
-		if (watk->range > 3)
+		if(watk->range > 3)
 			dstr = status->dex;
 		else
 			dstr = status->str;
@@ -1661,17 +1661,18 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 	}
 
 	if(!(sc && sc->data[SC_MAXIMIZEPOWER])) {
-		if (atkmax > atkmin)
+		if(atkmax > atkmin)
 			atkmax = atkmin + rnd()%(atkmax - atkmin + 1);
 		else
 			atkmax = atkmin;
 	}
 
-	if((index = sd->equip_index[EQI_HAND_R]) >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON &&
+	if(type == EQI_HAND_R && (index = sd->equip_index[type]) >= 0 && sd->inventory_data[index] &&
+		sd->inventory_data[index]->type == IT_WEAPON && sd->inventory_data[index]->range <= 3 &&
 		(refine = sd->status.inventory[index].refine) < 16 && refine) {
 		int r = refine_info[watk->wlv].randombonus_max[refine + (4 - watk->wlv)] / 100;
 
-		if (r)
+		if(r)
 			atkmax += (rnd()%100)%r + 1;
 	}
 

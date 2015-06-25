@@ -2277,7 +2277,7 @@ void status_get_matk_sub(struct block_list *bl, int flag, unsigned short *matk_m
 		*matk_min = *matk_max;
 
 #ifdef RENEWAL
-	if( sd ) {
+	if( sd && !(flag&2) ) {
 		short index, refine;
 
 		if( (index = sd->equip_index[EQI_HAND_R]) >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON &&
