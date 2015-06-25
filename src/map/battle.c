@@ -4088,7 +4088,10 @@ static int64 battle_calc_skill_constant_addition(struct Damage wd,struct block_l
 	struct status_data *tstatus = status_get_status_data(target);
 	int64 atk = 0;
 
-	switch(skill_id) { //Constant/misc additions from skills
+	switch(skill_id) {
+		case MO_EXTREMITYFIST: //[malufett]
+			atk = 250 * (skill_lv + 1) + (10 * (sstatus->sp + 1) * wd.damage / 100) + 8 * wd.damage;
+			break;
 #ifndef RENEWAL
 		case GS_MAGICALBULLET:
 			atk = status_get_matk(src,2);
@@ -4497,6 +4500,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 		is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L)))
 		return wd;
 	switch(skill_id) {
+		case MO_EXTREMITYFIST:
 		case NJ_KUNAI:
 		case RK_DRAGONBREATH:
 		case RK_DRAGONBREATH_WATER:
@@ -4812,9 +4816,10 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
 	}
 
-	if(wd.damage && tsc) {
+	if(tsc && wd.damage) {
 		if((sce = tsc->data[SC_REJECTSWORD]) && (src->type != BL_PC ||
-			(((TBL_PC *)src)->weapontype1 == W_DAGGER || ((TBL_PC *)src)->weapontype1 == W_1HSWORD ||
+			(((TBL_PC *)src)->weapontype1 == W_DAGGER ||
+			((TBL_PC *)src)->weapontype1 == W_1HSWORD ||
 			((TBL_PC *)src)->status.weapon == W_2HSWORD)) && rnd()%100 < sce->val2)
 		{ //Reject Sword bugreport:4493 by Daegaladh
 			ATK_RATER(wd.damage, 50);
@@ -5167,13 +5172,11 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 					skill = skill_id;
 					break;
 			}
-
 			//Add any miscellaneous player skill ATK rate bonuses
 			if((i = pc_skillatk_bonus(sd, skill))) {
 				ATK_ADDRATE(wd.damage, wd.damage2, i);
 				RE_ALLATK_ADDRATE(wd, i);
 			}
-
 			if((i = battle_adjust_skill_damage(src->m, skill))) {
 				ATK_RATE(wd.damage, wd.damage2, i);
 				RE_ALLATK_RATE(wd, i);
@@ -5288,7 +5291,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			case CR_ACIDDEMONSTRATION:
 			case GN_FIRE_EXPANSION_ACID:
 #endif
-			case MO_EXTREMITYFIST:
 			case NPC_EARTHQUAKE:
 			case SO_VARETYR_SPEAR:
 				break; //Do card fix later
@@ -5432,7 +5434,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 		case CR_ACIDDEMONSTRATION:
 		case GN_FIRE_EXPANSION_ACID:
 #endif
-		case MO_EXTREMITYFIST:
 		case NPC_EARTHQUAKE:
 		case RA_CLUSTERBOMB:
 		case RA_FIRINGTRAP:
@@ -6100,14 +6101,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					skill = skill_id;
 					break;
 			}
-
 			//Damage rate bonuses
 			if((i = pc_skillatk_bonus(sd, skill)))
 				ad.damage += ad.damage * i / 100;
-
 			if((i = battle_adjust_skill_damage(src->m, skill)))
 				MATK_RATE(i);
-
 			//Ignore Magic Defense?
 			if(!flag.imdef && (
 				sd->bonus.ignore_mdef_ele&(1<<tstatus->def_ele) || sd->bonus.ignore_mdef_ele&(1<<ELE_ALL) ||
@@ -6520,18 +6518,6 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 				else if(tsd && skill_id == NJ_ZENYNAGE)
 					md.damage = md.damage / 2;
 			break;
-		case MO_EXTREMITYFIST: {
-				short totaldef;
-				struct Damage atk = battle_calc_weapon_attack(src,target,skill_id,skill_lv,md.miscflag);
-
-				md.damage = 250 + skill_lv * 150 + atk.damage * (8 + sstatus->sp / 10);
-				totaldef = (short)status_get_def(target) + tstatus->def2;
-#ifdef RENEWAL
-				md.damage -= totaldef;
-#endif
-				md.flag |= BF_WEAPON;
-			}
-			break;
 #ifdef RENEWAL
 		case NJ_ISSEN: {
 				//Official renewal formula [helvetica]
@@ -6693,10 +6679,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 				skill = skill_id;
 				break;
 		}
-
 		if((i = pc_skillatk_bonus(sd,skill)))
 			md.damage += md.damage * i / 100;
-
 		if((i = battle_adjust_skill_damage(src->m,skill)))
 			md.damage = md.damage * i / 100;
 	}
@@ -6758,7 +6742,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	switch(skill_id) {
 #ifdef RENEWAL
 		case GS_MAGICALBULLET:
-			break; //GVG fix already done
+			return md; //GVG fix already done
 #endif
 		default:
 			md.damage = battle_calc_damage(src,target,&md,md.damage,skill_id,skill_lv);
