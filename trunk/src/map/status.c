@@ -1123,6 +1123,7 @@ void initChangeTables(void) {
 	//StatusDisplayType Table [Ind]
 	StatusDisplayType[SC_ALL_RIDING]	  = true;
 	StatusDisplayType[SC_PUSH_CART]		  = true;
+	StatusDisplayType[SC_EXPLOSIONSPIRITS]	  = true;
 	StatusDisplayType[SC_SPHERE_1]		  = true;
 	StatusDisplayType[SC_SPHERE_2]		  = true;
 	StatusDisplayType[SC_SPHERE_3]		  = true;
