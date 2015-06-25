@@ -2935,12 +2935,10 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 #ifdef RENEWAL
 				ATK_ADD(wd.weaponAtk, wd.weaponAtk2, damagevalue);
 #endif
-				wd.flag |= BF_LONG;
 			}
 			break;
 		case NC_SELFDESTRUCTION: {
-				int damagevalue = (skill_lv + 1) * ((sd ? pc_checkskill(sd,NC_MAINFRAME) : 0) + 8) *
-					(status_get_sp(src) + sstatus->vit);
+				int damagevalue = (skill_lv + 1) * ((sd ? pc_checkskill(sd,NC_MAINFRAME) : 0) + 8) * (status_get_sp(src) + sstatus->vit);
 
 				if(status_get_lv(src) > 100)
 					damagevalue = damagevalue * status_get_lv(src) / 100;
@@ -3148,7 +3146,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 	int skillratio = 100;
 	int i;
 
-	if(sc && skill_id != PA_SACRIFICE) { //Skill damage modifiers that stack linearly
+	if(sc && battle_skill_stacks_masteries_vvs(skill_id)) { //Skill damage modifiers that stack linearly
 		if(sc->data[SC_OVERTHRUST])
 			skillratio += sc->data[SC_OVERTHRUST]->val3;
 		if(sc->data[SC_MAXOVERTHRUST])
@@ -4108,7 +4106,7 @@ static int64 battle_calc_skill_constant_addition(struct Damage wd,struct block_l
 #endif
 		case RA_WUGDASH:
 			if(sd && sd->weight)
-				atk = (sd->weight / 8) + (30 * pc_checkskill(sd,RA_TOOTHOFWUG));
+				atk = sd->weight / 8 + 30 * pc_checkskill(sd,RA_TOOTHOFWUG);
 			break;
 		case RA_WUGSTRIKE:
 		case RA_WUGBITE:
@@ -5345,11 +5343,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 #endif
 
 	//Fixed damage and no elemental [exneval]
-	if(sc && sc->data[SC_AURABLADE]
-#ifndef RENEWAL
-		&& skill_id != LK_SPIRALPIERCE && skill_id != ML_SPIRALPIERCE
-#endif
-	) {
+	if(sc && sc->data[SC_AURABLADE] && battle_skill_stacks_masteries_vvs(skill_id)) {
 		uint16 skill = sc->data[SC_AURABLADE]->val1;
 
 #ifdef RENEWAL
