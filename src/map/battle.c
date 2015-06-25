@@ -2648,20 +2648,11 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 			case RA_CLUSTERBOMB:
 			case RA_FIRINGTRAP:
 			case RA_ICEBOUNDTRAP:
+			case NC_ARMSCANNON:
 			case SR_TIGERCANNON:
 			case SR_CRESCENTELBOW_AUTOSPELL:
 			case SR_GATEOFHELL:
 			case KO_BAKURETSU:
-				wd.damage = battle_attr_fix(src, target, wd.damage, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
-				if(is_attack_left_handed(src, skill_id))
-					wd.damage2 = battle_attr_fix(src, target, wd.damage2, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
-				break;
-			case NC_ARMSCANNON:
-				if(sd && sd->bonus.arrow_ele && sd->bonus.arrow_ele == sstatus->rhw.ele) {
-					wd.damage = battle_attr_fix(src, target, wd.damage, sd->bonus.arrow_ele, tstatus->def_ele, tstatus->ele_lv);
-					if(is_attack_left_handed(src, skill_id))
-						wd.damage2 = battle_attr_fix(src, target, wd.damage2, sd->bonus.arrow_ele, tstatus->def_ele, tstatus->ele_lv);
-				}
 				wd.damage = battle_attr_fix(src, target, wd.damage, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
 				if(is_attack_left_handed(src, skill_id))
 					wd.damage2 = battle_attr_fix(src, target, wd.damage2, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
@@ -5330,6 +5321,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			case RA_CLUSTERBOMB:
 			case RA_FIRINGTRAP:
 			case RA_ICEBOUNDTRAP:
+			case NC_ARMSCANNON:
 			case SR_TIGERCANNON:
 			case SR_CRESCENTELBOW_AUTOSPELL:
 			case SR_GATEOFHELL:
@@ -5344,27 +5336,12 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 				if(is_attack_left_handed(src, skill_id))
 					wd.damage2 = battle_attr_fix(src, target, wd.damage2, ELE_FIRE, tstatus->def_ele, tstatus->ele_lv);
 				break;
-			case NC_ARMSCANNON: {
-					struct status_data *sstatus = status_get_status_data(src);
-
-					if(sd->bonus.arrow_ele && sd->bonus.arrow_ele == sstatus->rhw.ele) {
-						wd.damage = battle_attr_fix(src, target, wd.damage, sd->bonus.arrow_ele, tstatus->def_ele, tstatus->ele_lv);
-						if(is_attack_left_handed(src, skill_id))
-							wd.damage2 = battle_attr_fix(src, target, wd.damage2, sd->bonus.arrow_ele, tstatus->def_ele, tstatus->ele_lv);
-					}
-					wd.damage = battle_attr_fix(src, target, wd.damage, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
-					if(is_attack_left_handed(src, skill_id))
-						wd.damage2 = battle_attr_fix(src, target, wd.damage2, ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
-				}
-				break;
 			case GN_CARTCANNON:
 			case KO_HAPPOKUNAI:
 				wd.damage = battle_attr_fix(src, target, wd.damage, (sd->bonus.arrow_ele ? sd->bonus.arrow_ele : ELE_NEUTRAL), tstatus->def_ele, tstatus->ele_lv);
 				if(is_attack_left_handed(src, skill_id))
 					wd.damage2 = battle_attr_fix(src, target, wd.damage2, (sd->bonus.arrow_ele ? sd->bonus.arrow_ele : ELE_NEUTRAL), tstatus->def_ele, tstatus->ele_lv);
 				break;
-			case LK_SPIRALPIERCE:
-			case ML_SPIRALPIERCE:
 			case PA_SACRIFICE:
 			case RK_DRAGONBREATH:
 			case RK_DRAGONBREATH_WATER:

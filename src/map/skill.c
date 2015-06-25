@@ -11861,7 +11861,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 
 		case SC_FEINTBOMB:
 			skill_unitsetting(src,skill_id,skill_lv,x,y,0); //Set bomb on current position
-			skill_blown(src,src, 3 * skill_lv,unit_getdir(src),0);
+			skill_blown(src,src,3 * skill_lv,unit_getdir(src),0);
 			sc_start(src,src,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 
