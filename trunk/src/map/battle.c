@@ -1647,10 +1647,19 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 	short index, refine;
 
 	if((index = sd->equip_index[type]) >= 0 && sd->inventory_data[index]) {
-		float variance = 5.0f * watk->atk * sd->inventory_data[index]->wlv / 100.0f;
+		float strdex_bonus, variance;
+		short dstr;
 
-		atkmin = max(0, (int)(atkmin - variance));
-		atkmax = min(UINT16_MAX, (int)(atkmax + variance));
+		if (watk->range > 3)
+			dstr = status->dex;
+		else
+			dstr = status->str;
+
+		variance = 5.0f * watk->atk * sd->inventory_data[index]->wlv / 100.0f;
+		strdex_bonus = watk->atk * dstr / 200.0f;
+
+		atkmin = max(0, (int)(atkmin - variance + strdex_bonus));
+		atkmax = min(UINT16_MAX, (int)(atkmax + variance + strdex_bonus));
 	}
 
 	if(!(sc && sc->data[SC_MAXIMIZEPOWER])) {
@@ -1684,8 +1693,7 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 	}
 
 	damage = battle_calc_sizefix(damage, sd, tstatus->size, type, weapon_perfection);
-
-	return (int)cap_value(damage,INT_MIN,INT_MAX);
+	return (int)cap_value(damage, INT_MIN, INT_MAX);
 }
 #endif
 
@@ -1819,12 +1827,6 @@ static int64 battle_calc_base_damage(struct block_list *src, struct status_data 
 				damage += damage * sd->weapon_atk_rate[sd->weapontype1] / 100;
 		}
 	}
-
-#ifdef RENEWAL
-	if(flag&1)
-		damage = damage * 14 / 10;
-#endif
-
 	return damage;
 }
 
@@ -2975,8 +2977,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 			if(sd)
 				wd = battle_calc_damage_parts(wd, src, target, skill_id, skill_lv);
 			else {
-				i = (is_attack_critical(wd, src, target, skill_id, skill_lv, false) ? 1 : 0)|
-					(!skill_id && sc && sc->data[SC_CHANGE] ? 4 : 0);
+				i = (!skill_id && sc && sc->data[SC_CHANGE] ? 4 : 0);
 				wd.damage = battle_calc_base_damage(src, sstatus, &sstatus->rhw, sc, tstatus->size, sd, i);
 				if(is_attack_left_handed(src, skill_id))
 					wd.damage2 = battle_calc_base_damage(src, sstatus, &sstatus->lhw, sc, tstatus->size, sd, i);
@@ -4233,8 +4234,6 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 #endif
 		}
 #ifdef RENEWAL
-		if(sc->data[SC_IMPOSITIO])
-			ATK_ADD(wd.equipAtk, wd.equipAtk2, sc->data[SC_IMPOSITIO]->val2);
 		if(sc->data[SC_VOLCANO])
 			ATK_ADD(wd.equipAtk, wd.equipAtk2, sc->data[SC_VOLCANO]->val2);
 		if(sc->data[SC_DRUMBATTLE])
@@ -4459,21 +4458,15 @@ static short battle_get_defense(struct block_list *src, struct block_list *targe
 		vit_def = (def2 / 20) * (def2 / 20);
 		vit_def = def2 + (vit_def > 0 ? rnd()%vit_def : 0);
 #else
-		//Renewal monsters have their def swapped
-		vit_def = def1;
-		def1 = def2;
+		vit_def = def2;
 #endif
 	}
 	if(battle_config.weapon_defense_type) {
 		vit_def += def1 * battle_config.weapon_defense_type;
 		def1 = 0;
 	}
-	if(!flag)
-		return (short)def1;
-	else
-		return vit_def;
 
-	return 0;
+	return (flag ? vit_def : (short)def1);
 }
 
 /*====================================
@@ -4801,7 +4794,7 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 #endif
 
 	if(sc) {
-		if(sc->data[SC_FUSION]) { //SC_FUSION hp penalty [Komurka]
+		if(sc->data[SC_FUSION]) { //SC_FUSION HP penalty [Komurka]
 			int hp = sstatus->max_hp;
 
 			if(sd && tsd) {
@@ -4809,7 +4802,7 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 				if(sstatus->hp * 100 <= sstatus->max_hp * 20)
 					hp = sstatus->hp;
 			} else
-				hp = 2 * hp / 100; //2% hp loss per hit
+				hp = 2 * hp / 100; //2% HP loss per hit
 			status_zap(src, hp, 0);
 		}
 		if(sc->data[SC_CAMOUFLAGE] && !skill_id)
@@ -5117,8 +5110,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			);
 			wd.damage = wd.statusAtk + wd.weaponAtk + wd.equipAtk + wd.masteryAtk;
 			wd.damage2 = wd.statusAtk2 + wd.weaponAtk2 + wd.equipAtk2 + wd.masteryAtk2;
-			if(!skill_id) //Temp. fix for RE normal ATK calculation [exneval]
-				ATK_ADDRATE(wd.damage, wd.damage2, 5);
 			if(wd.flag&BF_LONG) //Affects the entirety of the damage
 				ATK_ADDRATE(wd.damage, wd.damage2, sd->bonus.long_attack_atk_rate);
 		}
@@ -5185,6 +5176,15 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 	} else if(wd.div_ < 0)
 		wd.div_ *= -1;
 
+#ifdef RENEWAL //Critical hit ignores flee but not perfect dodge nor defense [exneval]
+	if(is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
+		if(sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica]
+			ATK_ADDRATE(wd.damage, wd.damage2, 40 + sd->bonus.crit_atk_rate);
+		} else
+			ATK_ADDRATE(wd.damage, wd.damage2, 40);
+	}
+#endif
+
 	if(wd.damage + wd.damage2) { //Check if attack ignores DEF
 		if((!attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_R) || (is_attack_left_handed(src, skill_id) &&
 			!attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_L))) && !target_has_infinite_defense(target, skill_id, wd.flag))
@@ -5247,17 +5247,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 
 	if(skill_id == CR_GRANDCROSS || skill_id == NPC_GRANDDARKNESS)
 		return wd; //Enough, rest is not needed
-
-#ifdef RENEWAL
-	if(is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
-		if(sd) { //Check for player so we don't crash out, monsters don't have bonus crit rates [helvetica]
-			wd.damage = (int)floor((float)((wd.damage * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
-			if(is_attack_left_handed(src, skill_id))
-				wd.damage2 = (int)floor((float)((wd.damage2 * 140) / 100 * (100 + sd->bonus.crit_atk_rate)) / 100);
-		} else
-			wd.damage = (int)floor((float)(wd.damage * 140) / 100);
-	}
-#endif
 
 #ifndef RENEWAL
 	if(sd) { //Card Fix for attacker (sd), 2 is added to the "left" flag meaning "attacker cards only"
@@ -6116,7 +6105,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 		if(!flag.imdef) {
 			defType mdef = tstatus->mdef; //eMDEF
-			short mdef2 = tstatus->mdef2, int_mdef; //sMDEF
+			short mdef2 = tstatus->mdef2; //sMDEF
 
 			mdef = status_calc_mdef(target, tsc, mdef, false);
 			mdef2 = status_calc_mdef2(target, tsc, mdef2, false);
@@ -6132,14 +6121,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				}
 			}
 
-			int_mdef = mdef2;
-
 #ifdef RENEWAL
-			if(!tsd) { //Renewal monsters have their mdef swapped
-				int_mdef = mdef;
-				mdef = mdef2;
-			}
-
 			/**
 			 * RE MDEF Reduction
 			 * Damage = Magic Attack * (1000 + eMDEF) / (1000 + eMDEF) - sMDEF
@@ -6147,12 +6129,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			if(mdef < -99) //It stops at -99
 				mdef = 99; //In aegis it set to 1 but in our case it may lead to exploitation so limit it to 99
 
-			ad.damage = ad.damage * (1000 + mdef) / (1000 + mdef * 10) - int_mdef;
+			ad.damage = ad.damage * (1000 + mdef) / (1000 + mdef * 10) - mdef2;
 #else
 			if(battle_config.magic_defense_type)
-				ad.damage = ad.damage - mdef * battle_config.magic_defense_type - int_mdef;
+				ad.damage = ad.damage - mdef * battle_config.magic_defense_type - mdef2;
 			else
-				ad.damage = ad.damage * (100 - mdef) / 100 - int_mdef;
+				ad.damage = ad.damage * (100 - mdef) / 100 - mdef2;
 #endif
 		}
 

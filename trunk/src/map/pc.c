@@ -6693,7 +6693,7 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 
 	if( sd->status.skill_point > 0 &&
 		sd->status.skill[skill_id].id &&
-		sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && //Don't allow raising while you have granted skills. [Skotlex]
+		sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT && //Don't allow raising while you have granted skills [Skotlex]
 		sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id,sd->status.class_) )
 	{
 		int lv, range, upgradable;
@@ -6701,20 +6701,20 @@ int pc_skillup(struct map_session_data *sd,uint16 skill_id)
 		sd->status.skill[skill_id].lv++;
 		sd->status.skill_point--;
 		if( !skill_get_inf(skill_id) )
-			status_calc_pc(sd,SCO_NONE); //Only recalculate for passive skills.
+			status_calc_pc(sd,SCO_NONE); //Only recalculate for passive skills
 		else if( sd->status.skill_point == 0 && pc_is_taekwon_ranker(sd) )
-			pc_calc_skilltree(sd); //Required to grant all TK Ranker skills.
+			pc_calc_skilltree(sd); //Required to grant all TK Ranker skills
 		else
-			pc_check_skilltree(sd,skill_id); // Check if a new skill can Lvlup
+			pc_check_skilltree(sd,skill_id); //Check if a new skill can Lvlup
 
 		lv = sd->status.skill[skill_id].lv;
 		range = skill_get_range2(&sd->bl,skill_id,lv);
 		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
 		clif_skillup(sd,skill_id,lv,range,upgradable);
 		clif_updatestatus(sd,SP_SKILLPOINT);
-		if( skill_id == GN_REMODELING_CART ) /* Cart weight info was updated by status_calc_pc */
+		if( skill_id == GN_REMODELING_CART ) //Cart weight info was updated by status_calc_pc
 			clif_updatestatus(sd,SP_CARTINFO);
-		if( !pc_has_permission(sd,PC_PERM_ALL_SKILL) ) // May skill everything at any time anyways, and this would cause a huge slowdown
+		if( !pc_has_permission(sd,PC_PERM_ALL_SKILL) ) //May skill everything at any time anyways, and this would cause a huge slowdown
 			clif_skillinfoblock(sd);
 	}
 

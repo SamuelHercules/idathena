@@ -3043,7 +3043,7 @@ static int clif_hpmeter_sub(struct block_list *bl, va_list ap)
 	WFIFOW(tsd->fd,0) = cmd;
 	WFIFOL(tsd->fd,2) = sd->status.account_id;
 #if PACKETVER < 20100126
-	if( sd->battle_status.max_hp > INT16_MAX ) { //To correctly display the %hp bar. [Skotlex]
+	if( sd->battle_status.max_hp > INT16_MAX ) { //To correctly display the % HP bar [Skotlex]
 		WFIFOW(tsd->fd,6) = sd->battle_status.hp / (sd->battle_status.max_hp / 100);
 		WFIFOW(tsd->fd,8) = 100;
 	} else {

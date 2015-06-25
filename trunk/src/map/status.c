@@ -227,12 +227,7 @@ void initChangeTables(void) {
 	add_sc( TF_POISON            , SC_POISON          );
 	set_sc( KN_TWOHANDQUICKEN    , SC_TWOHANDQUICKEN  , SI_TWOHANDQUICKEN  , SCB_ASPD );
 	set_sc( KN_AUTOCOUNTER       , SC_AUTOCOUNTER     , SI_AUTOCOUNTER     , SCB_NONE );
-	set_sc( PR_IMPOSITIO         , SC_IMPOSITIO       , SI_IMPOSITIO       ,
-#ifdef RENEWAL
-			SCB_NONE );
-#else
-			SCB_WATK );
-#endif
+	set_sc( PR_IMPOSITIO         , SC_IMPOSITIO       , SI_IMPOSITIO       , SCB_WATK );
 	set_sc( PR_SUFFRAGIUM        , SC_SUFFRAGIUM      , SI_SUFFRAGIUM      , SCB_NONE );
 	set_sc( PR_ASPERSIO          , SC_ASPERSIO        , SI_ASPERSIO        , SCB_ATK_ELE );
 	set_sc( PR_BENEDICTIO        , SC_BENEDICTIO      , SI_BENEDICTIO      , SCB_DEF_ELE );
@@ -2164,7 +2159,7 @@ static unsigned short status_base_atk(const struct block_list *bl, const struct 
 #endif
 	if (bl->type == BL_PC)
 #ifdef RENEWAL
-		str = (int)(dstr + floor((float)dex / 5) + floor((float)status->luk / 3) + floor((float)((TBL_PC *)bl)->status.base_level / 4));
+		str = (int)(dstr + (float)dex / 5 + (float)status->luk / 3 + (float)((TBL_PC *)bl)->status.base_level / 4);
 	else if (bl->type == BL_MOB || bl->type == BL_MER)
 		str = dstr + ((TBL_MOB *)bl)->level;
 #else
@@ -2174,25 +2169,9 @@ static unsigned short status_base_atk(const struct block_list *bl, const struct 
 }
 
 #ifdef RENEWAL
-unsigned int status_weapon_atk(struct weapon_atk *watk, struct status_data *status)
+unsigned short status_weapon_atk(struct weapon_atk *watk)
 {
-	int dstr;
-	float strdex_bonus;
-
-	//Weapon Range 1 ~ 3 is a Melee type ATK
-	//Weapon Range > 3 is a Range type ATK
-	if (watk->range > 3)
-		dstr = status->dex; //Range ATK count DEX as bonus
-	else
-		dstr = status->str; //Melee ATK count STR as bonus
-
-	//watk->atk : Base Weapon ATK
-	//strdex_bonus : Base Weapon ATK * STR or DEX / 200
-	strdex_bonus = watk->atk * dstr / 200.0f;
-	//Weapon ATK = (Base Weapon ATK + Variance + STR/DEX Bonus + Refinement Bonus) * Size Penalty
-	//Variance and Size Penalty will be calculated in battle.c
-	//watk->atk2 : Refinement Bonus	
-	return (int)(watk->atk + strdex_bonus) + watk->atk2;
+	return watk->atk + watk->atk2;
 }
 
 unsigned short status_base_matk(struct block_list *bl, const struct status_data *status, int level)
@@ -3482,10 +3461,10 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		status->batk += sd->weapon_atk[sd->status.weapon];
 	//Absolute modifiers from passive skills
 	if(pc_checkskill(sd,BS_HILTBINDING) > 0)
-		status->batk += 4; //This doesn't work in RE
+		status->batk += 4;
 #else
-	status->watk = status_weapon_atk(&status->rhw,status);
-	status->watk2 = status_weapon_atk(&status->lhw,status);
+	status->watk = status_weapon_atk(&status->rhw);
+	status->watk2 = status_weapon_atk(&status->lhw);
 	status->eatk = max(sd->bonus.eatk,0);
 #endif
 
@@ -4392,7 +4371,6 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		status->rhw.atk = status_calc_watk(bl, sc, b_status->rhw.atk);
 		if( !sd ) //Should not affect weapon refine bonus
 			status->rhw.atk2 = status_calc_watk(bl, sc, b_status->rhw.atk2);
-
 		if( b_status->lhw.atk ) {
 			if( sd ) {
 				sd->state.lr_flag = 1;
@@ -4404,11 +4382,9 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			}
 		}
 #else
-		if( !b_status->watk ) { //We only have left hand weapon
-			status->watk = 0;
+		status->watk = status_calc_watk(bl, sc, b_status->watk);
+		if( b_status->watk2 )
 			status->watk2 = status_calc_watk(bl, sc, b_status->watk2);
-		} else
-			status->watk = status_calc_watk(bl, sc, b_status->watk);
 #endif
 	}
 
@@ -4444,7 +4420,6 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if( flag&SCB_DEF ) {
 		status->def = status_calc_def(bl, sc, b_status->def, true);
-
 		if( bl->type&BL_HOM )
 			status->def += (status->vit / 5 - b_status->vit / 5);
 	}
@@ -4468,7 +4443,6 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if( flag&SCB_MDEF ) {
 		status->mdef = status_calc_mdef(bl, sc, b_status->mdef, true);
-
 		if( bl->type&BL_HOM )
 			status->mdef += (status->int_ / 5 - b_status->int_ / 5);
 	}
@@ -5272,9 +5246,9 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 
 	if(sc->data[SC_WATKFOOD])
 		watk += sc->data[SC_WATKFOOD]->val1;
-#ifndef RENEWAL
 	if(sc->data[SC_IMPOSITIO])
 		watk += sc->data[SC_IMPOSITIO]->val2;
+#ifndef RENEWAL
 	if(sc->data[SC_VOLCANO])
 		watk += sc->data[SC_VOLCANO]->val2;
 	if(sc->data[SC_DRUMBATTLE])
