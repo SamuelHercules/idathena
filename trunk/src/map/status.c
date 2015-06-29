@@ -3582,8 +3582,8 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		i = status->def * sd->def_rate / 100;
 		status->def = (defType)cap_value(i,DEFTYPE_MIN,DEFTYPE_MAX);
 	}
-	if(pc_ismadogear(sd) && pc_checkskill(sd,NC_MAINFRAME) > 0)
-		status->def += 20 + (pc_checkskill(sd,NC_MAINFRAME) * 20);
+	if(pc_checkskill(sd,NC_MAINFRAME) > 0)
+		status->def += 20 + pc_checkskill(sd,NC_MAINFRAME) * 20;
 
 #ifndef RENEWAL
 	if(!battle_config.weapon_defense_type && status->def > battle_config.max_def) {
