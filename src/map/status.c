@@ -7562,18 +7562,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_ADRENALINE:
 			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE)))
 				return 0;
-			if(sc->data[SC_QUAGMIRE] ||
-				sc->data[SC_DECREASEAGI] ||
-				sc->data[SC_ADORAMUS] ||
-				(sc->option&OPTION_MADOGEAR)) //Adrenaline doesn't affect Mado Gear [Ind]
+			if(sc->data[SC_QUAGMIRE] || sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
 				return 0;
 			break;
 		case SC_ADRENALINE2:
 			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE2)))
 				return 0;
-			if(sc->data[SC_QUAGMIRE] ||
-				sc->data[SC_DECREASEAGI] ||
-				sc->data[SC_ADORAMUS])
+			if(sc->data[SC_QUAGMIRE] || sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
 				return 0;
 			break;
 		case SC_MAGNIFICAT:

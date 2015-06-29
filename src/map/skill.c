@@ -5394,10 +5394,14 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			case AL_HEAL:
 			case AL_INCAGI:
 			case AL_DECAGI:
+			case BS_ADRENALINE:
 			case AB_RENOVATIO:
 			case AB_HIGHNESSHEAL:
-				clif_skill_fail(sd,skill_id,USESKILL_FAIL_TOTARGET,0,0);
-				return 1;
+				if(!sd->state.autocast && sd->skillitem != skill_id) {
+					clif_skill_fail(sd,skill_id,USESKILL_FAIL_TOTARGET,0,0);
+					return 1;
+				}
+				break;
 		}
 	}
 
