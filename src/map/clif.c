@@ -14343,7 +14343,7 @@ void clif_blacksmith(struct map_session_data *sd)
 			strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "None", 5);
 		WFIFOL(fd, 242 + i * 4) = smith_fame_list[i].fame;
 	}
-	for (; i < 10; i++) { //In case the MAX is less than 10.
+	for (; i < 10; i++) { //In case the MAX is less than 10
 		strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "Unavailable", 12);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}

@@ -92,9 +92,9 @@ struct block_list *battle_gettargeted(struct block_list *target) {
 
 	memset(bl_list, 0, sizeof(bl_list));
 	map_foreachinrange(battle_gettargeted_sub, target, AREA_SIZE, BL_CHAR, bl_list, &c, target->id);
-	if ( c == 0 )
+	if (c == 0)
 		return NULL;
-	if ( c > 24 )
+	if (c > 24)
 		c = 24;
 	return bl_list[rnd()%c];
 }
@@ -148,10 +148,10 @@ struct block_list *battle_getenemy(struct block_list *target, int type, int rang
 	memset(bl_list, 0, sizeof(bl_list));
 	map_foreachinrange(battle_getenemy_sub, target, range, type, bl_list, &c, target);
 
-	if ( c == 0 )
+	if (c == 0)
 		return NULL;
 
-	if ( c > 24 )
+	if (c > 24)
 		c = 24;
 
 	return bl_list[rnd()%c];
@@ -880,8 +880,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			status_change_end(bl,SC_SAFETYWALL,INVALID_TIMER);
 		}
 
-		if( (sc->data[SC_PNEUMA] && (flag&(BF_LONG|BF_MAGIC)) == BF_LONG) ||
-			sc->data[SC__MANHOLE] || (sc->data[SC_KINGS_GRACE] && skill_id) ) {
+		if( (sc->data[SC_PNEUMA] && (flag&(BF_LONG|BF_MAGIC)) == BF_LONG) || sc->data[SC__MANHOLE] || sc->data[SC_KINGS_GRACE] ) {
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
 		}
@@ -1253,7 +1252,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			pc_addspiritball(sd,skill_get_time(LG_FORCEOFVANGUARD,sce->val1),sce->val3);
 
 		if( sd && (sce = sc->data[SC_GT_ENERGYGAIN]) && flag&BF_WEAPON && rnd()%100 < sce->val2 )
-			pc_addspiritball(sd,skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1),pc_getmaxspiritball(sd,0));
+			pc_addspiritball(sd,skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1),pc_getmaxspiritball(sd,5));
 
 		if( (sce = sc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
 			status_change_spread(bl,src,true); //Deadly infect attacked side
@@ -1307,7 +1306,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			if( (sce = tsc->data[SC__DEADLYINFECT]) && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT && rnd()%100 < 30 + 10 * sce->val1 )
 				status_change_spread(src,bl,false);
 			if( tsd && (sce = tsc->data[SC_GT_ENERGYGAIN]) && flag&BF_WEAPON && rnd()%100 < sce->val2 )
-				pc_addspiritball(tsd,skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1),pc_getmaxspiritball(tsd,0));
+				pc_addspiritball(tsd,skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1),pc_getmaxspiritball(tsd,5));
 		}
 
 		if( (sce = tsc->data[SC_STYLE_CHANGE]) ) { //When attacking
@@ -2957,7 +2956,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 					2 *
 #endif
 					sstatus->batk + sstatus->rhw.atk + (index >= 0 && sd->inventory_data[index] ?
-						sd->inventory_data[index]->atk : 0)) * (skill_lv + 5) / 5;
+					sd->inventory_data[index]->atk : 0)) * (skill_lv + 5) / 5;
 				ATK_ADD(wd.damage, wd.damage2, damagevalue);
 #ifdef RENEWAL
 				ATK_ADD(wd.weaponAtk, wd.weaponAtk2, damagevalue);
@@ -6688,8 +6687,14 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 	if(!(nk&NK_NO_ELEFIX) && md.damage > 0) {
 		md.damage = battle_attr_fix(src,target,md.damage,s_ele,tstatus->def_ele,tstatus->ele_lv);
-		if(skill_id == HT_BLITZBEAT || skill_id == SN_FALCONASSAULT) //Forever neutral [exneval]
-			md.damage = battle_attr_fix(src,target,md.damage,ELE_NEUTRAL,tstatus->def_ele,tstatus->ele_lv);
+		switch(skill_id) {
+			case HT_BLITZBEAT:
+			case SN_FALCONASSAULT:
+			case NC_MAGMA_ERUPTION:
+				//Forced neutral [exneval]
+				md.damage = battle_attr_fix(src,target,md.damage,ELE_NEUTRAL,tstatus->def_ele,tstatus->ele_lv);
+				break;
+		}
 	}
 
 	switch(skill_id) {
@@ -7645,8 +7650,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 			if( ud && ud->immune_attack )
 				return 0;
 			break;
-		//All else not specified is an invalid target
-		default:
+		default: //All else not specified is an invalid target
 			return 0;
 	}
 
@@ -7659,7 +7663,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 					break;
 				sd = BL_CAST(BL_PC, t_bl);
 				sc = status_get_sc(t_bl);
-				if( (sd->state.monster_ignore || (sc->data[SC_KINGS_GRACE] && !battle_getcurrentskill(s_bl))) && flag&BCT_ENEMY )
+				if( (sd->state.monster_ignore || (sc->data[SC_KINGS_GRACE] && (src->type != BL_PC || !battle_getcurrentskill(s_bl)))) && (flag&BCT_ENEMY) )
 					return 0; //Global immunity only to attacks
 				if( sd->status.karma && s_bl->type == BL_PC && ((TBL_PC *)s_bl)->status.karma )
 					state |= BCT_ENEMY; //Characters with bad karma may fight amongst them
@@ -7681,10 +7685,12 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 
 	switch( src->type ) { //Checks on actual src type
 		case BL_PET:
-			if( t_bl->type != BL_MOB && flag&BCT_ENEMY )
-				return 0; //Pet may not attack non-mobs
-			if( t_bl->type == BL_MOB && ((TBL_MOB *)t_bl)->guardian_data && flag&BCT_ENEMY )
-				return 0; //Pet may not attack Guardians/Emperium
+			if( flag&BCT_ENEMY ) {
+				if( t_bl->type != BL_MOB )
+					return 0; //Pet may not attack non-mobs
+				if( t_bl->type == BL_MOB && ((TBL_MOB *)t_bl)->guardian_data )
+					return 0; //Pet may not attack Guardians/Emperium
+			}
 			break;
 		case BL_SKILL: {
 				struct skill_unit *su = (struct skill_unit *)src;
@@ -7701,13 +7707,13 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 						return 1;
 				}
 				//Status changes that prevent traps from triggering
-				if( tsc && tsc->count && skill_get_inf2(su->group->skill_id)&INF2_TRAP )
-					if( tsc->data[SC_SIGHTBLASTER] && tsc->data[SC_SIGHTBLASTER]->val2 > 0 && tsc->data[SC_SIGHTBLASTER]->val4%2 == 0 )
-						return -1;
+				if( tsc && tsc->count && skill_get_inf2(su->group->skill_id)&INF2_TRAP &&
+					tsc->data[SC_SIGHTBLASTER] && tsc->data[SC_SIGHTBLASTER]->val2 > 0 && tsc->data[SC_SIGHTBLASTER]->val4%2 == 0 )
+					return -1;
 			}
 			break;
 		case BL_MER:
-			if( t_bl->type == BL_MOB && ((TBL_MOB *)t_bl)->mob_id == MOBID_EMPERIUM && flag&BCT_ENEMY )
+			if( t_bl->type == BL_MOB && ((TBL_MOB *)t_bl)->mob_id == MOBID_EMPERIUM && (flag&BCT_ENEMY) )
 				return 0; //Mercenary may not attack Emperium
 			break;
 	}
@@ -7772,8 +7778,8 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 		return -1;
 
 	if( t_bl == s_bl ) { //No need for further testing
-		state |= BCT_SELF|BCT_PARTY|BCT_GUILD;
-		if( state&BCT_ENEMY && strip_enemy )
+		state |= (BCT_SELF|BCT_PARTY|BCT_GUILD);
+		if( (state&BCT_ENEMY) && strip_enemy )
 			state &= ~BCT_ENEMY;
 		return (flag&state) ? 1 : -1;
 	}
@@ -7844,7 +7850,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 
 	if( !state ) //If not an enemy, nor a guild, nor party, nor yourself, it's neutral
 		state = BCT_NEUTRAL;
-	else if( state&BCT_ENEMY && strip_enemy && state&(BCT_SELF|BCT_PARTY|BCT_GUILD) )
+	else if( (state&BCT_ENEMY) && strip_enemy && (state&(BCT_SELF|BCT_PARTY|BCT_GUILD)) )
 		state &= ~BCT_ENEMY; //Alliance state takes precedence over enemy one
 
 	return (flag&state) ? 1 : -1;

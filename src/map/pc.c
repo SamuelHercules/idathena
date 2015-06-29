@@ -240,11 +240,11 @@ void pc_addspiritball(struct map_session_data *sd, int interval, int max)
 		sd->spiritball = 0;
 
 	if( sd->spiritball && sd->spiritball >= max ) {
-		if(sd->spiritball_timer[0] != INVALID_TIMER)
+		if( sd->spiritball_timer[0] != INVALID_TIMER )
 			delete_timer(sd->spiritball_timer[0], pc_spiritball_timer);
 		sd->spiritball--;
 		if( sd->spiritball != 0 )
-			memmove(sd->spiritball_timer + 0, sd->spiritball_timer + 1, (sd->spiritball) * sizeof(int));
+			memmove(sd->spiritball_timer + 0, sd->spiritball_timer + 1, sd->spiritball * sizeof(int));
 		sd->spiritball_timer[sd->spiritball] = INVALID_TIMER;
 	}
 
@@ -1406,8 +1406,8 @@ void pc_reg_received(struct map_session_data *sd)
 	//Cooking Exp
 	sd->cook_mastery = pc_readglobalreg(sd,"COOK_MASTERY");
 
+	//Better check for class rather than skill to prevent "skill resets" from unsetting this
 	if ((sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON) {
-		//Better check for class rather than skill to prevent "skill resets" from unsetting this
 		sd->mission_mobid = pc_readglobalreg(sd,"TK_MISSION_ID");
 		sd->mission_count = pc_readglobalreg(sd,"TK_MISSION_COUNT");
 	}

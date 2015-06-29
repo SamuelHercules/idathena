@@ -1235,14 +1235,11 @@ static int mob_ai_sub_hard_slavemob(struct mob_data *md,unsigned int tick)
 			return 0;
 
 		//Approach master if within view range, chase back to Master's area also if standing on top of the master
-		if((md->master_dist>MOB_SLAVEDISTANCE || md->master_dist == 0) &&
-			unit_can_move(&md->bl))
-		{
+		if((md->master_dist>MOB_SLAVEDISTANCE || md->master_dist == 0) && unit_can_move(&md->bl)) {
 			short x = bl->x, y = bl->y;
 
 			mob_stop_attack(md);
-			if(map_search_freecell(&md->bl,bl->m,&x,&y,MOB_SLAVEDISTANCE,MOB_SLAVEDISTANCE,1)
-				&& unit_walktoxy(&md->bl,x,y,0))
+			if(map_search_freecell(&md->bl,bl->m,&x,&y,MOB_SLAVEDISTANCE,MOB_SLAVEDISTANCE,1) && unit_walktoxy(&md->bl,x,y,0))
 				return 1;
 		}
 	} else if(bl->m != md->bl.m && map_flag_gvg2(md->bl.m)) {
@@ -2370,7 +2367,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if(sd && sd->sc.data[SC_ITEMBOOST]) //Now rig the drop rate to never be over 90% unless it is originally > 90%
 				drop_rate = max(drop_rate, (int)cap_value(0.5 + drop_rate * sd->sc.data[SC_ITEMBOOST]->val1 / 100., 0, 9000));
 			//Increase item drop rate for VIP.
-			if (battle_config.vip_drop_increase && (sd && pc_isvip(sd))) {
+			if(battle_config.vip_drop_increase && (sd && pc_isvip(sd))) {
 				drop_rate += (int)(0.5 + (drop_rate * battle_config.vip_drop_increase) / 10000.);
 				drop_rate = min(drop_rate, 10000); //Cap it to 100%
 			}

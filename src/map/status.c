@@ -7821,7 +7821,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				return 0;
 			break;
 		case SC_KINGS_GRACE:
-			if(sc->data[SC_DEVOTION] || sc->data[SC_WHITEIMPRISON])
+			if(sc->data[SC_WHITEIMPRISON])
 				return 0;
 			break;
 		case SC_WEDDING:
@@ -7932,13 +7932,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			status_change_end(bl,SC_MERC_QUICKEN,INVALID_TIMER);
 			status_change_end(bl,SC_ACCELERATION,INVALID_TIMER);
 			break;
-		case SC_ONEHAND: //Removes the Aspd potion effect,as reported by Vicious. [Skotlex]
+		case SC_ONEHAND: //Removes the Aspd potion effect,as reported by Vicious [Skotlex]
 			status_change_end(bl,SC_ASPDPOTION0,INVALID_TIMER);
 			status_change_end(bl,SC_ASPDPOTION1,INVALID_TIMER);
 			status_change_end(bl,SC_ASPDPOTION2,INVALID_TIMER);
 			status_change_end(bl,SC_ASPDPOTION3,INVALID_TIMER);
 			break;
-		case SC_MAXOVERTHRUST: //Cancels Normal Overthrust. [Skotlex]
+		case SC_MAXOVERTHRUST: //Cancels Normal Overthrust [Skotlex]
 			status_change_end(bl,SC_OVERTHRUST,INVALID_TIMER);
 			break;
 		case SC_MAGNIFICAT:
@@ -8160,6 +8160,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			status_change_end(bl,SC_DEEPSLEEP,INVALID_TIMER);
 			status_change_end(bl,SC_FEAR,INVALID_TIMER);
 			status_change_end(bl,SC_MANDRAGORA,INVALID_TIMER);
+			status_change_end(bl,SC_DEVOTION,INVALID_TIMER);
 			break;
 		case SC_2011RWC_SCROLL:
 			status_change_end(bl,SC_FOOD_STR_CASH,INVALID_TIMER);
