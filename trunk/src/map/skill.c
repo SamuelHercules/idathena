@@ -2374,7 +2374,7 @@ void skill_combo(struct block_list *src, struct block_list *dsrc, struct block_l
 			case TK_STORMKICK:
 			case TK_DOWNKICK:
 			case TK_COUNTER:
-				if (sd && pc_famerank(sd->status.char_id,MAPID_TAEKWON)) {//Extend combo time
+				if (sd && pc_famerank(sd->status.char_id,MAPID_TAEKWON)) { //Extend combo time
 					sce->val1 = skill_id; //Update combo-skill
 					sce->val3 = skill_id;
 					if (sce->timer != INVALID_TIMER)
@@ -3170,7 +3170,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		dmg.flag |= BF_WEAPON;
 
 	if (sd && bl->id != src->id && damage > 0 && skill_id != AM_DEMONSTRATION && (dmg.flag&BF_WEAPON || (dmg.flag&BF_MISC &&
-		(skill_id == RA_CLUSTERBOMB || skill_id == RA_FIRINGTRAP || skill_id == RA_ICEBOUNDTRAP)))) {
+		(skill_id == RA_CLUSTERBOMB || skill_id == RA_FIRINGTRAP || skill_id == RA_ICEBOUNDTRAP || skill_id == NC_MAGMA_ERUPTION)))) {
 		if (battle_config.left_cardfix_to_right)
 			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->class_);
 		else
@@ -6533,13 +6533,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case BS_ADRENALINE2:
 		case BS_WEAPONPERFECT:
 		case BS_OVERTHRUST:
-			if (sd == NULL || !sd->status.party_id || (flag&1)) {
-				clif_skill_nodamage(bl,bl,skill_id,skill_lv,
-					sc_start2(src,bl,type,100,skill_lv,(bl->id == src->id ? 1 : 0),skill_get_time(skill_id,skill_lv)));
-			} else if (sd) {
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,
-					skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
-			}
+			if (sd == NULL || !sd->status.party_id || (flag&1))
+				clif_skill_nodamage(bl,bl,skill_id,skill_lv,sc_start2(src,bl,type,100,skill_lv,(bl->id == src->id ? 1 : 0),skill_get_time(skill_id,skill_lv)));
+			else if (sd)
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			break;
 
 		case BS_MAXIMIZE:
@@ -6869,7 +6866,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case MC_VENDING:
-			if( sd ) { //Prevent vending of GMs with unnecessary Level to trade/drop. [Skotlex]
+			if( sd ) { //Prevent vending of GMs with unnecessary Level to trade/drop [Skotlex]
 				if ( !pc_can_give_items(sd) )
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				else {
@@ -11744,7 +11741,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 				if( !sg )
 					break;
 				if( sce )
-					status_change_end(src,type,INVALID_TIMER); //Was under someone else's Gospel. [Skotlex]
+					status_change_end(src,type,INVALID_TIMER); //Was under someone else's Gospel [Skotlex]
 				sc_start4(src,src,type,100,skill_lv,0,sg->group_id,BCT_SELF,skill_get_time(skill_id,skill_lv));
 				clif_skill_poseffect(src,skill_id,skill_lv,0,0,tick); //PA_GOSPEL music packet
 			}

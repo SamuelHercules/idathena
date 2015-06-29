@@ -741,7 +741,7 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, unsi
 		ud->to_y = bl->y;
 		ud->target_to = 0;
 		return 0;
-	} else if (range == 0) { //Should walk on the same cell as target (for looters)
+	} else if (!range) { //Should walk on the same cell as target (for looters)
 		ud->to_x = tbl->x;
 		ud->to_y = tbl->y;
 	}
