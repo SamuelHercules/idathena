@@ -1536,7 +1536,7 @@ int64 battle_addmastery(struct map_session_data *sd, struct block_list *target, 
 	if((skill = pc_checkskill(sd,NC_RESEARCHFE)) > 0 && (status->def_ele == ELE_FIRE || status->def_ele == ELE_EARTH))
 		damage += skill * 10;
 
-	damage += pc_checkskill(sd,NC_MADOLICENCE) * 15; //The Attack bonus is granted even without the Madogear
+	damage += pc_checkskill(sd,NC_MADOLICENCE) * 15; //Attack bonus is granted even without the Madogear
 
 	if(type == 0)
 		weapon = sd->weapontype1;
@@ -2192,8 +2192,7 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 				clif_specialeffect(src, 131, AREA);
 				status_change_end(src, SC_AUTOCOUNTER, INVALID_TIMER);
 			case KN_AUTOCOUNTER:
-				if(battle_config.auto_counter_type &&
-					(battle_config.auto_counter_type&src->type))
+				if(battle_config.auto_counter_type && (battle_config.auto_counter_type&src->type))
 					return true;
 				else
 					cri <<= 1;
@@ -2224,38 +2223,47 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
  */
 static int is_attack_piercing(struct Damage wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv, short weapon_position)
 {
-	if(skill_id == MO_INVESTIGATE || skill_id == RL_MASS_SPIRAL)
-		return 2;
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+	struct status_data *tstatus = status_get_status_data(target);
 
-	if(src != NULL) {
-		struct map_session_data *sd = BL_CAST(BL_PC, src);
-		struct status_data *tstatus = status_get_status_data(target);
-
-		if(skill_id != CR_GRANDCROSS && skill_id != NPC_GRANDDARKNESS && skill_id != CR_SHIELDBOOMERANG && skill_id != PA_SHIELDCHAIN &&
-			skill_id != PA_SACRIFICE && skill_id != NC_SELFDESTRUCTION && skill_id != KO_HAPPOKUNAI &&
-#ifdef RENEWAL //Soul Breaker no longer gains ice pick effect and ice pick effect gets crit benefit [helvetica]
-			skill_id != ASC_BREAKER
-#else
-			!is_attack_critical(wd, src, target, skill_id, skill_lv, false)
+	switch(skill_id) {
+		case CR_GRANDCROSS:
+		case NPC_GRANDDARKNESS:
+		case CR_SHIELDBOOMERANG:
+#ifdef RENEWAL //Renewal Soul Breaker no longer gains ice pick effect [helvetica]
+		case ASC_BREAKER:
 #endif
-		) { //Elemental/Racial adjustments
-			if(sd && (sd->right_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->right_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
-				sd->right_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->right_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
-				sd->right_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->right_weapon.def_ratio_atk_class&(1<<CLASS_ALL))
-			)
+		case PA_SACRIFICE:
+		case PA_SHIELDCHAIN:
+		case NC_SELFDESTRUCTION:
+		case KO_HAPPOKUNAI:
+			return 0;
+		case MO_INVESTIGATE:
+		case RL_MASS_SPIRAL:
+			return 2;
+		default:
+#ifndef RENEWAL //Renewal critical gains ice pick effect [helvetica]
+			if(is_attack_critical(wd, src, target, skill_id, skill_lv, false))
+				return 0;
+#endif
+			break;
+	}
+
+	if(sd) { //Elemental/Racial adjustments
+		if((sd->right_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->right_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
+			sd->right_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->right_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
+			sd->right_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->right_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
+			if(weapon_position == EQI_HAND_R)
+				return 1;
+		if((sd->left_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->left_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
+			sd->left_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->left_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
+			sd->left_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->left_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
+		{ //Pass effect onto right hand if configured so [Skotlex]
+			if(battle_config.left_cardfix_to_right && is_attack_right_handed(src, skill_id)) {
 				if(weapon_position == EQI_HAND_R)
 					return 1;
-
-			if(sd && (sd->left_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->left_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
-				sd->left_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->left_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
-				sd->left_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->left_weapon.def_ratio_atk_class&(1<<CLASS_ALL))
-			) { //Pass effect onto right hand if configured so [Skotlex]
-				if(battle_config.left_cardfix_to_right && is_attack_right_handed(src, skill_id)) {
-					if(weapon_position == EQI_HAND_R)
-						return 1;
-				} else if(weapon_position == EQI_HAND_L)
-					return 1;
-			}
+			} else if(weapon_position == EQI_HAND_L)
+				return 1;
 		}
 	}
 	return 0;
@@ -2450,21 +2458,27 @@ static bool attack_ignores_def(struct Damage wd, struct block_list *src, struct 
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	int nk = battle_skill_get_damage_properties(skill_id, wd.miscflag);
 
-#ifndef RENEWAL
+	switch(skill_id) {
+		case CR_GRANDCROSS:
+		case NPC_GRANDDARKNESS:
+			return false;
+	}
+
+#ifndef RENEWAL //Renewal critical doesn't ignore defense reduction
 	if(is_attack_critical(wd, src, target, skill_id, skill_lv, false))
 		return true;
 	else
 #endif
 	if(sc && sc->data[SC_FUSION])
 		return true;
-	else if(skill_id != CR_GRANDCROSS && skill_id != NPC_GRANDDARKNESS) { //Ignore Defense?
-		if(sd && (sd->right_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->right_weapon.ignore_def_ele&(1<<ELE_ALL) ||
+
+	if(sd) { //Ignore Defense
+		if((sd->right_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->right_weapon.ignore_def_ele&(1<<ELE_ALL) ||
 			sd->right_weapon.ignore_def_race&(1<<tstatus->race) || sd->right_weapon.ignore_def_race&(1<<RC_ALL) ||
 			sd->right_weapon.ignore_def_class&(1<<tstatus->class_) || sd->right_weapon.ignore_def_class&(1<<CLASS_ALL)))
 			if(weapon_position == EQI_HAND_R)
 				return true;
-
-		if(sd && (sd->left_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->left_weapon.ignore_def_ele&(1<<ELE_ALL) ||
+		if((sd->left_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->left_weapon.ignore_def_ele&(1<<ELE_ALL) ||
 			sd->left_weapon.ignore_def_race&(1<<tstatus->race) || sd->left_weapon.ignore_def_race&(1<<RC_ALL) ||
 			sd->left_weapon.ignore_def_class&(1<<tstatus->class_) || sd->left_weapon.ignore_def_class&(1<<CLASS_ALL)))
 		{
@@ -2524,16 +2538,13 @@ static bool battle_skill_stacks_masteries_vvs(uint16 skill_id)
  */
 static int battle_calc_equip_attack(struct block_list *src, uint16 skill_id)
 {
-	if(src != NULL) {
-		int eatk = 0;
-		struct status_data *status = status_get_status_data(src);
-		struct map_session_data *sd = BL_CAST(BL_PC, src);
+	int eatk = 0;
+	struct status_data *status = status_get_status_data(src);
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
 
-		if(sd) //Add arrow ATK if using an applicable skill
-			eatk += (is_skill_using_arrow(src, skill_id) ? sd->bonus.arrow_atk : 0);
-		return eatk + status->eatk;
-	}
-	return 0; //Shouldn't happen but just in case
+	if(sd) //Add arrow ATK if using an applicable skill
+		eatk += (is_skill_using_arrow(src, skill_id) ? sd->bonus.arrow_atk : 0);
+	return eatk + status->eatk;
 }
 #endif
 
@@ -2623,7 +2634,6 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct status_change *sc = status_get_sc(src);
-	struct status_data *sstatus = status_get_status_data(src);
 	struct status_data *tstatus = status_get_status_data(target);
 	int element = skill_get_ele(skill_id, skill_lv);
 	int left_element = battle_get_weapon_element(wd, src, target, skill_id, skill_lv, EQI_HAND_L);
@@ -4783,7 +4793,6 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 	struct status_change *sc = status_get_sc(src);
 	struct status_change *tsc = status_get_sc(target);
 	struct status_data *sstatus = status_get_status_data(src);
-	struct status_data *tstatus = status_get_status_data(target);
 	struct status_change_entry *sce;
 #ifdef ADJUST_SKILL_DAMAGE
 	int skill_damage = 0;

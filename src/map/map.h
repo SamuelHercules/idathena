@@ -290,6 +290,8 @@ enum e_race2 {
 	RC2_GOLEM,
 	RC2_GUARDIAN,
 	RC2_NINJA,
+	RC2_SCARABA,
+	RC2_TURTLE,
 	RC2_MAX
 };
 
