@@ -47,3 +47,5 @@
 12662,10000	// Trans_Scroll_Banshee
 12663,10000	// Trans_Scroll_Poring
 12664,10000	// Trans_Scroll_Golem
+
+22508,7200000	// Para_Team_Mark_

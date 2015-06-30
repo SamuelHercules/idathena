@@ -2797,7 +2797,7 @@ ecl_in04,226,231,4	script	Du Lian#ep14_2in2	628,{
 		emotion e_dots,0,"Alp Ocart#ep14_2in2";
 		cutin "bu_alp2",2;
 		ep14_2_oliver = 30;
-		getitem 19543,1; //Oliver_Wolf_Hood
+		getitem 19543,1; //C_Oliver_Wolf_Hood
 		completequest 11337;
 		close2;
 		cutin "",255;
@@ -2939,7 +2939,7 @@ ecl_in04,224,234,4	script	Mark Esha#ep14_2in2	616,{
 		emotion e_dots,0,"Alp Ocart#ep14_2in2";
 		cutin "bu_alp2",2;
 		ep14_2_oliver = 30;
-		getitem 19543,1; //Oliver_Wolf_Hood
+		getitem 19543,1; //C_Oliver_Wolf_Hood
 		completequest 11337;
 		close2;
 		cutin "",255;
@@ -3084,7 +3084,7 @@ ecl_in04,223,234,4	script	Maggi Steen#ep14_2in2	612,{
 		emotion e_dots,0,"Alp Ocart#ep14_2in2";
 		cutin "bu_alp2",2;
 		ep14_2_oliver = 30;
-		getitem 19543,1; //Oliver_Wolf_Hood
+		getitem 19543,1; //C_Oliver_Wolf_Hood
 		completequest 11337;
 		close2;
 		cutin "",255;
@@ -3220,7 +3220,7 @@ ecl_in04,223,230,4	script	Alp Ocart#ep14_2in2	615,{
 		emotion e_dots;
 		cutin "bu_alp2",2;
 		ep14_2_oliver = 30;
-		getitem 19543,1; //Oliver_Wolf_Hood
+		getitem 19543,1; //C_Oliver_Wolf_Hood
 		completequest 11337;
 		close2;
 		cutin "",255;

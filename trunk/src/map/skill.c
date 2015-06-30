@@ -10341,7 +10341,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case OB_OBOROGENSOU:
 			if( bl->type != BL_MOB ) { //This skill does not work on monsters
-				int rate = max(5,(25 + (10 * skill_lv) - (status_get_int(bl) / 2)));
+				int rate = max(5,(25 + 10 * skill_lv - status_get_int(bl) / 2));
 
 				if( rnd()%100 > rate ) {
 					if( sd )

@@ -3582,7 +3582,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		i = status->def * sd->def_rate / 100;
 		status->def = (defType)cap_value(i,DEFTYPE_MIN,DEFTYPE_MAX);
 	}
-	if(pc_checkskill(sd,NC_MAINFRAME) > 0)
+	if(pc_checkskill(sd,NC_MAINFRAME) > 0) //Defense bonus is granted even without the Madogear
 		status->def += 20 + pc_checkskill(sd,NC_MAINFRAME) * 20;
 
 #ifndef RENEWAL
@@ -9148,7 +9148,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val3 = 50; //Reduce SP recovery effects by 50%
 				break;
 			case SC_STONEHARDSKIN:
-				val2 = (status->hp * 20 / 100); 
+				val2 = status->hp * 20 / 100;
 				if( val2 > 0 )
 					status_heal(bl,-val2,0,0); //Reduce health by 20%
 				if( sd ) //DEF/MDEF Increase
@@ -9670,9 +9670,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				//val3: BaseLV of Thrower For Thrown Potions
 				//val4: MaxHP Increase By Fixed Amount
 				if( val1 == 1 ) //If potion was normally used, take the user's BaseLv
-					val4 = (1000 * val2 - 500) + (status_get_lv(bl) * 10 / 3);
+					val4 = 1000 * val2 - 500 + status_get_lv(bl) * 10 / 3;
 				else if( val1 == 2 ) //If potion was thrown at someone, take the thrower's BaseLv
-					val4 = (1000 * val2 - 500) + (val3 * 10 / 3);
+					val4 = 1000 * val2 - 500 + val3 * 10 / 3;
 				if( val4 <= 0 ) //Prevents a negeative value from happening
 					val4 = 0;
 				break;
@@ -9682,9 +9682,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				//val3: BaseLV of Thrower For Thrown Potions
 				//val4: MaxSP Increase By Percentage Amount
 				if( val1 == 1 ) //If potion was normally used, take the user's BaseLv
-					val4 = status_get_lv(bl) / 10 + (5 * val2 - 10);
+					val4 = status_get_lv(bl) / 10 + 5 * val2 - 10;
 				else if( val1 == 2 ) //If potion was thrown at someone, take the thrower's BaseLv
-					val4 = val3 / 10 + (5 * val2 - 10);
+					val4 = val3 / 10 + 5 * val2 - 10;
 				if( val4 <= 0 ) //Prevents a negeative value from happening
 					val4 = 0;
 				break;
@@ -9706,38 +9706,27 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 				val2 = tick / tick_time;
 				break;
 			case SC_ZANGETSU:
-				if( status_get_hp(bl)%2 == 0 )
-					val2 = (status_get_lv(bl) / 3) + (20 * val1); //+Atk
-				else
-					val2 -= (status_get_lv(bl) / 3) + (30 * val1); //-Atk
-
-				if( status_get_sp(bl)%2 == 0 )
-					val3 = (status_get_lv(bl) / 3) + (20 * val1); //+Matk
-				else
-					val3 -= (status_get_lv(bl) / 3) + (30 * val1); //-Matk
+				val2 = val4 = status_get_lv(bl) / 3 + 20 * val1;
+				val3 = status_get_lv(bl) / 3 + 30 * val1;
+				val2 = (!(status->hp%2) ? val2 : -val3);
+				val3 = (!(status->sp%2) ? val4 : -val3);
 				break;
-			case SC_GENSOU: {
-					int hp = status->hp, lv = 5, sp = status->sp;
-					short per = 100 / (status->max_hp / hp);
+			case SC_GENSOU:
+#define PER(a, lvl) do { \
+	int temp__ = (a); \
+	if( temp__ <= 15 ) (lvl) = 1; \
+	else if( temp__ <= 30 ) (lvl) = 2; \
+	else if( temp__ <= 50 ) (lvl) = 3; \
+	else if( temp__ <= 75 ) (lvl) = 4; \
+	else (lvl) = 5; \
+} while(0)
+				{
+					int hp = max(status->hp,1), sp = max(status->sp,1), lv = 5;
 
-					if( per <= 15 )
-						lv = 1;
-					else if( per <= 30 )
-						lv = 2;
-					else if( per <= 50 )
-						lv = 3;
-					else if( per <= 75 )
-						lv = 4;
-
-					if( hp%2 == 0 )
-						status_heal(bl,hp * (val1 + (6 - lv) * 4) / 100,0,1);
-					else
-						status_zap(bl,hp * (val1 + (lv * 4)) / 100,0);
-
-					if( sp%2 == 0 )
-						status_heal(bl,0,sp * (val1 + (6 - lv) * 3) / 100,1);
-					else
-						status_zap(bl,0,sp * (val1 + (lv * 3)) / 100);
+					PER(100 / (status->max_hp / hp),lv);
+					status_heal(bl,(!(hp%2) ? hp * (val1 + (6 - lv) * 4) / 100 : hp * -(val1 + lv * 4) / 100),0,1);
+					PER(100 / (status->max_sp / sp),lv);
+					status_heal(bl,0,(!(sp%2) ? sp * (val1 + (6 - lv) * 3) / 100 : sp * -(val1 + lv * 3) / 100),1);
 				}
 				break;
 			case SC_ANGRIFFS_MODUS:

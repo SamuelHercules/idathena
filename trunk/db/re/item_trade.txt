@@ -905,7 +905,7 @@
 6907,499,100	// Piece_Of_Soul_Horse
 6909,475,100	// Actinidia_Cat_Fruit
 6910,475,100	// (Limited)Purified_Oridecon
-6911,475,100	// (Limited)Purified_Eluminium
+6911,475,100	// (Limited)Purified_Elunium
 6912,499,100	// Piece_Of_Soul_Sheep
 6913,507,100	// Holy_Rosary
 6914,499,100	// Black_Horn
@@ -3579,7 +3579,7 @@
 17509,475,100	// Actinidia_Cat_Fruit_Box(40)
 17510,475,100	// Smelting_Ore_Box_VIII
 17511,475,100	// Smelting_Ore_Box_VIII(10)
-17512,475,100	// (Limited)Purified_Eluminium_Box(30)
+17512,475,100	// (Limited)Purified_Elunium_Box(30)
 17513,475,100	// (Limited)Purified_Oridecon_Box(30)
 17515,475,100	// Unlimited_Box_III
 17516,475,100	// Unlimited_Box_III(10)
