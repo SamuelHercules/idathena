@@ -2250,14 +2250,14 @@ static int is_attack_piercing(struct Damage wd, struct block_list *src, struct b
 	}
 
 	if(sd) { //Elemental/Racial adjustments
-		if((sd->right_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->right_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
-			sd->right_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->right_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
-			sd->right_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->right_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
+		if((sd->right_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele)) || (sd->right_weapon.def_ratio_atk_ele&(1<<ELE_ALL)) ||
+			(sd->right_weapon.def_ratio_atk_race&(1<<tstatus->race)) || (sd->right_weapon.def_ratio_atk_race&(1<<RC_ALL)) ||
+			(sd->right_weapon.def_ratio_atk_class&(1<<tstatus->class_)) || (sd->right_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
 			if(weapon_position == EQI_HAND_R)
 				return 1;
-		if((sd->left_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele) || sd->left_weapon.def_ratio_atk_ele&(1<<ELE_ALL) ||
-			sd->left_weapon.def_ratio_atk_race&(1<<tstatus->race) || sd->left_weapon.def_ratio_atk_race&(1<<RC_ALL) ||
-			sd->left_weapon.def_ratio_atk_class&(1<<tstatus->class_) || sd->left_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
+		if((sd->left_weapon.def_ratio_atk_ele&(1<<tstatus->def_ele)) || (sd->left_weapon.def_ratio_atk_ele&(1<<ELE_ALL)) ||
+			(sd->left_weapon.def_ratio_atk_race&(1<<tstatus->race)) || (sd->left_weapon.def_ratio_atk_race&(1<<RC_ALL)) ||
+			(sd->left_weapon.def_ratio_atk_class&(1<<tstatus->class_)) || (sd->left_weapon.def_ratio_atk_class&(1<<CLASS_ALL)))
 		{ //Pass effect onto right hand if configured so [Skotlex]
 			if(battle_config.left_cardfix_to_right && is_attack_right_handed(src, skill_id)) {
 				if(weapon_position == EQI_HAND_R)
@@ -2461,7 +2461,7 @@ static bool attack_ignores_def(struct Damage wd, struct block_list *src, struct 
 	switch(skill_id) {
 		case CR_GRANDCROSS:
 		case NPC_GRANDDARKNESS:
-			return false;
+			return (nk&NK_IGNORE_DEF);
 	}
 
 #ifndef RENEWAL //Renewal critical doesn't ignore defense reduction
@@ -2473,14 +2473,14 @@ static bool attack_ignores_def(struct Damage wd, struct block_list *src, struct 
 		return true;
 
 	if(sd) { //Ignore Defense
-		if((sd->right_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->right_weapon.ignore_def_ele&(1<<ELE_ALL) ||
-			sd->right_weapon.ignore_def_race&(1<<tstatus->race) || sd->right_weapon.ignore_def_race&(1<<RC_ALL) ||
-			sd->right_weapon.ignore_def_class&(1<<tstatus->class_) || sd->right_weapon.ignore_def_class&(1<<CLASS_ALL)))
+		if((sd->right_weapon.ignore_def_ele&(1<<tstatus->def_ele)) || (sd->right_weapon.ignore_def_ele&(1<<ELE_ALL)) ||
+			(sd->right_weapon.ignore_def_race&(1<<tstatus->race)) || (sd->right_weapon.ignore_def_race&(1<<RC_ALL)) ||
+			(sd->right_weapon.ignore_def_class&(1<<tstatus->class_)) || (sd->right_weapon.ignore_def_class&(1<<CLASS_ALL)))
 			if(weapon_position == EQI_HAND_R)
 				return true;
-		if((sd->left_weapon.ignore_def_ele&(1<<tstatus->def_ele) || sd->left_weapon.ignore_def_ele&(1<<ELE_ALL) ||
-			sd->left_weapon.ignore_def_race&(1<<tstatus->race) || sd->left_weapon.ignore_def_race&(1<<RC_ALL) ||
-			sd->left_weapon.ignore_def_class&(1<<tstatus->class_) || sd->left_weapon.ignore_def_class&(1<<CLASS_ALL)))
+		if((sd->left_weapon.ignore_def_ele&(1<<tstatus->def_ele)) || (sd->left_weapon.ignore_def_ele&(1<<ELE_ALL)) ||
+			(sd->left_weapon.ignore_def_race&(1<<tstatus->race)) || (sd->left_weapon.ignore_def_race&(1<<RC_ALL)) ||
+			(sd->left_weapon.ignore_def_class&(1<<tstatus->class_)) || (sd->left_weapon.ignore_def_class&(1<<CLASS_ALL)))
 		{
 			if(battle_config.left_cardfix_to_right && is_attack_right_handed(src, skill_id)) {
 				if(weapon_position == EQI_HAND_R)
