@@ -1116,19 +1116,19 @@ uint8 pc_isequip(struct map_session_data *sd, int n)
 			return ITEM_EQUIP_ACK_FAIL;
 		//Spirit of Super Novice equip bonuses [Skotlex]
 		if(sd->sc.data[SC_SPIRIT] && sd->sc.data[SC_SPIRIT]->val2 == SL_SUPERNOVICE) {
-			if(sd->status.base_level > 90 && item->equip&EQP_HELM)
+			if(sd->status.base_level > 90 && (item->equip&EQP_HELM))
 				return ITEM_EQUIP_ACK_OK; //Can equip all helms
-			if(sd->status.base_level > 96 && item->equip&EQP_ARMS && item->type == IT_WEAPON && item->wlv == 4)
+			if(sd->status.base_level > 96 && (item->equip&EQP_ARMS) && item->type == IT_WEAPON && item->wlv == 4) {
 				switch(item->look) { //In weapons, the look determines type of weapon
 					case W_DAGGER: //All level 4 - Daggers
 					case W_1HSWORD: //All level 4 - 1H Swords
 					case W_1HAXE: //All level 4 - 1H Axes
-					case W_2HAXE: //All level 4 - 2H Axes
 					case W_MACE: //All level 4 - 1H Maces
 					case W_STAFF: //All level 4 - 1H Staves
 					case W_2HSTAFF: //All level 4 - 2H Staves
 						return ITEM_EQUIP_ACK_OK;
 				}
+			}
 		}
 	}
 
