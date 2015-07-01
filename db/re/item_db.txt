@@ -3397,9 +3397,9 @@
 5464,Zaha_Doll_Hat,Zaha Doll Hat,4,20,,0,,1,,1,0xFFFFFFFF,63,2,256,,0,0,461,{ bonus bInt,2; skill "PR_MAGNIFICAT",3; },{},{}
 5465,Celestial_Hat,Hat Of Fortune,4,20,,500,,3,,1,0xFFFFFFFF,63,2,256,,40,1,462,{ set .@r,getrefine(); bonus bLuk,2; bonus bMdef,5; if(.@r>4) bonus bLuk,.@r-4; },{},{}
 5466,Wind_Milestone,Wind Milestone,4,20,,100,,2,,1,0xFFFFFFFF,63,2,256,,30,1,463,{ bonus bAgi,2; skill "AL_TELEPORT",1; },{},{}
-5467,Helm_Of_Dragoon,Helm Of Dragon,4,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,1,1,464,{ set .@r,getrefine(); bonus bStr,2; bonus bInt,2; bonus bDex,2; if(.@r>=7) bonus2 bExpAddRace,RC_Dragon,3; if(.@r>=9) bonus2 bExpAddRace,RC_Dragon,5; bonus3 bAutoSpell,"NPC_DRAGONFEAR",1,30; },{},{}
-5468,Parade_Cap,Parade Hat,4,20,,800,,3,,1,0xFFFFFFFF,63,2,256,,0,1,465,{ set .@r,getrefine(); bonus bDelayrate,-5; bonus bMdef,2; if(.@r>5) bonus bVariableCastrate,-(.@r-5); },{},{}
-5469,Noble_Hat,Musketeer Hat,4,20,,300,,2,,1,0xFFFFFFFF,63,2,256,,30,1,466,{ set .@r,getrefine(); bonus bDex,3; bonus bFlee,3; if(.@r>=7) { bonus bFlee,3; bonus bLongAtkRate,3; } if(.@r>=9) { bonus bFlee,4; bonus bLongAtkRate,2; } },{},{}
+5467,Helm_Of_Dragoon,Helm Of Dragon,4,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,1,1,464,{ set .@r,getrefine(); bonus bStr,2; bonus bInt,2; bonus bDex,2; bonus2 bExpAddRace,RC_Dragon,(.@r>=9?8:(.@r>=7?3:0)); bonus3 bAutoSpell,"NPC_DRAGONFEAR",1,30; },{},{}
+5468,Parade_Cap,Parade Hat,4,20,,800,,3,,1,0xFFFFFFFF,63,2,256,,0,1,465,{ set .@r,getrefine(); bonus bDelayrate,-5; bonus bMdef,2; if(.@r>5) bonus bVariableCastrate,-.@r-5; },{},{}
+5469,Noble_Hat,Musketeer Hat,4,20,,300,,2,,1,0xFFFFFFFF,63,2,256,,30,1,466,{ set .@r,getrefine(); bonus bDex,3; bonus bFlee,3+(.@r>=9?7:(.@r>=7?3:0)); bonus bLongAtkRate,(.@r>=9?8:(.@r>=7?3:0)); },{},{}
 5470,Eyes_Of_Darkness,Eye Of Darkness,4,20,,100,,1,,0,0xFFFFFFFF,63,2,512,,50,0,467,{ bonus bDex,1; bonus2 bResEff,Eff_Blind,10000; },{},{}
 5471,Hairband_Of_Reginleif,Hairband Of Reginleif,4,20,,800,,1,,0,0xFFFFFFFF,63,2,512,,50,0,468,{ bonus2 bSubEle,Ele_Water,3; bonus2 bSubEle,Ele_Fire,3; bonus2 bSubEle,Ele_Undead,3; bonus2 bSubEle,Ele_Ghost,3; },{},{}
 5472,Red_White_Hat,Red Hat,4,20,,100,,0,,0,0xFFFFFFFF,63,2,256,,0,1,469,{ bonus3 bAddMonsterDropItem,554,RC_DemiHuman,200; },{},{}
@@ -9363,7 +9363,7 @@
 19027,Type-10_Glasses,Type-10 Glasses,4,0,,200,,0,,0,0xFFFFFFFF,63,2,512,,10,0,1237,{ /* TODO */ },{},{}
 19028,Kid_Deviling,Kid Deviling,4,0,,200,,0,,0,0xFFFFFFFF,63,2,512,,40,0,1036,{ /* TODO */ },{},{}
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,4,0,,300,,0,,1,0xFFFFFFFF,63,2,256,,1,0,1249,{ bonus2 bAddClass,Class_Boss,15; },{},{}
-19030,Pretty_Rabbit_Hood,Pretty Rabbit Hood,4,20,,100,,20,,0,0xFFFFFFFF,63,2,1,,1,1,1085,{ bonus bMaxHP,(15*BaseLevel); },{},{}
+19030,Pretty_Rabbit_Hood,Pretty Rabbit Hood,4,20,,100,,20,,0,0xFFFFFFFF,63,2,1,,1,1,1085,{ bonus bMaxHP,BaseLevel*15; },{},{}
 19033,Ancient_Decoration_Of_The_Goddess,Ancient Decoration Of The Goddess,4,10,,0,,2,,0,0xFFFFFFFF,63,2,256,,100,1,376,{},{},{}
 19038,12_Anniversary_Crown_Of_Saint,12 Anniversary Crown of Saint,4,10,,120,,12,,0,0xFFFFFFFF,63,2,256,,0,1,1117,{ bonus bAllStats,2; bonus bMdef,12; },{},{}
 19039,12_Anniversary_Elf_Ears,12 Anniversary Elf Ears,4,10,,120,,0,,0,0xFFFFFFFF,63,2,512,,0,1,875,{ bonus2 bSubRace,RC_All,4; bonus2 bSubRace,RC_DemiHuman,-4; },{},{}
