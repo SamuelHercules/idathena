@@ -747,10 +747,9 @@ int battle_calc_cardfix(int attack_type, struct block_list *src, struct block_li
 				cardfix = cardfix * (100 - (tsd->subrace[sstatus->race] + tsd->subrace[RC_ALL])) / 100;
 				cardfix = cardfix * (100 - (tsd->subclass[sstatus->class_] + tsd->subclass[CLASS_ALL])) / 100;
 				for( i = 0; i < ARRAYLENGTH(tsd->add_def) && tsd->add_def[i].rate;i++ ) {
-					if( tsd->add_def[i].class_ == s_class ) {
-						cardfix = cardfix * (100 - tsd->add_def[i].rate) / 100;
-						break;
-					}
+					if( tsd->add_def[i].class_ != s_class )
+						continue;
+					cardfix = cardfix * (100 - tsd->add_def[i].rate) / 100;
 				}
 				if( flag&BF_SHORT )
 					cardfix = cardfix * (100 - tsd->bonus.near_attack_def_rate) / 100;
