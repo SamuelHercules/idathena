@@ -481,6 +481,7 @@ void clif_sitting(struct block_list *bl);
 void clif_standing(struct block_list *bl);
 void clif_changelook(struct block_list *bl,int type,int val); //Area
 void clif_changetraplook(struct block_list *bl,int val); //Area
+void clif_sendlook(struct block_list *bl,int id,int type,int val,int val2,enum send_target target);
 void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_target target); //Area specified in 'target'
 void clif_arrowequip(struct map_session_data *sd,int val); //Self
 void clif_arrow_fail(struct map_session_data *sd,int type); //Self

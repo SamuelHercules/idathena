@@ -253,13 +253,13 @@ uint16 clif_getport(void) {
 #if PACKETVER >= 20071106
 static inline unsigned char clif_bl_type(struct block_list *bl) {
 	switch (bl->type) {
-		case BL_PC:    return (disguised(bl) && !pcdb_checkid(status_get_viewdata(bl)->class_)) ? 0x1 : 0x0; //PC_TYPE
+		case BL_PC:    return (disguised(bl) && !pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x1 : 0x0); //PC_TYPE
 		case BL_ITEM:  return 0x2; //ITEM_TYPE
 		case BL_SKILL: return 0x3; //SKILL_TYPE
 		case BL_CHAT:  return 0x4; //UNKNOWN_TYPE
-		case BL_MOB:   return pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x5; //NPC_MOB_TYPE
-		case BL_NPC:   return pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x6; //NPC_EVT_TYPE
-		case BL_PET:   return pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x7; //NPC_PET_TYPE
+		case BL_MOB:   return (pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x5); //NPC_MOB_TYPE
+		case BL_NPC:   return (pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x6); //NPC_EVT_TYPE
+		case BL_PET:   return (pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x7); //NPC_PET_TYPE
 		case BL_HOM:   return 0x8; //NPC_HOM_TYPE
 		case BL_MER:   return 0x9; //NPC_MERSOL_TYPE
 		case BL_ELEM:  return 0xa; //NPC_ELEMENTAL_TYPE
@@ -3314,19 +3314,17 @@ void clif_changestatus(struct map_session_data *sd,int type,int val)
 
 
 /// Updates sprite/style properties of an object.
-/// 00c3 <id>.L <type>.B <value>.B (ZC_SPRITE_CHANGE)
-/// 01d7 <id>.L <type>.B <value>.L (ZC_SPRITE_CHANGE2)
 void clif_changelook(struct block_list *bl,int type,int val)
 {
-	unsigned char buf[16];
 	struct map_session_data *sd;
 	struct status_change *sc;
 	struct view_data *vd;
 	enum send_target target = AREA;
+	int val2 = 0;
 
 	nullpo_retv(bl);
 
-	sd = BL_CAST(BL_PC, bl);
+	sd = BL_CAST(BL_PC,bl);
 	sc = status_get_sc(bl);
 	vd = status_get_viewdata(bl);
 
@@ -3334,14 +3332,14 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		switch(type) {
 			case LOOK_WEAPON:
 				if(sd) {
-					clif_get_weapon_view(sd, &vd->weapon, &vd->shield);
+					clif_get_weapon_view(sd,&vd->weapon,&vd->shield);
 					val = vd->weapon;
 				} else
 					vd->weapon = val;
 				break;
 			case LOOK_SHIELD:
 				if(sd) {
-					clif_get_weapon_view(sd, &vd->weapon, &vd->shield);
+					clif_get_weapon_view(sd,&vd->weapon,&vd->shield);
 					val = vd->shield;
 				} else
 					vd->shield = val;
@@ -3349,28 +3347,22 @@ void clif_changelook(struct block_list *bl,int type,int val)
 			case LOOK_BASE:
 				if(!sd)
 					break;
-
 				if(val == INVISIBLE_CLASS)
 					return;
-
 				if(sd->sc.option&OPTION_COSTUME)
 					vd->weapon = vd->shield = 0;
-
 				if(!vd->cloth_color)
 					break;
-
-				if(sd) {
-					if(sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
-						vd->cloth_color = 0;
-					if(sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
-						vd->cloth_color = 0;
-					if(sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
-						vd->cloth_color = 0;
-					if(sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
-						vd->cloth_color = 0;
-					if(sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
-						vd->cloth_color = 0;
-				}
+				if(sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+					vd->cloth_color = 0;
+				if(sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+					vd->cloth_color = 0;
+				if(sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+					vd->cloth_color = 0;
+				if(sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+					vd->cloth_color = 0;
+				if(sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+					vd->cloth_color = 0;
 				break;
 			case LOOK_HAIR:
 				vd->hair_style = val;
@@ -3389,15 +3381,15 @@ void clif_changelook(struct block_list *bl,int type,int val)
 				break;
 			case LOOK_CLOTHES_COLOR:
 				if(val && sd) {
-					if(sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+					if((sd->sc.option&OPTION_WEDDING) && battle_config.wedding_ignorepalette)
 						val = 0;
-					if(sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+					if((sd->sc.option&OPTION_XMAS) && battle_config.xmas_ignorepalette)
 						val = 0;
-					if(sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+					if((sd->sc.option&OPTION_SUMMER) && battle_config.summer_ignorepalette)
 						val = 0;
-					if(sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+					if((sd->sc.option&OPTION_HANBOK) && battle_config.hanbok_ignorepalette)
 						val = 0;
-					if(sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+					if((sd->sc.option&OPTION_OKTOBERFEST) && battle_config.oktoberfest_ignorepalette)
 						val = 0;
 				}
 				vd->cloth_color = val;
@@ -3429,7 +3421,7 @@ void clif_changelook(struct block_list *bl,int type,int val)
 #else
 				vd->robe = val;
 #endif
-			break;
+				break;
 		}
 	}
 
@@ -3438,30 +3430,18 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		target = SELF;
 
 #if PACKETVER < 4
-	WBUFW(buf,0) = 0xc3;
-	WBUFL(buf,2) = bl->id;
-	WBUFB(buf,6) = type;
-	WBUFB(buf,7) = val;
-	clif_send(buf,packet_len(0xc3),bl,target);
+	clif_sendlook(bl,bl->id,type,val,0,target);
 #else
-	WBUFW(buf,0) = 0x1d7;
-	WBUFL(buf,2) = bl->id;
 	if(type == LOOK_WEAPON || type == LOOK_SHIELD) {
-		nullpo_retv(vd);
-
-		WBUFB(buf,6) = LOOK_WEAPON;
-		WBUFW(buf,7) = vd->weapon;
-		WBUFW(buf,9) = vd->shield;
-	} else {
-		WBUFB(buf,6) = type;
-		WBUFL(buf,7) = val;
+		type = LOOK_WEAPON;
+		val = (vd ? vd->weapon : 0);
+		val2 = (vd ? vd->shield : 0);
 	}
 	if(disguised(bl)) {
-		clif_send(buf,packet_len(0x1d7),bl,AREA_WOS);
-		WBUFL(buf,2) = -bl->id;
-		clif_send(buf,packet_len(0x1d7),bl,SELF);
+		clif_sendlook(bl,bl->id,type,val,val2,AREA_WOS);
+		clif_sendlook(bl,-bl->id,type,val,val2,SELF);
 	} else
-		clif_send(buf,packet_len(0x1d7),bl,target);
+		clif_sendlook(bl,bl->id,type,val,val2,target);
 #endif
 }
 
@@ -3469,27 +3449,13 @@ void clif_changelook(struct block_list *bl,int type,int val)
 //Sends a change-base-look packet required for traps as they are triggered.
 void clif_changetraplook(struct block_list *bl,int val)
 {
-	unsigned char buf[32];
-
-#if PACKETVER < 4
-	WBUFW(buf,0) = 0xc3;
-	WBUFL(buf,2) = bl->id;
-	WBUFB(buf,6) = LOOK_BASE;
-	WBUFB(buf,7) = val;
-	clif_send(buf,packet_len(0xc3),bl,AREA);
-#else
-	WBUFW(buf,0) = 0x1d7;
-	WBUFL(buf,2) = bl->id;
-	WBUFB(buf,6) = LOOK_BASE;
-	WBUFW(buf,7) = val;
-	WBUFW(buf,9) = 0;
-	clif_send(buf,packet_len(0x1d7),bl,AREA);
-#endif
+	clif_sendlook(bl,bl->id,LOOK_BASE,val,0,AREA);
 }
 
 
-//For the stupid cloth-dye bug. Resends the given view data to the area specified by bl.
-void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_target target)
+/// 00c3 <id>.L <type>.B <value>.B (ZC_SPRITE_CHANGE)
+/// 01d7 <id>.L <type>.B <value>.L (ZC_SPRITE_CHANGE2)
+void clif_sendlook(struct block_list *bl,int id,int type,int val,int val2,enum send_target target)
 {
 	unsigned char buf[32];
 
@@ -3504,9 +3470,16 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 	WBUFL(buf,2) = id;
 	WBUFB(buf,6) = type;
 	WBUFW(buf,7) = val;
-	WBUFW(buf,9) = 0;
+	WBUFW(buf,9) = val2;
 	clif_send(buf,packet_len(0x1d7),bl,target);
 #endif
+}
+
+
+//For the stupid cloth-dye bug. Resends the given view data to the area specified by bl.
+void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_target target)
+{
+	clif_sendlook(bl,id,type,val,0,target);
 }
 
 

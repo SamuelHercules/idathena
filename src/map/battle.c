@@ -2736,12 +2736,6 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 		if(battle_config.attack_attr_none&src->type && ((!skill_id && !right_element) ||
 			(skill_id && (element == -1 || !right_element))) && (wd.flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON))
 			return wd;
-		if(sc && sc->data[SC_WATK_ELEMENT] && battle_skill_stacks_masteries_vvs(skill_id)) {
-			ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_WATK_ELEMENT]->val2);
-			wd.damage = battle_attr_fix(src, target, wd.damage, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
-			if(is_attack_left_handed(src, skill_id))
-				wd.damage2 = battle_attr_fix(src, target, wd.damage2, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
-		}
 		switch(skill_id) {
 			case MC_CARTREVOLUTION:
 			case RA_CLUSTERBOMB:
@@ -2771,6 +2765,16 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 				if(is_attack_left_handed(src, skill_id))
 					wd.damage2 = battle_attr_fix(src, target, wd.damage2, left_element, tstatus->def_ele, tstatus->ele_lv);
 				break;
+		}
+		if(sc && sc->data[SC_WATK_ELEMENT] && battle_skill_stacks_masteries_vvs(skill_id)) {
+			int64 dmg, dmg2;
+
+			dmg = wd.damage * sc->data[SC_WATK_ELEMENT]->val2 / 100;
+			wd.damage += battle_attr_fix(src, target, dmg, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
+			if(is_attack_left_handed(src, skill_id)) {
+				dmg2 = wd.damage2 * sc->data[SC_WATK_ELEMENT]->val2 / 100;
+				wd.damage2 += battle_attr_fix(src, target, dmg2, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
+			}
 		}
 	}
 	return wd;
@@ -5394,12 +5398,6 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 	//Skills gain benefits from the weapon element
 	//But final damage is considered to "the forced" and resistances are applied again
 	if(sd && !(nk&NK_NO_ELEFIX) && (wd.damage || wd.damage2)) {
-		if(sc && sc->data[SC_WATK_ELEMENT] && battle_skill_stacks_masteries_vvs(skill_id) && skill_id != ASC_METEORASSAULT) {
-			ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_WATK_ELEMENT]->val2);
-			wd.damage = battle_attr_fix(src, target, wd.damage, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
-			if(is_attack_left_handed(src, skill_id))
-				wd.damage2 = battle_attr_fix(src, target, wd.damage2, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
-		}
 		switch(skill_id) {
 			case MC_CARTREVOLUTION:
 			case MO_INVESTIGATE:
@@ -5440,6 +5438,16 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 					wd.damage2 = battle_attr_fix(src, target, wd.damage2, left_element, tstatus->def_ele, tstatus->ele_lv);
 				break;
 		}
+		if(sc && sc->data[SC_WATK_ELEMENT] && battle_skill_stacks_masteries_vvs(skill_id) && skill_id != ASC_METEORASSAULT) {
+			int64 dmg, dmg2;
+
+			dmg = wd.damage * sc->data[SC_WATK_ELEMENT]->val2 / 100;
+			wd.damage += battle_attr_fix(src, target, dmg, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
+			if(is_attack_left_handed(src, skill_id)) {
+				dmg2 = wd.damage2 * sc->data[SC_WATK_ELEMENT]->val2 / 100;
+				wd.damage2 += battle_attr_fix(src, target, dmg2, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
+			}
+		}
 	}
 #endif
 
@@ -5472,7 +5480,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 			break;
 		case SR_CRESCENTELBOW_AUTOSPELL:
 			//[Received damage x {1 + (Skill Level x 0.2)}]
-			ATK_ADD(wd.damage, wd.damage2, src->damage * (10 + skill_lv * 20 / 10) / 10);
+			ATK_ADD(wd.damage, wd.damage2, src->damage * (1 + skill_lv * 2 / 10));
 			break;
 		case SR_GATEOFHELL: {
 				struct status_data *sstatus = status_get_status_data(src);

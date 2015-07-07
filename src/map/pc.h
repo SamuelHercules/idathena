@@ -957,7 +957,7 @@ int pc_resetskill(struct map_session_data *, int);
 int pc_resetfeel(struct map_session_data *);
 int pc_resethate(struct map_session_data *);
 bool pc_equipitem(struct map_session_data *sd, short n, int req_pos);
-bool pc_unequipitem(struct map_session_data *,int,int);
+bool pc_unequipitem(struct map_session_data *sd, int n, int flag);
 void pc_checkitem(struct map_session_data *);
 void pc_check_available_item(struct map_session_data *sd);
 int pc_useitem(struct map_session_data *,int);
