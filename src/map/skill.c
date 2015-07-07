@@ -3030,12 +3030,12 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case NC_MAGMA_ERUPTION:
 			dmg.dmotion = clif_skill_damage(dsrc, bl, tick, status_get_amotion(src), dmg.dmotion, damage, dmg.div_, skill_id, -1, DMG_SPLASH);
 			break;
-		case WM_SEVERE_RAINSTORM_MELEE:
-			dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, WM_SEVERE_RAINSTORM, skill_lv, DMG_SPLASH);
-			break;
 		case WM_REVERBERATION_MELEE:
 		case WM_REVERBERATION_MAGIC:
 			dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, WM_REVERBERATION, -2, DMG_SKILL);
+			break;
+		case WM_SEVERE_RAINSTORM_MELEE:
+			dmg.dmotion = clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, WM_SEVERE_RAINSTORM, -2, DMG_SKILL);
 			break;
 		case WZ_SIGHTBLASTER:
 		case HT_CLAYMORETRAP:
@@ -3301,6 +3301,8 @@ static int skill_check_unit_range_sub(struct block_list *bl, va_list ap)
 		case SC_DIMENSIONDOOR:
 		case SC_CHAOSPANIC:
 		case SC_BLOODYLUST:
+		case WM_REVERBERATION:
+		case WM_POEMOFNETHERWORLD:
 		case GN_THORNS_TRAP:
 		case GN_HELLS_PLANT:
 		case RL_B_TRAP:
@@ -3710,8 +3712,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					break;
 				case WM_REVERBERATION_MELEE:
 				case WM_REVERBERATION_MAGIC:
-					//Damage should split among targets
-					skill_castend_damage_id(src,target,skl->skill_id,skl->skill_lv,tick,skl->flag|SD_LEVEL);
+					skill_castend_damage_id(src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					break;
 				case SC_FATALMENACE:
 					if (src == target) //Casters Part
@@ -3917,7 +3918,7 @@ static int skill_active_reverberation(struct block_list *bl, va_list ap) {
 		su->limit = DIFF_TICK(gettick(), sg->tick);
 		sg->unit_id = UNT_USED_TRAPS;
 	}
-	return 0;
+	return 1;
 }
 
 static int skill_reveal_trap(struct block_list *bl, va_list ap)
@@ -4436,10 +4437,10 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 				//SD_LEVEL -> Forced splash damage for Auto Blitz-Beat -> count targets
 				//Special case: Venom Splasher uses a different range for searching than for splashing
 				if ((flag&SD_LEVEL) || (skill_get_nk(skill_id)&NK_SPLASHSPLIT))
-					skill_area_temp[0] = map_foreachinrange(skill_area_sub,bl,(skill_id == AS_SPLASHER) ? 1 : skill_get_splash(skill_id,skill_lv),BL_CHAR,src,skill_id,skill_lv,tick,BCT_ENEMY,skill_area_sub_count);
+					skill_area_temp[0] = map_foreachinrange(skill_area_sub,bl,(skill_id == AS_SPLASHER ? 1 : skill_get_splash(skill_id,skill_lv)),BL_CHAR,src,skill_id,skill_lv,tick,BCT_ENEMY,skill_area_sub_count);
 				//Recursive invocation of skill_castend_damage_id() with flag|1
-				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),
-					(skill_id == WM_REVERBERATION_MELEE || skill_id == WM_REVERBERATION_MAGIC) ? BL_CHAR : splash_target(src),src,skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),(skill_id == WM_REVERBERATION_MELEE || skill_id == WM_REVERBERATION_MAGIC) ? BL_CHAR : splash_target(src),src,
+					skill_id,skill_lv,tick,flag|BCT_ENEMY|SD_SPLASH|1,skill_castend_damage_id);
 				if (skill_id == AS_SPLASHER) {
 					map_freeblock_unlock();
 					return 0; //Already consume the requirement item, so end it
@@ -5293,7 +5294,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			if (sd) {
 				if (flag&3) {
 					if (skill_area_temp[1] != bl->id)
-						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,SD_LEVEL|flag);
+						skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag|SD_LEVEL);
 				} else {
 					skill_area_temp[1] = bl->id;
 					map_foreachinrange(skill_area_sub,bl,sd->bonus.splash_range,BL_CHAR,src,skill_id,skill_lv,
@@ -9168,16 +9169,22 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case NC_REPAIR:
 			if( sd ) {
+				uint8 percent;
 				int heal;
-				int bonus = (skill_lv == 5 ? 3 : skill_lv > 2 && skill_lv < 5 ? 1 : 0);
 
-				if( dstsd && pc_ismadogear(dstsd) ) {
-					heal = dstsd->status.max_hp * (skill_lv + 3 * skill_lv + bonus) / 100;
-					status_heal(bl,heal,0,0);
-				} else {
-					heal = sd->status.max_hp * (skill_lv + 3 * skill_lv + bonus) / 100;
-					status_heal(src,heal,0,0);
+				switch( skill_lv ) {
+					case 1: percent = 4; break;
+					case 2: percent = 7; break;
+					case 3: percent = 13; break;
+					case 4: percent = 17; break;
+					case 5: percent = 23; break;
 				}
+				if( !dstsd || !pc_ismadogear(dstsd) ) {
+					clif_skill_fail(sd,skill_id,USESKILL_FAIL_TOTARGET,0,0);
+					break;
+				}
+				heal = tstatus->max_hp * percent / 100;
+				status_heal(bl,heal,0,0);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,clif_skill_nodamage(src,bl,AL_HEAL,heal,1));
 			}
 			break;
@@ -11950,8 +11957,8 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 						case 2:
 							map_foreachinarea(skill_area_sub,src->m,
 								ud->skillunit[i]->unit->bl.x - 2,ud->skillunit[i]->unit->bl.y - 2,
-								ud->skillunit[i]->unit->bl.x + 2,ud->skillunit[i]->unit->bl.y + 2,BL_CHAR,
-								src,GN_DEMONIC_FIRE,skill_lv + 20,tick,flag|BCT_ENEMY|SD_LEVEL|1,skill_castend_damage_id);
+								ud->skillunit[i]->unit->bl.x + 2,ud->skillunit[i]->unit->bl.y + 2,BL_CHAR,src,
+								GN_DEMONIC_FIRE,skill_lv + 20,tick,flag|BCT_ENEMY|SD_LEVEL|1,skill_castend_damage_id);
 							skill_delunit(ud->skillunit[i]->unit);
 							break;
 						case 3:
@@ -11969,8 +11976,8 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 								aciddemocast = pc_checkskill(sd,CR_ACIDDEMONSTRATION);
 							map_foreachinarea(skill_area_sub,src->m,
 								ud->skillunit[i]->unit->bl.x - 2,ud->skillunit[i]->unit->bl.y - 2,
-								ud->skillunit[i]->unit->bl.x + 2,ud->skillunit[i]->unit->bl.y + 2,BL_CHAR,
-								src,GN_FIRE_EXPANSION_ACID,aciddemocast,tick,flag|BCT_ENEMY|SD_LEVEL|1,skill_castend_damage_id);
+								ud->skillunit[i]->unit->bl.x + 2,ud->skillunit[i]->unit->bl.y + 2,BL_CHAR,src,
+								GN_FIRE_EXPANSION_ACID,aciddemocast,tick,flag|BCT_ENEMY|SD_LEVEL|1,skill_castend_damage_id);
 							skill_delunit(ud->skillunit[i]->unit);
 							break;
 						}
@@ -13448,6 +13455,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 		case UNT_VERDURETRAP:
 			if (bl->type == BL_PC)
 				break; //It won't work on players
+		//Fall through
 		case UNT_BLASTMINE:
 		case UNT_SHOCKWAVE:
 		case UNT_SANDMAN:
@@ -15758,6 +15766,7 @@ struct skill_condition skill_get_requirement(struct map_session_data *sd, uint16
 			//NOTE: Please make sure Magic_Gear_Fuel in the last position in skill_require_db.txt
 			req.itemid[1] = skill_db[idx].require.itemid[MAX_SKILL_ITEM_REQUIRE - 1];
 			req.amount[1] = skill_db[idx].require.amount[MAX_SKILL_ITEM_REQUIRE - 1];
+		//Fall through
 		case WZ_FIREPILLAR: //No gems required at level 1-5 [celest]
 		case GN_FIRE_EXPANSION:
 		case SO_SUMMON_AGNI:
@@ -15771,8 +15780,8 @@ struct skill_condition skill_get_requirement(struct map_session_data *sd, uint16
 			req.itemid[0] = skill_db[idx].require.itemid[min(skill_lv - 1,MAX_SKILL_ITEM_REQUIRE - 1)];
 			req.amount[0] = skill_db[idx].require.amount[min(skill_lv - 1,MAX_SKILL_ITEM_REQUIRE - 1)];
 			level_dependent = true;
-		//Normal skill requirements and gemstone checks
-		default:
+		//Fall through
+		default: //Normal skill requirements and gemstone checks
 			for( i = 0; i < ((!level_dependent) ? MAX_SKILL_ITEM_REQUIRE : 2); i++ ) {
 				//Skip this for level_dependent requirement, just looking forward for gemstone removal. Assumed if there is gemstone there
 				if( !level_dependent ) {
@@ -17232,8 +17241,8 @@ static int skill_trap_splash(struct block_list *bl, va_list ap)
 				sc_start2(ss,bl,SC_ELEMENTALCHANGE,100,group->skill_lv,skill_get_ele(group->skill_id,group->skill_lv),skill_get_time2(group->skill_id,group->skill_lv));
 			break;
 		case UNT_REVERBERATION: //For proper skill delay animation when use with Dominion Impulse
-			skill_addtimerskill(ss,tick + 50,bl->id,0,0,WM_REVERBERATION_MELEE,group->skill_lv,BF_WEAPON,0);
-			skill_addtimerskill(ss,tick + 250,bl->id,0,0,WM_REVERBERATION_MAGIC,group->skill_lv,BF_MAGIC,0);
+			skill_addtimerskill(ss,tick + status_get_amotion(ss),bl->id,0,0,WM_REVERBERATION_MELEE,group->skill_lv,BF_WEAPON,0);
+			skill_addtimerskill(ss,tick + status_get_amotion(ss) * 2,bl->id,0,0,WM_REVERBERATION_MAGIC,group->skill_lv,BF_MAGIC,0);
 			break;
 		case UNT_FIRINGTRAP:
 		case UNT_ICEBOUNDTRAP:
@@ -17247,12 +17256,13 @@ static int skill_trap_splash(struct block_list *bl, va_list ap)
 				if( su->group->unit_id == UNT_USED_TRAPS )
 					break;
 			}
+		//Fall through
 		case UNT_CLUSTERBOMB:
 			if( ss != bl )
 				skill_attack(BF_MISC,ss,src,bl,group->skill_id,group->skill_lv,tick,group->val1|SD_LEVEL);
 			break;
 		case UNT_B_TRAP:
-			if( battle_check_target(ss,bl,group->target_flag&~BCT_SELF) > 0 )
+			if( battle_check_target(ss,bl,(group->target_flag&~BCT_SELF)) > 0 )
 				skill_castend_damage_id(ss,bl,group->skill_id,group->skill_lv,tick,SD_LEVEL|SD_ANIMATION|SD_SPLASH|1);
 			break;
 		case UNT_CLAYMORETRAP:
@@ -17279,6 +17289,7 @@ static int skill_trap_splash(struct block_list *bl, va_list ap)
 						break;
 				}
 			}
+		//Fall through
 		default:
 			skill_attack(skill_get_type(group->skill_id),ss,src,bl,group->skill_id,group->skill_lv,tick,0);
 			break;
