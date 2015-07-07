@@ -1574,6 +1574,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	unsigned char buf[128];
 	int htype;
 
+	nullpo_retv(sd);
 	nullpo_retv(hd);
 
 	status = &hd->battle_status;
@@ -18095,7 +18096,7 @@ static unsigned short clif_parse_cmd(int fd, struct map_session_data *sd) {
 #ifdef DUMP_UNKNOWN_PACKET
 void DumpUnknow(int fd,TBL_PC *sd,int cmd,int packet_len) {
 	const char *packet_txt = "save/packet.txt";
-	FILE* fp;
+	FILE *fp;
 	time_t time_server;
 	struct tm *datetime;
 	char datestr[512];

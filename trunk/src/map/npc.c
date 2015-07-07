@@ -4002,7 +4002,7 @@ int npc_parsesrcfile(const char *filepath, bool runOnInit)
 {
 	int16 m, x, y;
 	int lines = 0;
-	FILE* fp;
+	FILE *fp;
 	size_t len;
 	char *buffer;
 	const char *p;

@@ -2748,7 +2748,6 @@ void get_val_(struct script_state *st, struct script_data *data, struct map_sess
 				data->u.str = pc_readglobalreg_str(sd, name);
 				break;
 		}
-
 		if( data->u.str == NULL || data->u.str[0] == '\0' ) { // Empty string
 			data->type = C_CONSTSTR;
 			data->u.str = "";
@@ -2756,16 +2755,13 @@ void get_val_(struct script_state *st, struct script_data *data, struct map_sess
 			data->type = C_STR;
 			data->u.str = aStrdup(data->u.str);
 		}
-
 	} else { // Integer variable
-
 		data->type = C_INT;
-
-		if( reference_toconstant(data) ) {
+		if( reference_toconstant(data) )
 			data->u.num = reference_getconstant(data);
-		} else if( reference_toparam(data) ) {
+		else if( reference_toparam(data) )
 			data->u.num = pc_readparam(sd, reference_getparamtype(data));
-		} else
+		else {
 			switch( prefix ) {
 				case '@':
 					data->u.num = pc_readreg(sd, data->u.num);
@@ -2804,10 +2800,8 @@ void get_val_(struct script_state *st, struct script_data *data, struct map_sess
 					data->u.num = pc_readglobalreg(sd, name);
 					break;
 			}
-
+		}
 	}
-
-	return;
 }
 
 void get_val(struct script_state *st, struct script_data *data)
@@ -8206,6 +8200,7 @@ BUILDIN_FUNC(bonus)
 		case SP_VARCASTRATE:
 		case SP_FIXCASTRATE:
 		case SP_SKILL_USE_SP:
+		case SP_SUB_SKILL:
 			// These bonuses support skill names
 			data = script_getdata(st,3);
 			get_val(st,data); // Convert into value in case of a variable

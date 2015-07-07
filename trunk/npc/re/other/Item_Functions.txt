@@ -27,7 +27,7 @@ function	script	F_18810_L	{ //Hell_Pumpkin_Hat
 	return;
 }
 
-function	script	F_18856	{ //W_King_Tiger_Doll_Hat
+function	script	F_5497_18856	{ //King_Tiger_Doll_Hat/W_King_Tiger_Doll_Hat
 	unittalk getcharid(3),"fee-faw-fum-!!! I totally feel like a tiger!!!",1;
 	return;
 }

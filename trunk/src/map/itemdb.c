@@ -957,7 +957,7 @@ static void itemdb_read_combos() {
 	char line[1024];
 
 	char path[256];
-	FILE* fp;
+	FILE *fp;
 
 	sprintf(path, "%s/%s", db_path, DBPATH"item_combo_db.txt");
 
@@ -1282,7 +1282,7 @@ static int itemdb_readdb(void)
 		uint32 lines = 0, count = 0;
 		char line[1024];
 		char path[256];
-		FILE* fp;
+		FILE *fp;
 
 		sprintf(path, "%s/%s", db_path, filename[fi]);
 		fp = fopen(path, "r");

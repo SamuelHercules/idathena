@@ -173,7 +173,7 @@ void log_branch(struct map_session_data *sd)
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_branch, "a") ) == NULL )
 			return;
@@ -214,7 +214,7 @@ void log_pick(int id, int16 m, e_log_pick_type type, int amount, struct item *it
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_pick, "a") ) == NULL )
 			return;
@@ -266,7 +266,7 @@ void log_zeny(struct map_session_data *sd, e_log_pick_type type, struct map_sess
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_zeny, "a") ) == NULL )
 			return;
@@ -304,7 +304,7 @@ void log_mvpdrop(struct map_session_data *sd, int monster_id, unsigned int *log_
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( (logfp = fopen(log_config.log_mvpdrop,"a")) == NULL )
 			return;
@@ -349,7 +349,7 @@ void log_atcommand(struct map_session_data *sd, const char *message)
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_gm, "a") ) == NULL )
 			return;
@@ -392,7 +392,7 @@ void log_npc(struct map_session_data *sd, const char *message)
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_npc, "a") ) == NULL )
 			return;
@@ -439,7 +439,7 @@ void log_chat(e_log_chat_type type, int type_id, int src_charid, int src_accid, 
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen(log_config.log_chat, "a") ) == NULL )
 			return;
@@ -476,7 +476,7 @@ void log_cash( struct map_session_data *sd, e_log_pick_type type, e_log_cash_typ
 	} else {
 		char timestring[255];
 		time_t curtime;
-		FILE* logfp;
+		FILE *logfp;
 
 		if( ( logfp = fopen( log_config.log_cash, "a" ) ) == NULL )
 			return;

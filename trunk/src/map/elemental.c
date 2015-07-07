@@ -397,11 +397,9 @@ int elemental_clean_effect(struct elemental_data *ed) {
 	status_change_end(&sd->bl, SC_GUST_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_WIND_STEP_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_BLAST_OPTION, INVALID_TIMER);
-	status_change_end(&sd->bl, SC_WATER_DROP_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_WIND_CURTAIN_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_WILD_STORM_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_ZEPHYR, INVALID_TIMER);
-	status_change_end(&sd->bl, SC_WIND_STEP_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_PETROLOGY_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_SOLID_SKIN_OPTION, INVALID_TIMER);
 	status_change_end(&sd->bl, SC_CURSED_SOIL_OPTION, INVALID_TIMER);

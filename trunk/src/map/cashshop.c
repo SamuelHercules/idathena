@@ -82,7 +82,7 @@ static void cashshop_read_db_txt( void ){
 		char line[1024];
 
 		char path[256];
-		FILE* fp;
+		FILE *fp;
 
 		sprintf( path, "%s/%s", db_path, filename[fi] );
 		fp = fopen( path, "r" );

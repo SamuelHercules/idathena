@@ -6790,7 +6790,7 @@ ACMD_FUNC(identifyall)
  *------------------------------------------*/
 ACMD_FUNC(gmotd)
 {
-	FILE* fp;
+	FILE *fp;
 
 	if( (fp = fopen(motd_txt, "r")) != NULL ) {
 		char buf[CHAT_SIZE_MAX];

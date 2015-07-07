@@ -1734,7 +1734,7 @@ void login_set_defaults() {
 int login_config_read(const char *cfgName)
 {
 	char line[1024], w1[32], w2[1024];
-	FILE* fp = fopen(cfgName, "r");
+	FILE *fp = fopen(cfgName, "r");
 
 	if(fp == NULL) {
 		ShowError("Configuration file (%s) not found.\n", cfgName);
