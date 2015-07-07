@@ -1137,7 +1137,7 @@ uint8 pc_isequip(struct map_session_data *sd, int n)
 		return ITEM_EQUIP_ACK_FAIL;
 
 	//Not equipable by class [Skotlex]
-	if(!(1<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1) ? 1 : ((sd->class_&JOBL_2_2) ? 2 : 0)]))
+	if(!(1<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1 ? 1 : (sd->class_&JOBL_2_2 ? 2 : 0))]))
 		return ITEM_EQUIP_ACK_FAIL;
 
 	if(!pc_isItemClass(sd,item))
@@ -9293,28 +9293,28 @@ bool pc_equipitem(struct map_session_data *sd, short n, int req_pos)
 		clif_notify_bindOnEquip(sd,n);
 	}
 	if( pos == EQP_ACC ) { //Accesories should only go in one of the two
-		pos = req_pos&EQP_ACC;
+		pos = (req_pos&EQP_ACC);
 		if( pos == EQP_ACC ) //User specified both slots
 			pos = (sd->equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R);
 	}
 	if( pos == EQP_ARMS && id->equip == EQP_HAND_R ) { //Dual wield capable weapon
-		pos = req_pos&EQP_ARMS;
+		pos = (req_pos&EQP_ARMS);
 		if( pos == EQP_ARMS )
 			pos = (sd->equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R);
 	}
 	//Shadow System
 	if( pos == EQP_SHADOW_ACC ) {
-		pos = req_pos&EQP_SHADOW_ACC;
+		pos = (req_pos&EQP_SHADOW_ACC);
 		if( pos == EQP_SHADOW_ACC )
 			pos = (sd->equip_index[EQI_SHADOW_ACC_R] >= 0 ? EQP_SHADOW_ACC_L : EQP_SHADOW_ACC_R);
 	}
 	if( pos == EQP_SHADOW_ARMS && id->equip == EQP_SHADOW_WEAPON) {
-		pos = req_pos&EQP_SHADOW_ARMS;
+		pos = (req_pos&EQP_SHADOW_ARMS);
 		if( pos == EQP_SHADOW_ARMS )
 			pos = (sd->equip_index[EQI_SHADOW_WEAPON] >= 0 ? EQP_SHADOW_SHIELD : EQP_SHADOW_WEAPON);
 	}
-	//Update skill-block range database when weapon range changes. [Skotlex]
-	if( (pos&EQP_HAND_R) && battle_config.use_weapon_skill_range&BL_PC ) {
+	//Update skill-block range database when weapon range changes [Skotlex]
+	if( (pos&EQP_HAND_R) && (battle_config.use_weapon_skill_range&BL_PC) ) {
 		short idx = sd->equip_index[EQI_HAND_R];
 
 		if( idx < 0 || !sd->inventory_data[idx] ) //No data, or no weapon equipped
@@ -9444,7 +9444,7 @@ bool pc_equipitem(struct map_session_data *sd, short n, int req_pos)
  *	4 - unequip that cause by skill_break_equip
  * return: false - fail; true - success
  *------------------------------------------*/
-bool pc_unequipitem(struct map_session_data *sd,int n,int flag) {
+bool pc_unequipitem(struct map_session_data *sd, int n, int flag) {
 	int i = 0, iflag = 0;
 	bool status_cacl = false;
 
