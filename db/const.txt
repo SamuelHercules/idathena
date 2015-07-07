@@ -464,7 +464,7 @@ bCastrate	1003
 bMaxHPrate	1004
 bMaxSPrate	1005
 bUseSPrate	1006
-bAddEle	1007
+bAddDefEle	1007
 bAddRace	1008
 bAddSize	1009
 bSubEle	1010
@@ -492,7 +492,7 @@ bMagicAtkDef	1031
 bMiscAtkDef	1032
 bIgnoreMdefEle	1033
 bIgnoreMdefRace	1034
-bMagicAddEle	1035
+bMagicAddDefEle	1035
 bMagicAddRace	1036
 bMagicAddSize	1037
 bPerfectHitRate	1038
@@ -548,7 +548,7 @@ bSkillHeal2	1088
 bAddEffOnSkill	1089
 bHealPower	1090
 bHealPower2	1091
-bRandomAutoSpell	1092
+bAbsorbDmgMaxHP	1092
 
 bRestartFullRecover	2000
 bNoCastCancel	2001
@@ -598,8 +598,8 @@ bMagicSPGainValue	2043
 bMagicHPGainValue	2044
 bAddMonsterIdDropItem	2045
 bMatk	2046
-bSPGainRaceAttack	2047
-bHPGainRaceAttack	2048
+bSPVanishRaceRate	2047
+bHPVanishRaceRate	2048
 bSkillUseSPrate	2049
 
 bSkillCooldown	2050
@@ -614,7 +614,7 @@ bVariableCast	2058
 
 bSetDefRace	2059
 bSetMdefRace	2060
-bMagicSubRace	2061
+bSubSkill	2061
 bHPVanishRate	2062
 
 bIgnoreDefClass	2063
@@ -626,7 +626,7 @@ bAddClass	2068
 bSubClass	2069
 bMagicAddClass	2070
 bWeaponComaClass	2071
-bMagicSubClass	2072
+bSubDefEle	2072
 bExpAddClass	2073
 bAddClassDropItem	2074
 bAddClassDropItemGroup	2075

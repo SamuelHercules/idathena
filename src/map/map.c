@@ -473,9 +473,8 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 					sc->data[SC_PROPERTYWALK]->val3 < skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2) &&
 					map_find_skill_unit_oncell(bl, bl->x, bl->y, SO_ELECTRICWALK, NULL, 0) == NULL &&
 					map_find_skill_unit_oncell(bl, bl->x, bl->y, SO_FIREWALK, NULL, 0) == NULL &&
-					skill_unitsetting(bl, sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2, x0,  y0, 0)) {
-						sc->data[SC_PROPERTYWALK]->val3++;
-				}
+					skill_unitsetting(bl, sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2, x0,  y0, 0))
+					sc->data[SC_PROPERTYWALK]->val3++;
 			}
 			//Guild Aura Moving
 			if (bl->type == BL_PC && ((TBL_PC *)bl)->state.gmaster_flag) {
@@ -1835,6 +1834,7 @@ int map_quit(struct map_session_data *sd) {
 		status_change_end(&sd->bl,SC_WEIGHT50,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_WEIGHT90,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_SATURDAYNIGHTFEVER,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_ALL_RIDING,INVALID_TIMER);
 		if (battle_config.debuff_on_logout&1) { //Remove negative buffs
 			status_change_end(&sd->bl,SC_ORCISH,INVALID_TIMER);
 			status_change_end(&sd->bl,SC_STRIPWEAPON,INVALID_TIMER);
@@ -3490,7 +3490,7 @@ void map_removemapdb(struct map_data *m)
 int map_readallmaps (void)
 {
 	int i;
-	FILE* fp = NULL;
+	FILE *fp = NULL;
 	int maps_removed = 0;
 	char *map_cache_buffer = NULL; //Has the uncompressed gat data of all maps, so just one allocation has to be made
 	char map_cache_decode_buffer[MAX_MAP_SIZE];

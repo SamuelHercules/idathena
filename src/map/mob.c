@@ -1452,9 +1452,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		if(md->attacked_id == md->target_id) { //Rude attacked check
 			if(!battle_check_range(&md->bl, tbl, md->status.rhw.range)
 			&& ( //Can't attack back and can't reach back
-					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
-						|| md->sc.data[SC_BITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNSTRAP]
-						|| md->sc.data[SC__MANHOLE] //Not yet confirmed if boss will teleport once it can't reach target
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && ((battle_config.mob_ai&0x2) || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
+						|| md->sc.data[SC_BITE] || md->sc.data[SC_MAGNETICFIELD] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNSTRAP]
 						|| md->walktoxy_fail_count > 0)
 					)
 					|| !mob_can_reach(md, tbl, chase_range, MSS_RUSH)
@@ -1477,8 +1476,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 				|| (!battle_check_range(&md->bl, abl, md->status.rhw.range) //Not on melee range
 				&& ( //Reach check
 						(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
-							|| md->sc.data[SC_BITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNSTRAP]
-							|| md->sc.data[SC__MANHOLE] //Not yet confirmed if boss will teleport once it can't reach target
+							|| md->sc.data[SC_BITE] || md->sc.data[SC_MAGNETICFIELD] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNSTRAP]
 							|| md->walktoxy_fail_count > 0)
 						)
 						|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
@@ -2418,8 +2416,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race) || //Matched race
 					(sd->add_drop[i].class_ == CLASS_ALL || sd->add_drop[i].class_ == status->class_)) //Matched class
 				{
-					//Check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
-					if(sd->add_drop[i].rate < 0) {
+					if(sd->add_drop[i].rate < 0) { //Check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
 						//It's negative, then it should be multiplied. with mob_level/10
 						//rate = base_rate * (mob_level/10) + 1
 						drop_rate = (-sd->add_drop[i].rate) * md->level / 10 + 1;
@@ -2428,14 +2425,14 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 						drop_rate = sd->add_drop[i].rate;
 					if(rnd()%10000 >= drop_rate)
 						continue;
-					dropid = (sd->add_drop[i].nameid > 0) ? sd->add_drop[i].nameid : itemdb_searchrandomid(sd->add_drop[i].group, 1);
+					dropid = (sd->add_drop[i].nameid > 0 ? sd->add_drop[i].nameid : itemdb_searchrandomid(sd->add_drop[i].group, 1));
 					mob_item_drop(md, dlist, mob_setdropitem(dropid,1), 0, drop_rate, homkillonly);
 				}
 			}
 
 			//Process script-granted zeny bonus (get_zeny_num) [Skotlex]
 			if(sd->bonus.get_zeny_num && rnd()%100 < sd->bonus.get_zeny_rate) {
-				i = sd->bonus.get_zeny_num > 0 ? sd->bonus.get_zeny_num : -md->level * sd->bonus.get_zeny_num;
+				i = (sd->bonus.get_zeny_num > 0 ? sd->bonus.get_zeny_num : -md->level * sd->bonus.get_zeny_num);
 				if(!i)
 					i = 1;
 				pc_getzeny(sd, 1 + rnd()%i, LOG_TYPE_PICKDROP_MONSTER, NULL);

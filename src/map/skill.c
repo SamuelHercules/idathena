@@ -2785,7 +2785,6 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 				}
 			} else if (type != 2) //Kaite bypasses
 				additional_effects = false;
-
 #if MAGIC_REFLECTION_TYPE
 	#ifndef RENEWAL
 			if (type != 2) { //In pre-renewal Kaite's reflection will do a full damage
@@ -2829,8 +2828,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 					sp = sp / ((skill_lv|1) * (skill_lv|1)); //Estimate SP cost of a single water-ball
 				status_heal(bl, 0, sp, 2);
 			}
-			if ((dmg.damage || dmg.damage2) && tsc->data[SC_HALLUCINATIONWALK] &&
-				rnd()%100 < tsc->data[SC_HALLUCINATIONWALK]->val3) {
+			if ((dmg.damage || dmg.damage2) && tsc->data[SC_HALLUCINATIONWALK] && rnd()%100 < tsc->data[SC_HALLUCINATIONWALK]->val3) {
 				dmg.damage = dmg.damage2 = 0;
 				dmg.dmg_lv = ATK_MISS;
 			}
@@ -3201,7 +3199,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 	}
 
 	if (!(flag&2) && (skill_id == MG_COLDBOLT || skill_id == MG_FIREBOLT || skill_id == MG_LIGHTNINGBOLT) &&
-		(tsc = status_get_sc(src)) && tsc->data[SC_DOUBLECAST] && rnd() % 100 < tsc->data[SC_DOUBLECAST]->val2) {
+		sc && sc->data[SC_DOUBLECAST] && rnd()%100 < sc->data[SC_DOUBLECAST]->val2) {
 		//skill_addtimerskill(src, tick + dmg.div_ * dmg.amotion, bl->id, 0, 0, skill_id, skill_lv, BF_MAGIC, flag|2);
 		skill_addtimerskill(src, tick + dmg.amotion, bl->id, 0, 0, skill_id, skill_lv, BF_MAGIC, flag|2);
 	}
@@ -4981,7 +4979,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			break;
 
 		case RA_SENSITIVEKEEN:
-			if (bl->type != BL_SKILL) { //Only Hits Invisible Targets
+			if (bl->type != BL_SKILL) { //Only hits invisible targets
 				if (tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK))) {
 					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 					status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
@@ -7403,7 +7401,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				int x, y, dir = unit_getdir(src);
 
 				//Fails on noteleport maps, except for GvG and BG maps [Skotlex]
-				if( map[src->m].flag.noteleport && !(map[src->m].flag.battleground || map_flag_gvg2(src->m)) ) {
+				if (map[src->m].flag.noteleport && !(map[src->m].flag.battleground || map_flag_gvg2(src->m))) {
 					x = src->x;
 					y = src->y;
 				} else {
@@ -7412,8 +7410,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				}
 
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				if( !map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB,0) &&
-					map_getcell(src->m,x,y,CELL_CHKREACH) && unit_movepos(src,x,y,1,false) )
+				if (!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB,0) && map_getcell(src->m,x,y,CELL_CHKREACH) && unit_movepos(src,x,y,1,false))
 					clif_blown(src,src);
 			}
 			break;
@@ -7422,17 +7419,15 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case SO_SPELLFIST:		
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			unit_skillcastcancel(src,1);
-			if(sd) {
+			if (sd) {
 				int sp = skill_get_sp(sd->skill_id_old,sd->skill_lv_old);
 
-				if( skill_id == SO_SPELLFIST ) {
+				if (skill_id == SO_SPELLFIST) {
 					sc_start4(src,src,type,100,skill_lv,skill_lv + 1,sd->skill_id_old,sd->skill_lv_old,skill_get_time(skill_id,skill_lv));
 					sd->skill_id_old = sd->skill_lv_old = 0;
 					break;
 				}
-				sp = sp * (90 - (skill_lv - 1) * 20) / 100;
-				if(sp < 0)
-					sp = 0;
+				sp = max(sp * (90 - (skill_lv - 1) * 20) / 100,0);
 				status_zap(src,0,sp);
 			}
 			break;
@@ -7440,10 +7435,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case SA_SPELLBREAKER: {
 				int sp;
 
-				if(tsc && tsc->data[SC_MAGICROD]) {
+				if (tsc && tsc->data[SC_MAGICROD]) {
 					sp = skill_get_sp(skill_id,skill_lv);
 					sp = sp * tsc->data[SC_MAGICROD]->val2 / 100;
-					if(sp < 1)
+					if (sp < 1)
 						sp = 1;
 					status_heal(bl,0,sp,2);
 					status_percent_damage(bl,src,0,-20,false); //20% MaxSP damage
@@ -7451,33 +7446,29 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					struct unit_data *ud = unit_bl2ud(bl);
 					int bl_skill_id = 0, bl_skill_lv = 0, hp = 0;
 
-					if(!ud || ud->skilltimer == INVALID_TIMER)
+					if (!ud || ud->skilltimer == INVALID_TIMER)
 						break; //Nothing to cancel
 					bl_skill_id = ud->skill_id;
 					bl_skill_lv = ud->skill_lv;
-					if(tstatus->mode & MD_BOSS) { //Only 10% success chance against bosses [Skotlex]
-						if(rnd()%100 < 90) {
-							if(sd)
+					if (tstatus->mode&MD_BOSS) { //Only 10% success chance against bosses [Skotlex]
+						if (rnd()%100 < 90) {
+							if (sd)
 								clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 							break;
 						}
-					} else if(!dstsd || map_flag_vs(bl->m)) //HP damage only on vs-maps when against players
+					} else if (!dstsd || map_flag_vs(bl->m)) //HP damage only on vs-maps when against players
 						hp = tstatus->max_hp / 50; //Recover 2% HP [Skotlex]
-
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 					unit_skillcastcancel(bl,0);
 					sp = skill_get_sp(bl_skill_id,bl_skill_lv);
 					status_zap(bl,hp,sp);
-
-					if(hp && skill_lv >= 5)
+					if (hp && skill_lv >= 5)
 						hp >>= 1;	//Recover half damaged HP at level 5 [Skotlex]
 					else
 						hp = 0;
-
-					if(sp) //Recover some of the SP used
+					if (sp) //Recover some of the SP used
 						sp = sp * (25 * (skill_lv - 1)) / 100;
-
-					if(hp || sp)
+					if (hp || sp)
 						status_heal(src,hp,sp,2);
 				}
 			}
@@ -7490,40 +7481,40 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case SA_AUTOSPELL:
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-			if(sd)
+			if (sd)
 				clif_autospell(sd,skill_lv);
 			else {
 				int maxlv = 1, spellid = 0;
 				static const int spellarray[3] = { MG_COLDBOLT,MG_FIREBOLT,MG_LIGHTNINGBOLT };
 
-				if(skill_lv >= 10) {
+				if (skill_lv >= 10) {
 					spellid = MG_FROSTDIVER;
 					//if (tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SA_SAGE)
 						//maxlv = 10;
 					//else
 						maxlv = skill_lv - 9;
-				} else if(skill_lv >= 8) {
+				} else if (skill_lv >= 8) {
 					spellid = MG_FIREBALL;
 					maxlv = skill_lv - 7;
-				} else if(skill_lv >= 5) {
+				} else if (skill_lv >= 5) {
 					spellid = MG_SOULSTRIKE;
 					maxlv = skill_lv - 4;
-				} else if(skill_lv >= 2) {
+				} else if (skill_lv >= 2) {
 					int i = rnd()%3;
 
 					spellid = spellarray[i];
 					maxlv = skill_lv - 1;
-				} else if(skill_lv > 0) {
+				} else if (skill_lv > 0) {
 					spellid = MG_NAPALMBEAT;
 					maxlv = 3;
 				}
-				if(spellid > 0)
+				if (spellid > 0)
 					sc_start4(src,src,SC_AUTOSPELL,100,skill_lv,spellid,maxlv,0,skill_get_time(SA_AUTOSPELL,skill_lv));
 			}
 			break;
 
 		case BS_GREED:
-			if(sd) {
+			if (sd) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				map_foreachinrange(skill_greed,bl,skill_get_splash(skill_id,skill_lv),BL_ITEM,bl);
 			}
@@ -7533,9 +7524,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case SA_ELEMENTFIRE:
 		case SA_ELEMENTGROUND:
 		case SA_ELEMENTWIND:
-			if(sd && !dstmd) //Only works on monsters
+			if (sd && !dstmd) //Only works on monsters
 				break;
-			if(tstatus->mode&MD_BOSS)
+			if (tstatus->mode&MD_BOSS)
 				break;
 		//Fall through
 		case NPC_ATTRICHANGE:
@@ -7554,7 +7545,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case NPC_CHANGEUNDEAD:
 			//This skill should fail if target is wearing bathory/evil druid card [Brainstorm]
 			//@TODO: This is ugly, fix it
-			if(tstatus->def_ele == ELE_UNDEAD || tstatus->def_ele == ELE_DARK)
+			if (tstatus->def_ele == ELE_UNDEAD || tstatus->def_ele == ELE_DARK)
 				break;
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,
 				sc_start2(src,bl,type,100,skill_lv,skill_get_ele(skill_id,skill_lv),skill_get_time(skill_id,skill_lv)));
@@ -7573,13 +7564,13 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				struct unit_data *ud = unit_bl2ud(bl);
 
 				//Disable attacking/acting/moving for skill's duration
-				if(clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start(src,bl,type,100,skill_lv,skill_time)) && ud)
+				if (clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start(src,bl,type,100,skill_lv,skill_time)) && ud)
 					ud->attackabletime = ud->canact_tick = ud->canmove_tick = tick + skill_time;
 			}
 			break;
 
 		case NPC_REBIRTH:
-			if(md && md->state.rebirth)
+			if (md && md->state.rebirth)
 				break; //Only works once
 			sc_start(src,bl,type,100,skill_lv,INVALID_TIMER);
 			break;
@@ -7602,7 +7593,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case NPC_SUMMONSLAVE:
 		case NPC_SUMMONMONSTER:
-			if(md && md->skill_idx >= 0)
+			if (md && md->skill_idx >= 0)
 				mob_summonslave(md,md->db->skill[md->skill_idx].val,skill_lv,skill_id);
 			break;
 
@@ -7673,11 +7664,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				clif_emotion(bl,md->db->skill[md->skill_idx].val[0]);
 				if (md->db->skill[md->skill_idx].val[4] && tsce)
 					status_change_end(bl,type,INVALID_TIMER);
-
 				//If mode gets set by NPC_EMOTION then the target should be reset [Playtester]
 				if (skill_id == NPC_EMOTION && md->db->skill[md->skill_idx].val[1])
 					mob_unlocktarget(md,tick);
-
 				if (md->db->skill[md->skill_idx].val[1] || md->db->skill[md->skill_idx].val[2])
 					sc_start4(src,src,type,100,skill_lv,
 						md->db->skill[md->skill_idx].val[1],
@@ -7940,7 +7929,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case CR_SLIMPITCHER: //Slim Pitcher
 			//Updated to block Slim Pitcher from working on barricades and guardian stones
-			if (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || (dstmd->mob_id >= MOBID_BARRICADE1 && dstmd->mob_id <= MOBID_GUARIDAN_STONE2)))
+			if (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || (dstmd->mob_id >= MOBID_BARRICADE1 && dstmd->mob_id <= MOBID_GUARDIAN_STONE2)))
 				break;
 			if (potion_hp || potion_sp) {
 				int hp = potion_hp, sp = potion_sp;
@@ -9914,7 +9903,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if( sd ) {
 				int elemental_class = skill_get_elemental_type(skill_id,skill_lv);
 
-				if( sd->ed ) //Remove previous elemental fisrt
+				if( sd->ed ) //Remove previous elemental first
 					elemental_delete(sd->ed,0);
 				if( !elemental_create(sd,elemental_class,skill_get_time(skill_id,skill_lv)) ) { //Summoning the new one
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
@@ -15069,7 +15058,7 @@ bool skill_check_condition_castbegin(struct map_session_data *sd, uint16 skill_i
 		case SR_CURSEDCIRCLE:
 			if( !battle_config.cursed_circle_in_gvg && map_flag_gvg2(sd->bl.m) ) {
 				if( map_foreachinrange(mob_count_sub,&sd->bl,skill_get_splash(skill_id,skill_lv),BL_MOB,
-					MOBID_EMPERIUM,MOBID_GUARIDAN_STONE1,MOBID_GUARIDAN_STONE2) ) {
+					MOBID_EMPERIUM,MOBID_GUARDIAN_STONE1,MOBID_GUARDIAN_STONE2) ) {
 					char output[128];
 
 					sprintf(output,"%s",msg_txt(382)); // You're too close to a stone or emperium to do this skill
@@ -16085,34 +16074,34 @@ int skill_vfcastfix(struct block_list *bl, double time, uint16 skill_id, uint16 
 
 	//Increases/Decreases fixed/variable cast time of a skill by item/card bonuses
 	if( sd && !(skill_get_castnodex(skill_id, skill_lv)&4) ) {
-		if( sd->bonus.varcastrate != 0 ) //bonus bVariableCastrate
+		if( sd->bonus.varcastrate != 0 )
 			reduce_ct_r += sd->bonus.varcastrate;
-		if( sd->bonus.fixcastrate != 0 ) //bonus bFixedCastrate
+		if( sd->bonus.fixcastrate != 0 )
 			fixcast_r -= sd->bonus.fixcastrate; //Just speculation
-		if( sd->bonus.add_varcast != 0 ) //bonus bVariableCast
+		if( sd->bonus.add_varcast != 0 )
 			time += sd->bonus.add_varcast;
-		if( sd->bonus.add_fixcast != 0 ) //bonus bFixedCast
+		if( sd->bonus.add_fixcast != 0 )
 			fixed += sd->bonus.add_fixcast;
 		for( i = 0; i < ARRAYLENGTH(sd->skillfixcast) && sd->skillfixcast[i].id; i++ ) {
-			if( sd->skillfixcast[i].id == skill_id ) { //bonus2 bSkillFixedCast
+			if( sd->skillfixcast[i].id == skill_id ) {
 				fixed += sd->skillfixcast[i].val;
 				break;
 			}
 		}
 		for( i = 0; i < ARRAYLENGTH(sd->skillvarcast) && sd->skillvarcast[i].id; i++ ) {
-			if( sd->skillvarcast[i].id == skill_id ) { //bonus2 bSkillVariableCast
+			if( sd->skillvarcast[i].id == skill_id ) {
 				time += sd->skillvarcast[i].val;
 				break;
 			}
 		}
 		for( i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id; i++ ) {
-			if( sd->skillcast[i].id == skill_id ) { //bonus2 bVariableCastrate
+			if( sd->skillcast[i].id == skill_id ) {
 				reduce_ct_r += sd->skillcast[i].val;
 				break;
 			}
 		}
 		for( i = 0; i < ARRAYLENGTH(sd->skillfixcastrate) && sd->skillfixcastrate[i].id; i++ ) {
-			if( sd->skillfixcastrate[i].id == skill_id ) { //bonus2 bFixedCastrate
+			if( sd->skillfixcastrate[i].id == skill_id ) {
 				fixcast_r = max(fixcast_r, sd->skillfixcastrate[i].val);
 				break;
 			}

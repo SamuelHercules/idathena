@@ -980,7 +980,7 @@ void hercules_mysql_error_handler(unsigned int ecode) {
 
 void Sql_inter_server_read(const char *cfgName, bool first) {
 	char line[1024], w1[1024], w2[1024];
-	FILE* fp;
+	FILE *fp;
 
 	fp = fopen(cfgName, "r");
 	if(fp == NULL) {
@@ -1023,7 +1023,7 @@ void Sql_inter_server_read(const char *cfgName, bool first) {
 
 void Sql_HerculesUpdateCheck(Sql *self) {
 	char line[22];// "yyyy-mm-dd--hh-mm" (17) + ".sql" (4) + 1
-	FILE* ifp;/* index fp */
+	FILE *ifp;/* index fp */
 	unsigned int performed = 0;
 
 	if( !( ifp = fopen("sql-files/upgrades/index.txt", "r") ) ) {
@@ -1034,7 +1034,7 @@ void Sql_HerculesUpdateCheck(Sql *self) {
 	while(fgets(line, sizeof(line), ifp)) {
 		char path[41];// "sql-files/upgrades/" (19) + "yyyy-mm-dd--hh-mm" (17) + ".sql" (4) + 1
 		char timestamp[11];// "1360186680" (10) + 1
-		FILE* ufp;/* upgrade fp */
+		FILE *ufp;/* upgrade fp */
 
 		if( line[0] == '\n' || ( line[0] == '/' && line[1] == '/' ) )/* skip \n and "//" comments */
 			continue;

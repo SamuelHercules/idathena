@@ -707,7 +707,7 @@ int inter_accreg_sql_init(void)
 static int inter_config_read(const char *cfgName)
 {
 	char line[1024];
-	FILE* fp;
+	FILE *fp;
 
 	fp = fopen(cfgName, "r");
 	if(fp == NULL) {

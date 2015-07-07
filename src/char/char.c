@@ -5428,7 +5428,7 @@ int char_lan_config_read(const char *lancfgName)
 void sql_config_read(const char *cfgName)
 {
 	char line[1024], w1[1024], w2[1024];
-	FILE* fp;
+	FILE *fp;
 
 	if((fp = fopen(cfgName, "r")) == NULL) {
 		ShowError("File not found: %s\n", cfgName);
@@ -5521,7 +5521,7 @@ void sql_config_read(const char *cfgName)
 int char_config_read(const char *cfgName)
 {
 	char line[1024], w1[1024], w2[1024];
-	FILE* fp = fopen(cfgName, "r");
+	FILE *fp = fopen(cfgName, "r");
 
 	if(fp == NULL) {
 		ShowError("Configuration file not found: %s.\n", cfgName);

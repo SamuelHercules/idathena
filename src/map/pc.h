@@ -74,18 +74,20 @@ struct weapon_data {
 	int def_ratio_atk_ele;
 	int def_ratio_atk_race;
 	int def_ratio_atk_class;
-	int addele[ELE_MAX];
+	int adddefele[ELE_MAX];
 	int addrace[RC_MAX];
 	int addrace2[RC2_MAX];
 	int addclass[CLASS_MAX];
 	int addsize[SZ_MAX];
+	short hp_drain_race[RC_MAX];
+	short sp_drain_race[RC_MAX];
+	short hp_drain_class[CLASS_MAX];
+	short sp_drain_class[CLASS_MAX];
 
 	struct drain_data {
-		short rate;
-		short per;
-		short value;
-		unsigned type : 1;
-	} hp_drain_race[RC_MAX], sp_drain_race[RC_MAX], hp_drain_class[CLASS_MAX], sp_drain_class[CLASS_MAX];
+		short rate; //Success rate 10000 = 100%
+		short per; //Drain value/rate per attack
+	} hp_drain_rate, sp_drain_rate;
 
 	struct {
 		short class_, rate;
@@ -94,7 +96,7 @@ struct weapon_data {
 	struct {
 		short flag, rate;
 		unsigned char ele;
-	} addele2[MAX_PC_BONUS];
+	} adddefele2[MAX_PC_BONUS];
 };
 
 struct s_autospell {
@@ -248,7 +250,6 @@ struct map_session_data {
 		unsigned int perfect_hiding : 1; //[Valaris]
 		unsigned int no_knockback : 1;
 		unsigned int bonus_coma : 1;
-		unsigned int random_autospell : 1;
 	} special_state;
 	int login_id1, login_id2;
 	unsigned short class_; //This is the internal job ID used by the map server to simplify comparisons/queries/etc [Skotlex]
@@ -324,6 +325,7 @@ struct map_session_data {
 	//Here start arrays to be globally zeroed at the beginning of status_calc_pc()
 	int param_bonus[6], param_equip[6]; //Stores card/equipment bonuses
 	int subele[ELE_MAX];
+	int subdefele[ELE_MAX];
 	int subrace[RC_MAX];
 	int subrace2[RC2_MAX];
 	int subclass[CLASS_MAX];
@@ -334,15 +336,15 @@ struct map_session_data {
 	int weapon_coma_class[CLASS_MAX];
 	int weapon_atk[16];
 	int weapon_atk_rate[16];
-	int arrow_addele[ELE_MAX];
+	int arrow_adddefele[ELE_MAX];
 	int arrow_addrace[RC_MAX];
 	int arrow_addclass[CLASS_MAX];
 	int arrow_addsize[SZ_MAX];
-	int magic_addele[ELE_MAX];
+	int magic_adddefele[ELE_MAX];
 	int magic_addrace[RC_MAX];
 	int magic_addclass[CLASS_MAX];
 	int magic_addsize[SZ_MAX];
-	int magic_atk_ele[ELE_MAX];
+	int magic_atkele[ELE_MAX];
 	int critaddrace[RC_MAX];
 	int expaddrace[RC_MAX];
 	int expaddclass[CLASS_MAX];
@@ -350,11 +352,7 @@ struct map_session_data {
 	int ignore_mdef_by_class[CLASS_MAX];
 	int ignore_def_by_race[RC_MAX];
 	int ignore_def_by_class[CLASS_MAX];
-	int magic_subrace[RC_MAX];
-	int magic_subclass[CLASS_MAX];
 	short sp_gain_race[RC_MAX];
-	short sp_gain_race_attack[RC_MAX];
-	short hp_gain_race_attack[RC_MAX];
 	//Zeroed arrays end here
 
 	//Zeroed structures start here
@@ -362,10 +360,13 @@ struct map_session_data {
 	struct s_addeffect addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct s_addeffectonskill addeff3[MAX_PC_BONUS];
 
-	struct s_skill_bonus { //Skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills
+	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills
 		unsigned short id;
 		short val;
-	} skillatk[MAX_PC_BONUS], skillusesprate[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS], skillheal[MAX_PC_BONUS], skillheal2[MAX_PC_BONUS], skillblown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS], skillfixcast[MAX_PC_BONUS], skillvarcast[MAX_PC_BONUS], skillfixcastrate[MAX_PC_BONUS];
+	} skillatk[MAX_PC_BONUS], skillusesprate[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS],
+		skillheal[MAX_PC_BONUS], skillheal2[MAX_PC_BONUS], skillblown[MAX_PC_BONUS],
+		skillcast[MAX_PC_BONUS], skillvarcast[MAX_PC_BONUS], cooldown[MAX_PC_BONUS],
+		skillfixcast[MAX_PC_BONUS], skillfixcastrate[MAX_PC_BONUS], subskill[MAX_PC_BONUS];
 	struct s_regen {
 		short value;
 		int rate;
@@ -384,13 +385,13 @@ struct map_session_data {
 		unsigned char ele;
 	} subele2[MAX_PC_BONUS];
 	struct {
-		int id;
-		int val;
-	} cooldown[MAX_PC_BONUS];
-	struct {
 		short value;
 		int rate, tick;
 	} def_set_race[RC_MAX], mdef_set_race[RC_MAX], norecover_state_race[RC_MAX];
+	struct s_bonus_vanish_race {
+		short rate, //Success rate 0 - 1000 (100%)
+			per; //% HP/SP vanished
+	} hp_vanish_race[RC_MAX], sp_vanish_race[RC_MAX];
 	//Zeroed structures end here
 
 	//Manually zeroed structures start here
@@ -437,6 +438,7 @@ struct map_session_data {
 		int add_fixcast, add_varcast;
 		short ematk; //Matk bonus from equipment
 		short eatk; //Atk bonus from equipment
+		uint8 absorb_dmg_maxhp; //[Cydh]
 	} bonus;
 	//Zeroed vars end here
 
@@ -961,6 +963,7 @@ void pc_check_available_item(struct map_session_data *sd);
 int pc_useitem(struct map_session_data *,int);
 
 int pc_skillatk_bonus(struct map_session_data *sd, uint16 skill_id);
+int pc_sub_skillatk_bonus(struct map_session_data *sd, uint16 skill_id);
 int pc_skillheal_bonus(struct map_session_data *sd, uint16 skill_id);
 int pc_skillheal2_bonus(struct map_session_data *sd, uint16 skill_id);
 

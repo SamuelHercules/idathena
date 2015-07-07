@@ -71,8 +71,8 @@ enum mob_mobid {
 	MOBID_A_GUARDIAN_,
 	MOBID_BARRICADE1 = 1905,
 	MOBID_BARRICADE2,
-	MOBID_GUARIDAN_STONE1,
-	MOBID_GUARIDAN_STONE2,
+	MOBID_GUARDIAN_STONE1,
+	MOBID_GUARDIAN_STONE2,
 	MOBID_FOOD_STOR,
 	MOBID_BLUE_CRYST = 1914,
 	MOBID_PINK_CRYST,
@@ -338,7 +338,7 @@ void mob_heal(struct mob_data *md, unsigned int heal);
 #define mob_stop_walking(md, type) unit_stop_walking(&(md)->bl, type)
 #define mob_stop_attack(md) unit_stop_attack(&(md)->bl)
 #define mob_is_battleground(md) ((md)->mob_id == MOBID_BARRICADE2 || ((md)->mob_id >= MOBID_FOOD_STOR && (md)->mob_id <= MOBID_PINK_CRYST))
-#define mob_is_gvg(md) ((md)->mob_id == MOBID_EMPERIUM || (md)->mob_id == MOBID_BARRICADE1 || (md)->mob_id == MOBID_GUARIDAN_STONE1 || (md)->mob_id == MOBID_GUARIDAN_STONE2)
+#define mob_is_gvg(md) ((md)->mob_id == MOBID_EMPERIUM || (md)->mob_id == MOBID_BARRICADE1 || (md)->mob_id == MOBID_GUARDIAN_STONE1 || (md)->mob_id == MOBID_GUARDIAN_STONE2)
 #define mob_is_treasure(md) (((md)->mob_id >= MOBID_TREAS01 && (md)->mob_id <= MOBID_TREAS40) || ((md)->mob_id >= MOBID_TREAS41 && (md)->mob_id <= MOBID_TREAS49))
 #define mob_is_guardian(mob_id) ((mob_id >= MOBID_A_GUARDIAN && mob_id <= MOBID_S_GUARDIAN) || mob_id == MOBID_S_GUARDIAN_ || mob_id == MOBID_A_GUARDIAN_)
 #define mob_is_goblin(md, mid) (((md)->mob_id >= MOBID_GOBLIN_1 && (md)->mob_id <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
