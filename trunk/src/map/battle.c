@@ -5445,10 +5445,8 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 
 	//Fixed damage and no elemental [exneval]
 #ifdef RENEWAL
-	if(sc && sc->data[SC_AURABLADE] && (skill = sc->data[SC_AURABLADE]->val1) && battle_skill_stacks_masteries_vvs(skill_id)) {
-		skill *= (skill_id == LK_SPIRALPIERCE || skill_id == ML_SPIRALPIERCE ? wd.div_ : 1); //+(Skill level * 20) damage per hit
-		ATK_ADD(wd.damage, wd.damage2, skill * 20);
-	}
+	if(sc && sc->data[SC_AURABLADE] && battle_skill_stacks_masteries_vvs(skill_id))
+		ATK_ADD(wd.damage, wd.damage2, sc->data[SC_AURABLADE]->val1 * 20);
 #endif
 
 	switch(skill_id) {
