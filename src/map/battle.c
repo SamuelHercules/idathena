@@ -1709,15 +1709,15 @@ static int battle_calc_status_attack(struct status_data *status, short hand)
 	if(hand == EQI_HAND_L)
 		return status->batk; //Left-hand penalty on sATK is always 50% [Baalberith]
 	else
-		return 2 * status->batk;
+		return status->batk * 2;
 }
 
 static int battle_calc_base_weapon_attack(struct block_list *src, struct status_data *tstatus, struct weapon_atk *watk, struct map_session_data *sd, uint16 skill_id)
 {
 	struct status_data *status = status_get_status_data(src);
 	struct status_change *sc = status_get_sc(src);
-	uint8 type = (watk == &status->lhw) ? EQI_HAND_L : EQI_HAND_R;
-	uint16 atkmin = (type == EQI_HAND_L) ? status->watk2 : status->watk;
+	uint8 type = (watk == &status->lhw ? EQI_HAND_L : EQI_HAND_R);
+	uint16 atkmin = (type == EQI_HAND_L ? status->watk2 : status->watk);
 	uint16 atkmax = atkmin;
 	int64 damage;
 	bool weapon_perfection = false;
