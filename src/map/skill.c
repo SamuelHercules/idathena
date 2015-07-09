@@ -3807,6 +3807,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					}
 				//Fall through
 				case WL_EARTHSTRAIN:
+				case NC_MAGMA_ERUPTION:
 					skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,(skl->type<<16)|skl->flag);
 					break;
 				case LG_OVERBRAND_BRANDISH: {
@@ -3824,9 +3825,6 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						map_foreachinarea(skill_cell_overlap,src->m,skl->x-i,skl->y-i,skl->x+i,skl->y+i,BL_SKILL,skl->skill_id,&dummy,src);
 						skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,0);
 					}
-					break;
-				case NC_MAGMA_ERUPTION:
-					skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,0);
 					break;
 			}
 		}
@@ -11064,10 +11062,9 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 		if( sc && sc->count ) {
 			if( sc->data[SC_SPIRIT] &&
 				sc->data[SC_SPIRIT]->val2 == SL_WIZARD &&
-				sc->data[SC_SPIRIT]->val3 == ud->skill_id &&
-				ud->skill_id != WZ_WATERBALL )
+				sc->data[SC_SPIRIT]->val3 == ud->skill_id && ud->skill_id != WZ_WATERBALL )
 				sc->data[SC_SPIRIT]->val3 = 0; //Clear bounced spell check
-			if( sc->data[SC_DANCING] && skill_get_inf2(ud->skill_id)&INF2_SONG_DANCE && sd )
+			if( sc->data[SC_DANCING] && (skill_get_inf2(ud->skill_id)&INF2_SONG_DANCE) && sd )
 				skill_blockpc_start(sd,BD_ADAPTATION,3000);
 		}
 		//They just set the data so leave it as it is [Inkfish]
@@ -11912,8 +11909,8 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 			break;
 
 		case GN_WALLOFTHORN: {
-				static const int dx[] = {-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2, 2, 2, 1, 0};
-				static const int dy[] = { 2, 2, 1, 0,-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2};
+				static const int dx[] = {-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2, 2, 2, 1, 0,-1};
+				static const int dy[] = { 2, 1, 0,-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2, 2};
 				struct unit_data *ud = unit_bl2ud(src);
 
 				if( !ud )
@@ -12000,7 +11997,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 			break;
 
 		case KO_MAKIBISHI:
-			for( i = 0; i < (skill_lv + 2); i++ ) {
+			for( i = 0; i < skill_lv + 2; i++ ) {
 				x = src->x - 1 + rnd()%3;
 				y = src->y - 1 + rnd()%3;
 				skill_unitsetting(src,skill_id,skill_lv,x,y,0);
@@ -13303,12 +13300,10 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 
 				if (skill_id == GN_WALLOFTHORN && battle_check_target(src,bl,BCT_ENEMY) <= 0)
 					break;
-
 				do //Take into account these hit more times than the timer interval can handle
 					skill_attack(BF_MAGIC,src,&unit->bl,bl,skill_id,skill_lv,tick + count * group->interval,0);
 				while (--unit->val2 && x == bl->x && y == bl->y &&
 					++count < SKILLUNITTIMER_INTERVAL / group->interval && !status_isdead(bl));
-
 				if (unit->val2 <= 0)
 					skill_delunit(unit);
 			}
