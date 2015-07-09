@@ -864,9 +864,14 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 	if( battle_config.ksprotection && mob_ksprotected(src,bl) )
 		return 0;
 
-	if( bl->type == BL_PC ) {
-		sd = (struct map_session_data *)bl;
-		//Special no damage states
+	sd = BL_CAST(BL_PC,bl);
+	sc = status_get_sc(bl);
+	status = status_get_status_data(bl);
+	tsd = BL_CAST(BL_PC,src);
+	tsc = status_get_sc(src);
+	tstatus = status_get_status_data(src);
+
+	if( sd ) {
 		if( flag&BF_WEAPON && sd->special_state.no_weapon_damage )
 			damage -= damage * sd->special_state.no_weapon_damage / 100;
 
@@ -880,26 +885,18 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 			return 0;
 	}
 
-	tsd = (struct map_session_data *)src;
-	sc = status_get_sc(bl);
-	tsc = status_get_sc(src);
-	status = status_get_status_data(bl);
-	tstatus = status_get_status_data(src);
-
 	if( sc ) {
 		if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 			return 1;
 
-		if( sc->data[SC__MAELSTROM] && skill_get_type(skill_id) != BF_MISC &&
-			skill_get_casttype(skill_id) == CAST_GROUND )
+		if( sc->data[SC__MAELSTROM] && skill_get_type(skill_id) != BF_MISC && skill_get_casttype(skill_id) == CAST_GROUND )
 			return 0;
 	}
 
 	if( skill_id == PA_PRESSURE || skill_id == HW_GRAVITATION )
 		return damage; //This skill bypass everything else
 
-	if( sc && sc->count ) {
-		//SC_* that reduce damage to 0
+	if( sc && sc->count ) { //SC_* that reduce damage to 0
 		if( sc->data[SC_BASILICA] && !(status_get_mode(src)&MD_BOSS) ) {
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
@@ -1141,6 +1138,7 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 					case W_WHIP:
 						if( !sd->state.arrow_atk )
 							break;
+					//Fall through
 					case W_BOW:
 					case W_REVOLVER:
 					case W_RIFLE:
@@ -1424,17 +1422,14 @@ int64 battle_calc_damage(struct block_list *src, struct block_list *bl, struct D
 		if( pc_ismadogear(sd) && rnd()%100 < 50 ) {
 			short element = skill_get_ele(skill_id,skill_lv);
 
-			if( !skill_id || element == -1 ) { //Take weapon's element
-				if( tsd && tsd->bonus.arrow_ele )
-					element = tsd->bonus.arrow_ele;
-				else
-					element = tstatus->rhw.ele;
-			} else if( element == -2 ) //Use enchantment's element
+			if( !skill_id || element == -1 ) //Take weapon's element
+				element = (tsd && tsd->bonus.arrow_ele ? tsd->bonus.arrow_ele : tstatus->rhw.ele);
+			else if( element == -2 ) //Use enchantment's element
 				element = status_get_attack_sc_element(src,status_get_sc(src));
 			else if( element == -3 ) //Use random element
 				element = rnd()%ELE_ALL;
 			if( element == ELE_FIRE || element == ELE_WATER )
-				pc_overheat(sd,element == ELE_FIRE ? 1 : -1);
+				pc_overheat(sd,(element == ELE_FIRE ? 1 : -1));
 		}
 	}
 
@@ -2218,10 +2213,8 @@ static bool is_attack_left_handed(struct block_list *src, uint16 skill_id)
 		if(!skill_id) { //Skills ALWAYS use ONLY your right-hand weapon (tested on Aegis 10.2)
 			if(sd && sd->weapontype1 == 0 && sd->weapontype2 > 0)
 				return true;
-
 			if(sstatus->lhw.atk)
 				return true;
-
 			if(sd && sd->status.weapon == W_KATAR)
 				return true;
 		}
@@ -2751,9 +2744,9 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 				break;
 			case GN_CARTCANNON:
 			case KO_HAPPOKUNAI:
-				wd.damage = battle_attr_fix(src, target, wd.damage, (sd && sd->bonus.arrow_ele) ? sd->bonus.arrow_ele : ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
+				wd.damage = battle_attr_fix(src, target, wd.damage, (sd && sd->bonus.arrow_ele ? sd->bonus.arrow_ele : ELE_NEUTRAL), tstatus->def_ele, tstatus->ele_lv);
 				if(is_attack_left_handed(src, skill_id))
-					wd.damage2 = battle_attr_fix(src, target, wd.damage2, (sd && sd->bonus.arrow_ele) ? sd->bonus.arrow_ele : ELE_NEUTRAL, tstatus->def_ele, tstatus->ele_lv);
+					wd.damage2 = battle_attr_fix(src, target, wd.damage2, (sd && sd->bonus.arrow_ele ? sd->bonus.arrow_ele : ELE_NEUTRAL), tstatus->def_ele, tstatus->ele_lv);
 				break;
 			default:
 #ifndef RENEWAL
@@ -6407,12 +6400,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src, struct block_list 
 
 	s_ele = skill_get_ele(skill_id, skill_lv);
 	if(s_ele < 0 && s_ele != -3) {
-		if(skill_id == HT_BLITZBEAT || skill_id == SN_FALCONASSAULT) {
-			if(sd && sd->bonus.arrow_ele)
-				s_ele = sd->bonus.arrow_ele;
-			else
-				s_ele = sstatus->rhw.ele;
-		} else //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
+		if(skill_id == HT_BLITZBEAT || skill_id == SN_FALCONASSAULT)
+			s_ele = (sd && sd->bonus.arrow_ele ? sd->bonus.arrow_ele : sstatus->rhw.ele);
+		else //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
 			s_ele = ELE_NEUTRAL;
 	} else if(s_ele == -3) //Use random element
 		s_ele = rnd()%ELE_ALL;

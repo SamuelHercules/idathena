@@ -6646,17 +6646,17 @@ ACMD_FUNC(unmute)
  *------------------------------------------*/
 ACMD_FUNC(uptime)
 {
-	unsigned long seconds = 0, day = 24*60*60, hour = 60*60,
+	unsigned long seconds = 0, day = 24 * 60 * 60, hour = 60 * 60,
 		minute = 60, days = 0, hours = 0, minutes = 0;
 	nullpo_retr(-1, sd);
 
 	seconds = get_uptime();
-	days = seconds/day;
-	seconds -= (seconds/day>0)?(seconds/day)*day:0;
-	hours = seconds/hour;
-	seconds -= (seconds/hour>0)?(seconds/hour)*hour:0;
-	minutes = seconds/minute;
-	seconds -= (seconds/minute>0)?(seconds/minute)*minute:0;
+	days = seconds / day;
+	seconds -= (seconds / day > 0) ? (seconds / day) * day : 0;
+	hours = seconds / hour;
+	seconds -= (seconds / hour > 0) ? (seconds / hour) * hour : 0;
+	minutes = seconds / minute;
+	seconds -= (seconds / minute > 0) ? (seconds / minute) * minute : 0;
 
 	snprintf(atcmd_output, sizeof(atcmd_output), msg_txt(245), days, hours, minutes, seconds);
 	clif_displaymessage(fd, atcmd_output);

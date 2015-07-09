@@ -1413,7 +1413,7 @@ REPLACE INTO `item_db` VALUES (2446,'Krieger_Shoes3','Glorious Mass-Production S
 REPLACE INTO `item_db` VALUES (2447,'Military_Boots','Army Boots',4,0,NULL,1000,NULL,5,NULL,0,0xFFFFFFFE,7,2,64,NULL,0,1,0,NULL,NULL,NULL);
 REPLACE INTO `item_db` VALUES (2448,'Air_Boss','Air Boss',4,0,NULL,500,NULL,2,NULL,0,0xFFFFFFFF,7,2,64,NULL,0,1,0,'bonus bAgi,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (2449,'Variant_Shoes_M','Variant Shoes',4,20,NULL,500,NULL,3,NULL,0,0xFFFFFFFE,2,2,64,NULL,85,1,0,'bonus bMaxHPrate,20-getrefine(); bonus bMaxSPrate,20-getrefine(); bonus bDef,getrefine()/2;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (2450,'Vital_Tree_Shoes','Vital Tree Shoes',4,20,NULL,500,NULL,4,NULL,0,0xFFFFFFFE,2,2,64,NULL,60,1,0,'bonus bMaxHPrate,10; bonus2 bHPRegenRate,30,10000; bonus bHealpower2,5; bonus bAddItemHealRate,5; bonus bMdef,3; bonus bVit,2;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (2450,'Vital_Tree_Shoes','Vital Tree Shoes',4,20,NULL,500,NULL,4,NULL,0,0xFFFFFFFE,2,2,64,NULL,60,1,0,'bonus bMaxHPrate,10; bonus2 bHPRegenRate,30,10000; bonus bHealPower2,5; bonus bAddItemHealRate,5; bonus bMdef,3; bonus bVit,2;',NULL,NULL);
 # Garments
 #===================================================================
 REPLACE INTO `item_db` VALUES (2501,'Hood','Hood',4,1000,NULL,200,NULL,1,NULL,0,0xFFFFFFFF,7,2,4,NULL,0,1,0,NULL,NULL,NULL);
@@ -2709,7 +2709,7 @@ REPLACE INTO `item_db` VALUES (5486,'J_Anniversary_Hat','Anniversary Hat',4,20,N
 REPLACE INTO `item_db` VALUES (5487,'J_Poringcake_Hat','Poring Cake Hat',4,20,NULL,500,NULL,1,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,417,'bonus bLuk,2;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5488,'J_Twin_Santahat','Twin Santa Hat',4,20,NULL,100,NULL,1,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,390,'bonus bLuk,1; bonus bMdef,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5489,'Love_Daddy','Love Daddy Hat',4,20,NULL,100,NULL,0,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,484,'bonus bDex,2;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5490,'Anubis_Helm','Anubis Helm',4,20,NULL,0,NULL,3,NULL,0,0xFFFFFFFF,7,2,256,NULL,70,0,485,'bonus bMdef,5; bonus2 bSubClass,Class_Boss,10; bonus bHealpower2,10; bonus bAddItemHealRate,10;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5490,'Anubis_Helm','Anubis Helm',4,20,NULL,0,NULL,3,NULL,0,0xFFFFFFFF,7,2,256,NULL,70,0,485,'bonus bMdef,5; bonus2 bSubClass,Class_Boss,10; bonus bHealPower2,10; bonus bAddItemHealRate,10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5491,'Hat_Of_Outlaw','Bandit Hat',4,20,NULL,800,NULL,3,NULL,1,0xFFFFFFFF,7,2,256,NULL,0,1,486,'bonus bStr,2; bonus2 bSubEle,Ele_Fire,10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5492,'Boy\'s_Cap_I','Student Cap',4,0,NULL,0,NULL,5,NULL,0,0xFFFFFFFE,7,2,256,NULL,0,0,102,'bonus bMdef,3; bonus2 bAddRace,RC_DemiHuman,5;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5493,'Ulle_Cap_I','Ulle\'s Cap',4,0,NULL,0,NULL,3,NULL,0,0xFFFFFFFE,7,2,256,NULL,0,0,254,'bonus bDex,2; bonus bAgi,1;',NULL,NULL);
@@ -5523,7 +5523,7 @@ REPLACE INTO `item_db` VALUES (13305,'BF_Huuma_Shuriken1','Brave Huuma Front Shu
 REPLACE INTO `item_db` VALUES (13306,'BF_Huuma_Shuriken2','Valorous Huuma Front Shuriken',5,20,NULL,0,55,NULL,1,0,0x22000000,7,2,34,3,80,1,22,'bonus bStr,2; bonus bDex,1; bonus2 bAddRace,RC_DemiHuman,95; autobonus "{ bonus2 bSkillAtk,\\\"NJ_HUUMA\\\",100; bonus2 bSkillAtk,\\\"NJ_ISSEN\\\",100; }",50,10000,BF_WEAPON,"{specialeffect2 EF_POTION_BERSERK; }"; bonus bUnbreakableWeapon,0;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (13307,'Krieger_Huuma_Shuriken1','Glorious Shuriken',5,20,NULL,0,55,NULL,1,0,0x22000000,7,2,34,4,80,1,22,'bonus2 bAddRace,RC_DemiHuman,95; bonus2 bIgnoreDefRaceRate,RC_DemiHuman,20; bonus bMatkRate,15; autobonus "{ bonus2 bSkillAtk,\\\"NJ_HUUMA\\\",100; bonus2 bSkillAtk,\\\"NJ_ISSEN\\\",100; }",50,10000; bonus bUnbreakableWeapon,0; if(getrefine()>5) { bonus2 bAddRace,RC_DemiHuman,(getrefine()-3)*(getrefine()-3); bonus2 bIgnoreDefRaceRate,RC_DemiHuman,5; } if(getrefine()>8) { bonus5 bAutoSpellOnSkill,"NJ_ISSEN","AL_HEAL",10,1000,1; bonus4 bAutoSpellOnSkill,"NJ_HUUMA","NPC_CRITICALWOUND",2,200; }',NULL,NULL);
 REPLACE INTO `item_db` VALUES (13308,'Huuma_Blaze_I','Huuma Blaze Shuriken',5,0,NULL,0,230,NULL,1,0,0x22000000,7,2,34,4,0,0,22,'bonus bUnbreakableWeapon,0; bonus bAtkEle,Ele_Fire; bonus bDex,2;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (13309,'Huuma_Giant_Wheel_C','Huuma Giant Wheel Shuriken',5,0,NULL,0,99,NULL,1,0,0x02000000,7,2,34,4,1,0,22,'bonus2 bAddSize,Size_All,80;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (13309,'Huuma_Giant_Wheel_C','Huuma Giant Wheel Shuriken',5,0,NULL,0,99,NULL,1,0,0x22000000,7,2,34,4,1,0,22,'bonus2 bAddSize,Size_All,80;',NULL,NULL);
 # More 1-Handed Swords
 #===================================================================
 REPLACE INTO `item_db` VALUES (13400,'Cutlas_','Cutlus',5,20,NULL,900,150,NULL,1,1,0x000654E2,7,2,2,4,40,1,2,'skill "SM_BASH",5; bonus bStr,2; bonus bDef,1;',NULL,NULL);
