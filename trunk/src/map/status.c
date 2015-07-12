@@ -12404,8 +12404,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 
 	switch( type ) {
 		case SC_SIGHT: //Un-hides targets on 7*7 range
-			if( tsc && tsc->data[SC__SHADOWFORM] &&
-				(sce && sce->val4 > 0 && sce->val4%2000 == 0) && //For every 2 seconds do the checking
+			if( tsc && tsc->data[SC__SHADOWFORM] && (sce && sce->val4 > 0 && sce->val4%2000 == 0) && //For every 2 seconds do the checking
 				rnd()%100 < 100 - tsc->data[SC__SHADOWFORM]->val1 * 10 ) //[100 - (Skill Level x 10)] %
 				status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 		//Fall through
@@ -12417,9 +12416,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 			break;
 		case SC_RUWACH: //Un-hides targets on 5*5 range and deals little damages
 			if( tsc ) {
-				if( tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] ||
-					tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_CLOAKINGEXCEED] )
-				{
+				if( tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_CLOAKINGEXCEED] ) {
 					status_change_end(bl, SC_HIDING, INVALID_TIMER);
 					status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 					status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
@@ -12427,8 +12424,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 					if( battle_check_target(src, bl, BCT_ENEMY) > 0 )
 						skill_attack(BF_MAGIC, src, src, bl, status_sc2skill(type), 1, tick, 0);
 				}
-				if( tsc->data[SC__SHADOWFORM] &&
-					(sce && sce->val4 > 0 && sce->val4%2000 == 0) &&
+				if( tsc->data[SC__SHADOWFORM] && (sce && sce->val4 > 0 && sce->val4%2000 == 0) &&
 					rnd()%100 < 100 - tsc->data[SC__SHADOWFORM]->val1 * 10 )
 					status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			}
