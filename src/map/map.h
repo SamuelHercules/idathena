@@ -296,7 +296,7 @@ enum e_race2 {
 };
 
 //Element list
-enum e_elemen {
+enum e_element {
 	ELE_NONE = -1,   //Nothing
 	ELE_NEUTRAL = 0, //Neutral
 	ELE_WATER,       //Water
