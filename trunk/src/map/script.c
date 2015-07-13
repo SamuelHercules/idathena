@@ -16348,8 +16348,9 @@ BUILDIN_FUNC(getunitdata)
 	TBL_NPC *nd = NULL;
 	int num;
 	char *name;
+	struct script_data *data = script_getdata(st,3);
 
-	if( !data_isreference(script_getdata(st,3)) ) {
+	if( !data_isreference(data) ) {
 		ShowWarning("buildin_getunitdata: Error in argument! Please give a variable to store values in.\n");
 		return 1;
 	}
@@ -16370,10 +16371,10 @@ BUILDIN_FUNC(getunitdata)
 		case BL_NPC:  nd = map_id2nd(bl->id); break;
 	}
 
-	num = st->stack->stack_data[st->start + 3].u.num;
-	name = (char *)(str_buf + str_data[num&0x00ffffff].str);
+	num = reference_getuid(data);
+	name = reference_getname(data);
 
-#define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)__64BPRTSIZE((int)(var__)),script_getref(st,3))
+#define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)__64BPRTSIZE((int)(var__)),data->ref)
 
 	switch( bl->type ) {
 		case BL_MOB:
@@ -16578,7 +16579,16 @@ BUILDIN_FUNC(setunitdata)
 		case BL_PET:  pd = map_id2pd(bl->id); break;
 		case BL_MER:  mc = map_id2mc(bl->id); break;
 		case BL_ELEM: ed = map_id2ed(bl->id); break;
-		case BL_NPC:  nd = map_id2nd(bl->id); break;
+		case BL_NPC:
+			nd = map_id2nd(bl->id);
+			if( !nd->status.hp )
+				status_calc_npc(nd, SCO_FIRST);
+			else
+				status_calc_npc(nd, SCO_NONE);
+			break;
+		default:
+			ShowError("buildin_setunitdata: Invalid object!");
+			return 1;
 	}
 
 	type = script_getnum(st,3);
@@ -16777,12 +16787,12 @@ BUILDIN_FUNC(setunitdata)
 				case 5: if( !unit_walktoxy(bl, (short)value, nd->bl.y, 2) ) unit_movepos(bl, (short)value, nd->bl.x, 0, false); break;
 				case 6: if( !unit_walktoxy(bl, nd->bl.x, (short)value, 2) ) unit_movepos(bl, nd->bl.x, (short)value, 0, false); break;
 				case 7: unit_setdir(bl, (uint8)value); break;
-				case 8: nd->status.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 9: nd->status.agi = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 10: nd->status.vit = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 11: nd->status.int_ = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 12: nd->status.dex = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 13: nd->status.luk = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 8: nd->params.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 9: nd->params.agi = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 10: nd->params.vit = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 11: nd->params.int_ = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 12: nd->params.dex = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 13: nd->params.luk = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
 				default:
 					ShowError("buildin_setunitdata: Unknown data identifier %d for BL_NPC.\n", type);
 					return 1;
@@ -17091,16 +17101,15 @@ BUILDIN_FUNC(unittalk)
 	bl = map_id2bl(unit_id);
 
 	if( bl != NULL ) {
-		if( flag )
-			clif_ShowScript(bl, message);
-		else {
-			struct StringBuf sbuf;
+		struct StringBuf sbuf;
 
-			StringBuf_Init(&sbuf);
+		StringBuf_Init(&sbuf);
+		if( flag )
+			StringBuf_Printf(&sbuf, "%s", message);
+		else
 			StringBuf_Printf(&sbuf, "%s : %s", status_get_name(bl), message);
-			clif_disp_overhead(bl, StringBuf_Value(&sbuf));
-			StringBuf_Destroy(&sbuf);
-		}
+		clif_disp_overhead(bl, StringBuf_Value(&sbuf));
+		StringBuf_Destroy(&sbuf);
 	}
 
 	return SCRIPT_CMD_SUCCESS;
@@ -17150,9 +17159,9 @@ BUILDIN_FUNC(unitskilluseid)
 	if( bl != NULL ) {
 		if( bl->type == BL_NPC ) {
 			if( !((TBL_NPC *)bl)->status.hp )
-				status_calc_npc(((TBL_NPC *)bl), true);
+				status_calc_npc(((TBL_NPC *)bl), SCO_FIRST);
 			else
-				status_calc_npc(((TBL_NPC *)bl), false);
+				status_calc_npc(((TBL_NPC *)bl), SCO_NONE);
 		}
 		unit_skilluse_id2(bl, target_id, skill_id, skill_lv, (casttime * 1000) + skill_castfix(bl, skill_id, skill_lv), skill_get_castcancel(skill_id));
 	}
@@ -19673,13 +19682,8 @@ BUILDIN_FUNC(montransform) {
 		}
 		status_change_end(&sd->bl,SC_MONSTER_TRANSFORM,INVALID_TIMER); //Clear previous
 		sc_start2(NULL,&sd->bl,SC_MONSTER_TRANSFORM,100,mob_id,type,tick);
-		if( type != SC_NONE ) {
-			char msg[CHAT_SIZE_MAX];
-
-			sprintf(msg,msg_txt(1490),monster->name); // Traaaansformation-!! %s form!!
-			clif_ShowScript(&sd->bl,msg);
+		if( type != SC_NONE )
 			sc_start4(NULL,&sd->bl,type,100,val1,val2,val3,val4,tick);
-		}
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -20163,6 +20167,32 @@ BUILDIN_FUNC(getvar) {
 		script_pushstrcopy(st,conv_str_(st, data, sd));
 
 	push_val2(st->stack, C_NAME, reference_getuid(data), reference_getref(data));
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/**
+ * Display script message
+ * showscript "<message>"{,<GID>};
+ **/
+BUILDIN_FUNC(showscript) {
+	struct block_list *bl = NULL;
+	const char *msg = script_getstr(st,2);
+	int id = 0;
+
+	if (script_hasdata(st,3)) {
+		id = script_getnum(st,3);
+		bl = map_id2bl(id);
+	} else
+		bl = (st->rid ? map_id2bl(st->rid) : map_id2bl(st->oid));
+
+	if (!bl) {
+		ShowError("buildin_showscript: Script not attached. (id=%, rid=%d, oid=%d)\n", id, st->rid, st->oid);
+		script_pushint(st,0);
+		return 1;
+	}
+
+	clif_ShowScript(bl, msg);
+	script_pushint(st,1);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -20723,6 +20753,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(npcshopupdate,"sii?"),
 	BUILDIN_DEF(getattachedrid,""),
 	BUILDIN_DEF(getvar,"vi"),
+	BUILDIN_DEF(showscript,"s?"),
 
 #include "../custom/script_def.inc"
 
