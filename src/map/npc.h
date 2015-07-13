@@ -54,6 +54,9 @@ struct npc_data {
 
 	struct status_data status;
 	unsigned int level,stat_point;
+	struct s_npc_params {
+		unsigned short str,agi,vit,int_,dex,luk;
+	} params;
 
 	void *chatdb; //Pointer to a npc_parse struct (see npc_chat.c)
 	char *path; //Path dir

@@ -3879,6 +3879,13 @@ by default green
 
 ---------------------------------------
 
+*showscript "<message>"{,<GID>};
+
+Makes attached player or <GID> says a message like shouting a skill name, the message
+will be seen to everyone around but not in chat window.
+
+---------------------------------------
+
 *warp "<map name>",<x>,<y>;
 
 This command will take the invoking character to the specified map, and if 
@@ -7163,9 +7170,8 @@ This command will make a <GID> stop moving.
 *unittalk <GID>,"<text>"{,<flag>};
 
 This command will make a <GID> say a message.
-If 'flag' is 1, means there's no display name be displayed and the message won't
-show in players chat dialog box. By default, 'flag' is 0 so the display name get
-appended in front of the message and the message will show in chat dialog box.
+If 'flag' is 1, that means the <GID> name will not be displayed.
+By default, 'flag' is 0 so the display name get appended in front of the message.
 
 ---------------------------------------
 
