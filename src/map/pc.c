@@ -10714,22 +10714,22 @@ void pc_readdb(void)
 	FILE *fp;
 	char line[24000];
 
-	// Reset
-	memset(job_info, 0, sizeof(job_info)); // job_info table
+	//Reset
+	memset(job_info, 0, sizeof(job_info)); //job_info table
 
-	// Reset and read skilltree
+	//Reset and read skilltree
 	memset(skill_tree, 0, sizeof(skill_tree));
 	sv_readdb(db_path, DBPATH"skill_tree.txt", ',', 3 + MAX_PC_SKILL_REQUIRE * 2, 4 + MAX_PC_SKILL_REQUIRE * 2, -1, &pc_readdb_skilltree);
 
 #if defined(RENEWAL_DROP) || defined(RENEWAL_EXP)
 	sv_readdb(db_path, "re/level_penalty.txt", ',', 4, 4, -1, &pc_readdb_levelpenalty);
-	for( k = 1; k < 3; k++ ) { // Fill in the blanks
+	for( k = 1; k < 3; k++ ) { //Fill in the blanks
 		for( j = 0; j < CLASS_ALL; j++ ) {
 			int tmp = 0;
 
 			for( i = 0; i < MAX_LEVEL * 2; i++ ) {
 				if( i == MAX_LEVEL + 1 )
-					tmp = level_penalty[k][j][0]; // Reset
+					tmp = level_penalty[k][j][0]; //Reset
 				if( level_penalty[k][j][i] > 0 )
 					tmp = level_penalty[k][j][i];
 				else
@@ -10739,7 +10739,7 @@ void pc_readdb(void)
 	}
 #endif
 
-	// Reset then read attr_fix.txt
+	//Reset then read attr_fix.txt
 	for( i = 0; i < MAX_ELE_LEVEL; i++ )
 		for( j = 0; j < ELE_ALL; j++ )
 			for( k = 0; k < ELE_ALL; k++ )
@@ -10756,11 +10756,9 @@ void pc_readdb(void)
 
 		if( line[0] == '/' && line[1] == '/' )
 			continue;
-
 		lv = atoi(line);
 		if( !CHK_ELEMENT_LEVEL(lv) )
 			continue;
-
 		for( i = 0; i < ELE_ALL; ) {
 			char *p;
 
@@ -10769,7 +10767,7 @@ void pc_readdb(void)
 			if( line[0] == '/' && line[1] == '/' )
 				continue;
 			for( j = 0, p = line; j < ELE_ALL && p; j++ ) {
-				while( *p > 0 && *p == 32 ) // Skipping newline and space (32 = ' ')
+				while( *p > 0 && *p == 32 ) //Skipping newline and space (32 = ' ')
 					p++;
 				attr_fix_table[lv - 1][i][j] = atoi(p);
 #ifndef RENEWAL
@@ -10788,7 +10786,7 @@ void pc_readdb(void)
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, DBPATH"attr_fix.txt");
 
-	 // Reset then read statspoint
+	 //Reset then read statspoint
 	memset(statp,0,sizeof(statp));
 	i = 1;
 
@@ -10815,13 +10813,13 @@ void pc_readdb(void)
 		fclose(fp);
 		ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, DBPATH"statpoint.txt");
 	}
-	// Generate the remaining parts of the db if necessary
-	k = battle_config.use_statpoint_table; // Save setting
-	battle_config.use_statpoint_table = 0; // Temporarily disable to force pc_gets_status_point use default values
-	statp[0] = 45; // Seed value
+	//Generate the remaining parts of the db if necessary
+	k = battle_config.use_statpoint_table; //Save setting
+	battle_config.use_statpoint_table = 0; //Temporarily disable to force pc_gets_status_point use default values
+	statp[0] = 45; //Seed value
 	for( ; i <= MAX_LEVEL; i++ )
 		statp[i] = statp[i - 1] + pc_gets_status_point(i - 1);
-	battle_config.use_statpoint_table = k; // Restore setting
+	battle_config.use_statpoint_table = k; //Restore setting
 
 #ifdef RENEWAL_ASPD
 	sv_readdb(db_path, "re/job_db1.txt", ',', 6 + MAX_WEAPON_TYPE, 6 + MAX_WEAPON_TYPE,CLASS_COUNT, &pc_readdb_job1);
@@ -10835,20 +10833,20 @@ void pc_readdb(void)
 #endif
 	sv_readdb(db_path, DBPATH"job_param_db.txt", ',', 2, PARAM_MAX + 1, CLASS_COUNT, &pc_readdb_job_param);
 
-	// Checking if all class have their data
+	//Checking if all class have their data
 	for( i = 0; i < JOB_MAX; i++ ) {
 		int idx;
 
 		if( !pcdb_checkid(i) )
 			continue;
 		if( i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK || i == JOB_OKTOBERFEST )
-			continue; // Classes that do not need exp tables
+			continue; //Classes that do not need exp tables
 		idx = pc_class2idx(i);
 		if( !job_info[idx].max_level[0] )
 			ShowWarning("Class %s (%d) does not have a base exp table.\n", job_name(i), i);
 		if( !job_info[idx].max_level[1] )
 			ShowWarning("Class %s (%d) does not have a job exp table.\n", job_name(i), i);
-		// Init and checking the empty value of Base HP/SP [Cydh]
+		//Init and checking the empty value of Base HP/SP [Cydh]
 		for( j = 0; j < (job_info[idx].max_level[0] ? job_info[idx].max_level[0] : MAX_LEVEL); j++ ) {
 			if( job_info[idx].base_hp[j] == 0 )
 				job_info[idx].base_hp[j] = pc_calc_basehp(j + 1, i);
@@ -10863,10 +10861,10 @@ int pc_read_motd(void)
 {
 	FILE *fp;
 
-	// Clear old MOTD
+	//Clear old MOTD
 	memset(motd_text, 0, sizeof(motd_text));
 
-	// Read current MOTD
+	//Read current MOTD
 	if( (fp = fopen(motd_txt, "r")) != NULL ) {
 		unsigned int entries = 0;
 
@@ -10884,7 +10882,7 @@ int pc_read_motd(void)
 
 			len = strlen(buf);
 
-			while( len && (buf[len-1] == '\r' || buf[len - 1] == '\n') ) // Strip trailing EOL characters
+			while( len && (buf[len-1] == '\r' || buf[len - 1] == '\n') ) //Strip trailing EOL characters
 				len--;
 
 			if( len ) {
@@ -10892,9 +10890,9 @@ int pc_read_motd(void)
 
 				buf[len] = 0;
 
-				if( (ptr = strstr(buf, " :") ) != NULL && ptr - buf >= NAME_LENGTH) // Crashes newer clients
+				if( (ptr = strstr(buf, " :") ) != NULL && ptr - buf >= NAME_LENGTH) //Crashes newer clients
 					ShowWarning("Found sequence '"CL_WHITE" :"CL_RESET"' on line '"CL_WHITE"%u"CL_RESET"' in '"CL_WHITE"%s"CL_RESET"'. This can cause newer clients to crash.\n", lines, motd_txt);
-			} else { // Empty line
+			} else { //Empty line
 				buf[0] = ' ';
 				buf[1] = 0;
 			}
@@ -10907,15 +10905,14 @@ int pc_read_motd(void)
 
 	return 0;
 }
+
 void pc_itemcd_do(struct map_session_data *sd, bool load) {
 	int i, cursor = 0;
-	struct item_cd* cd = NULL;
+	struct item_cd *cd = NULL;
 
 	if( load ) {
-		if( !(cd = idb_get(itemcd_db, sd->status.char_id)) ) {
-			//No skill cooldown is associated with this character
-			return;
-		}
+		if( !(cd = idb_get(itemcd_db, sd->status.char_id)) )
+			return; //No skill cooldown is associated with this character
 		for( i = 0; i < MAX_ITEMDELAYS; i++ ) {
 			if( cd->nameid[i] && DIFF_TICK(gettick(),cd->tick[i]) < 0 ) {
 				sd->item_delay[cursor].tick = cd->tick[i];
@@ -10925,8 +10922,7 @@ void pc_itemcd_do(struct map_session_data *sd, bool load) {
 		}
 		idb_remove(itemcd_db,sd->status.char_id);
 	} else {
-		if( !(cd = idb_get(itemcd_db,sd->status.char_id)) ) {
-			// Create a new skill cooldown object for map storage
+		if( !(cd = idb_get(itemcd_db,sd->status.char_id)) ) { //Create a new skill cooldown object for map storage
 			CREATE( cd, struct item_cd, 1 );
 			idb_put( itemcd_db, sd->status.char_id, cd );
 		}
@@ -10938,7 +10934,6 @@ void pc_itemcd_do(struct map_session_data *sd, bool load) {
 			}
 		}
 	}
-	return;
 }
 
 /**
