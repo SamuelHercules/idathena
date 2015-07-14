@@ -12626,9 +12626,6 @@ struct skill_unit_group *skill_unitsetting(struct block_list *src, uint16 skill_
 			break;
 		case WM_SEVERE_RAINSTORM:
 		case WM_POEMOFNETHERWORLD:
-			if( skill_id == WM_POEMOFNETHERWORLD && map_flag_gvg2(src->m) )
-				target = BCT_ALL;
-		//Fall through
 		case SO_FIRE_INSIGNIA:
 		case SO_WATER_INSIGNIA:
 		case SO_WIND_INSIGNIA:
@@ -13740,8 +13737,8 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 			break;
 
 		case UNT_POEMOFNETHERWORLD:
-			if (bl->id == src->id || (map_flag_gvg2(src->m) && battle_check_target(&unit->bl,bl,BCT_PARTY) > 0))
-				break;
+			if (bl->id == src->id || battle_check_target(&unit->bl,bl,BCT_PARTY) > 0)
+				break; //Caster or party can't be affected
 			if (!(tsc && (tsc->data[type] || tsc->data[SC_NETHERWORLD_POSTDELAY]))) {
 				sc_start(src,bl,type,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 				group->limit = DIFF_TICK(tick,group->tick);
@@ -13782,7 +13779,7 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 		case UNT_HELLS_PLANT:
 			if (battle_check_target(&unit->bl,bl,BCT_ENEMY) > 0)
 				skill_attack(skill_get_type(GN_HELLS_PLANT_ATK),src,&unit->bl,bl,GN_HELLS_PLANT_ATK,skill_lv,tick,0);
-			if (bl->id != src->id) //The caster is the only one who can step on the Plants, without destroying them
+			if (bl->id != src->id) //The caster is the only one who can step on the plants, without destroying them
 				skill_delunit(group->unit); //Deleting it directly to avoid extra hits
 			break;
 
