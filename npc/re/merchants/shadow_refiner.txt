@@ -88,7 +88,7 @@
 		//-----------------------------------------------------------------------------
 		.@option = select(.@mate$[0],.@mate$[1],.@mate$[2],"Cancel");
 		.@option -= 1;
-		.@enrch_ore = 0;
+		.@enrch_ore = .@hoihoi = 0;
 		if (.@option == 1) //Enriched Ores
 			.@enrch_ore = 1;
 		if (.@option == 2) { //HD Ores
