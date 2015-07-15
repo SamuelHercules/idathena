@@ -1786,23 +1786,21 @@ static int npc_selllist_sub(struct map_session_data *sd, int n, unsigned short *
 		snprintf(card_slot, sizeof(card_slot), "@sold_card%d", j + 1);
 		script_cleararray_pc(sd, card_slot, (void *)0);
 	}
-	
-	//Save list of to be sold items
-	for( i = 0; i < n; i++ ) {
+
+	for( i = 0; i < n; i++ ) { //Save list of to be sold items
 		int idx = item_list[i * 2] - 2;
 
 		script_setarray_pc(sd, "@sold_nameid", i, (void *)(intptr_t)sd->status.inventory[idx].nameid, &key_nameid);
 		script_setarray_pc(sd, "@sold_quantity", i, (void *)(intptr_t)item_list[i * 2 + 1], &key_amount);
 
-		if( itemdb_isequip(sd->status.inventory[idx].nameid) ) { //Process equipment based information into the arrays
-			script_setarray_pc(sd, "@sold_refine", i, (void *)(intptr_t)sd->status.inventory[idx].refine, &key_refine);
-			script_setarray_pc(sd, "@sold_attribute", i, (void *)(intptr_t)sd->status.inventory[idx].attribute, &key_attribute);
-			script_setarray_pc(sd, "@sold_identify", i, (void *)(intptr_t)sd->status.inventory[idx].identify, &key_identify);
-		
-			for( j = 0; j < MAX_SLOTS; j++ ) { //Store each of the cards from the equipment in the array
-				snprintf(card_slot, sizeof(card_slot), "@sold_card%d", j + 1);
-				script_setarray_pc(sd, card_slot, i, (void *)(intptr_t)sd->status.inventory[idx].card[j], &key_card[j]);
-			}
+		//Process equipment based information into the arrays
+		script_setarray_pc(sd, "@sold_refine", i, (void *)(intptr_t)sd->status.inventory[idx].refine, &key_refine);
+		script_setarray_pc(sd, "@sold_attribute", i, (void *)(intptr_t)sd->status.inventory[idx].attribute, &key_attribute);
+		script_setarray_pc(sd, "@sold_identify", i, (void *)(intptr_t)sd->status.inventory[idx].identify, &key_identify);
+
+		for( j = 0; j < MAX_SLOTS; j++ ) { //Store each of the cards from the equipment in the array
+			snprintf(card_slot, sizeof(card_slot), "@sold_card%d", j + 1);
+			script_setarray_pc(sd, card_slot, i, (void *)(intptr_t)sd->status.inventory[idx].card[j], &key_card[j]);
 		}
 	}
 
