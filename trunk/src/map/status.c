@@ -6879,15 +6879,15 @@ void status_set_viewdata(struct block_list *bl, int class_)
 					sd->vd.sex = sd->status.sex;
 
 					if (sd->vd.cloth_color) {
-						if(sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+						if (sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
 							sd->vd.cloth_color = 0;
-						if(sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+						if (sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
 							sd->vd.cloth_color = 0;
-						if(sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+						if (sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
 							sd->vd.cloth_color = 0;
-						if(sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+						if (sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
 							sd->vd.cloth_color = 0;
-						if(sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+						if (sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
 							sd->vd.cloth_color = 0;
 					}
 				} else if (vd)
@@ -6912,7 +6912,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 					memcpy(&pd->vd,vd,sizeof(struct view_data));
 					if (!pcdb_checkid(vd->class_)) {
 						pd->vd.hair_style = battle_config.pet_hair_style;
-						if(pd->pet.equip) {
+						if (pd->pet.equip) {
 							pd->vd.head_bottom = itemdb_viewid(pd->pet.equip);
 							if (!pd->vd.head_bottom)
 								pd->vd.head_bottom = pd->pet.equip;
@@ -6928,7 +6928,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				if (vd)
 					nd->vd = vd;
 				else
-					ShowError("status_set_viewdata (NPC): No view data for class %d\n ",class_);
+					ShowError("status_set_viewdata (NPC): No view data for class %d (name=%s)\n ",class_,nd->name);
 			}
 			break;
 		case BL_HOM: { //[blackhole89]

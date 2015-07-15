@@ -4058,7 +4058,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 		set diamond_edq,6;
 		close;
 	}
-	if (diamond_edq) == 9 {
+	if (diamond_edq == 9) {
 		mes "[Dorian]";
 		mes "Ah, did you bring all";
 		mes "the materials I need to";
@@ -4152,7 +4152,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 			close;
 		}
 	}
-	if (diamond_edq) == 10 {
+	if (diamond_edq == 10) {
 		mes "[Dorian]";
 		mes "Did you already forget";
 		mes "my instructions for fixing my";
@@ -4216,7 +4216,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 			close;
 		}
 	}
-	if (diamond_edq) == 11 {
+	if (diamond_edq == 11) {
 		mes "[Dorian]";
 		mes "Ah, so you failed to";
 		mes "fix the Mystic Dryer de";
@@ -4227,7 +4227,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 		set diamond_edq,10;
 		close;
 	}
-	if (diamond_edq) == 12 {
+	if (diamond_edq == 12) {
 		mes "[Dorian]";
 		mes "Ah, I underestimated you.";
 		mes "You really repaired the";
@@ -4253,7 +4253,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 		mes "your kind of help. Farewell~";
 		close;
 	}
-	if (diamond_edq) > 12 {
+	if (diamond_edq > 12) {
 		mes "[Dorian]";
 		mes "Ah, hello! How have";
 		mes "you been? Are you in need";
@@ -4264,7 +4264,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 
 //OnTouch2:
 OnTouch:
-	if (diamond_edq) < 9 {
+	if (diamond_edq < 9) {
 		mes "[Dorian]";
 		mes "Wh-what are you doing?";
 		mes "D-don't sully my wonderful";
@@ -4272,7 +4272,7 @@ OnTouch:
 		mes "uncultured hands!";
 		close;
 	}
-	if (diamond_edq) == 9 {
+	if (diamond_edq == 9) {
 		mes "[Dorian]";
 		mes "Can't you see that the";
 		mes "machine won't work without";
@@ -4294,7 +4294,7 @@ OnTouch:
 		mes "goods to Kafra Storage, please.";
 		close;
 	}
-	if (diamond_edq) == 10 {
+	if (diamond_edq == 10) {
 		set .@bolt_rand,rand(2,5);
 		mes "^3355FFThis must be Dorian's";
 		mes "Mystic Dryer de Elegance.";

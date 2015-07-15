@@ -134,8 +134,8 @@ bonus2 bIgnoreDefRaceRate,n,x;		Disregard x% of the target's DEF if the target b
 					n: 	RC_Formless, RC_Undead, RC_Brute, RC_Plant, RC_Insect, RC_Fish, RC_Demon, RC_DemiHuman, RC_Angel, RC_Dragon, RC_All
 bonus2 bIgnoreMdefRaceRate,n,x;		Disregard x% of the target's MDEF if the target belongs to race n
 					n: 	RC_Formless, RC_Undead, RC_Brute, RC_Plant, RC_Insect, RC_Fish, RC_Demon, RC_DemiHuman, RC_Angel, RC_Dragon, RC_All
-bonus2 bHPDrainRate,n,x;		n/10 % probability to drain x% HP when attacking
-bonus2 bSPDrainRate,n,x;		n/10 % probability to drain x% SP when attacking
+bonus2 bHPDrainRate,n,x;		n/10 % probability to drain x% damage as HP when attacking
+bonus2 bSPDrainRate,n,x;		n/10 % probability to drain x% damage as SP when attacking
 bonus2 bHPVanishRate,n,x;		Add the (n/10)% chance of decreasing enemy's HP (player) amount by x% when attacking
 bonus2 bSPVanishRate,n,x;		Add the (n/10)% chance of decreasing enemy's SP (player) amount by x% when attacking
 bonus2 bAddMonsterDropItem,n,x;		Adds a x/100% chance for item n to be dropped, when killing any monster.
