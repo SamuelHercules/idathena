@@ -88,16 +88,16 @@
 		//-----------------------------------------------------------------------------
 		.@option = select(.@mate$[0],.@mate$[1],.@mate$[2],"Cancel");
 		.@option -= 1;
-		.@enrch_ore = .@hoihoi = 0;
-		if (.@option == 1) //Enriched Ores
+		.@enrch_ore = .@hd_ore = 0;
+		if (.@option == 1) //Enriched
 			.@enrch_ore = 1;
-		if (.@option == 2) { //HD Ores
+		if (.@option == 2) { //HD
 			if (getequiprefinerycnt(.@SelectedPart) < 7) {
 				mes "[Shadow Blacksmith]";
 				mes "HD Ore can only used for +7 or higher refine level items.";
 				close;
 			}
-			.@hoihoi = 1;
+			.@hd_ore = 1;
 		}
 		if (.@option == 3) {
 			mes "[Shadow Blacksmith]";
@@ -150,24 +150,24 @@
 		.@choose = getd(".@s_ore"+(.@option+1)+"["+ .@index +"]");
 		delitem .@choose,1;
 		Zeny -= 20000;
-		if (.@enrch_ore) {
+		if (.@enrch_ore || .@hd_ore) {
 			if (getequippercentrefinery(.@SelectedPart) > rand(100) || getequippercentrefinery(.@SelectedPart) > rand(100)) {
 				successrefitem .@SelectedPart;
 				mes "[Shadow Blacksmith]";
 				mes "Refine was successful.";
 				next;
 			} else {
-				failedrefitem .@SelectedPart;
+				if (.@hd_ore)
+					downrefitem .@SelectedPart;
+				else
+					failedrefitem .@SelectedPart;
 				mes "[Shadow Blacksmith]";
 				mes "Oh no.. Refine was failed.";
 				close;
 			}
 		} else {
-			if(getequippercentrefinery(.@SelectedPart) <= rand(100)) {
-				if (.@hoihoi)
-					downrefitem .@SelectedPart;
-				else
-					failedrefitem .@SelectedPart;
+			if (getequippercentrefinery(.@SelectedPart) <= rand(100)) {
+				failedrefitem .@SelectedPart;
 				mes "[Shadow Blacksmith]";
 				mes "Oh no.. Refine was failed.";
 				close;
@@ -179,6 +179,5 @@
 		}
 	}
 }
-
 //itemmall,31,73,4	duplicate(ShadowBlacksmith)	Shadow Blacksmith#nomal	4_F_JOB_BLACKSMITH
 prt_in,94,70,4	duplicate(ShadowBlacksmith)	Shadow Blacksmith#prt	4_F_JOB_BLACKSMITH

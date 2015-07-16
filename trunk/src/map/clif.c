@@ -12980,7 +12980,7 @@ void clif_parse_CreateGuild(int fd,struct map_session_data *sd)
 	char *name = (char *)RFIFOP(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 	name[NAME_LENGTH-1] = '\0';
 
-	if(map[sd->bl.m].flag.guildlock) { //Guild locked.
+	if(map[sd->bl.m].flag.guildlock) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13155,13 +13155,16 @@ void clif_parse_GuildChangeNotice(int fd, struct map_session_data *sd)
 	char *msg1 = (char *)RFIFOP(fd,info->pos[1]);
 	char *msg2 = (char *)RFIFOP(fd,info->pos[2]);
 
-	if (!sd->state.gmaster_flag)
+	if( !sd->state.gmaster_flag )
 		return;
 
 	// Compensate for some client defects when using multilanguage mode
-	if (msg1[0] == '|' && msg1[3] == '|') msg1 += 3; // Skip duplicate marker
-	if (msg2[0] == '|' && msg2[3] == '|') msg2 += 3; // Skip duplicate marker
-	if (msg2[0] == '|') msg2[strnlen(msg2, MAX_GUILDMES2) - 1] = '\0'; // Delete extra space at the end of string
+	if( msg1[0] == '|' && msg1[3] == '|' )
+		msg1 += 3; // Skip duplicate marker
+	if( msg2[0] == '|' && msg2[3] == '|' )
+		msg2 += 3; // Skip duplicate marker
+	if( msg2[0] == '|' )
+		msg2[strnlen(msg2, MAX_GUILDMES2) - 1] = '\0'; // Delete extra space at the end of string
 
 	guild_change_notice(sd, guild_id, msg1, msg2);
 }
@@ -13170,15 +13173,15 @@ void clif_parse_GuildChangeNotice(int fd, struct map_session_data *sd)
 // Helper function for guild invite functions
 int clif_sub_guild_invite(int fd, struct map_session_data *sd, struct map_session_data *t_sd)
 {
-	if (t_sd == NULL) // not online or does not exist
+	if( t_sd == NULL ) // Not online or does not exist
 		return 1;
 
-	if (map[sd->bl.m].flag.guildlock) { //Guild locked.
+	if( map[sd->bl.m].flag.guildlock ) { // Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return 1;
 	}
 
-	if (t_sd && t_sd->state.noask) { // @noask [LuzZza]
+	if( t_sd->state.noask ) { // @noask [LuzZza]
 		clif_noask_sub(sd, t_sd, 2);
 		return 1;
 	}
@@ -13194,10 +13197,10 @@ void clif_parse_GuildInvite(int fd,struct map_session_data *sd)
 {
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
 	struct map_session_data *t_sd = map_id2sd(RFIFOL(fd,info->pos[0]));
-//	int inv_aid = RFIFOL(fd,info->pos[1]);
-//	int inv_cid = RFIFOL(fd,info->pos[2]);
+	//int inv_aid = RFIFOL(fd,info->pos[1]);
+	//int inv_cid = RFIFOL(fd,info->pos[2]);
 
-	if (clif_sub_guild_invite(fd, sd, t_sd))
+	if( clif_sub_guild_invite(fd, sd, t_sd) )
 		return;
 }
 
@@ -13208,7 +13211,7 @@ void clif_parse_GuildInvite2(int fd, struct map_session_data *sd)
 {
 	struct map_session_data *t_sd = map_nick2sd((char *)RFIFOP(fd, packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]));
 
-	if (clif_sub_guild_invite(fd, sd, t_sd))
+	if( clif_sub_guild_invite(fd, sd, t_sd) )
 		return;
 }
 
@@ -13221,6 +13224,7 @@ void clif_parse_GuildInvite2(int fd, struct map_session_data *sd)
 void clif_parse_GuildReplyInvite(int fd,struct map_session_data *sd)
 {
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+
 	guild_reply_invite(sd,RFIFOL(fd,info->pos[0]),
 	    RFIFOL(fd,info->pos[1]));
 }
@@ -13231,7 +13235,8 @@ void clif_parse_GuildReplyInvite(int fd,struct map_session_data *sd)
 void clif_parse_GuildLeave(int fd,struct map_session_data *sd)
 {
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	if(map[sd->bl.m].flag.guildlock) { //Guild locked
+
+	if( map[sd->bl.m].flag.guildlock ) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13239,7 +13244,6 @@ void clif_parse_GuildLeave(int fd,struct map_session_data *sd)
 		clif_displaymessage(fd, msg_txt(670)); // "You can't leave battleground guilds."
 		return;
 	}
-
 	guild_leave(sd,RFIFOL(fd,info->pos[0]),
 	    RFIFOL(fd,info->pos[1]),
 	    RFIFOL(fd,info->pos[2]),
@@ -13252,7 +13256,8 @@ void clif_parse_GuildLeave(int fd,struct map_session_data *sd)
 void clif_parse_GuildExpulsion(int fd,struct map_session_data *sd)
 {
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	if( map[sd->bl.m].flag.guildlock || sd->bg_id ) { // Guild locked.
+
+	if( map[sd->bl.m].flag.guildlock || sd->bg_id ) { // Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13274,7 +13279,7 @@ void clif_parse_GuildMessage(int fd, struct map_session_data *sd)
 	char *name, *message;
 	int namelen, messagelen;
 
-	// validate packet and retrieve name and message
+	// Validate packet and retrieve name and message
 	if( !clif_process_message(sd, 0, &name, &namelen, &message, &messagelen) )
 		return;
 
@@ -13282,7 +13287,7 @@ void clif_parse_GuildMessage(int fd, struct map_session_data *sd)
 		return;
 
 	if( sd->sc.cant.chat )
-		return; //no "chatting" while muted.
+		return; //No "chatting" while muted.
 
 	if( battle_config.min_chat_delay ) { //[Skotlex]
 		if( DIFF_TICK(sd->cantalk_tick, gettick()) > 0 )
@@ -13309,7 +13314,7 @@ void clif_parse_GuildRequestAlliance(int fd, struct map_session_data *sd)
 	if(!sd->state.gmaster_flag)
 		return;
 
-	if(map[sd->bl.m].flag.guildlock) { //Guild locked.
+	if(map[sd->bl.m].flag.guildlock) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13353,7 +13358,7 @@ void clif_parse_GuildDelAlliance(int fd, struct map_session_data *sd)
 
 	if(!sd->state.gmaster_flag)
 		return;
-	if(map[sd->bl.m].flag.guildlock) { //Guild locked.
+	if(map[sd->bl.m].flag.guildlock) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13372,7 +13377,7 @@ void clif_parse_GuildOpposition(int fd, struct map_session_data *sd)
 	if(!sd->state.gmaster_flag)
 		return;
 
-	if(map[sd->bl.m].flag.guildlock) { //Guild locked.
+	if(map[sd->bl.m].flag.guildlock) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
@@ -13396,7 +13401,7 @@ void clif_parse_GuildOpposition(int fd, struct map_session_data *sd)
 ///     field name and size is same as the one in CH_DELETE_CHAR.
 void clif_parse_GuildBreak(int fd, struct map_session_data *sd)
 {
-	if( map[sd->bl.m].flag.guildlock ) { //Guild locked.
+	if( map[sd->bl.m].flag.guildlock ) { //Guild locked
 		clif_displaymessage(fd, msg_txt(228));
 		return;
 	}
