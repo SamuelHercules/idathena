@@ -3637,23 +3637,22 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 				//3x3 cell Damage = ATK [{(Skill Level x 300) x (1 + [(Caster's Base Level - 100) / 100])}] %
 				//7x7 cell Damage = ATK [{(Skill Level x 250) x (1 + [(Caster's Base Level - 100) / 100])}] %
 				//11x11 cell Damage = ATK [{(Skill Level x 200) x (1 + [(Caster's Base Level - 100) / 100])}] %
-				int dmg = 300; //Base maximum damage at 3x3 cell
-
 				i = distance_bl(src,target);
-				if(i > 1 && i <= 3)
-					dmg -= 50; //7x7 cell (250 damage)
-				else if(i > 3 && i <= 5)
-					dmg -= 100; //11x11 cell (200 damage)
-				dmg = (skill_lv * dmg) * (1 + (status_get_lv(src) - 100) / 100);
-				//Elemental check, +(Skill Level x 100)% damage if your element is fire
+				if(i < 2)
+					skillratio += -100 + 300 * skill_lv;
+				else if(i < 4)
+					skillratio += -100 + 250 * skill_lv;
+				else
+					skillratio += -100 + 200 * skill_lv;
+				//Additional (Skill Level x 100) damage if your weapon element is fire
 				if(sstatus->rhw.ele == ELE_FIRE)
-					dmg += skill_lv * 100;
-				skillratio += -100 + dmg;
+					skillratio += 100 * skill_lv;
+				skillratio = skillratio * (100 + (status_get_lv(src) - 100)) / 100;
 			}
 			break;
 		case RK_STORMBLAST:
 			//ATK = [{Rune Mastery Skill Level + (Caster's INT / 8)} x 100] %
-			skillratio += -100 + ((sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 0) + (sstatus->int_ / 8)) * 100;
+			skillratio += -100 + ((sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 0) + sstatus->int_ / 8) * 100;
 			break;
 		case RK_PHANTOMTHRUST:
 			//ATK = [{(Skill Level x 50) + (Spear Master Level x 10)} x Caster's Base Level / 150] %
@@ -3783,7 +3782,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			RE_LVL_DMOD(100);
 			break;
 		case LG_BANISHINGPOINT:
-			skillratio += -100 + (50 * skill_lv) + (sd ? pc_checkskill(sd,SM_BASH) * 30 : 0);
+			skillratio += -100 + 50 * skill_lv + (sd ? pc_checkskill(sd,SM_BASH) * 30 : 0);
 			RE_LVL_DMOD(100);
 			break;
 		case LG_SHIELDPRESS:
