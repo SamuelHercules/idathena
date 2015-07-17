@@ -3647,7 +3647,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 				//Additional (Skill Level x 100) damage if your weapon element is fire
 				if(sstatus->rhw.ele == ELE_FIRE)
 					skillratio += 100 * skill_lv;
-				skillratio = skillratio * (100 + (status_get_lv(src) - 100)) / 100;
+				skillratio = skillratio * (status_get_lv(src) - 100) / 100;
 			}
 			break;
 		case RK_STORMBLAST:
