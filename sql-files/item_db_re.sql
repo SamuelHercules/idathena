@@ -182,7 +182,6 @@ REPLACE INTO `item_db_re` VALUES (641,'Contracts_In_Shadow','Contract in Shadow'
 REPLACE INTO `item_db_re` VALUES (642,'Book_Of_Devil','Book of the Devil',2,1800,NULL,50,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'pet 1101;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (643,'Pet_Incubator','Pet Incubator',2,3000,NULL,30,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bpet;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (644,'Gift_Box','Gift Box',2,1000,NULL,200,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'getrandgroupitem(IG_GiftBox,1);',NULL,NULL);
-# ASPD in RE they give a fixed +4/+6/+9 ASPD
 REPLACE INTO `item_db_re` VALUES (645,'Center_Potion','Concentration Potion',2,800,NULL,100,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ASPDPOTION0,1800000,4;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (656,'Awakening_Potion','Awakening Potion',2,1500,NULL,150,NULL,NULL,NULL,NULL,0xFFF7FEEF,63,2,NULL,NULL,'40',NULL,NULL,'sc_start SC_ASPDPOTION1,1800000,6;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (657,'Berserk_Potion','Berserk Potion',2,3000,NULL,200,NULL,NULL,NULL,NULL,0x41E646A6,63,2,NULL,NULL,'85',NULL,NULL,'sc_start SC_ASPDPOTION2,1800000,9;',NULL,NULL);
@@ -1292,7 +1291,7 @@ REPLACE INTO `item_db_re` VALUES (2123,'Orleans_Server','Orleans\'s Server',4,20
 REPLACE INTO `item_db_re` VALUES (2124,'Thorny_Buckler','Thorny Buckler',4,20,NULL,1000,NULL,85,NULL,1,0xFFFFFFFE,18,2,32,NULL,'55',1,2,'bonus bMdef,2;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2125,'Strong_Shield','Strong Shield',4,20,NULL,2500,NULL,90,NULL,1,0xFFFFFFFE,18,2,32,NULL,'75',1,4,'bonus bNoKnockback,0; bonus2 bSubEle,Ele_Neutral,-20; bonus2 bSubEle,Ele_Fire,-20; bonus2 bSubEle,Ele_Water,-20; bonus2 bSubEle,Ele_Wind,-20; bonus2 bSubEle,Ele_Earth,-20; bonus2 bSubEle,Ele_Dark,-20; bonus2 bSubEle,Ele_Holy,-20; bonus2 bSubEle,Ele_Ghost,-20;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2126,'Guyak_Shield','Guyak Shield',4,20,NULL,700,NULL,3,NULL,0,0xFFFFFFFE,63,2,32,NULL,'1',1,2,'bonus bMdef,2; bonus bMagicDamageReturn,2; autobonus2 "{ bonus bShortWeaponDamageReturn,5; }",20,1000,BF_WEAPON,"{ specialeffect2 EF_REFLECTSHIELD; }";',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (2127,'Secular_Mission','Secular Mission',4,20,NULL,0,NULL,10,NULL,0,0xFFFFFFFF,63,2,32,NULL,'0',0,4,'bonus2 bSubClass,Class_All,25;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (2127,'Secular_Mission','Secular Mission',4,20,NULL,0,NULL,10,NULL,0,0xFFFFFFFF,63,2,32,NULL,'0',0,4,'bonus2 bSubRace,RC_All,25;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2128,'Herald_Of_GOD_','Sacred Mission',4,128000,NULL,1600,NULL,120,NULL,1,0x00004000,63,2,32,NULL,'83',1,4,'bonus bVit,3; bonus bInt,2; bonus bMdef,3; bonus bUnbreakableShield,0;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2129,'Exorcism_Bible','Exorcism Bible',4,20,NULL,600,NULL,80,NULL,0,0x00008100,63,2,32,NULL,'50',1,5,'bonus bInt,1; bonus bHPrecovRate,3; bonus bSPrecovRate,3;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (2130,'Cross_Shield','Cross Shield',4,20,NULL,2000,NULL,130,NULL,1,0x00004000,63,2,32,NULL,'80',1,4,'bonus bStr,1; bonus2 bSkillAtk,"PA_SHIELDCHAIN",30; bonus2 bSkillAtk,"CR_SHIELDBOOMERANG",30; bonus bUseSPrate,10;',NULL,NULL);
@@ -10544,12 +10543,12 @@ REPLACE INTO `item_db_re` VALUES (22761,'Luciola_Vespa_Transportin','Luciola Ves
 REPLACE INTO `item_db_re` VALUES (22762,'Centipede_Transportin','Centipede Transportin',2,10,NULL,0,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'/* No Info */',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (22764,'Pet_Exchange_Ticket_Box_','Pet Exchange Ticket Box',18,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'/* TODO: Confirm the allowed pet_id and chance */ getitem callfunc("F_Rand",6116,6117,6118,6129,6130,6130,6132,6133,6134,6135,6136,6137,6138,6139,6140,6141,6142,6143),1;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (22770,'Shark_Skewer','Shark Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'/* No Info */',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22771,'Bluefin_Tuna_Skewer','Bluefin Tuna Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ATKPOTION,5000,30;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22772,'Sea_Bream_Skewer','Sea Bream Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_MATKPOTION,5000,30;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22773,'Piranha_Skewer','Piranha Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ASPDPOTION0,5000,5;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22774,'Salmon_Skewer','Salmon Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_SPEEDUP0,5000,25;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22775,'Eels_Skewer','Eels Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_DEF_RATE,5000,30;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (22776,'Carp_Skewer','Carp Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_MDEF_RATE,5000,30;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22771,'Bluefin_Tuna_Skewer','Bluefin Tuna Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus2 bAddClass,Class_All,30; }",5,1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22772,'Sea_Bream_Skewer','Sea Bream Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus bMatkRate,30; }",5,1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22773,'Piranha_Skewer','Piranha Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus bAspd,5; }",5,1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22774,'Salmon_Skewer','Salmon Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus bSpeedAddRate,25; }",5,1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22775,'Eels_Skewer','Eels Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus2 bSubRace,RC_All,30; }",5,1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (22776,'Carp_Skewer','Carp Skewer',0,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'bonus_script "{ bonus2 bSubRace,RC_All,30; }",5,1;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (22777,'Gift_Buff_Set','Gift Buff Set',2,10,NULL,100,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'getgroupitem(IG_Gift_Buff_Set);',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (22781,'PC_Bang_Normal_Box','PC Bang Normal Box',2,10,NULL,200,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'getitem 547,50;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (22782,'PC_Bang_Wooden_Box','PC Bang Wooden Box',2,10,NULL,200,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'getitem 547,80;',NULL,NULL);
