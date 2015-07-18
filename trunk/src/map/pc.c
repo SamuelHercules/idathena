@@ -2483,12 +2483,9 @@ void pc_bonus(struct map_session_data *sd, int type, int val)
 			switch (sd->state.lr_flag) {
 				case 2:
 					switch (sd->status.weapon) {
-						case W_BOW:
-						case W_REVOLVER:
-						case W_RIFLE:
-						case W_GATLING:
-						case W_SHOTGUN:
-						case W_GRENADE:
+						case W_BOW:	case W_REVOLVER:
+						case W_RIFLE:	case W_GATLING:
+						case W_SHOTGUN:	case W_GRENADE:
 							//Become weapon element
 							status->rhw.ele = val;
 							break;
@@ -2540,24 +2537,22 @@ void pc_bonus(struct map_session_data *sd, int type, int val)
 				sd->dsprate += val;
 			break;
 		case SP_ATTACKRANGE:
-			switch (sd->state.lr_flag) {
-			case 2:
-				switch (sd->status.weapon) {
-					case W_BOW:
-					case W_REVOLVER:
-					case W_RIFLE:
-					case W_GATLING:
-					case W_SHOTGUN:
-					case W_GRENADE:
-						status->rhw.range += val;
-				}
-				break;
-			case 1:
-				status->lhw.range += val;
-				break;
-			default:
-				status->rhw.range += val;
-				break;
+			switch(sd->state.lr_flag) {
+				case 2:
+					switch(sd->status.weapon) {
+						case W_BOW:	case W_REVOLVER:
+						case W_RIFLE:	case W_GATLING:
+						case W_SHOTGUN:	case W_GRENADE:
+							status->rhw.range += val;
+							break;
+					}
+					break;
+				case 1:
+					status->lhw.range += val;
+					break;
+				default:
+					status->rhw.range += val;
+					break;
 			}
 			break;
 		case SP_SPEED_RATE:	//Non stackable increase
@@ -2573,12 +2568,13 @@ void pc_bonus(struct map_session_data *sd, int type, int val)
 				sd->bonus.aspd_add -= 10 * val;
 			break;
 		case SP_ASPD_RATE: //Stackable increase - Made it linear as per rodatazone
-			if(sd->state.lr_flag != 2)
+			if(sd->state.lr_flag != 2) {
 #ifndef RENEWAL_ASPD
 				status->aspd_rate -= 10 * val;
 #else
 				status->aspd_rate2 += val;
 #endif
+			}
 			break;
 		case SP_HP_RECOV_RATE:
 			if(sd->state.lr_flag != 2)

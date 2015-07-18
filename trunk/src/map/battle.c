@@ -1723,14 +1723,10 @@ static int battle_calc_base_weapon_attack(struct block_list *src, struct status_
 		short flag = 0, dstr;
 
 		switch(sd->status.weapon) {
-			case W_BOW:
-			case W_MUSICAL:
-			case W_WHIP:
-			case W_REVOLVER:
-			case W_RIFLE:
-			case W_GATLING:
-			case W_SHOTGUN:
-			case W_GRENADE:
+			case W_BOW:	case W_MUSICAL:
+			case W_WHIP:	case W_REVOLVER:
+			case W_RIFLE:	case W_GATLING:
+			case W_SHOTGUN:	case W_GRENADE:
 				flag = 1;
 				break;
 		}
@@ -3520,8 +3516,8 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			skillratio += -70 + 10 * skill_lv + 10 * pc_checkskill(sd,TK_RUN);
 			if(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_id)
 				skillratio += 10 * status_get_lv(src) / 3; //Tumble bonus
-			if(wd.miscflag) {
-				skillratio += 10 * status_get_lv(src) / 3; //Running bonus (@TODO: Check the real value?)
+			if(wd.miscflag) { //Running bonus
+				skillratio += 10 * status_get_lv(src) / 3; //@TODO: Check the real value?
 				if(sc && sc->data[SC_SPURT]) //Spurt bonus
 					skillratio *= 2;
 			}
@@ -3529,9 +3525,8 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 		case GS_TRIPLEACTION:
 			skillratio += 50 * skill_lv;
 			break;
-		case GS_BULLSEYE:
-			//Only works well against brute/demihumans non bosses.
-			if((tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN) && !(tstatus->mode&MD_BOSS))
+		case GS_BULLSEYE: //Only works well against non boss brute/demi human monster
+			if(!(tstatus->mode&MD_BOSS) && (tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN))
 				skillratio += 400;
 			break;
 		case GS_TRACKING:
@@ -4573,12 +4568,6 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 	short vit_def = battle_get_defense(src, target, skill_id, 1);
 
 #ifdef RENEWAL
-	/**
-	 * RE DEF Reduction
-	 * Damage = Attack * (4000 + eDEF) / (4000 + eDEF * 10) - sDEF
-	 */
-	if(def1 < -399) //It stops at -399
-		def1 = 399; //In aegis it set to 1 but in our case it may lead to exploitation so limit it to 399
 	if(is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_R) || (is_attack_left_handed(src, skill_id) &&
 		is_attack_piercing(wd, src, target, skill_id, skill_lv, EQI_HAND_L)))
 		return wd;
@@ -4596,6 +4585,12 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 				wd.damage2 -= (def1 + vit_def);
 			break;
 		default:
+			/**
+			 * RE DEF Reduction
+			 * Damage = Attack * (4000 + eDEF) / (4000 + eDEF * 10) - sDEF
+			 */
+			if(def1 < -399) //It stops at -399
+				def1 = 399; //In aegis it set to 1 but in our case it may lead to exploitation so limit it to 399
 			wd.damage = wd.damage * (4000 + def1) / (4000 + 10 * def1) - vit_def;
 			if(is_attack_left_handed(src, skill_id))
 				wd.damage2 = wd.damage2 * (4000 + def1) / (4000 + 10 * def1) - vit_def;
@@ -4651,7 +4646,7 @@ struct Damage battle_calc_attack_post_defense(struct Damage wd, struct block_lis
 		}
 		if(!skill_id) {
 			if(sc->data[SC_ENCHANTBLADE]) {
-				//[((Skill Lv x 20) + 100) x (casterBaseLevel / 150)] + casterInt
+				//[((Skill Level x 20) + 100) x (Caster's Base Level / 150)] + Caster's INT
 				int64 i = (sc->data[SC_ENCHANTBLADE]->val1 * 20 + 100) * status_get_lv(src) / 150 + status_get_int(src);
 				short totalmdef = tstatus->mdef + tstatus->mdef2;
 
@@ -4660,7 +4655,7 @@ struct Damage battle_calc_attack_post_defense(struct Damage wd, struct block_lis
 					ATK_ADD(wd.damage, wd.damage2, i);
 			}
 			if(sc->data[SC_GIANTGROWTH] && rnd()%100 < sc->data[SC_GIANTGROWTH]->val2)
-				ATK_ADDRATE(wd.damage, wd.damage2, 200); //Triple Damage
+				ATK_ADDRATE(wd.damage, wd.damage2, 200); //Triple damage
 		}
 	}
 #ifndef RENEWAL
@@ -4684,7 +4679,7 @@ struct Damage battle_calc_attack_post_defense(struct Damage wd, struct block_lis
 				ATK_ADDRATE(wd.damage, wd.damage2, 10);
 			break;
 		case NC_AXETORNADO:
-			if((sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND)
+			if(sstatus->rhw.ele == ELE_WIND)
 				ATK_ADDRATE(wd.damage, wd.damage2, 25);
 			break;
 	}
@@ -6222,7 +6217,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src, struct block_list
 			 */
 			if(mdef < -99) //It stops at -99
 				mdef = 99; //In aegis it set to 1 but in our case it may lead to exploitation so limit it to 99
-
 			ad.damage = ad.damage * (1000 + mdef) / (1000 + mdef * 10) - mdef2;
 #else
 			if(battle_config.magic_defense_type)

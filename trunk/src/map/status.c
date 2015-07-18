@@ -2107,15 +2107,16 @@ int status_base_amotion_pc(struct map_session_data *sd, struct status_data *stat
 #else
 	//Base weapon delay
 	amotion = (sd->status.weapon < MAX_WEAPON_TYPE)
-	 ? (job_info[classidx].aspd_base[sd->status.weapon]) //Single weapon
-	 : (job_info[classidx].aspd_base[sd->weapontype1] + job_info[classidx].aspd_base[sd->weapontype2]) * 7 / 10; //Dual-wield
+			? (job_info[classidx].aspd_base[sd->status.weapon]) //Single weapon
+			: (job_info[classidx].aspd_base[sd->weapontype1]
+			+ job_info[classidx].aspd_base[sd->weapontype2]) * 7 / 10; //Dual-wield
 
 	//Percentual delay reduction from stats
 	amotion -= amotion * (4 * status->agi + status->dex) / 1000;
-#endif
 
 	//Raw delay adjustment from bAspd bonus
 	amotion += sd->bonus.aspd_add;
+#endif
 
 	//Angra manyu disregards aspd_base and similar
 	if( sd->equip_index[EQI_HAND_R] >= 0 && sd->status.inventory[sd->equip_index[EQI_HAND_R]].nameid == ITEMID_ANGRA_MANYU )
@@ -2136,14 +2137,10 @@ static unsigned short status_base_atk(const struct block_list *bl, const struct 
 		return 0;
 	if (bl->type == BL_PC) {
 		switch(((TBL_PC *)bl)->status.weapon) {
-			case W_BOW:
-			case W_MUSICAL:
-			case W_WHIP:
-			case W_REVOLVER:
-			case W_RIFLE:
-			case W_GATLING:
-			case W_SHOTGUN:
-			case W_GRENADE:
+			case W_BOW:	case W_MUSICAL:
+			case W_WHIP:	case W_REVOLVER:
+			case W_RIFLE:	case W_GATLING:
+			case W_SHOTGUN:	case W_GRENADE:
 				flag = 1;
 				break;
 		}
@@ -3634,21 +3631,15 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		status->aspd_rate -= 5 * skill;
 	if((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
 		status->aspd_rate -= 30 * skill;
-	if((skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 &&
-		(sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
+	if((skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
 		status->aspd_rate -= ((skill + 1) / 2) * 10;
 	if(pc_isriding(sd))
 		status->aspd_rate += 500 - 100 * pc_checkskill(sd,KN_CAVALIERMASTERY);
 	else if(pc_isridingdragon(sd))
 		status->aspd_rate += 250 - 50 * pc_checkskill(sd,RK_DRAGONTRAINING);
 #else //Needs more info
-	if((skill = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
-		status->aspd_rate += 5 * skill;
 	if((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
 		status->aspd_rate += 30 * skill;
-	if((skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 &&
-		(sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
-		status->aspd_rate += ((skill + 1) / 2) * 10;
 	if(pc_isriding(sd))
 		status->aspd_rate -= 500 - 100 * pc_checkskill(sd,KN_CAVALIERMASTERY);
 	else if(pc_isridingdragon(sd))
@@ -4599,7 +4590,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( bl->type&BL_HOM ) {
 #ifdef RENEWAL_ASPD
 			amotion = ((TBL_HOM *)bl)->homunculusDB->baseASPD;
-			amotion = amotion - amotion * status_get_homdex(bl) / 1000 - status_get_homagi(bl) * amotion / 250;
+			amotion -= amotion * status_get_homdex(bl) / 1000 - status_get_homagi(bl) * amotion / 250;
 			amotion = (amotion * status_calc_aspd(bl, sc, 1) + status_calc_aspd(bl, sc, 2)) / -100 + amotion;
 #else
 			amotion = (1000 - 4 * status->agi - status->dex) * ((TBL_HOM *)bl)->homunculusDB->baseASPD / 1000;
@@ -4611,18 +4602,42 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			status->amotion = cap_value(amotion, battle_config.max_aspd, 2000);
 			status->adelay = status->amotion;
 		} else if( bl->type&BL_PC ) {
+			uint16 skill;
+			int val = 0;
+			float temp;
+
 			amotion = status_base_amotion_pc(sd, status);
 #ifndef RENEWAL_ASPD
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
 			if( status->aspd_rate != 1000 )
 				amotion = amotion * status->aspd_rate / 1000;
-#else
-			//ASPD = BaseASPD + floor(sqrt((AGI^2/2) + (DEX^2/5))/4 + (PotSkillBonus*Agi/200))
-			amotion -= (int)(sqrt((float)pow(status->agi, 2) / 2 + (float)pow(status->dex, 2) / 5) / 4 + (float)(status_calc_aspd(bl, sc, 1) * status->agi) / 200) * 10;
-			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) //RE ASPD percertage modifier
-				amotion -= (amotion - pc_maxaspd(sd)) * (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) / 100;
-			if( status->aspd_rate != 1000 ) //Absolute percentage modifier
+#else //[malufett]
+			switch( sd->status.weapon ) {
+				case W_BOW:	case W_MUSICAL:
+				case W_WHIP:	case W_REVOLVER:
+				case W_RIFLE:	case W_GATLING:
+				case W_SHOTGUN:	case W_GRENADE:
+					temp = status->dex * status->dex / 7.0f + status->agi * status->agi * 0.5f;
+					break;
+				default:
+					temp = status->dex * status->dex / 5.0f + status->agi * status->agi * 0.5f;
+					break;
+			}
+			temp = (float)(sqrt(temp) * 0.25f);
+			if( (skill = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK )
+				val += (skill - 1) / 2 + 1;
+			if( (skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE) )
+				val += ((skill + 1) / 2);
+			amotion -= (int)(temp + (float)((status_calc_aspd(bl, sc, 1) + val) * status->agi) / 200) * 10;
+			if( status->aspd_rate != 1000 ) //Absolute ASPD % modifier
 				amotion = (200 - (200 - amotion / 10) * status->aspd_rate / 1000) * 10;
+#endif
+			if( sd->ud.skilltimer != INVALID_TIMER && (skill = pc_checkskill(sd, SA_FREECAST)) > 0 )
+				amotion *= (skill + 10) * 5 / 100;
+#ifdef RENEWAL_ASPD
+			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) //RE ASPD % modifier
+				amotion -= (amotion - pc_maxaspd(sd)) * (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) / 100 + 5; //Don't have round()
+			amotion += sd->bonus.aspd_add;
 #endif
 			amotion = status_calc_fix_aspd(bl, sc, amotion);
 			status->amotion = cap_value(amotion, pc_maxaspd(sd), 2000);
@@ -6013,7 +6028,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sc->data[SC_GN_CARTBOOST] )
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 			if( sc->data[SC_SWINGDANCE] )
-				val = max( val, 25 );
+				val = max( val, 5 * sc->data[SC_SWINGDANCE]->val1 );
 			if( sc->data[SC_WIND_STEP_OPTION] )
 				val = max( val, sc->data[SC_WIND_STEP_OPTION]->val2 );
 			//FIXME: Official items use a single bonus for this [ultramage]
@@ -6066,25 +6081,25 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 
 	if(!sc || !sc->count)
 		return 0;
-
+	//Fixed ASPD value
 	if(sc->data[i = SC_ASPDPOTION3] ||
 		sc->data[i = SC_ASPDPOTION2] ||
 		sc->data[i = SC_ASPDPOTION1] ||
 		sc->data[i = SC_ASPDPOTION0])
 		pots += sc->data[i]->val1;
-
-	//Fixed ASPD value
 	if(!sc->data[SC_QUAGMIRE]) {
+		struct status_change_entry *sce;
+
 		if(sc->data[SC_TWOHANDQUICKEN] && skills1 < 7)
 			skills1 = 7;
 		if(sc->data[SC_ONEHAND] && skills1 < 7)
 			skills1 = 7;
 		if(sc->data[SC_MERC_QUICKEN] && skills1 < 7) //Needs more info
 			skills1 = 7;
-		if(sc->data[SC_ADRENALINE2] && skills1 < 6)
-			skills1 = 6;
-		if(sc->data[SC_ADRENALINE] && skills1 < 7)
-			skills1 = 7;
+		if((sce = sc->data[SC_ADRENALINE2]) && skills1 < (sce->val2 ? 7 : 6))
+			skills1 = (sce->val2 ? 7 : 6);
+		if((sce = sc->data[SC_ADRENALINE]) && skills1 < (sce->val2 ? 7 : 6))
+			skills1 = (sce->val2 ? 7 : 6);
 		if(sc->data[SC_SPEARQUICKEN] && skills1 < 7)
 			skills1 = 7;
 		if(sc->data[SC_FLEET] && skills1 < 5)
@@ -6094,12 +6109,28 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 		skills1 = 15;
 	if(sc->data[SC_MADNESSCANCEL] && skills1 < 20)
 		skills1 = 20;
-
 	//Percentage ASPD value
-	if(sc->data[SC_SWINGDANCE])
-		skills2 += sc->data[SC_SWINGDANCE]->val3;
-	if(sc->data[SC_DANCEWITHWUG])
-		skills2 += sc->data[SC_DANCEWITHWUG]->val3;
+	if(!skills1) { //Don't stack with skill1 modifiers
+		if(sc->data[SC_ASSNCROS] && skills2 < sc->data[SC_ASSNCROS]->val2 / 10) {
+			if(bl->type != BL_PC)
+				skills2 = sc->data[SC_ASSNCROS]->val2 / 10;
+			else {
+				switch(((TBL_PC *)bl)->status.weapon) {
+					case W_BOW:	case W_REVOLVER:
+					case W_RIFLE:	case W_GATLING:
+					case W_SHOTGUN:	case W_GRENADE:
+						break;
+					default:
+						skills2 = sc->data[SC_ASSNCROS]->val2 / 10;
+						break;
+				}
+			}
+		}
+		if(sc->data[SC_SWINGDANCE] && skills2 < sc->data[SC_SWINGDANCE]->val3)
+			skills2 = sc->data[SC_SWINGDANCE]->val3;
+		if(sc->data[SC_DANCEWITHWUG] && skills2 < sc->data[SC_DANCEWITHWUG]->val3)
+			skills2 = sc->data[SC_DANCEWITHWUG]->val3;
+	}
 	if(sc->data[SC_GT_CHANGE])
 		skills2 += sc->data[SC_GT_CHANGE]->val3;
 	if(sc->data[SC_BOOST500])
@@ -6116,24 +6147,6 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 		skills2 += sc->data[SC_GATLINGFEVER]->val1;
 	if(sc->data[SC_STAR_COMFORT])
 		skills2 += 3 * sc->data[SC_STAR_COMFORT]->val1;
-	if(sc->data[SC_ASSNCROS] && !skills1) {
-		if(bl->type != BL_PC)
-			skills2 += sc->data[SC_ASSNCROS]->val2 / 10;
-		else {
-			switch(((TBL_PC *)bl)->status.weapon) {
-				case W_BOW:
-				case W_REVOLVER:
-				case W_RIFLE:
-				case W_GATLING:
-				case W_SHOTGUN:
-				case W_GRENADE:
-					break;
-				default:
-					skills2 += sc->data[SC_ASSNCROS]->val2 / 10;
-					break;
-			}
-		}
-	}
 	if(sc->data[SC_DONTFORGETME])
 		skills2 -= sc->data[SC_DONTFORGETME]->val2 / 10;
 	if(sc->data[SC_LONGING])
@@ -6258,12 +6271,9 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 				max = sc->data[SC_ASSNCROS]->val2;
 			else {
 				switch(((TBL_PC *)bl)->status.weapon) {
-					case W_BOW:
-					case W_REVOLVER:
-					case W_RIFLE:
-					case W_GATLING:
-					case W_SHOTGUN:
-					case W_GRENADE:
+					case W_BOW:	case W_REVOLVER:
+					case W_RIFLE:	case W_GATLING:
+					case W_SHOTGUN:	case W_GRENADE:
 						break;
 					default:
 						max = sc->data[SC_ASSNCROS]->val2;
