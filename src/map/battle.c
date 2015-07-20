@@ -3350,7 +3350,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			if(sd && sd->cart_weight)
 				skillratio += 100 * sd->cart_weight / sd->cart_weight_max; //+1% every 1% weight
 			else if(!sd)
-				skillratio += 100; //Max damage for non players.
+				skillratio += 100; //Max damage for non players
 			break;
 		case NPC_PIERCINGATT:
 			skillratio += -25; //75% base damage
@@ -6462,9 +6462,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src, struct block_list 
 			break;
 #endif
 		case BA_DISSONANCE:
-			md.damage = 30 + skill_lv * 10;
-			if(sd)
-				md.damage += 3 * pc_checkskill(sd, BA_MUSICALLESSON);
+			md.damage = 30 + skill_lv * 10 + (sd ? pc_checkskill(sd, BA_MUSICALLESSON) * 3 : 0);
 			break;
 		case NPC_SELFDESTRUCTION:
 			md.damage = sstatus->hp;

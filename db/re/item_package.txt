@@ -2491,7 +2491,7 @@ IG_Tw_Yellow_Scroll,RWC2010_Indonesia,3,1,1,1,0,0
 IG_Scroll_Of_Death,Lord_Of_Death_Card,1,1,1,1,0,0
 IG_Scroll_Of_Death,SLD_Lord_Of_Death_Card,5,1,1,1,0,0
 IG_Scroll_Of_Death,Knight_Of_Abyss_Card,10,1,1,1,0,0
-IG_Scroll_Of_Death,Lord_of_Death,15,1,1,1,0,0
+IG_Scroll_Of_Death,Lord_Of_Death,15,1,1,1,0,0
 IG_Scroll_Of_Death,Guarantee_Weapon_6Up,25,1,1,1,0,0
 IG_Scroll_Of_Death,Guarantee_Armor_6Up,25,1,1,1,0,0
 IG_Scroll_Of_Death,Pole_Axe,50,1,1,1,0,0
@@ -3036,7 +3036,7 @@ IG_Bi_Hwang_Scroll,Enriched_Oridecon_Box,500,1,1,0,0,0
 IG_Bi_Hwang_Scroll,Pr_Reset_Stone_Box,500,1,1,0,0,0
 IG_Bi_Hwang_Scroll,Sunglasses_Bball_Hat,179,1,1,1,0,0
 IG_Bi_Hwang_Scroll,Magic_Stole,150,1,1,1,0,0
-IG_Bi_Hwang_Scroll,C_Lord_of_Death,100,1,1,1,0,0
+IG_Bi_Hwang_Scroll,C_Lord_Of_Death,100,1,1,1,0,0
 IG_Bi_Hwang_Scroll,Monkey_On_Fur_Hat,150,1,1,1,0,0
 IG_Bi_Hwang_Scroll,Butterfly_Hairpin,75,1,1,1,0,0
 IG_Bi_Hwang_Scroll,Hair_Of_The_Strong,30,1,1,1,0,0
