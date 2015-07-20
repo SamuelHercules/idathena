@@ -1586,7 +1586,8 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 	struct npc_data *nd;
 	struct npc_item_list *shop = NULL;
 	double z;
-	int i, j, k, w, skill, new_, count = 0;
+	int i, j, k, w, new_, count = 0;
+	uint16 lv;
 	char output[CHAT_SIZE_MAX];
 	uint8 market_index[MAX_INVENTORY];
 
@@ -1741,12 +1742,12 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 	}
 
 	//Custom merchant shop exp bonus
-	if( battle_config.shop_exp > 0 && z > 0 && (skill = pc_checkskill(sd,MC_DISCOUNT)) > 0 ) {
+	if( battle_config.shop_exp > 0 && z > 0 && (lv = pc_checkskill(sd,MC_DISCOUNT)) > 0 ) {
 		if( sd->status.skill[MC_DISCOUNT].flag >= SKILL_FLAG_REPLACED_LV_0 )
-			skill = sd->status.skill[MC_DISCOUNT].flag - SKILL_FLAG_REPLACED_LV_0;
+			lv = sd->status.skill[MC_DISCOUNT].flag - SKILL_FLAG_REPLACED_LV_0;
 
-		if( skill > 0 ) {
-			z = z * (double)skill * (double)battle_config.shop_exp / 10000.;
+		if( lv > 0 ) {
+			z = z * (double)lv * (double)battle_config.shop_exp / 10000.;
 			if( z < 1 )
 				z = 1;
 			pc_gainexp(sd,NULL,0,(int)z, false);
@@ -1817,7 +1818,8 @@ static int npc_selllist_sub(struct map_session_data *sd, int n, unsigned short *
 uint8 npc_selllist(struct map_session_data *sd, int n, unsigned short *item_list)
 {
 	double z;
-	int i, skill;
+	int i;
+	uint16 lv;
 	struct npc_data *nd;
 
 	nullpo_retr(1, sd);
@@ -1874,11 +1876,11 @@ uint8 npc_selllist(struct map_session_data *sd, int n, unsigned short *item_list
 	pc_getzeny(sd, (int)z, LOG_TYPE_NPC, NULL);
 
 	//Custom merchant shop exp bonus
-	if( battle_config.shop_exp > 0 && z > 0 && (skill = pc_checkskill(sd,MC_OVERCHARGE)) > 0 ) {
+	if( battle_config.shop_exp > 0 && z > 0 && (lv = pc_checkskill(sd,MC_OVERCHARGE)) > 0 ) {
 		if( sd->status.skill[MC_OVERCHARGE].flag >= SKILL_FLAG_REPLACED_LV_0 )
-			skill = sd->status.skill[MC_OVERCHARGE].flag - SKILL_FLAG_REPLACED_LV_0;
-		if( skill > 0 ) {
-			z = z * (double)skill * (double)battle_config.shop_exp / 10000.;
+			lv = sd->status.skill[MC_OVERCHARGE].flag - SKILL_FLAG_REPLACED_LV_0;
+		if( lv > 0 ) {
+			z = z * (double)lv * (double)battle_config.shop_exp / 10000.;
 			if( z < 1 )
 				z = 1;
 			pc_gainexp(sd, NULL, 0, (int)z, false);

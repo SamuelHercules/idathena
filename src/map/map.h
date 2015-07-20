@@ -238,7 +238,7 @@ enum bl_type {
 	BL_NPC   = 0x080,
 	BL_CHAT  = 0x100,
 	BL_ELEM  = 0x200,
-	
+
 	BL_ALL   = 0xFFF,
 };
 
@@ -353,6 +353,7 @@ struct block_list {
 	int16 m, x, y;
 	enum bl_type type;
 	int64 damage; //Damage holding [exneval]
+	int val1;
 };
 
 // Mob List Held in memory for Dynamic Mobs [Wizputer]

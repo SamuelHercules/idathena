@@ -9049,7 +9049,7 @@ ACMD_FUNC(cart) {
 	sd->status.skill[MC_PUSHCART].flag = x ? SKILL_FLAG_TEMPORARY : SKILL_FLAG_PERMANENT;
 
 	int val;
-	bool need_skill = pc_checkskill(sd, MC_PUSHCART) ? false : true;
+	bool lv = (pc_checkskill(sd, MC_PUSHCART) ? false : true);
 
 	if( message )
 		val = atoi(message);
@@ -9064,16 +9064,16 @@ ACMD_FUNC(cart) {
 		return -1;
 	}
 
-	if( need_skill )
+	if( lv )
 		MC_CART_MDFY(1);
 
 	if( !pc_setcart(sd, val) ) {
-		if( need_skill )
+		if( lv )
 			MC_CART_MDFY(0);
-		return -1; /* @cart failed */
+		return -1; // @cart failed
 	}
 
-	if( need_skill )
+	if( lv )
 		MC_CART_MDFY(0);
 
 	clif_displaymessage(fd, msg_txt(1392)); // Cart Added
