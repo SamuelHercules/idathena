@@ -3001,7 +3001,8 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 	const struct status_change *sc = &sd->sc;
 	struct s_skill b_skill[MAX_SKILL]; //Previous skill tree
 	int b_weight, b_max_weight, b_cart_weight_max, //Previous weight
-	i, skill, refinedef = 0;
+	i, refinedef = 0;
+	uint16 lv;
 	short index = -1;
 
 	if (++calculating > 10) //Too many recursive calls!
@@ -3408,7 +3409,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 	sd->left_weapon.atkmods[1] = atkmods[1][sd->weapontype2];
 	sd->left_weapon.atkmods[2] = atkmods[2][sd->weapontype2];
 
-	//When Riding with spear, damage modifier to mid-class becomes same as versus large size
+	//When mounting with spear, damage modifier to mid-class becomes same as versus large size
 	if((pc_isriding(sd) || pc_isridingdragon(sd)) && (sd->status.weapon == W_1HSPEAR || sd->status.weapon == W_2HSPEAR)) {
 		sd->right_weapon.atkmods[1] = sd->right_weapon.atkmods[2];
 		sd->left_weapon.atkmods[1] = sd->left_weapon.atkmods[2];
@@ -3443,12 +3444,12 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 	//Absolute modifiers from passive skills
 	if(pc_checkskill(sd,BS_HILTBINDING) > 0)
 		status->str++;
-	if((skill = pc_checkskill(sd,SA_DRAGONOLOGY)) > 0)
-		status->int_ += (skill + 1) / 2; //+1 INT per 2 lv
-	if((skill = pc_checkskill(sd,AC_OWL)) > 0)
-		status->dex += skill;
-	if((skill = pc_checkskill(sd,RA_RESEARCHTRAP)) > 0)
-		status->int_ += skill;
+	if((lv = pc_checkskill(sd,SA_DRAGONOLOGY)) > 0)
+		status->int_ += (lv + 1) / 2; //+1 INT per 2 level
+	if((lv = pc_checkskill(sd,AC_OWL)) > 0)
+		status->dex += lv;
+	if((lv = pc_checkskill(sd,RA_RESEARCHTRAP)) > 0)
+		status->int_ += lv;
 
 	//Bonuses from cards and equipment as well as base stat, remember to avoid overflows
 	i = status->str + sd->status.str + sd->param_bonus[0] + sd->param_equip[0];
@@ -3555,35 +3556,35 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 	//----- HIT CALCULATION -----
 	//Absolute modifiers from passive skills
 #ifndef RENEWAL
-	if((skill = pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0)
-		status->hit += skill * 2;
+	if((lv = pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0)
+		status->hit += lv * 2;
 #endif
-	if((skill = pc_checkskill(sd,AC_VULTURE)) > 0) {
+	if((lv = pc_checkskill(sd,AC_VULTURE)) > 0) {
 #ifndef RENEWAL
-		status->hit += skill;
+		status->hit += lv;
 #endif
 		if(sd->status.weapon == W_BOW)
-			status->rhw.range += skill;
+			status->rhw.range += lv;
 	}
 	if(sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE) {
-		if((skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0)
-			status->hit += 2 * skill;
-		if((skill = pc_checkskill(sd,GS_SNAKEEYE)) > 0) {
-			status->hit += skill;
-			status->rhw.range += skill;
+		if((lv = pc_checkskill(sd,GS_SINGLEACTION)) > 0)
+			status->hit += lv * 2;
+		if((lv = pc_checkskill(sd,GS_SNAKEEYE)) > 0) {
+			status->hit += lv;
+			status->rhw.range += lv;
 		}
 	}
-	if((sd->status.weapon == W_1HAXE || sd->status.weapon == W_2HAXE) && (skill = pc_checkskill(sd,NC_TRAININGAXE)) > 0)
-		status->hit += skill * 3;
-	if((sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE) && (skill = pc_checkskill(sd,NC_TRAININGAXE)) > 0)
-		status->hit += skill * 2;
+	if((sd->status.weapon == W_1HAXE || sd->status.weapon == W_2HAXE) && (lv = pc_checkskill(sd,NC_TRAININGAXE)) > 0)
+		status->hit += lv * 3;
+	if((sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE) && (lv = pc_checkskill(sd,NC_TRAININGAXE)) > 0)
+		status->hit += lv * 2;
 
 	//----- FLEE CALCULATION -----
 	//Absolute modifiers from passive skills
-	if((skill = pc_checkskill(sd,TF_MISS)) > 0)
-		status->flee += skill * (sd->class_&JOBL_2 && (sd->class_&MAPID_BASEMASK) == MAPID_THIEF ? 4 : 3);
-	if((skill = pc_checkskill(sd,MO_DODGE)) > 0)
-		status->flee += (skill * 3)>>1;
+	if((lv = pc_checkskill(sd,TF_MISS)) > 0)
+		status->flee += lv * (sd->class_&JOBL_2 && (sd->class_&MAPID_BASEMASK) == MAPID_THIEF ? 4 : 3);
+	if((lv = pc_checkskill(sd,MO_DODGE)) > 0)
+		status->flee += (lv * 3)>>1;
 
 	//----- EQUIPMENT-DEF CALCULATION -----
 	//Apply relative modifiers from equipment
@@ -3627,23 +3628,23 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 
 	//Relative modifiers from passive skills
 #ifndef RENEWAL_ASPD
-	if((skill = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
-		status->aspd_rate -= 5 * skill;
-	if((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
-		status->aspd_rate -= 30 * skill;
-	if((skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
-		status->aspd_rate -= ((skill + 1) / 2) * 10;
-	if(pc_isriding(sd))
-		status->aspd_rate += 500 - 100 * pc_checkskill(sd,KN_CAVALIERMASTERY);
-	else if(pc_isridingdragon(sd))
-		status->aspd_rate += 250 - 50 * pc_checkskill(sd,RK_DRAGONTRAINING);
+	if((lv = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK)
+		status->aspd_rate -= lv * 5;
+	if((lv = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
+		status->aspd_rate -= lv * 30;
+	if((lv = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE))
+		status->aspd_rate -= ((lv + 1) / 2) * 10;
+	if((lv = pc_checkskill(sd,KN_CAVALIERMASTERY)) > 0 && pc_isriding(sd))
+		status->aspd_rate += 500 - lv * 100;
+	else if((lv = pc_checkskill(sd,RK_DRAGONTRAINING)) > 0 && pc_isridingdragon(sd))
+		status->aspd_rate += 250 - lv * 50;
 #else //Needs more info
-	if((skill = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
-		status->aspd_rate += 30 * skill;
-	if(pc_isriding(sd))
-		status->aspd_rate -= 500 - 100 * pc_checkskill(sd,KN_CAVALIERMASTERY);
-	else if(pc_isridingdragon(sd))
-		status->aspd_rate -= 250 - 50 * pc_checkskill(sd,RK_DRAGONTRAINING);
+	if((lv = pc_checkskill(sd,SG_DEVIL)) > 0 && !pc_nextjobexp(sd))
+		status->aspd_rate += lv * 30;
+	if((lv = pc_checkskill(sd,KN_CAVALIERMASTERY)) > 0 && pc_isriding(sd))
+		status->aspd_rate -= 500 - lv * 100;
+	else if((lv = pc_checkskill(sd,RK_DRAGONTRAINING)) > 0 && pc_isridingdragon(sd))
+		status->aspd_rate -= 250 - lv * 50;
 #endif
 	status->adelay = 2 * status->amotion;
 
@@ -3655,16 +3656,16 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 
 	//----- MISC CALCULATIONS -----
 	//Weight
-	if((skill = pc_checkskill(sd,MC_INCCARRY)) > 0)
-		sd->max_weight += 2000 * skill;
+	if((lv = pc_checkskill(sd,MC_INCCARRY)) > 0)
+		sd->max_weight += lv * 2000;
 	if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING) > 0)
 		sd->max_weight += 10000;
-	else if(pc_isridingdragon(sd))
-		sd->max_weight += 5000 + 2000 * pc_checkskill(sd,RK_DRAGONTRAINING);
+	else if(pc_isridingdragon(sd) && (lv = pc_checkskill(sd,RK_DRAGONTRAINING)) > 0)
+		sd->max_weight += 5000 + lv * 2000;
 	if(sc->data[SC_KNOWLEDGE])
 		sd->max_weight += sd->max_weight * sc->data[SC_KNOWLEDGE]->val1 / 10;
-	if((skill = pc_checkskill(sd,ALL_INCCARRY)) > 0)
-		sd->max_weight += 2000 * skill;
+	if((lv = pc_checkskill(sd,ALL_INCCARRY)) > 0)
+		sd->max_weight += lv * 2000;
 
 	sd->cart_weight_max = battle_config.max_cart_weight + (pc_checkskill(sd,GN_REMODELING_CART) * 5000);
 
@@ -3674,8 +3675,8 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		sd->regen.state.walk = 0;
 
 	//Skill SP cost
-	if((skill = pc_checkskill(sd,HP_MANARECHARGE)) > 0)
-		sd->dsprate -= 4 * skill;
+	if((lv = pc_checkskill(sd,HP_MANARECHARGE)) > 0)
+		sd->dsprate -= lv * 4;
 
 	if(sc->data[SC_SERVICE4U])
 		sd->dsprate -= sc->data[SC_SERVICE4U]->val3;
@@ -3696,40 +3697,39 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		sd->sprecov_rate = 0;
 
 	//Anti-element and anti-race
-	if((skill = pc_checkskill(sd,CR_TRUST)) > 0)
-		sd->subele[ELE_HOLY] += skill * 5;
-	if((skill = pc_checkskill(sd,BS_SKINTEMPER)) > 0) {
-		sd->subele[ELE_NEUTRAL] += skill;
-		sd->subele[ELE_FIRE] += skill * 4;
+	if((lv = pc_checkskill(sd,CR_TRUST)) > 0)
+		sd->subele[ELE_HOLY] += lv * 5;
+	if((lv = pc_checkskill(sd,BS_SKINTEMPER)) > 0) {
+		sd->subele[ELE_NEUTRAL] += lv;
+		sd->subele[ELE_FIRE] += lv * 4;
 	}
-	if((skill = pc_checkskill(sd,SA_DRAGONOLOGY)) > 0) {
+	if((lv = pc_checkskill(sd,SA_DRAGONOLOGY)) > 0) {
 #ifdef RENEWAL
-		skill = skill * 2;
+		lv *= 2;
 #else
-		skill = skill * 4;
+		lv *= 4;
 #endif
-		sd->right_weapon.addrace[RC_DRAGON] += skill;
-		sd->left_weapon.addrace[RC_DRAGON] += skill;
-		sd->magic_addrace[RC_DRAGON] += skill;
-		sd->subrace[RC_DRAGON] += skill;
+		sd->right_weapon.addrace[RC_DRAGON] += lv;
+		sd->left_weapon.addrace[RC_DRAGON] += lv;
+		sd->magic_addrace[RC_DRAGON] += lv;
+		sd->subrace[RC_DRAGON] += lv;
 	}
-	if((skill = pc_checkskill(sd,AB_EUCHARISTICA)) > 0) {
-		sd->right_weapon.addrace[RC_DEMON] += skill;
-		sd->right_weapon.adddefele[ELE_DARK] += skill;
-		sd->left_weapon.addrace[RC_DEMON] += skill;
-		sd->left_weapon.adddefele[ELE_DARK] += skill;
-		sd->magic_addrace[RC_DEMON] += skill;
-		sd->magic_adddefele[ELE_DARK] += skill;
-		sd->subrace[RC_DEMON] += skill;
-		sd->subele[ELE_DARK] += skill;
+	if((lv = pc_checkskill(sd,AB_EUCHARISTICA)) > 0) {
+		sd->right_weapon.addrace[RC_DEMON] += lv;
+		sd->right_weapon.adddefele[ELE_DARK] += lv;
+		sd->left_weapon.addrace[RC_DEMON] += lv;
+		sd->left_weapon.adddefele[ELE_DARK] += lv;
+		sd->magic_addrace[RC_DEMON] += lv;
+		sd->magic_adddefele[ELE_DARK] += lv;
+		sd->subrace[RC_DEMON] += lv;
+		sd->subdefele[ELE_DARK] += lv;
 	}
 	if(sc->count) {
      	if(sc->data[SC_CONCENTRATE]) { //Update the card-bonus data
 			sc->data[SC_CONCENTRATE]->val3 = sd->param_bonus[1]; //Agi
 			sc->data[SC_CONCENTRATE]->val4 = sd->param_bonus[4]; //Dex
 		}
-     	if(sc->data[SC_SIEGFRIED]) {
-			i = sc->data[SC_SIEGFRIED]->val2;
+     	if(sc->data[SC_SIEGFRIED] && (i = sc->data[SC_SIEGFRIED]->val2)) {
 			sd->subele[ELE_WATER] += i;
 			sd->subele[ELE_EARTH] += i;
 			sd->subele[ELE_FIRE] += i;
@@ -3740,8 +3740,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 			sd->subele[ELE_GHOST] += i;
 			sd->subele[ELE_UNDEAD] += i;
 		}
-		if(sc->data[SC_PROVIDENCE]) {
-			i = sc->data[SC_PROVIDENCE]->val2;
+		if(sc->data[SC_PROVIDENCE] && (i = sc->data[SC_PROVIDENCE]->val2)) {
 			sd->subele[ELE_HOLY] += i;
 			sd->subrace[RC_DEMON] += i;
 		}
@@ -3757,23 +3756,19 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 			sd->subele[ELE_FIRE] += sc->data[SC_ARMOR_RESIST]->val3;
 			sd->subele[ELE_WIND] += sc->data[SC_ARMOR_RESIST]->val4;
 		}
-		if(sc->data[SC_FIRE_CLOAK_OPTION]) {
-			i = sc->data[SC_FIRE_CLOAK_OPTION]->val2;
+		if(sc->data[SC_FIRE_CLOAK_OPTION] && (i = sc->data[SC_FIRE_CLOAK_OPTION]->val2)) {
 			sd->subele[ELE_FIRE] += i;
 			sd->subele[ELE_WATER] -= i;
 		}
-		if(sc->data[SC_WATER_DROP_OPTION]) {
-			i = sc->data[SC_WATER_DROP_OPTION]->val2;
+		if(sc->data[SC_WATER_DROP_OPTION] && (i = sc->data[SC_WATER_DROP_OPTION]->val2)) {
 			sd->subele[ELE_WATER] += i;
 			sd->subele[ELE_WIND] -= i;
 		}
-		if(sc->data[SC_WIND_CURTAIN_OPTION]) {
-			i = sc->data[SC_WIND_CURTAIN_OPTION]->val2;
+		if(sc->data[SC_WIND_CURTAIN_OPTION] && (i = sc->data[SC_WIND_CURTAIN_OPTION]->val2)) {
 			sd->subele[ELE_WIND] += i;
 			sd->subele[ELE_EARTH] -= i;
 		}
-		if(sc->data[SC_STONE_SHIELD_OPTION]) {
-			i = sc->data[SC_STONE_SHIELD_OPTION]->val2;
+		if(sc->data[SC_STONE_SHIELD_OPTION] && (i = sc->data[SC_STONE_SHIELD_OPTION]->val2)) {
 			sd->subele[ELE_EARTH] += i;
 			sd->subele[ELE_FIRE] -= i;
 		}
@@ -4015,7 +4010,8 @@ int status_calc_npc_(struct npc_data *nd, enum e_status_calc_opt opt) {
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen)
 {
 	struct map_session_data *sd;
-	int val, skill, reg_flag;
+	int val, reg_flag;
+	uint16 lv;
 
 	nullpo_retv(bl);
 	nullpo_retv(status);
@@ -4024,82 +4020,71 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 		return;
 
 	sd = BL_CAST(BL_PC, bl);
-	val = 1 + (status->vit / 5) + (status->max_hp / 200);
 
+	val = 1 + (status->vit / 5) + (status->max_hp / 200);
 	if( sd && sd->hprecov_rate != 100 )
 		val = val * sd->hprecov_rate / 100;
-
-	reg_flag = bl->type == BL_PC ? 0 : 1;
-	
+	reg_flag = (bl->type == BL_PC ? 0 : 1);
 	regen->hp = cap_value(val, reg_flag, SHRT_MAX);
 
 	val = 1 + (status->int_ / 6) + (status->max_sp / 100);
 	if( status->int_ >= 120 )
 		val += ((status->int_ - 120)>>1) + 4;
-
 	if( sd && sd->sprecov_rate != 100 )
 		val = val * sd->sprecov_rate / 100;
-
 	regen->sp = cap_value(val, reg_flag, SHRT_MAX);
 
 	if( sd ) {
 		struct regen_data_sub *sregen;
 
-		if( (skill = pc_checkskill(sd, HP_MEDITATIO)) > 0 ) {
-			val = regen->sp * (100 + 3 * skill) / 100;
+		if( (lv = pc_checkskill(sd, HP_MEDITATIO)) > 0 ) {
+			val = regen->sp * (100 + lv * 3) / 100;
 			regen->sp = cap_value(val, 1, SHRT_MAX);
 		}
-
-		//Only players have skill/sitting skill regen for now.
-		sregen = regen->sregen;
+		sregen = regen->sregen; //Only players have skill/sitting skill regen for now
 
 		val = 0;
-		if( (skill = pc_checkskill(sd, SM_RECOVERY)) > 0 )
-			val += skill * 5 + skill * status->max_hp / 500;
-
+		if( (lv = pc_checkskill(sd, SM_RECOVERY)) > 0 )
+			val += lv * 5 + lv * status->max_hp / 500;
 		sregen->hp = cap_value(val, 0, SHRT_MAX);
 
 		val = 0;
-		if( (skill = pc_checkskill(sd, MG_SRECOVERY)) > 0 )
-			val += skill * 3 + skill * status->max_sp / 500;
-		if( (skill = pc_checkskill(sd, NJ_NINPOU)) > 0 )
-			val += skill * 3 + skill * status->max_sp / 500;
-		if( (skill = pc_checkskill(sd, WM_LESSON)) > 0 )
-			val += skill * 3 + skill * status->max_sp / 500;
-
+		if( (lv = pc_checkskill(sd, MG_SRECOVERY)) > 0 )
+			val += lv * 3 + lv * status->max_sp / 500;
+		if( (lv = pc_checkskill(sd, NJ_NINPOU)) > 0 )
+			val += lv * 3 + lv * status->max_sp / 500;
+		if( (lv = pc_checkskill(sd, WM_LESSON)) > 0 )
+			val += lv * 3 + lv * status->max_sp / 500;
 		sregen->sp = cap_value(val, 0, SHRT_MAX);
-
-		//Skill-related recovery (only when sit)
-		sregen = regen->ssregen;
+		sregen = regen->ssregen; //Skill-related recovery (only when sit)
 
 		val = 0;
-		if( (skill = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0 )
-			val += skill * 4 + skill * status->max_hp / 500;
-
-		if( (skill = pc_checkskill(sd, TK_HPTIME)) > 0 && sd->state.rest )
-			val += skill * 30 + skill * status->max_hp / 500;
+		if( (lv = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0 )
+			val += lv * 4 + lv * status->max_hp / 500;
+		if( (lv = pc_checkskill(sd, TK_HPTIME)) > 0 && sd->state.rest )
+			val += lv * 30 + lv * status->max_hp / 500;
 		sregen->hp = cap_value(val, 0, SHRT_MAX);
 
 		val = 0;
-		if( (skill = pc_checkskill(sd, TK_SPTIME)) > 0 && sd->state.rest ) {
-			val += skill * 3 + skill * status->max_sp / 500;
-			if( (skill = pc_checkskill(sd, SL_KAINA)) > 0 ) //Power up Enjoyable Rest
-				val += (30 + 10 * skill) * val / 100;
+		if( (lv = pc_checkskill(sd, TK_SPTIME)) > 0 && sd->state.rest ) {
+			val += lv * 3 + lv * status->max_sp / 500;
+			if( (lv = pc_checkskill(sd, SL_KAINA)) > 0 ) //Power up Enjoyable Rest
+				val += (30 + lv * 10) * val / 100;
 		}
-		if( (skill = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0 )
-			val += skill * 2 + skill * status->max_sp / 500;
+		if( (lv = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0 )
+			val += lv * 2 + lv * status->max_sp / 500;
 		sregen->sp = cap_value(val, 0, SHRT_MAX);
 	}
 
 	if( bl->type == BL_HOM ) {
 		struct homun_data *hd = (TBL_HOM *)bl;
 
-		if( (skill = hom_checkskill(hd, HAMI_SKIN)) > 0 ) {
-			val = regen->hp * (100 + 5 * skill) / 100;
+		if( (lv = hom_checkskill(hd, HAMI_SKIN)) > 0 ) {
+			val = regen->hp * (100 + lv * 5) / 100;
 			regen->hp = cap_value(val, 1, SHRT_MAX);
 		}
-		if( (skill = hom_checkskill(hd, HLIF_BRAIN)) > 0 ) {
-			val = regen->sp * (100 + 3 * skill) / 100;
+		if( (lv = hom_checkskill(hd, HLIF_BRAIN)) > 0 ) {
+			val = regen->sp * (100 + lv * 3) / 100;
 			regen->sp = cap_value(val, 1, SHRT_MAX);
 		}
 	} else if( bl->type == BL_MER ) {
@@ -4111,7 +4096,7 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 	} else if( bl->type == BL_ELEM ) {
 		val = (status->max_hp * status->vit / 10000 + 1) * 6;
 		regen->hp = cap_value(val, 1, SHRT_MAX);
-		
+
 		val = (status->max_sp * (status->int_ + 10) / 750) + 1;
 		regen->sp = cap_value(val, 1, SHRT_MAX);
 	}
@@ -4602,7 +4587,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			status->amotion = cap_value(amotion, battle_config.max_aspd, 2000);
 			status->adelay = status->amotion;
 		} else if( bl->type&BL_PC ) {
-			uint16 skill;
+			uint16 lv;
 			int val = 0;
 			float temp;
 
@@ -4624,16 +4609,16 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 					break;
 			}
 			temp = (float)(sqrt(temp) * 0.25f);
-			if( (skill = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK )
-				val += (skill - 1) / 2 + 1;
-			if( (skill = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE) )
-				val += ((skill + 1) / 2);
+			if( (lv = pc_checkskill(sd,SA_ADVANCEDBOOK)) > 0 && sd->status.weapon == W_BOOK )
+				val += (lv - 1) / 2 + 1;
+			if( (lv = pc_checkskill(sd,GS_SINGLEACTION)) > 0 && (sd->status.weapon >= W_REVOLVER && sd->status.weapon <= W_GRENADE) )
+				val += ((lv + 1) / 2);
 			amotion -= (int)(temp + (float)((status_calc_aspd(bl, sc, 1) + val) * status->agi) / 200) * 10;
 			if( status->aspd_rate != 1000 ) //Absolute ASPD % modifier
 				amotion = (200 - (200 - amotion / 10) * status->aspd_rate / 1000) * 10;
 #endif
-			if( sd->ud.skilltimer != INVALID_TIMER && (skill = pc_checkskill(sd, SA_FREECAST)) > 0 )
-				amotion *= (skill + 10) * 5 / 100;
+			if( sd->ud.skilltimer != INVALID_TIMER && (lv = pc_checkskill(sd, SA_FREECAST)) > 0 )
+				amotion *= (lv + 10) * 5 / 100;
 #ifdef RENEWAL_ASPD
 			if( (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) != 0 ) //RE ASPD % modifier
 				amotion -= (amotion - pc_maxaspd(sd)) * (status_calc_aspd(bl, sc, 2) + status->aspd_rate2) / 100 + 5; //Don't have round()
@@ -7452,8 +7437,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		return 0;
 	}
 
-	if( !sc )
-		return 0; //Unable to receive status changes
+	if( !sc ) //Unable to receive status changes
+		return 0;
 
 	if( status_isdead(bl) && type != SC_NOCHAT ) //SC_NOCHAT should work even on dead characters
 		return 0;
@@ -7461,12 +7446,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 	if( bl->type == BL_MOB ) {
 		struct mob_data *md = BL_CAST(BL_MOB,bl);
 
-		if( md && (mob_is_gvg(md) || mob_is_battleground(md)) &&
+		if( md && (mob_is_gvg(md) || mob_is_battleground(md)) && //GVG/BG Monsters can't be afflicted by status changes
 			type != SC_SAFETYWALL && type != SC_PNEUMA && type != SC_NEUTRALBARRIER && type != SC_STEALTHFIELD )
-			return 0; //GVG/BG Monsters can't be afflicted by status changes
+			return 0;
 	}
 
-	if( sc->data[SC_REFRESH] ) { //Immunes against status effects
+	//Immunes against status effects
+	if( sc->data[SC_REFRESH] ) {
 		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX )
 			return 0;
 		switch( type ) {
@@ -7474,7 +7460,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_WHITEIMPRISON:	case SC_MARSHOFABYSS:	case SC_TOXIN:
 			case SC_PARALYSE:	case SC_VENOMBLEED:	case SC_MAGICMUSHROOM:
 			case SC_DEATHHURT:	case SC_PYREXIA:	case SC_OBLIVIONCURSE:
-			case SC_DEEPSLEEP:	case SC_CRYSTALIZE:	case SC_MANDRAGORA:
+			case SC_LEECHESEND:	case SC_DEEPSLEEP:	case SC_CRYSTALIZE:
+			case SC_MANDRAGORA:
 				return 0;
 		}
 	}
@@ -7483,12 +7470,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX )
 			return 0;
 		switch( type ) {
+			case SC_FEAR:		case SC_BURNING:	case SC_FREEZING:
 			case SC_TOXIN:		case SC_PARALYSE:	case SC_VENOMBLEED:
 			case SC_MAGICMUSHROOM:	case SC_DEATHHURT:	case SC_PYREXIA:
 			case SC_OBLIVIONCURSE:	case SC_LEECHESEND:	case SC__BODYPAINT:
 			case SC__ENERVATION:	case SC__GROOMY:	case SC__IGNORANCE:
 			case SC__LAZINESS:	case SC__UNLUCKY:	case SC__WEAKNESS:
-			case SC_DEEPSLEEP:	case SC_SATURDAYNIGHTFEVER:
+			case SC_DEEPSLEEP:	case SC_CRYSTALIZE:	case SC_SATURDAYNIGHTFEVER:
 				return 0;
 		}
 	}

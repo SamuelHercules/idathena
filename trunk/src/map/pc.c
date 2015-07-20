@@ -3973,12 +3973,13 @@ int pc_insert_card(struct map_session_data *sd, int idx_card, int idx_equip)
  *------------------------------------------*/
 int pc_modifybuyvalue(struct map_session_data *sd,int orig_value)
 {
-	int skill, val = orig_value, rate1 = 0, rate2 = 0;
+	uint16 lv;
+	int val = orig_value, rate1 = 0, rate2 = 0;
 
-	if((skill = pc_checkskill(sd,MC_DISCOUNT)) > 0) //Merchant discount
-		rate1 = 5 + skill * 2 - ((skill == 10) ? 1 : 0);
-	if((skill = pc_checkskill(sd,RG_COMPULSION)) > 0) //Rogue discount
-		rate2 = 5 + skill * 4;
+	if((lv = pc_checkskill(sd,MC_DISCOUNT)) > 0) //Merchant discount
+		rate1 = 5 + lv * 2 - (lv == 10 ? 1 : 0);
+	if((lv = pc_checkskill(sd,RG_COMPULSION)) > 0) //Rogue discount
+		rate2 = 5 + lv * 4;
 	if(rate1 < rate2)
 		rate1 = rate2;
 	if(rate1)
@@ -3996,10 +3997,11 @@ int pc_modifybuyvalue(struct map_session_data *sd,int orig_value)
  *------------------------------------------*/
 int pc_modifysellvalue(struct map_session_data *sd,int orig_value)
 {
-	int skill, val = orig_value, rate = 0;
+	uint16 lv;
+	int val = orig_value, rate = 0;
 
-	if((skill = pc_checkskill(sd,MC_OVERCHARGE)) > 0) //Over Charge
-		rate = 5 + skill * 2 - ((skill == 10) ? 1 : 0);
+	if((lv = pc_checkskill(sd,MC_OVERCHARGE)) > 0) //Over Charge
+		rate = 5 + lv * 2 - (lv == 10 ? 1 : 0);
 	if(rate)
 		val = (int)((double)orig_value * (double)(100 + rate) / 100.);
 	if(val < 0)
@@ -5151,7 +5153,8 @@ int pc_steal_item(struct map_session_data *sd, struct block_list *bl, uint16 ski
  */
 int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 {
-	int rate, skill;
+	int rate;
+	uint16 lv;
 	struct mob_data *md;
 
 	if( !sd || !target || target->type != BL_MOB )
@@ -5164,11 +5167,11 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 	if( mob_is_treasure(md) )
 		return 0;
 
-	skill = pc_checkskill(sd,RG_STEALCOIN);
-	rate = skill * 10 + (sd->status.base_level - md->level) * 2 + sd->battle_status.dex / 2 + sd->battle_status.luk / 2;
+	lv = pc_checkskill(sd,RG_STEALCOIN);
+	rate = lv * 10 + (sd->status.base_level - md->level) * 2 + sd->battle_status.dex / 2 + sd->battle_status.luk / 2;
 	if( rnd()%1000 < rate ) {
 		//mob_lv * skill_lv / 10 + random [mob_lv * 8; mob_lv * 10]
-		int amount = md->level * skill / 10 + md->level * 8 + rnd()%(md->level * 2 + 1);
+		int amount = md->level * lv / 10 + md->level * 8 + rnd()%(md->level * 2 + 1);
 
 		pc_getzeny(sd,amount,LOG_TYPE_STEAL,NULL);
 		md->state.steal_coin_flag = 1;
@@ -5404,7 +5407,7 @@ char pc_randomwarp(struct map_session_data *sd, clr_type type)
  *------------------------------------------*/
 bool pc_memo(struct map_session_data *sd, int pos)
 {
-	uint16 skill;
+	uint16 lv;
 
 	nullpo_retr(false, sd);
 
@@ -5417,12 +5420,12 @@ bool pc_memo(struct map_session_data *sd, int pos)
 	if( pos < -1 || pos >= MAX_MEMOPOINTS )
 		return false; // Invalid input
 	// Check required skill level
-	skill = pc_checkskill(sd, AL_WARP);
-	if( skill < 1 ) {
+	lv = pc_checkskill(sd, AL_WARP);
+	if( lv < 1 ) {
 		clif_skill_memomessage(sd, 2); // "You haven't learned Warp."
 		return false;
 	}
-	if( skill < 2 || skill - 2 < pos ) {
+	if( lv < 2 || lv - 2 < pos ) {
 		clif_skill_memomessage(sd, 1); // "Skill Level is not high enough."
 		return false;
 	}

@@ -4862,7 +4862,7 @@ void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, 
 
 	if( (unit->group->state.song_dance&0x1) && (unit->val2&UF_ENSEMBLE) )
 		unit_id = (unit->val2&UF_SONG) ? UNT_DISSONANCE : UNT_UGLYDANCE;
-	else if( (skill_get_unit_flag(unit->group->skill_id)&UF_RANGEDSINGLEUNIT) && !(unit->val2&UF_RANGEDSINGLEUNIT) )
+	else if( (skill_get_unit_flag(unit->group->skill_id)&UF_RANGEDSINGLEUNIT) && !(unit->val4&UF_RANGEDSINGLEUNIT) )
 		unit_id = UNT_DUMMYSKILL; //Use invisible unit id for other case of rangedsingle unit
 	else
 		unit_id = unit->group->unit_id;

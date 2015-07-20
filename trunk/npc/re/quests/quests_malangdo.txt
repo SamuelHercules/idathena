@@ -2754,7 +2754,7 @@ L_Warp:
 
 // Malangdo Island :: mal_ppl
 //============================================================
-malangdo,137,200,6	script	Pipielle	549,{
+/*malangdo,137,200,6	script	Pipielle	549,{
 	if (MaxWeight - Weight < 1000) {
 		mes "Your inventory is too heavy to proceed. Come back after lightening your load.";
 		close;
@@ -2882,7 +2882,7 @@ malangdo,137,200,6	script	Pipielle	549,{
 		mes "^0000ffReceived 200 E Class Coins.^000000";
 		close;
 	}
-}
+}*/
 
 // Help the Bad Cats in Danger :: mal_bad_guys
 //============================================================
