@@ -1105,33 +1105,33 @@ static char itemdb_gendercheck(struct item_data *id)
 }
 
 /**
- * [RRInd]
- * For backwards compatibility, in Renewal mode, MATK from weapons comes from the atk slot
- * We use a ':' delimiter which, if not found, assumes the weapon does not provide any matk.
+ * [Ind]
+ * For backwards compatibility, in renewal, MATK from weapons comes from the atk slot
+ * We use a ':' delimiter which, if not found, assumes the weapon does not provide any MATK.
  */
-static void itemdb_re_split_atoi(char *str, int *atk, int *matk) {
+static void itemdb_re_split_atoi(char *str, int *val1, int *val2) {
 	int i, val[2];
 
 	for (i = 0; i < 2; i++) {
-		if (!str) break;
+		if (!str)
+			break;
 		val[i] = atoi(str);
 		str = strchr(str,':');
 		if (str)
 			*str++ = 0;
 	}
 	if (i == 0) {
-		*atk = *matk = 0;
+		*val1 = *val2 = 0;
 		return; //No data found
 	}
-	if (i == 1) { //Single Value, we assume it's the ATK
-		*atk = val[0];
-		*matk = 0;
+	if (i == 1) { //Single value
+		*val1 = val[0];
+		*val2 = 0;
 		return;
 	}
 	//We assume we have 2 values
-	*atk = val[0];
-	*matk = val[1];
-	return;
+	*val1 = val[0];
+	*val2 = val[1];
 }
 
 /**
@@ -1164,8 +1164,8 @@ static bool itemdb_parse_dbrow(char **str, const char *source, int line, int scr
 
 	id->type = atoi(str[3]);
 
-	if (id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 || (id->type > IT_SHADOWGEAR && id->type < IT_CASH) || id->type >= IT_MAX)
-	{ //Catch invalid item types
+	if (id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 ||
+		(id->type > IT_SHADOWGEAR && id->type < IT_CASH) || id->type >= IT_MAX) { //Catch invalid item types
 		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %hu. IT_ETC will be used.\n", id->type, nameid);
 		id->type = IT_ETC;
 	}
@@ -1229,8 +1229,8 @@ static bool itemdb_parse_dbrow(char **str, const char *source, int line, int scr
 	}
 
 	id->wlv = cap_value(atoi(str[15]), REFINE_TYPE_ARMOR, REFINE_TYPE_MAX);
-	itemdb_re_split_atoi(str[16],&id->elv,&id->elvmax);
-	id->flag.no_refine = atoi(str[17]) ? 0 : 1; //FIXME: verify this
+	itemdb_re_split_atoi(str[16], &id->elv, &id->elvmax);
+	id->flag.no_refine = (atoi(str[17]) ? 0 : 1); //FIXME: verify this
 	id->look = atoi(str[18]);
 
 	id->flag.available = 1;

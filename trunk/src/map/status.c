@@ -6196,7 +6196,7 @@ static short status_calc_fix_aspd(struct block_list *bl, struct status_change *s
 	if (sc->data[SC_MTF_ASPD])
 		aspd -= sc->data[SC_MTF_ASPD]->val1;
 	if (sc->data[SC_MTF_ASPD2])
-		aspd -= sc->data[SC_MTF_ASPD]->val1;
+		aspd -= sc->data[SC_MTF_ASPD2]->val1;
 
     return cap_value(aspd, 0, 2000); //Will be recap for proper bl anyway
 }
