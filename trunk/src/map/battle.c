@@ -307,7 +307,7 @@ int battle_delay_damage(unsigned int tick, int amotion, struct block_list *src, 
 	dat->src_type = src->type;
 
 	if( src->type != BL_PC && amotion > 1000 )
-		amotion = 1000; //Aegis places a damage-delay cap of 1 sec to non player attacks. [Skotlex]
+		amotion = 1000; //Aegis places a damage-delay cap of 1 sec to non player attacks [Skotlex]
 
 	if( src->type == BL_PC )
 		((TBL_PC *)src)->delayed_damage++;
@@ -2225,8 +2225,8 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 	if(!first_call)
 		return (wd.type == DMG_CRITICAL);
 
-	if(skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK) //Always critical skills
-		return true;
+	if(skill_id == NPC_CRITICALSLASH || skill_id == LG_PINPOINTATTACK)
+		return true; //Always critical
 
 	if(!(wd.type&DMG_MULTI_HIT) && sstatus->cri &&
 		(!skill_id || skill_id == KN_AUTOCOUNTER ||
@@ -2236,6 +2236,8 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 		short cri = sstatus->cri;
 
 		if(sd) {
+			if(sd->status.weapon == W_KATAR)
+				cri <<= 1; //On official double critical bonus from katar won't showed in status display
 			cri += sd->critaddrace[tstatus->race] + sd->critaddrace[RC_ALL];
 			if(is_skill_using_arrow(src, skill_id))
 				cri += sd->bonus.arrow_cri;
@@ -2257,6 +2259,7 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 					break;
 				clif_specialeffect(src, 131, AREA);
 				status_change_end(src, SC_AUTOCOUNTER, INVALID_TIMER);
+			//Fall through
 			case KN_AUTOCOUNTER:
 				if(battle_config.auto_counter_type && (battle_config.auto_counter_type&src->type))
 					return true;
@@ -4727,7 +4730,7 @@ struct Damage battle_calc_attack_left_right_hands(struct Damage wd, struct block
 		if(!is_attack_right_handed(src, skill_id) && is_attack_left_handed(src, skill_id)) {
 			wd.damage = wd.damage2;
 			wd.damage2 = 0;
-		} else if(sd->status.weapon == W_KATAR && !skill_id) { //Katars (offhand damage only applies to normal attacks, tested on Aegis 10.2)
+		} else if(sd->status.weapon == W_KATAR && !skill_id) { //Katar (off hand damage only applies to normal attacks, tested on Aegis 10.2)
 			lv = pc_checkskill(sd, TF_DOUBLE);
 			wd.damage2 = wd.damage * (1 + lv * 2) / 100;
 		} else if(is_attack_right_handed(src, skill_id) && is_attack_left_handed(src, skill_id)) { //Dual-wield
