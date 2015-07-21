@@ -276,6 +276,7 @@ enum {
 //Create Database item
 struct s_skill_produce_db {
 	unsigned short nameid, //Product ID
+		unique_id, //Unique ID
 		req_skill, //Required Skill
 		req_skill_lv, //Required Skill Level
 		itemlv, //Item Level
@@ -439,8 +440,8 @@ bool skill_isNotOk_mercenary(uint16 skill_id, struct mercenary_data *md);
 bool skill_isNotOk_npcRange(struct block_list *src, uint16 skill_id, uint16 skill_lv, int pos_x, int pos_y);
 
 //Item creation
-short skill_can_produce_mix(struct map_session_data *sd, unsigned short nameid, int trigger, int qty);
-bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty);
+short skill_can_produce_mix(struct map_session_data *sd, unsigned short nameid, unsigned short unique_id, int trigger, int qty);
+bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned short nameid, unsigned short unique_id, int slot1, int slot2, int slot3, int qty);
 
 bool skill_arrow_create(struct map_session_data *sd, unsigned short nameid);
 

@@ -7167,7 +7167,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			if (bl->type != BL_PC)
 				tick_def2 = (status->vit + status->luk) * 50;
 			break;
-		case SC_STASIS: //10 secs (fixed) + {(Stasis Skill level * 10 - (Target VIT + DEX) / 20)}
+		case SC_STASIS: //10 secs (fixed) + {(Stasis Skill level * 10 - (Target's VIT + DEX) / 20)}
 			tick_def2 = (status->vit + status->dex) * 50;
 			break;
 		case SC_BURNING:
@@ -7308,7 +7308,7 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			tick = max(tick,4000); //4 secs
 			break;
 		case SC_ANKLE:
-			tick = max(tick,5000 + status_get_lv(bl) * 10); //5 secs + (Target AGI * 0.01)
+			tick = max(tick,5000 + status_get_lv(bl) * 10); //5 secs + (Target's AGI * 0.01)
 			break;
 		case SC_BURNING:
 		case SC_MARSHOFABYSS:
@@ -9544,13 +9544,13 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 
 					if( casterint <= 0 )
 						casterint = 1; //Prevents dividing by 0 since its possiable to reduce players stats to 0 [Rytech]
-					val2 = (status_get_dex(src) / 4 + status_get_str(src) / 2) * val1 / 5; //ATK increase: ATK [{(Caster DEX / 4) + (Caster STR / 2)} x Skill Level / 5]
-					val3 = status->agi * val1 / 60; //ASPD increase: [(Target AGI x Skill Level) / 60] %
-					val4 = 200 / casterint * val1; //MDEF decrease: MDEF [(200 / Caster INT) x Skill Level]
+					val2 = (status_get_dex(src) / 4 + status_get_str(src) / 2) * val1 / 5; //ATK increase: ATK [{(Caster's DEX / 4) + (Caster's STR / 2)} x Skill Level / 5]
+					val3 = status->agi * val1 / 60; //ASPD increase: [(Target's AGI x Skill Level) / 60] %
+					val4 = 200 / casterint * val1; //MDEF decrease: MDEF [(200 / Caster's INT) x Skill Level]
 				}
 				break;
 			case SC_GT_REVITALIZE: 
-				val2 = status_get_vit(src) / 4 * val1; //Stat DEF increase: [(Caster VIT / 4) x Skill Level]
+				val2 = status_get_vit(src) / 4 * val1; //Stat DEF increase: [(Caster's VIT / 4) x Skill Level]
 				val3 = val1 * 30 + 50; //Natural HP recovery increase: [(Skill Level x 30) + 50] %
 				break;
 			case SC_PYROTECHNIC_OPTION:
@@ -11741,7 +11741,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 
 		case SC_LEECHESEND:
 			if( --(sce->val4) >= 0 ) {
-				//{Target VIT x (New Poison Research Skill Level - 3)} + (Target HP / 100)
+				//{Target's VIT x (New Poison Research Skill Level - 3)} + (Target's HP / 100)
 				int damage = status->vit * (sce->val1 - 3) + status->max_hp / 100;
 				struct block_list *src = map_id2bl(sce->val2);
 

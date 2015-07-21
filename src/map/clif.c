@@ -5770,7 +5770,7 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_id, int 
 	WFIFOW(fd,0) = 0x18d;
 
 	for( i = 0, c = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
-		if( skill_can_produce_mix(sd,skill_produce_db[i].nameid,trigger,1) &&
+		if( skill_can_produce_mix(sd,skill_produce_db[i].nameid,skill_produce_db[i].unique_id,trigger,1) &&
 			(skill_id <= 0 || (skill_id && skill_produce_db[i].req_skill == skill_id)) ) {
 			if( (view = itemdb_viewid(skill_produce_db[i].nameid)) > 0 )
 				WFIFOW(fd,c * 8 + 4) = view;
@@ -5819,7 +5819,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, uint16 skill_id
 
 	c = 0;
 	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
-		if( !skill_can_produce_mix(sd,skill_produce_db[i].nameid,trigger, qty) )
+		if( !skill_can_produce_mix(sd,skill_produce_db[i].nameid,skill_produce_db[i].unique_id,trigger,qty) )
 			continue;
 		if( (view = itemdb_viewid(skill_produce_db[i].nameid)) > 0 )
 			WFIFOW(fd, 6 + 2 * c) = view;
@@ -12034,14 +12034,13 @@ void clif_parse_ProduceMix(int fd, struct map_session_data *sd)
 		default:
 			return;
 	}
-	if (pc_istrading(sd)) {
-		//Make it fail to avoid shop exploits where you sell something different than you see.
+	if (pc_istrading(sd)) { //Make it fail to avoid shop exploits where you sell something different than you see
 		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 		clif_menuskill_clear(sd);
 		return;
 	}
-	if (skill_can_produce_mix(sd,nameid,sd->menuskill_val,1))
-		skill_produce_mix(sd,0,nameid,slot1,slot2,slot3,1);
+	if (skill_can_produce_mix(sd,nameid,0,sd->menuskill_val,1))
+		skill_produce_mix(sd,0,nameid,0,slot1,slot2,slot3,1);
 	clif_menuskill_clear(sd);
 }
 
@@ -12071,8 +12070,8 @@ void clif_parse_Cooking(int fd, struct map_session_data *sd) {
 		return;
 	}
 
-	if (skill_can_produce_mix(sd,nameid,sd->menuskill_val,amount))
-		skill_produce_mix(sd,(type > 1 ? sd->menuskill_id : 0),nameid,0,0,0,amount);
+	if (skill_can_produce_mix(sd,nameid,0,sd->menuskill_val,amount))
+		skill_produce_mix(sd,(type > 1 ? sd->menuskill_id : 0),nameid,0,0,0,0,amount);
 	clif_menuskill_clear(sd);
 }
 
@@ -12235,7 +12234,7 @@ void clif_parse_SelectArrow(int fd, struct map_session_data *sd)
 			skill_arrow_create(sd,nameid);
  			break;
  		case SA_CREATECON:
-			skill_produce_mix(sd,SA_CREATECON,nameid,0,0,0,1);
+			skill_produce_mix(sd,SA_CREATECON,nameid,0,0,0,0,1);
  			break;
  		case WL_READING_SB:
 			skill_spellbook(sd,nameid);
@@ -17232,7 +17231,7 @@ int clif_elementalconverter_list(struct map_session_data *sd) {
 	WFIFOW(fd,0) = 0x1ad;
 
 	for( i = 0, c = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
-		if( skill_can_produce_mix(sd,skill_produce_db[i].nameid,23,1) ) {
+		if( skill_can_produce_mix(sd,skill_produce_db[i].nameid,skill_produce_db[i].unique_id,23,1) ) {
 			if( (view = itemdb_viewid(skill_produce_db[i].nameid)) > 0 )
 				WFIFOW(fd,c * 2 + 4) = view;
 			else
