@@ -3897,7 +3897,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 				if(tsd && tsd->weight)
 					skillratio += 100 * tsd->weight / tsd->max_weight;
 				RE_LVL_DMOD(150);
-			} else { //ATK [(Skill Level x 100 + 500) x Caster Base Level / 100] %
+			} else { //ATK [(Skill Level x 100 + 500) x Caster's Base Level / 100] %
 				skillratio += 400 + 100 * skill_lv;
 				RE_LVL_DMOD(100);
 			}

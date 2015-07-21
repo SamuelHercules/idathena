@@ -86,6 +86,7 @@ struct s_skill_improvise_db skill_improvise_db[MAX_SKILL_IMPROVISE_DB];
 #define MAX_SKILL_CHANGEMATERIAL_SET 3
 struct s_skill_changematerial_db {
 	unsigned short nameid,
+		unique_id,
 		rate,
 		qty[MAX_SKILL_CHANGEMATERIAL_SET],
 		qty_rate[MAX_SKILL_CHANGEMATERIAL_SET];
@@ -1389,7 +1390,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			else if( dstmd )
 				sc_start(src,bl,SC_STUN,100,skill_lv,1000 * rnd()%4);
 			break;
-		case SR_GENTLETOUCH_QUIET: //[(Skill Level x 5) + (Caster DEX + Caster Base Level) / 10]
+		case SR_GENTLETOUCH_QUIET: //[(Skill Level x 5) + (Caster's DEX + Caster's Base Level) / 10]
 			sc_start(src,bl,SC_SILENCE,(sstatus->dex + status_get_lv(src)) / 10 + skill_lv * 5,skill_lv,skill_get_time(skill_id,skill_lv));
 			break;
 		case SR_EARTHSHAKER:
@@ -6912,7 +6913,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case AL_HOLYWATER:
 			if(sd) {
-				if (skill_produce_mix(sd,skill_id,523,0,0,0,1))
+				if (skill_produce_mix(sd,skill_id,ITEMID_HOLY_WATER,0,0,0,0,1))
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				else
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
@@ -6945,7 +6946,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case ASC_CDP:
 			if(sd) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				skill_produce_mix(sd,skill_id,678,0,0,0,1); //Produce a Deadly Poison Bottle.
+				skill_produce_mix(sd,skill_id,ITEMID_POISON_BOTTLE,0,0,0,0,1);
 			}
 			break;
 
@@ -7162,16 +7163,16 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case AM_TWILIGHT1:
 			if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				//Prepare 200 White Potions.
-				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_POTION,0,0,0,200) )
+				//Prepare 200 White Potions
+				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_POTION,0,0,0,0,200) )
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			}
 			break;
 		case AM_TWILIGHT2:
 			if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				//Prepare 200 Slim White Potions.
-				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_SLIM_POTION,0,0,0,200) )
+				//Prepare 200 Slim White Potions
+				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_SLIM_POTION,0,0,0,0,200) )
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			}
 			break;
@@ -7182,18 +7183,18 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				if( ebottle != INDEX_NOT_FOUND )
 					ebottle = sd->status.inventory[ebottle].amount;
 				//Check if you can produce all three, if not, then fail:
-				if( !skill_can_produce_mix(sd,ITEMID_ALCOHOL,-1,100) || //100 Alcohol
-					!skill_can_produce_mix(sd,ITEMID_ACID_BOTTLE,-1,50) || //50 Acid Bottle
-					!skill_can_produce_mix(sd,ITEMID_FIRE_BOTTLE,-1,50) || //50 Flame Bottle
+				if( !skill_can_produce_mix(sd,ITEMID_ALCOHOL,0,-1,100) || //100 Alcohol
+					!skill_can_produce_mix(sd,ITEMID_ACID_BOTTLE,0,-1,50) || //50 Acid Bottle
+					!skill_can_produce_mix(sd,ITEMID_FIRE_BOTTLE,0,-1,50) || //50 Flame Bottle
 					ebottle < 200 ) //200 empty bottle are required at total
 				{
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					break;
 				}
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				skill_produce_mix(sd,skill_id,ITEMID_ALCOHOL,0,0,0,100);
-				skill_produce_mix(sd,skill_id,ITEMID_ACID_BOTTLE,0,0,0,50);
-				skill_produce_mix(sd,skill_id,ITEMID_FIRE_BOTTLE,0,0,0,50);
+				skill_produce_mix(sd,skill_id,ITEMID_ALCOHOL,0,0,0,0,100);
+				skill_produce_mix(sd,skill_id,ITEMID_ACID_BOTTLE,0,0,0,0,50);
+				skill_produce_mix(sd,skill_id,ITEMID_FIRE_BOTTLE,0,0,0,0,50);
 			}
 			break;
 		case SA_DISPELL: {
@@ -8646,7 +8647,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case AB_ANCILLA:
 			if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				skill_produce_mix(sd,skill_id,ITEMID_ANCILLA,0,0,0,1);
+				skill_produce_mix(sd,skill_id,ITEMID_ANCILLA,0,0,0,0,1);
 			}
 			break;
 
@@ -9619,7 +9620,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case WM_LULLABY_DEEPSLEEP:
-			if( flag&1 ) { //[(Skill Level x 4) + (Voice Lessons Skill Level x 2) + (Caster Base Level / 15) + (Caster Job Level / 5)] %
+			if( flag&1 ) { //[(Skill Level x 4) + (Voice Lessons Skill Level x 2) + (Caster's Base Level / 15) + (Caster's Job Level / 5)] %
 				if( bl->id == src->id )
 					break;
 				rate = min(60,4 * skill_lv + (sd ? pc_checkskill(sd,WM_LESSON) * 2 + min(50,sd->status.job_level) / 5 : 0) + min(150,status_get_lv(src)) / 15);
@@ -9890,7 +9891,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case SO_ARRULLO:
-			//[(15 + 5 * Skill Level) + (Caster INT / 5) + (Caster Job Level / 5) - (Target INT / 6) - (Target LUK / 10)]%
+			//[(15 + 5 * Skill Level) + (Caster's INT / 5) + (Caster's Job Level / 5) - (Target's INT / 6) - (Target's LUK / 10)]%
 			rate = (15 + 5 * skill_lv) + status_get_int(src) / 5 + (sd ? sd->status.job_level / 5 : 0);
 			rate -= status_get_int(bl) / 6 - status_get_luk(bl) / 10;
 			tick = status_get_lv(bl) / 20 + status_get_base_status(bl)->int_ / 40;
@@ -18349,7 +18350,6 @@ int skill_unit_move(struct block_list *bl, unsigned int tick, int flag)
 			if( skill_unit_temp[i] )
 				skill_unit_onleft(skill_unit_temp[i], bl, tick);
 	}
-
 	return 0;
 }
 
@@ -18368,53 +18368,53 @@ void skill_unit_move_unit_group(struct skill_unit_group *group, int16 m, int16 d
 	struct skill_unit *unit1;
 	struct skill_unit *unit2;
 
-	if (group == NULL)
+	if( group == NULL )
 		return;
 
-	if (group->unit_count <= 0)
+	if( group->unit_count <= 0 )
 		return;
 
-	if (group->unit == NULL)
+	if( group->unit == NULL )
 		return;
 
-	if (skill_get_unit_flag(group->skill_id)&UF_ENSEMBLE)
+	if( skill_get_unit_flag(group->skill_id)&UF_ENSEMBLE )
 		return; //Ensembles may not be moved around
 
-	m_flag = (int *) aCalloc(group->unit_count, sizeof(int));
+	m_flag = (int *)aCalloc(group->unit_count, sizeof(int));
 	//   m_flag
 	//		0: Neither of the following (skill_unit_onplace & skill_unit_onout are needed)
 	//		1: Unit will move to a slot that had another unit of the same group (skill_unit_onplace not needed)
 	//		2: Another unit from same group will end up positioned on this unit (skill_unit_onout not needed)
 	//		3: Both (1 + 2)
 
-	for (i = 0; i < group->unit_count; i++) {
+	for( i = 0; i < group->unit_count; i++ ) {
 		unit1 = &group->unit[i];
-		if (!unit1->alive || unit1->bl.m != m)
+		if( !unit1->alive || unit1->bl.m != m )
 			continue;
-		for (j = 0; j < group->unit_count; j++) {
+		for( j = 0; j < group->unit_count; j++ ) {
 			unit2 = &group->unit[j];
-			if (!unit2->alive)
+			if( !unit2->alive )
 				continue;
-			if (unit1->bl.x + dx == unit2->bl.x && unit1->bl.y + dy == unit2->bl.y)
+			if( unit1->bl.x + dx == unit2->bl.x && unit1->bl.y + dy == unit2->bl.y )
 				m_flag[i] |= 0x1;
-			if (unit1->bl.x - dx == unit2->bl.x && unit1->bl.y - dy == unit2->bl.y)
+			if( unit1->bl.x - dx == unit2->bl.x && unit1->bl.y - dy == unit2->bl.y )
 				m_flag[i] |= 0x2;
 		}
 	}
 
 	j = 0;
 
-	for (i = 0; i < group->unit_count; i++) {
+	for( i = 0; i < group->unit_count; i++ ) {
 		unit1 = &group->unit[i];
-		if (!unit1->alive)
+		if( !unit1->alive )
 			continue;
-		if (!(m_flag[i]&0x2)) {
-			if (group->state.song_dance&0x1) //Cancel dissonance effect
+		if( !(m_flag[i]&0x2) ) {
+			if( group->state.song_dance&0x1 ) //Cancel dissonance effect
 				skill_dance_overlap(unit1,0);
 			map_foreachincell(skill_unit_effect,unit1->bl.m,unit1->bl.x,unit1->bl.y,group->bl_flag,&unit1->bl,tick,4);
 		}
 		//Move Cell using "smart" criteria (avoid useless moving around)
-		switch (m_flag[i]) {
+		switch( m_flag[i] ) {
 			case 0:
 				//Cell moves independently, safely move it
 				map_foreachinmovearea(clif_outsight,&unit1->bl,AREA_SIZE,dx,dy,BL_PC,&unit1->bl);
@@ -18423,10 +18423,10 @@ void skill_unit_move_unit_group(struct skill_unit_group *group, int16 m, int16 d
 			case 1:
 				//Cell moves unto another cell, look for a replacement cell that won't collide
 				//and has no cell moving into it (flag == 2)
-				for (; j < group->unit_count; j++) {
+				for( ; j < group->unit_count; j++ ) {
 					int dx2, dy2;
 
-					if (m_flag[j] != 2 || !group->unit[j].alive)
+					if( m_flag[j] != 2 || !group->unit[j].alive )
 						continue;
 					//Move to where this cell would had moved
 					unit2 = &group->unit[j];
@@ -18442,14 +18442,13 @@ void skill_unit_move_unit_group(struct skill_unit_group *group, int16 m, int16 d
 			case 3:
 				break; //Don't move the cell as a cell will end on this tile anyway
 		}
-		if (!(m_flag[i]&0x2)) { //We only moved the cell in 0-1
-			if (group->state.song_dance&0x1) //Check for dissonance effect
+		if( !(m_flag[i]&0x2) ) { //We only moved the cell in 0-1
+			if( group->state.song_dance&0x1 ) //Check for dissonance effect
 				skill_dance_overlap(unit1,1);
 			clif_getareachar_skillunit(&unit1->bl,unit1,AREA,0);
 			map_foreachincell(skill_unit_effect,unit1->bl.m,unit1->bl.x,unit1->bl.y,group->bl_flag,&unit1->bl,tick,1);
 		}
 	}
-
 	aFree(m_flag);
 }
 
@@ -18458,66 +18457,67 @@ void skill_unit_move_unit_group(struct skill_unit_group *group, int16 m, int16 d
  * Checking if player has the item or not, the amount, and the weight limit.
  * @param sd Player
  * @param nameid Product requested
+ * @param unique_id Unique ID used
  * @param trigger Trigger criteria to match will 'ItemLv'
  * @param qty Amount of item will be created
  * @return 0 If failed or Index+1 of item found on skill_produce_db[]
  */
-short skill_can_produce_mix(struct map_session_data *sd, unsigned short nameid, int trigger, int qty)
+short skill_can_produce_mix(struct map_session_data *sd, unsigned short nameid, unsigned short unique_id, int trigger, int qty)
 {
 	short i, j;
 
 	nullpo_ret(sd);
 
-	if (!nameid || !itemdb_exists(nameid))
+	if( !nameid || !itemdb_exists(nameid) )
 		return 0;
 
-	for (i = 0; i < MAX_SKILL_PRODUCE_DB; i++) {
-		if (skill_produce_db[i].nameid == nameid) {
-			if ((j = skill_produce_db[i].req_skill) > 0 &&
-				pc_checkskill(sd,j) < skill_produce_db[i].req_skill_lv)
-				continue; //Must iterate again to check other skills that produce it. [malufett]
-			if (j > 0 && sd->menuskill_id > 0 && sd->menuskill_id != j)
+	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
+		if( skill_produce_db[i].nameid == nameid && skill_produce_db[i].unique_id == unique_id ) {
+			if( (j = skill_produce_db[i].req_skill) > 0 && pc_checkskill(sd,j) < skill_produce_db[i].req_skill_lv )
+				continue; //Must iterate again to check other skills that produce it [malufett]
+			if( j > 0 && sd->menuskill_id > 0 && sd->menuskill_id != j )
 				continue; //Special case
 			break;
 		}
 	}
 
-	if (i >= MAX_SKILL_PRODUCE_DB)
+	if( i >= MAX_SKILL_PRODUCE_DB )
 		return 0;
 
-	if (pc_checkadditem(sd, nameid, qty) == CHKADDITEM_OVERAMOUNT)
+	if( pc_checkadditem(sd, nameid, qty) == CHKADDITEM_OVERAMOUNT )
 		return 0; //Cannot carry the produced stuff
 
 	//Matching the requested produce list
-	if (trigger >= 0) {
-		if (trigger > 20) { //Non-weapon, non-food item (itemlv must match)
-			if (skill_produce_db[i].itemlv != trigger)
+	if( trigger >= 0 ) {
+		if( trigger > 20 ) { //Non-weapon, non-food item (itemlv must match)
+			if( skill_produce_db[i].itemlv != trigger )
 				return 0;
-		} else if (trigger > 10) { //Food (any item level between 10 and 20 will do)
-			if (skill_produce_db[i].itemlv <= 10 || skill_produce_db[i].itemlv > 20)
+		} else if( trigger > 10 ) { //Food (any item level between 10 and 20 will do)
+			if( skill_produce_db[i].itemlv <= 10 || skill_produce_db[i].itemlv > 20 )
 				return 0;
 		} else { //Weapon (itemlv must be higher or equal)
-			if (skill_produce_db[i].itemlv > trigger)
+			if( skill_produce_db[i].itemlv > trigger )
 				return 0;
 		}
 	}
 
 	//Check on player's inventory
-	for (j = 0; j < MAX_PRODUCE_RESOURCE; j++) {
+	for( j = 0; j < MAX_PRODUCE_RESOURCE; j++ ) {
 		unsigned short nameid;
 
-		if (!(nameid = skill_produce_db[i].mat_id[j]))
+		if( (nameid = skill_produce_db[i].mat_id[j]) == 0 )
 			continue;
-		if (skill_produce_db[i].mat_amount[j] == 0) {
-			if (pc_search_inventory(sd,nameid) == INDEX_NOT_FOUND)
+		if( skill_produce_db[i].mat_amount[j] == 0 ) {
+			if( pc_search_inventory(sd,nameid) == INDEX_NOT_FOUND )
 				return 0;
 		} else {
 			unsigned short idx, amt;
 
-			for (idx = 0, amt = 0; idx < MAX_INVENTORY; idx++)
-				if (sd->status.inventory[idx].nameid == nameid)
+			for( idx = 0, amt = 0; idx < MAX_INVENTORY; idx++ ) {
+				if( sd->status.inventory[idx].nameid == nameid )
 					amt += sd->status.inventory[idx].amount;
-			if (amt < qty * skill_produce_db[i].mat_amount[j])
+			}
+			if( amt < qty * skill_produce_db[i].mat_amount[j] )
 				return 0;
 		}
 	}
@@ -18529,13 +18529,14 @@ short skill_can_produce_mix(struct map_session_data *sd, unsigned short nameid, 
  * @param sd Player
  * @param skill_id Skill used
  * @param nameid Requested product
+ * @param unique_id Unique ID used
  * @param slot1
  * @param slot2
  * @param slot3
  * @param qty Amount of requested item
  * @return True is success, False if failed
  */
-bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty)
+bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned short nameid, unsigned short unique_id, int slot1, int slot2, int slot3, int qty)
 {
 	int slot[3];
 	int i, sc, ele, idx, equip, wlv, make_per = 0, flag = 0, skill_lv = 0;
@@ -18550,14 +18551,17 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 	if( sd->skill_id_old == skill_id ) 
 		skill_lv = sd->skill_lv_old;
 
-	if( !(idx = skill_can_produce_mix(sd,nameid,-1,qty)) )
+	if( !(idx = skill_can_produce_mix(sd,nameid,unique_id,-1,qty)) ) {
+		ShowError("skill_produce_mix: can't produce the material item\n");
 		return false;
+	}
+
 	idx--;
 
 	if( qty < 1 )
 		qty = 1;
 
-	if( !skill_id ) //A skill can be specified for some override cases.
+	if( !skill_id ) //A skill can be specified for some override cases
 		skill_id = skill_produce_db[idx].req_skill;
 
 	if( skill_id == GC_RESEARCHNEWPOISON )
@@ -18603,7 +18607,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 					if( sd->status.inventory[i].amount >= data->stack.amount ) {
 						clif_msg(sd,RUNE_CANT_CREATE);
 						return false;
-					} else { //The amount fits, say we got temp_qty 4 and 19 runes, we trim temp_qty to 1.
+					} else { //The amount fits, say we got temp_qty 4 and 19 runes, we trim temp_qty to 1
 						if( temp_qty + sd->status.inventory[i].amount >= data->stack.amount )
 							temp_qty = data->stack.amount - sd->status.inventory[i].amount;
 					}
@@ -18759,7 +18763,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 				break;
 			case GN_CHANGEMATERIAL:
 				for( i = 0; i < MAX_SKILL_CHANGEMATERIAL_DB; i++ ) {
-					if( skill_changematerial_db[i].nameid == nameid ) {
+					if( skill_changematerial_db[i].nameid == nameid && skill_changematerial_db[i].unique_id == unique_id ) {
 						make_per = skill_changematerial_db[i].rate * 10;
 						break;
 					}
@@ -18768,8 +18772,8 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 			case GN_S_PHARMACY: {
 					int difficulty = (620 - 20 * skill_lv); //(620 - 20 * Skill Level)
 
-					//(Caster INT) + (Caster DEX / 2) + (Caster LUK) + (Caster Job Level) + Random number between (30 ~ 150) +
-					//(Caster Base Level - 100) + (Potion Research x 5) + (Full Chemical Protection Skill Level) x (Random number between 4 ~ 10)
+					//(Caster's INT) + (Caster's DEX / 2) + (Caster's LUK) + (Caster's Job Level) + Random number between (30 ~ 150) +
+					//(Caster's Base Level - 100) + (Potion Research x 5) + (Full Chemical Protection Skill Level) x (Random number between 4 ~ 10)
 					make_per = status->int_ + status->dex / 2 + status->luk + sd->status.job_level + (30 + rnd()%120) +
 						(sd->status.base_level - 100) + pc_checkskill(sd,AM_LEARNINGPOTION) + pc_checkskill(sd,CR_FULLPROTECTION) * (4 + rnd()%6);
 					switch( nameid ) { //Difficulty factor
@@ -18813,7 +18817,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 				break;
 			case GN_MAKEBOMB:
 			case GN_MIX_COOKING:
-				{ //(Caster Job Level / 4) + (Caster LUK / 2) + (Caster DEX / 3)
+				{ //(Caster's Job Level / 4) + (Caster's LUK / 2) + (Caster's DEX / 3)
 					int difficulty = 30 + rnd()%120; //Random number between (30 ~ 150)
 
 					make_per = sd->status.job_level / 4 + status->luk / 2 + status->dex / 3;
@@ -19026,7 +19030,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 			int j, k = 0;
 
 			for( i = 0; i < MAX_SKILL_CHANGEMATERIAL_DB; i++ ) {
-				if( skill_changematerial_db[i].nameid == nameid ) {
+				if( skill_changematerial_db[i].nameid == nameid && skill_changematerial_db[i].unique_id == unique_id ) {
 					for( j = 0; j < MAX_SKILL_CHANGEMATERIAL_SET; j++ ) {
 						if( rnd()%1000 < skill_changematerial_db[i].qty_rate[j] ) {
 							int val, amt;
@@ -19494,7 +19498,7 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 			} while( n == j && c == n );
 			p--;
 			if( p > 0 ) {
-				skill_produce_mix(sd,GN_CHANGEMATERIAL,skill_produce_db[i].nameid,0,0,0,p);
+				skill_produce_mix(sd,GN_CHANGEMATERIAL,skill_produce_db[i].nameid,skill_produce_db[i].unique_id,0,0,0,p);
 				return 1;
 			}
 		}
@@ -20677,7 +20681,7 @@ static bool skill_parse_row_unitdb(char *split[], int columns, int current)
 }
 
 /** Reads Produce db
- * Structure: ProduceItemID,ItemLV,RequireSkill,Requireskill_lv,MaterialID1,MaterialAmount1,...
+ * Structure: ProduceItemID,UniqueID,ItemLV,RequireSkill,Requireskill_lv,MaterialID1,MaterialAmount1,...
  */
 static bool skill_parse_row_producedb(char *split[], int columns, int current)
 {
@@ -20693,11 +20697,12 @@ static bool skill_parse_row_producedb(char *split[], int columns, int current)
 	}
 
 	skill_produce_db[current].nameid = nameid;
-	skill_produce_db[current].itemlv = atoi(split[1]);
-	skill_produce_db[current].req_skill = atoi(split[2]);
-	skill_produce_db[current].req_skill_lv = atoi(split[3]);
+	skill_produce_db[current].unique_id = atoi(split[1]);
+	skill_produce_db[current].itemlv = atoi(split[2]);
+	skill_produce_db[current].req_skill = atoi(split[3]);
+	skill_produce_db[current].req_skill_lv = atoi(split[4]);
 
-	for( x = 4, y = 0; x + 1 < columns && split[x] && split[x + 1] && y < MAX_PRODUCE_RESOURCE; x += 2, y++ ) {
+	for( x = 5, y = 0; x + 1 < columns && split[x] && split[x + 1] && y < MAX_PRODUCE_RESOURCE; x += 2, y++ ) {
 		skill_produce_db[current].mat_id[y] = atoi(split[x]);
 		skill_produce_db[current].mat_amount[y] = atoi(split[x + 1]);
 	}
@@ -20737,9 +20742,7 @@ static bool skill_parse_row_createarrowdb(char *split[], int columns, int curren
 static bool skill_parse_row_spellbookdb(char *split[], int columns, int current)
 {
 	uint16 skill_id = atoi(split[0]);
-	unsigned short
-		points = atoi(split[1]),
-		nameid = atoi(split[2]);
+	unsigned short points = atoi(split[1]), nameid = atoi(split[2]);
 
 	if( !skill_get_index(skill_id) || !skill_get_max(skill_id) )
 		ShowError("skill_parse_row_spellbookdb: Invalid skill ID %d\n", skill_id);
@@ -20898,12 +20901,10 @@ static bool skill_parse_row_abradb(char *split[], int columns, int current) {
 }
 
 /** Reads change material db
- * Structure: ProductID,BaseRate,MakeAmount1,MakeAmountRate1...,MakeAmount5,MakeAmountRate5
+ * Structure: ProductID,UniqueID,BaseRate,MakeAmount1,MakeAmountRate1...,MakeAmount5,MakeAmountRate5
  */
 static bool skill_parse_row_changematerialdb(char *split[], int columns, int current) {
-	unsigned short x, y,
-		nameid = atoi(split[0]),
-		rate = atoi(split[1]);
+	unsigned short x, y, nameid = atoi(split[0]);
 
 	if( !itemdb_exists(nameid) ) {
 		ShowError("skill_parse_row_changematerialdb: Invalid item %d.\n", nameid);
@@ -20923,9 +20924,10 @@ static bool skill_parse_row_changematerialdb(char *split[], int columns, int cur
 	}
 
 	skill_changematerial_db[current].nameid = nameid;
-	skill_changematerial_db[current].rate = rate;
+	skill_changematerial_db[current].unique_id = atoi(split[1]);
+	skill_changematerial_db[current].rate = atoi(split[2]);
 
-	for( x = 2, y = 0; x + 1 < columns && split[x] && split[x + 1] && y < MAX_SKILL_CHANGEMATERIAL_SET; x += 2, y++ ) {
+	for( x = 3, y = 0; x + 1 < columns && split[x] && split[x + 1] && y < MAX_SKILL_CHANGEMATERIAL_SET; x += 2, y++ ) {
 		skill_changematerial_db[current].qty[y] = atoi(split[x]);
 		skill_changematerial_db[current].qty_rate[y] = atoi(split[x + 1]);
 	}
