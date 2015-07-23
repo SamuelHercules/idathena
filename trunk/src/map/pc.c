@@ -4329,37 +4329,33 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 		}
 	}
 
+	if( !item->unique_id && !itemdb_isstackable2(id) )
+		item->unique_id = pc_generate_unique_id(sd);
+
 	if( i >= MAX_INVENTORY ) {
 		i = pc_search_inventory(sd, 0);
 		if( i == INDEX_NOT_FOUND )
 			return ADDITEM_OVERITEM;
-
 		//Clear equip and favorite fields first, just in case
 		memcpy(&sd->status.inventory[i], item, sizeof(sd->status.inventory[0]));
 		if( item->equip )
 			sd->status.inventory[i].equip = 0;
 		if( item->favorite )
 			sd->status.inventory[i].favorite = 0;
-
 		sd->status.inventory[i].amount = amount;
 		sd->inventory_data[i] = id;
 		sd->last_addeditem_index = i;
 		clif_additem(sd, i, amount, 0);
 	}
 
-	if( !itemdb_isstackable2(id) && !item->unique_id )
-		item->unique_id = pc_generate_unique_id(sd);
-
 	log_pick_pc(sd, log_type, amount, &sd->status.inventory[i]);
-
 	sd->weight += w;
 	clif_updatestatus(sd, SP_WEIGHT);
-	//Auto-equip
-	if( id->flag.autoequip )
+
+	if( id->flag.autoequip ) //Auto-equip
 		pc_equipitem(sd, i, id->equip);
 
-	//Rental item check
-	if( item->expire_time ) {
+	if( item->expire_time ) { //Rental item check
 		if( time(NULL) > item->expire_time )
 			pc_rental_expire(sd, i);
 		else {
@@ -4893,13 +4889,12 @@ unsigned char pc_cart_additem(struct map_session_data *sd, struct item *item, in
 		ARR_FIND(0, MAX_CART, i, sd->status.cart[i].nameid == 0);
 		if( i == MAX_CART )
 			return 2; //No slot
-
 		memcpy(&sd->status.cart[i],item,sizeof(sd->status.cart[0]));
 		sd->status.cart[i].amount = amount;
 		sd->cart_num++;
 		clif_cart_additem(sd,i,amount,0);
 	}
-	sd->status.cart[i].favorite = 0; /* Clear */
+	sd->status.cart[i].favorite = 0; //Clear
 	log_pick_pc(sd, log_type, amount, &sd->status.cart[i]);
 
 	sd->cart_weight += w;
@@ -9644,7 +9639,6 @@ void pc_check_available_item(struct map_session_data *sd) {
 	if( battle_config.item_check&1 ) { //Check for invalid(ated) items in inventory
 		for( i = 0; i < MAX_INVENTORY; i++ ) {
 			it = sd->status.inventory[i].nameid;
-
 			if( !it )
 				continue;
 			if( !itemdb_available(it) ) {
@@ -9662,7 +9656,6 @@ void pc_check_available_item(struct map_session_data *sd) {
 	if( battle_config.item_check&2 ) { //Check for invalid(ated) items in cart
 		for( i = 0; i < MAX_CART; i++ ) {
 			it = sd->status.cart[i].nameid;
-
 			if( !it )
 				continue;
 			if( !itemdb_available(it) ) {
@@ -9680,7 +9673,6 @@ void pc_check_available_item(struct map_session_data *sd) {
 	if( battle_config.item_check&4 ) { //Check for invalid(ated) items in storage
 		for( i = 0; i < sd->storage_size; i++ ) {
 			it = sd->status.storage.items[i].nameid;
-
 			if( !it )
 				continue;
 			if( !itemdb_available(it) ) {
