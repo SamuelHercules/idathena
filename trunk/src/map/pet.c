@@ -67,9 +67,9 @@ void pet_set_intimate(struct pet_data *pd, int value)
 	intimate = pd->pet.intimate;
 	sd = pd->master;
 	pd->pet.intimate = value;
-	if ((intimate < battle_config.pet_bonus_min_friendly && pd->pet.intimate >= battle_config.pet_bonus_min_friendly) ||
+	if (sd && ((intimate < battle_config.pet_bonus_min_friendly && pd->pet.intimate >= battle_config.pet_bonus_min_friendly) ||
 		(intimate >= battle_config.pet_bonus_min_friendly && pd->pet.intimate > battle_config.pet_bonus_min_friendly) ||
-		(intimate >= battle_config.pet_bonus_min_friendly && pd->pet.intimate < battle_config.pet_bonus_min_friendly))
+		(intimate >= battle_config.pet_bonus_min_friendly && pd->pet.intimate < battle_config.pet_bonus_min_friendly)))
 		status_calc_pc(sd,SCO_NONE);
 }
 
@@ -132,14 +132,13 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 	return 0;
 }
 
-int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type)
+int pet_target_check(struct pet_data *pd, struct block_list *bl, int type)
 {
-	struct pet_data *pd;
 	int rate;
 
-	pd = sd->pd;
+	nullpo_ret(pd);
 
-	Assert((pd->master == 0) || (pd->master->pd == pd));
+	Assert((pd->master == NULL) || (pd->master->pd == pd));
 
 	if(bl == NULL || bl->type != BL_MOB || bl->prev == NULL ||
 		pd->pet.intimate < battle_config.pet_support_min_friendly ||
@@ -322,7 +321,7 @@ int pet_data_init(struct map_session_data *sd, struct s_pet *pet)
 
 	nullpo_retr(1,sd);
 
-	Assert((sd->status.pet_id == 0 || sd->pd == 0) || sd->pd->master == sd);
+	Assert((sd->status.pet_id == 0 || sd->pd == NULL) || sd->pd->master == sd);
 
 	if(sd->status.account_id != pet->account_id || sd->status.char_id != pet->char_id) {
 		sd->status.pet_id = 0;
@@ -393,7 +392,7 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet)
 {
 	nullpo_retr(1, sd);
 
-	Assert((sd->status.pet_id == 0 || sd->pd == 0) || sd->pd->master == sd);
+	Assert((sd->status.pet_id == 0 || sd->pd == NULL) || sd->pd->master == sd);
 
 	if(sd->status.pet_id && pet->incubate == 1) {
 		sd->status.pet_id = 0;
@@ -422,7 +421,7 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet)
 		clif_pet_equip_area(sd->pd);
 		clif_send_petstatus(sd);
 	}
-	Assert((sd->status.pet_id == 0 || sd->pd == 0) || sd->pd->master == sd);
+	Assert((sd->status.pet_id == 0 || sd->pd == NULL) || sd->pd->master == sd);
 
 	return 0;
 }
@@ -812,24 +811,24 @@ static int pet_randomwalk(struct pet_data *pd,unsigned int tick)
 {
 	nullpo_ret(pd);
 
-	Assert((pd->master == 0) || (pd->master->pd == pd));
+	Assert((pd->master == NULL) || (pd->master->pd == pd));
 
 	if(DIFF_TICK(pd->next_walktime,tick) < 0 && unit_can_move(&pd->bl)) {
 		const int retrycount = 20;
-		int i, c, d = 12-pd->move_fail_count;
+		int i, c, d = 12 - pd->move_fail_count;
 
 		if(d < 5)
 			d = 5;
 		for(i = 0; i < retrycount; i++) {
 			int r = rnd(), x, y;
 
-			x = pd->bl.x+r%(d*2+1)-d;
-			y = pd->bl.y+r/(d*2+1)%(d*2+1)-d;
+			x = pd->bl.x + r%(d * 2 + 1) - d;
+			y = pd->bl.y + r / (d * 2 + 1)%(d * 2 + 1) - d;
 			if(map_getcell(pd->bl.m,x,y,CELL_CHKPASS) && unit_walktoxy(&pd->bl,x,y,0)) {
 				pd->move_fail_count = 0;
 				break;
 			}
-			if(i+1 >= retrycount) {
+			if(i + 1 >= retrycount) {
 				pd->move_fail_count++;
 				if(pd->move_fail_count > 1000) {
 					ShowWarning("Pet can't move. hold position %d, class = %d\n",pd->bl.id,pd->pet.class_);
@@ -841,11 +840,11 @@ static int pet_randomwalk(struct pet_data *pd,unsigned int tick)
 		}
 		for(i = c = 0; i < pd->ud.walkpath.path_len; i++) {
 			if(pd->ud.walkpath.path[i]&1)
-				c += pd->status.speed*MOVE_DIAGONAL_COST/MOVE_COST;
+				c += pd->status.speed * MOVE_DIAGONAL_COST / MOVE_COST;
 			else
 				c += pd->status.speed;
 		}
-		pd->next_walktime = tick+rnd()%1000+MIN_RANDOMWALKTIME+c;
+		pd->next_walktime = tick + rnd()%1000 + MIN_RANDOMWALKTIME + c;
 
 		return 1;
 	}

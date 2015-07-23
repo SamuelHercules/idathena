@@ -329,6 +329,7 @@ int mercenary_delete(struct mercenary_data *md, int reply)
 void mercenary_stop_contract(struct mercenary_data *md)
 {
 	nullpo_retv(md);
+
 	if( md->contract_timer != INVALID_TIMER )
 		delete_timer(md->contract_timer, mercenary_end_contract);
 	md->contract_timer = INVALID_TIMER;
@@ -421,6 +422,8 @@ bool mercenary_recv_data(struct s_mercenary *merc, bool flag)
  */
 void mercenary_heal(struct mercenary_data *md, int hp, int sp)
 {
+	if( !md->master )
+		return;
 	if( hp )
 		clif_mercenary_updatestatus(md->master, SP_HP);
 	if( sp )

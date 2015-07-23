@@ -70,6 +70,7 @@ int packet_db_ack[MAX_PACKET_VER + 1][MAX_ACK_FUNC + 1];
 	static unsigned int clif_cryptKey[3]; //Used keys
 #endif
 static unsigned short clif_parse_cmd(int fd, struct map_session_data *sd);
+static bool clif_session_isValid(struct map_session_data *sd);
 
 /** Converts item type to display it on client if necessary.
  * @param nameid: Item ID
@@ -267,6 +268,12 @@ static inline unsigned char clif_bl_type(struct block_list *bl) {
 	}
 }
 #endif
+
+static bool clif_session_isValid(struct map_session_data *sd) {
+	if (sd != NULL && sd->packet_ver <= MAX_PACKET_VER && session_isActive(sd->fd))
+		return true;
+	return false;
+}
 
 /*==========================================
  * sub process of clif_send
@@ -1574,8 +1581,10 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	unsigned char buf[128];
 	int htype;
 
-	nullpo_retv(sd);
 	nullpo_retv(hd);
+
+	if (!clif_session_isValid(sd))
+		return;
 
 	status = &hd->battle_status;
 	htype = hom_class2type(hd->homunculus.class_);
@@ -1674,6 +1683,8 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 	struct homun_data *hd;
 	int fd = sd->fd;
 	int i, j, len = 4;
+
+	nullpo_ret(sd);
 
 	WFIFOHEAD(fd,4 + 37 * MAX_HOMUNSKILL);
 
@@ -11735,10 +11746,10 @@ static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct
 	if( md->ud.skilltimer != INVALID_TIMER )
 		return;
 	if( DIFF_TICK(tick, md->ud.canact_tick) < 0 ) {
-		clif_skill_fail(md->master, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
+		if( md->master )
+			clif_skill_fail(md->master, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
 		return;
 	}
-
 	if( md->sc.data[SC_BASILICA] )
 		return;
 	lv = mercenary_checkskill(md, skill_id);
@@ -16041,7 +16052,8 @@ void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 	struct mercenary_data *md;
 	struct status_data *status;
 	int fd;
-	if( sd == NULL || (md = sd->md) == NULL )
+
+	if( !clif_session_isValid(sd) || !(md = sd->md) )
 		return;
 
 	fd = sd->fd;
@@ -16113,7 +16125,7 @@ void clif_mercenary_info(struct map_session_data *sd)
 	int matk;
 #endif
 
-	if( sd == NULL || (md = sd->md) == NULL )
+	if( !clif_session_isValid(sd) || !(md = sd->md) )
 		return;
 
 	fd = sd->fd;
@@ -16660,7 +16672,7 @@ void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
 	struct status_data *status;
 	int fd;
 
-	if( sd == NULL || (ed = sd->ed) == NULL )
+	if( !clif_session_isValid(sd) || !(ed = sd->ed) )
 		return;
 
 	fd = sd->fd;
@@ -16689,13 +16701,13 @@ void clif_elemental_info(struct map_session_data *sd) {
 	int fd;
 	struct elemental_data *ed;
 	struct status_data *status;
-	
-	if( sd == NULL || (ed = sd->ed) == NULL )
+
+	if( !clif_session_isValid(sd) || !(ed = sd->ed) )
 		return;
-	
+
 	fd = sd->fd;
 	status = &ed->battle_status;
-	
+
 	WFIFOHEAD(fd,22);
 	WFIFOW(fd, 0) = 0x81d;
 	WFIFOL(fd, 2) = ed->bl.id;

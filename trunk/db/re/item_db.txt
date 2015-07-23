@@ -9085,6 +9085,7 @@
 17572,Erzulie_Lucky_Egg,Erzulie Lucky Egg,18,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
 17584,Venus_Lucky_Egg,Venus Lucky Egg,18,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
 17588,Amora_Lucky_Egg,Amora Lucky Egg,18,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
+17598,Sograt_Lucky_Scroll,Sograt Lucky Scroll,18,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem callfunc("F_Rand",20099,19024,2899,19910),1; /* TODO: Others */ },{},{}
 // Mechanic/Genetic Cannonballs
 //===================================================================
 18000,Cannon_Ball,Cannon Ball,10,100,,10,100,,,,0x00040400,56,2,32768,,99,,8,{},{},{}
