@@ -3963,11 +3963,12 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			break;
 		case GN_CART_TORNADO: {
 				//ATK [( Skill Level x 50 ) + ( Cart Weight / ( 150 - Caster's Base STR ))] + ( Cart Remodeling Skill Level x 50 )] %
-				short strbonus = status_get_base_status(src)->str; //Only using base STR
-
 				skillratio += -100 + 50 * skill_lv;
-				if(sd && sd->cart_weight)
+				if(sd && sd->cart_weight) {
+					short strbonus = status_get_base_status(src)->str; //Only using base STR
+
 					skillratio += sd->cart_weight / 10 / (150 - min(strbonus,120)) + pc_checkskill(sd,GN_REMODELING_CART) * 50;
+				}
 			}
 			break;
 		case GN_CARTCANNON: //ATK [{( Cart Remodeling Skill Level x 50 ) x ( INT / 40 )} + ( Cart Cannon Skill Level x 60 )] %

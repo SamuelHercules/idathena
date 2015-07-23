@@ -10804,8 +10804,8 @@ BUILDIN_FUNC(globalmes)
 BUILDIN_FUNC(waitingroom)
 {
 	struct npc_data *nd;
-	const char *title = script_getstr(st, 2);
-	int limit = script_getnum(st, 3);
+	const char *title = script_getstr(st,2);
+	int limit = script_getnum(st,3);
 	const char *ev = script_hasdata(st,4) ? script_getstr(st,4) : "";
 	int trigger =  script_hasdata(st,5) ? script_getnum(st,5) : limit;
 	int zeny =  script_hasdata(st,6) ? script_getnum(st,6) : 0;
@@ -10826,12 +10826,54 @@ BUILDIN_FUNC(waitingroom)
 BUILDIN_FUNC(delwaitingroom)
 {
 	struct npc_data *nd;
+
 	if( script_hasdata(st,2) )
-		nd = npc_name2id(script_getstr(st, 2));
+		nd = npc_name2id(script_getstr(st,2));
 	else
 		nd = (struct npc_data *)map_id2bl(st->oid);
 	if( nd != NULL )
 		chat_deletenpcchat(nd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/// Kick the specified player from the waiting room of the target npc.
+///
+/// waitingroomkick "<npc_name>", <kickusername>;
+BUILDIN_FUNC(waitingroomkick)
+{
+	struct npc_data *nd;
+	struct chat_data *cd;
+	const char *kickusername;
+
+	nd = npc_name2id(script_getstr(st,2));
+	kickusername = script_getstr(st,3);
+	if( nd != NULL && (cd = (struct chat_data *)map_id2bl(nd->chat_id)) != NULL )
+		chat_npckickchat(cd, kickusername);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/// Get Users in waiting room and stores gids in .@waitingroom_users[]
+/// Num users stored in .@waitingroom_usercount
+///
+/// getwaitingroomusers "<npc_name>";
+BUILDIN_FUNC(getwaitingroomusers)
+{
+	struct npc_data *nd;
+	struct chat_data *cd;
+
+	int i, j = 0;
+
+	if( script_hasdata(st,2) )
+		nd = npc_name2id(script_getstr(st,2));
+	else
+		nd = (struct npc_data *)map_id2bl(st->oid);
+	if( nd != NULL && (cd = (struct chat_data *)map_id2bl(nd->chat_id)) != NULL ) {
+		for( i = 0; i < cd->users; ++i ) {
+			setd_sub(st, NULL, ".@waitingroom_users", j, (void *)cd->usersd[i]->status.account_id, NULL);
+			j++;
+		}
+		setd_sub(st, NULL, ".@waitingroom_usercount", 0, (void *)j, NULL);
+	}
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -16379,7 +16421,6 @@ BUILDIN_FUNC(getunitdata)
 	TBL_PET *pd = NULL;
 	TBL_ELEM *ed = NULL;
 	TBL_NPC *nd = NULL;
-	int num;
 	char *name;
 	struct script_data *data = script_getdata(st,3);
 
@@ -16404,7 +16445,6 @@ BUILDIN_FUNC(getunitdata)
 		case BL_NPC:  nd = map_id2nd(bl->id); break;
 	}
 
-	num = reference_getuid(data);
 	name = reference_getname(data);
 
 #define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)__64BPRTSIZE((int)(var__)),data->ref)
@@ -17679,8 +17719,10 @@ BUILDIN_FUNC(questinfo)
 	int quest, icon;
 	struct questinfo qi;
 
-	if( nd == NULL || nd->bl.m == -1 )
-		return 0;
+	if( nd == NULL || nd->bl.m == -1 ) {
+		ShowError("buildin_questinfo: No NPC attached.\n");
+		return 1;
+	}
 
 	quest = script_getnum(st,2);
 	icon = script_getnum(st,3);
@@ -20454,6 +20496,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(changesex,"?"),
 	BUILDIN_DEF(waitingroom,"si?????"),
 	BUILDIN_DEF(delwaitingroom,"?"),
+	BUILDIN_DEF(waitingroomkick,"ss"),
+	BUILDIN_DEF(getwaitingroomusers, "?"),
 	BUILDIN_DEF2(waitingroomkickall,"kickwaitingroomall","?"),
 	BUILDIN_DEF(enablewaitingroomevent,"?"),
 	BUILDIN_DEF(disablewaitingroomevent,"?"),

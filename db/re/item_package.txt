@@ -875,7 +875,7 @@ IG_Xmas_Pet_Scroll,Crystal_Jewel__,150,10,1,0,0,1
 IG_Xmas_Pet_Scroll,Zeny_Scroll,150,10,1,0,0,1
 IG_Xmas_Pet_Scroll,Max_Weight_Up_Scroll,50,5,1,0,0,1
 
-IG_Lucky_Scroll08,Kafra_Card,220,05,0,0,0,1
+IG_Lucky_Scroll08,Kafra_Card,220,15,0,0,0,1
 IG_Lucky_Scroll08,Battle_Manual,210,5,0,0,0,1
 IG_Lucky_Scroll08,Bubble_Gum,210,5,0,0,0,1
 IG_Lucky_Scroll08,Token_Of_Siegfried_Box,100,05,0,0,0,1
