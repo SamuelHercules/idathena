@@ -920,8 +920,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 					}
 					if( pc_iswug(sd) && (lv = pc_checkskill(sd,RA_WUGSTRIKE)) > 0 && rnd()%1000 <= sstatus->luk * 10 / 3 + 1 )
 						skill_castend_damage_id(src,bl,RA_WUGSTRIKE,lv,tick,0); //Automatic trigger of Warg Strike [Jobbie]
-					if( dstmd && sd->status.weapon != W_BOW &&
-						(lv = pc_checkskill(sd,RG_SNATCHER)) > 0 &&
+					if( dstmd && sd->status.weapon != W_BOW && (lv = pc_checkskill(sd,RG_SNATCHER)) > 0 &&
 						55 + lv * 15 + pc_checkskill(sd,TF_STEAL) * 10 > rnd()%1000 ) { //Gank
 						if( pc_steal_item(sd,bl,pc_checkskill(sd,TF_STEAL)) )
 							clif_skill_nodamage(src,bl,TF_STEAL,lv,1);
