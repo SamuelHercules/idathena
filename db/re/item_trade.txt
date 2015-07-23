@@ -54,11 +54,11 @@
 1288,507,100	// Bloody_Fear_C
 1289,499,100	// P_Katar1
 1296,499,100	// Metal_Katar
-//1299,499,100	//
+1299,499,100	// TE_WoE_Katar
 1310,499,100	// Krieger_Onehand_Axe1
 1312,507,100	// Orcish_Axe_C
 1313,499,100	// Tourist_Axe
-//1319,499,100	//
+1319,499,100	// TE_WoE_Axe
 1372,507,100	// Right_Epsilon_C
 1373,507,100	// Brood_Axe_C
 1374,507,100	// Tomahawk_C
@@ -70,7 +70,7 @@
 1388,507,100	// Two_Handed_Axe_C
 1391,499,100	// P_Two_Handed_Axe1
 1398,499,100	// Metal_Two_Handed_Axe
-//1399,499,100	//
+1399,499,100	// TE_WoE_Two_Handed_Axe
 1419,507,100	// Pole_Axe_C
 1423,475,100	// Pole_XO
 1424,507,100	// Skewer_C
@@ -81,14 +81,14 @@
 1429,475,100	// Hunting_Spear_M
 1430,507,100	// Pike_C
 1434,499,100	// P_Spear1
-//1437,499,100	//
+1437,499,100	// TE_WoE_Pike
 1482,499,100	// BF_Lance1
 1486,499,100	// Krieger_Twohand_Spear1
 1487,507,100	// Lance_C
 1488,507,100	// Ahlspiess_C
 1489,507,100	// Spearfish_
 1493,499,100	// Metal_Lance
-//1495,499,100	//
+1495,499,100	// TE_WoE_Lance
 1533,507,100	// Warrior_Balmung
 1534,507,100	// Spanner_C
 1536,475,100	// Good_Morning_Star
@@ -109,8 +109,8 @@
 1580,507,100	// Encyclopedia_C
 1583,499,100	// P_Book1
 1588,499,100	// Metal_Book
-//1591,499,100	//
-//1598,499,100	//
+1591,499,100	// TE_WoE_Book
+1598,499,100	// Snake_Encyclopedia_
 1623,507,100	// Mighty_Staff_C
 1627,475,100	// Staffy
 1628,507,100	// Survival_Rod_C
@@ -129,7 +129,7 @@
 1652,499,100	// Tourist_Staff
 1653,507,100	// Staff_Of_Healing_C
 1658,499,100	// P_Staff3
-//1667,499,100	//
+1667,499,100	// TE_WoE_Staff
 1703,507,100	// Bow__
 1728,507,100	// Balistar_C
 1729,507,100	// Bow_Of_Rudra_C
@@ -149,7 +149,7 @@
 1828,507,100	// Monk_Knuckle
 1829,507,100	// Fist_C
 1831,499,100	// P_Knuckle1
-//1834,499,100	//
+1834,499,100	// TE_WoE_Fist
 1921,475,100	// Guh_Moon_Gom
 1923,499,100	// BF_Instrument1
 1924,499,100	// BF_Instrument2
@@ -157,7 +157,7 @@
 1928,507,100	// Berserk_Guitar_I
 1929,507,100	// Guitar_C
 1931,499,100	// P_Guitar1
-//1932,499,100	//
+1932,499,100	// TE_WoE_Guitar
 1938,467,100	// Infinity_Violin
 1975,475,100	// Queen_Is_Whip
 1977,499,100	// BF_Whip1
@@ -166,13 +166,13 @@
 1982,507,100	// Phenomena_Whip
 1983,507,100	// Rante_C
 1986,499,100	// P_Tail1
-//1987,499,100	//
+1987,499,100	// TE_WoE_Rope
 1994,467,100	// Infinity_Whip
 2002,499,100	// Krieger_Twohand_Staff1
 2003,475,100	// Destruction_Rod_M
 2018,499,100	// Metal_Staff
-//2019,499,100	//
-2024,467,100	// Infinity_Two-handed_Stick
+2019,499,100	// TE_WoE_Two_Handed_Staff
+2024,467,100	// Infinity_Two_Handed_Stick
 2112,499,100	// Novice_Guard
 2127,475,100	// Secular_Mission
 2132,507,100	// Shelter_Resistance
@@ -181,9 +181,9 @@
 2140,507,100	// Energy_Rune_Guard
 2145,467,100	// Time_Keepr_Shield
 2152,507,100	// Anti_Demon_Shield_C
-//2178,499,100	//
-//2179,499,100	//
-//2180,499,100	//
+2178,499,100	// TE_WoE_Buckler
+2179,499,100	// TE_WoE_Shield
+2180,499,100	// TE_WoE_Magic_Guard
 2352,499,100	// Novice_Plate
 2358,475,100	// Dress_Of_Angel
 2368,467,100	// Golden_Armor
@@ -227,9 +227,9 @@
 2458,499,100	// Para_Team_Boots3
 2463,507,100	// Feral_Boots
 2473,499,100	// Para_Team_Boots4
-//2496,499,100	//
-//2497,499,100	//
-//2498,499,100	//
+2496,499,100	// TE_WoE_Shoes
+2497,499,100	// TE_WoE_Boots
+2498,499,100	// TE_WoE_Magic_Sandals
 2510,499,100	// Novice_Hood
 2533,507,100	// Freyja_Cape
 2534,475,100	// Ruffler
@@ -372,10 +372,10 @@
 2940,499,100	// Ninja_Manual
 2941,499,100	// Gunslinger_Manual
 2942,499,100	// Taekwon_Manual
-//2944,499,100	//
-//2945,499,100	//
-//2946,499,100	//
-//2950,507,100	//
+2944,499,100	// TE_WoE_Ring_Of_Protection
+2945,499,100	// TE_WoE_Rage_Ring
+2946,499,100	// TE_WoE_Defiance_Ring
+2950,507,100	// Rune_Ring
 2981,467,100	// Warrior's_Ring
 2997,475,100	// RWC_Gold_Brooch
 2999,475,100	// RWC_Brooch
@@ -664,7 +664,7 @@
 6307,507,100	// Suspicious_Magic_Stone
 6308,475,100	// Unidentified_Relic
 6320,475,100	// Premium_Reset_Stone
-//6327,475,100	//
+6327,475,100	// (Limited)HD_Bradium
 6345,499,100	// Love_Ball
 6347,499,100	// Bless_Word_Paper1
 6348,499,100	// Bless_Word_Paper2
@@ -850,7 +850,7 @@
 6825,499,100	// Air_Cleaner_Box
 6826,499,100	// Fresh_Grapes
 6827,499,100	// Complete_Machine_Parts
-6833,475,100	// (Limited)_Token_of_Ziegfried
+6833,475,100	// (Limited)_Token_Of_Ziegfried
 6836,499,100	// Talisman_Of_Soul
 6837,499,100	// Piece_Of_Soul_Mouse
 6838,499,100	// Secret_Orders_Of_Prophet_K
@@ -3638,7 +3638,7 @@
 18973,475,100	// Old_Driver_Band
 18974,475,100	// Old_Driver_Band(Yellow)
 18975,475,100	// Old_Shadow_Handicraft
-18976,475,100	// Old_Minstrel_Song's_Hat
+18976,475,100	// Old_Minstrel_Song_Hat
 18977,475,100	// Old_Midas_Whisper
 18978,475,100	// Old_Magic_Stone_Hat
 18979,475,100	// Old_Blazing_Soul
@@ -3648,16 +3648,16 @@
 18983,475,100	// Old_Protect_Of_Crown
 18984,475,100	// Old_Camouflage_Rabbit_Hood
 19033,467,100	// Ancient_Decoration_Of_The_Goddess
-//19051,475,100	//
-//19052,507,100	//
-//19053,475,100	//
+19051,475,100	// Warrior_Moon_Cat_Hat
+19052,507,100	// Sigrun's_Wings_
+19053,475,100	// Fighter_Moon_Cat_Hat
 19523,475,100	// Donation_Ribbon
 19531,475,100	// C_Cube_Mask
 19532,475,100	// C_Red_Bunny_Band
 19764,475,100	// C_Monster_Card
 19765,475,100	// C_Wing_Angels_Ears
-19853,507,100	// C_Filir Wings
-19996,467,100	// Horse_King
+19853,507,100	// C_Filir_Wings
+19996,467,100	// C_Horse_King
 19999,467,100	// C_Mouse_Hat1
 20000,467,100	// C_Mouse_Hat2
 20001,467,100	// C_Mouse_Hat3
@@ -3676,36 +3676,36 @@
 20087,467,100	// C_Dragon_Cintamani_Hat2
 20088,467,100	// C_Dragon_Cintamani_Hat3
 20089,467,100	// C_Dragon_Cintamani_Hat4
-20110,467,100	// C_Coiledup_Snake
-//20111,467,100	//
+20110,467,100	// C_Coiledup_Snake_Hat1
+20111,467,100	// C_Coiledup_Snake_Hat2
 20135,507,100	// C_12_Anniversary_Crown_Of_Saint
 20136,507,100	// C_12_Anniversary_Elf_Ears
-20139,467,100	// C_Horse_Hairpin
-20140,467,100	// C_Horse_Hairpin
-20162,467,100	// C_Fleece_Hat
-20163,467,100	// C_Fleece_Hat
+20139,467,100	// C_Mini_Horse_Hairpin1
+20140,467,100	// C_Mini_Horse_Hairpin2
+20162,467,100	// C_Lamb_Hat1
+20163,467,100	// C_Lamb_Hat2
 20179,467,100	// C_Monkey_Coat_Hat
-20206,467,100	// C_Chicken_Hat
-20210,467,100	// C_Chicken_Hat
-20211,467,100	// C_Chicken_Hat
-20227,467,100	// C_Puppy_Hat
-//20228,467,100	//
+20206,467,100	// C_Chicken_Hat1
+20210,467,100	// C_Chicken_Hat2
+20211,467,100	// C_Chicken_Hat3
+20227,467,100	// C_Husky_Hat
+20228,467,100	// C_Piggie_Bank_J
 //20702,499,100	//
 //20703,499,100	//
 //20704,499,100	//
 //20709,507,100	//
 20743,467,100	// Cloak_Of_Airship
-21005,499,100	// Metal_Two_Hand_Sword
-//21006,499,100	//
-21014,467,100	// Infinity_Two-Handed_Sword
+21005,499,100	// Metal_Two_Handed_Sword
+21006,499,100	// TE_WoE_Two_Handed_Sword
+21014,467,100	// Infinity_Two_Handed_Sword
 //22012,507,100	//
 22046,467,100	// Boots_Of_Airship
 22508,507,100	// Para_Team_Mark_
 22510,475,100	// King_Wolf_Scroll
 //22511,467,100	//
-22513,499,100	// King_of_Gift_Box
+22513,499,100	// King_Of_Gift_Box
 22517,507,100	// Rocker_Summoning_Scroll
-22521,507,100	// Level_Up_Box
+22521,507,100	// Level_Up_Box_
 22522,507,100	// Level_Up_Box100
 22523,507,100	// Level_Up_Box120
 22524,507,100	// Level_Up_Box130
@@ -3719,14 +3719,14 @@
 //22539,467,100	//
 22540,475,100	// Runstone_Luxanima
 22541,475,100	// PC_Room_Coupon_Box_VI
-22542,475,100	// Concentration_Potion
-22543,475,100	// Berserk_Potion
-22544,475,100	// Awakening_Potion
+22542,475,100	// Concentration_Potion_
+22543,475,100	// Berserk_Potion_
+22544,475,100	// Awakening_Potion_
 22545,475,100	// Speed_Potion
 22546,475,100	// Slow_Potion
-22547,475,100	// Anti-Payne_Moment
+22547,475,100	// Anti_Payne_Moment
 22548,475,100	// Wed_Cursed
-22549,475,100	// Poison_Bottle
+22549,475,100	// Poison_Bottle_
 22550,475,100	// Sweets_Pocket
 22551,475,100	// Teacake
 22552,475,100	// Fried_Pastry
@@ -3734,7 +3734,7 @@
 22554,467,100	// First_Aid_Box
 22555,24,100	// Gourmet_Chocolate
 22556,24,100	// Luxury_Chocolate
-22557,24,100	// Masterpieces_of_Artisan_Chocolate
+22557,24,100	// Masterpieces_Of_Artisan_Chocolate
 22566,48,100	// Last_Years_Frost
 22569,499,100	// Gift_New_start
 22589,499,100	// Savage_Ora_Ora

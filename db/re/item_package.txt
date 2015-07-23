@@ -3130,26 +3130,26 @@ IG_HALLOWEEN_G_BOX,Old_Card_Album,1,1,1
 IG_HALLOWEEN_G_BOX,Old_Violet_Box,1,1,1
 
 // 2014 kRO Halloween Events
-IG_Something_Candy_Holder,Honey,1,3,1
-IG_Something_Candy_Holder,Candy,1,7,1
-IG_Something_Candy_Holder,Well_Baked_Cookie,1,2,1
-IG_Something_Candy_Holder,Piece_Of_Cake,1,1,1
-IG_Something_Candy_Holder,Bread,1,3,1
-IG_Something_Candy_Holder,Pumpkin_Cake,1,1,1
-IG_Something_Candy_Holder,Pumpkin_Pie,1,3,1
-IG_Something_Candy_Holder,Meat,1,5,1
-IG_Something_Candy_Holder,HALLOWEEN_G_BOX,1,1,1
-IG_Something_Candy_Holder,Trans_Candy_Red,1,3,1
-IG_Something_Candy_Holder,Trans_Candy_Blue,1,3,1
-IG_Something_Candy_Holder,Trans_Candy_Yellow,1,3,1
-IG_Something_Candy_Holder,Trans_Candy_Green,1,3,1
-IG_Something_Candy_Holder,Old_Blue_Box,1,1,1
-IG_Something_Candy_Holder,Yggdrasilberry,1,1,1
-IG_Something_Candy_Holder,Old_Card_Album,1,1,1
-IG_Something_Candy_Holder,Old_Violet_Box,1,1,1
-IG_Something_Candy_Holder,DARK_INVITATION,1,1,1
-IG_Something_Candy_Holder,C_There_Is_Something,1,1,1
-IG_Something_Candy_Holder,Witch_Shoes,1,1,1
+IG_Pumpkin_Candy_Holder,Honey,1,3,1
+IG_Pumpkin_Candy_Holder,Candy,1,7,1
+IG_Pumpkin_Candy_Holder,Well_Baked_Cookie,1,2,1
+IG_Pumpkin_Candy_Holder,Piece_Of_Cake,1,1,1
+IG_Pumpkin_Candy_Holder,Bread,1,3,1
+IG_Pumpkin_Candy_Holder,Pumpkin_Cake,1,1,1
+IG_Pumpkin_Candy_Holder,Pumpkin_Pie,1,3,1
+IG_Pumpkin_Candy_Holder,Meat,1,5,1
+IG_Pumpkin_Candy_Holder,HALLOWEEN_G_BOX,1,1,1
+IG_Pumpkin_Candy_Holder,Trans_Candy_Red,1,3,1
+IG_Pumpkin_Candy_Holder,Trans_Candy_Blue,1,3,1
+IG_Pumpkin_Candy_Holder,Trans_Candy_Yellow,1,3,1
+IG_Pumpkin_Candy_Holder,Trans_Candy_Green,1,3,1
+IG_Pumpkin_Candy_Holder,Old_Blue_Box,1,1,1
+IG_Pumpkin_Candy_Holder,Yggdrasilberry,1,1,1
+IG_Pumpkin_Candy_Holder,Old_Card_Album,1,1,1
+IG_Pumpkin_Candy_Holder,Old_Violet_Box,1,1,1
+IG_Pumpkin_Candy_Holder,DARK_INVITATION,1,1,1
+IG_Pumpkin_Candy_Holder,C_There_Is_Something,1,1,1
+IG_Pumpkin_Candy_Holder,Witch_Shoes,1,1,1
 
 IG_Sg_Weapon_Supply_Box,Velum_Arbalest,3,1,1
 IG_Sg_Weapon_Supply_Box,Velum_Arc_Wand,8,1,1
@@ -3300,11 +3300,11 @@ IG_Three_Master_Package_III10,Med_Life_Potion,1,200,1
 IG_Three_Master_Package_III10,Sealed_Moonlight_Flower_Scroll,1,11,1
 
 //@TODO: Confirm the items & rates
-IG_2013_RWC_Scroll,Neutral_Shadow_Weapon,0,1,0
-IG_2013_RWC_Scroll,Neutral_Shadow_Earring,0,1,0
-IG_2013_RWC_Scroll,Neutral_Shadow_Pendant,0,1,0
-IG_2013_RWC_Scroll,Frozen_Curse_Shadow_Earring,0,1,0
-IG_2013_RWC_Scroll,Frozen_Curse_Shadow_Pendant,0,1,0
+IG_2013_RWC_Scroll,S_Neutral_Weapon,0,1,0
+IG_2013_RWC_Scroll,S_Neutral_Earring,0,1,0
+IG_2013_RWC_Scroll,S_Neutral_Pendant,0,1,0
+IG_2013_RWC_Scroll,S_Frozen_Curse_Earring,0,1,0
+IG_2013_RWC_Scroll,S_Frozen_Curse_Pendant,0,1,0
 IG_2013_RWC_Scroll,Guarantee_Weapon_11Up,0,1,0
 IG_2013_RWC_Scroll,Guarantee_Armor_11Up,0,1,0
 IG_2013_RWC_Scroll,Guarantee_Weapon_9Up,0,1,0

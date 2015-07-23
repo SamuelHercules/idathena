@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Euphy
 //===== Current Version: =====================================
-//= 1.2
+//= 1.3
 //===== Compatible With: =====================================
 //= rAthena SVN
 //===== Description: =========================================
@@ -23,6 +23,7 @@
 //= 1.0 Added "Nurse in Port Malaya" and "Pintados Festival" quests. [Euphy]
 //= 1.1 Added GM management function and NPC. [Euphy]
 //= 1.2 Added VIP features. [Euphy]
+//= 1.3 Fixed Pintados Festival timer. [exneval]
 //============================================================
 
 // Cautious Village & Daily Quests :: hi_malaya
@@ -8238,7 +8239,6 @@ ma_fild01,1,1,4	script	Pintados Manager#pin	894,{
 		next;
 		switch(select("Start Pintados Festival:End Pintados Festival:NPC_ON:NPC_OFF")) {
 		case 1:
-			set $malaya_pintados_00,1;
 			donpcevent "Pintados Manager#pin::OnEnable";
 			mes "Start the Pintados Festival.";
 			close;
@@ -8324,27 +8324,19 @@ ma_fild01,1,1,4	script	Pintados Manager#pin	894,{
 	}
 	end;
 
-// Moved to individual NPCs for smoother processing.
-//OnInit:
-//	if ($malaya_pintados_00 > 0)
-//		donpcevent "Pintados Manager#pin::OnEnableNPC";
-//	end;
-
 OnTimer1800000:
-	set $malaya_pintados_00, $malaya_pintados_00;
 	if ($malaya_pintados_00 > 0 && $malaya_pintados_00 < 344) {
-		set $malaya_pintados_00,$malaya_pintados_00+1;
 		stopnpctimer;
+		set $malaya_pintados_00,$malaya_pintados_00+1;
 		initnpctimer;
-	} else {
-		set $malaya_pintados_00,0;
+	} else
 		donpcevent "Pintados Manager#pin::OnDisable";
-	}
 	end;
 OnEnable:
-	initnpctimer;
+	set $malaya_pintados_00,1;
 	donpcevent "Pintados Manager#pin::OnEnableNPC";
 	announce "The 'Pintados Festival' will be held for a week in Baryo Mahiwaga.",bc_all,"0xFB9D04",FW_NORMAL,12;
+	initnpctimer;
 	end;
 OnDisable:
 	stopnpctimer;
@@ -8372,6 +8364,10 @@ OnDisableNPC:
 	donpcevent "Beat Catching Boy#pin10"+.@str$;
 	donpcevent "Beat Catching Boy#pin11"+.@str$;
 	end;
+OnInit:
+	if ($malaya_pintados_00)
+		initnpctimer;
+	end;
 }
 
 ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
@@ -8379,9 +8375,8 @@ ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
 		mes "Cannot proceed because you have too many items in your possession.";
 		close;
 	}
-	if ($malaya_pintados_00 == 0) {
+	if (!$malaya_pintados_00) {
 		if ($malaya_pintados_01 > 999 && $malaya_pintados_02 > 999 && $malaya_pintados_03 > 299) {
-			set $malaya_pintados_00,1;
 			donpcevent "Pintados Manager#pin::OnEnable";
 			emotion e_lv;
 			mes "[Isco]";
@@ -8694,7 +8689,7 @@ ma_fild01,172,223,6	script	Tattooist#pin	574,{
 	case 3:
 		break;
 	}
-	if ($malaya_pintados_00 == 0) {
+	if (!$malaya_pintados_00) {
 		mes "[Tattooist]";
 		mes "The holy task of drawing Tattoos is only done during the '^7A96E0Pintados Festival^000000'. Sorry but looks like the festival is not on.";
 		close;
@@ -9140,8 +9135,8 @@ OnDisable:
 	end;
 
 OnTimer600000:
-	killmonster "ma_fild01","malaya_quest::OnMyMobDead";
 	stopnpctimer;
+	killmonster "ma_fild01","malaya_quest::OnMyMobDead";
 	donpcevent "malaya_quest::OnEnable";
 	end;
 
@@ -9169,8 +9164,8 @@ OnDisable:
 	end;
 
 OnTimer600000:
-	killmonster "ma_fild01","malaya_quest2::OnMyMobDead";
 	stopnpctimer;
+	killmonster "ma_fild01","malaya_quest2::OnMyMobDead";
 	donpcevent "malaya_quest2::OnEnable";
 	end;
 
@@ -9202,8 +9197,8 @@ OnDisable:
 	end;
 
 OnTimer600000:
-	killmonster "ma_fild02","malaya_quest3::OnMyMobDead";
 	stopnpctimer;
+	killmonster "ma_fild02","malaya_quest3::OnMyMobDead";
 	donpcevent "malaya_quest3::OnEnable";
 	end;
 

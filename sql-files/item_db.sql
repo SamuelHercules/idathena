@@ -1061,7 +1061,7 @@ REPLACE INTO `item_db` VALUES (1915,'Guitar_Of_Blue_Solo','Loner\'s Guitar',5,20
 REPLACE INTO `item_db` VALUES (1916,'Guitar_Of_Vast_Land','Green Acre Guitar',5,20,NULL,900,110,NULL,1,0,0x00080000,7,1,2,3,27,1,13,'bonus bAtkEle,Ele_Earth;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1917,'Guitar_Of_Gentle_Breeze','Gentle Breeze Guitar',5,20,NULL,900,110,NULL,1,0,0x00080000,7,1,2,3,27,1,13,'bonus bAtkEle,Ele_Wind;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1918,'Oriental_Lute','Oriental Lute',5,20,NULL,1200,150,NULL,1,0,0x00080000,7,1,2,4,65,1,13,'bonus2 bSkillAtk,"CG_ARROWVULCAN",10; bonus2 bSkillAtk,"BA_MUSICALSTRIKE",10;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (1919,'Base_Guitar','Bass Guitar',5,20,NULL,1500,130,NULL,1,1,0x00080000,2,1,2,3,70,1,13,'bonus bSPGainValue,3; bonus4 bAutoSpellWhenHit,"WZ_HEAVENDRIVE",3,30,1; bonus3 bAutoSpell,"NPC_WIDECONFUSE",2,100;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (1919,'Base_Guitar','Bass Guitar',5,20,NULL,1500,130,NULL,1,1,0x00080000,2,1,2,3,70,1,13,'bonus bSPGainValue,3; bonus3 bAutoSpellWhenHit,"WZ_HEAVENDRIVE",3,30; bonus3 bAutoSpell,"NPC_WIDECONFUSE",1,100;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1920,'Berserk_Guitar','Berserk Guitar',5,20,NULL,1800,10,NULL,1,0,0x00080000,2,1,2,4,70,1,13,'bonus bAspdRate,100; bonus bHPrecovRate,-100; bonus2 bHPLossRate,50,5000; bonus bDex,-readparam(bDex);',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1921,'Guh_Moon_Gom','Gun Moon Gom',5,20,NULL,0,120,NULL,1,0,0x00080000,7,1,2,1,0,0,13,'bonus2 bAddClass,Class_All,50;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1922,'Oriental_Lute_','Oriental Lute',5,20,NULL,1200,150,NULL,1,2,0x00080000,7,1,2,4,65,1,13,'bonus2 bSkillAtk,"CG_ARROWVULCAN",10; bonus2 bSkillAtk,"BA_MUSICALSTRIKE",10;',NULL,NULL);
@@ -1097,7 +1097,7 @@ REPLACE INTO `item_db` VALUES (1969,'Bladed_Whip','Blade Whip',5,20,NULL,1200,14
 REPLACE INTO `item_db` VALUES (1970,'Queen\'s_Whip','Queen\'s Whip',5,20,NULL,1100,150,NULL,2,0,0x00080000,7,0,2,4,65,1,14,'bonus2 bSkillAtk,"CG_ARROWVULCAN",10; bonus2 bSkillAtk,"DC_THROWARROW",10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1971,'Electric_Wire','Electric Wire',5,20,NULL,700,110,NULL,2,0,0x00080000,7,0,2,3,30,1,14,'bonus bAtkEle,Ele_Wind;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1972,'Electric_Eel','Electric Eel',5,20,NULL,2000,100,NULL,2,2,0x00080000,2,0,2,4,70,1,14,'bonus bAtkEle,Ele_Wind; bonus bInt,2; bonus bAgi,2; bonus3 bAutoSpell,"WZ_JUPITEL",3,20; if(getrefine()>0) bonus3 bAutoSpell,"CG_ARROWVULCAN",getrefine(),50;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (1973,'Sea_Witch_Foot','Sea Witch\'s Foot',5,20,NULL,1500,110,NULL,2,1,0x00080000,2,0,2,4,70,1,14,'bonus bSPGainValue,5; bonus4 bAutoSpellWhenHit,"WZ_FROSTNOVA",3,50,1; bonus3 bAutoSpell,"NPC_WIDESILENCE",2,100;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (1973,'Sea_Witch_Foot','Sea Witch\'s Foot',5,20,NULL,1500,110,NULL,2,1,0x00080000,2,0,2,4,70,1,14,'bonus bSPGainValue,5; bonus3 bAutoSpellWhenHit,"WZ_FROSTNOVA",3,50; bonus3 bAutoSpell,"NPC_WIDESILENCE",2,100;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1974,'Carrot_Whip','Carrot Whip',5,20,NULL,1300,185,NULL,2,0,0x00080000,2,0,2,4,70,1,14,'if(getrefine()>0) bonus3 bAutoSpell,"AL_INCAGI",getrefine(),10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1975,'Queen_Is_Whip','Queen Is Whip',5,20,NULL,0,120,NULL,2,0,0x00080000,7,0,2,1,0,0,14,'bonus2 bAddClass,Class_All,50;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (1976,'Queen\'s_Whip_','Queen\'s Whip',5,20,NULL,1100,150,NULL,2,2,0x00080000,7,0,2,4,65,1,14,'bonus2 bSkillAtk,"CG_ARROWVULCAN",10; bonus2 bSkillAtk,"DC_THROWARROW",10;',NULL,NULL);
@@ -2444,7 +2444,7 @@ REPLACE INTO `item_db` VALUES (5221,'Pair_Of_Red_Ribbon_','Evolved Pair of Red R
 REPLACE INTO `item_db` VALUES (5222,'Fish_On_Head_','Evolved Blue Fish',4,20,NULL,500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,50,1,149,'bonus bAgi,1; bonus bDex,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5223,'Big_Golden_Bell_','Evolved Big Golden Bell',4,20,NULL,200,NULL,2,NULL,0,0xFFFFFFFE,7,2,768,NULL,35,1,175,'bonus bAgi,2;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5224,'Orc_Hero_Helm_TW','Evolved Orc Hero Helm',4,500000,NULL,900,NULL,5,NULL,0,0xFFFFFFFE,7,2,768,NULL,55,1,178,'bonus bStr,2; bonus bVit,1; bonus bMaxHPrate,10;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5225,'Marcher_Hat','Parade Hat',4,20,NULL,200,NULL,2,NULL,1,0xFFFFFFFF,7,2,256,NULL,10,1,269,'bonus bMdef,2; bonus bStr,2; bonus4 bAutoSpellWhenHit,"AL_ANGELUS",5,30,0; bonus4 bAutoSpellWhenHit,"HP_ASSUMPTIO",1,1,0; bonus2 bResEff,Eff_Stun,1000; if(BaseClass==Job_Acolyte) bonus4 bAutoSpellOnSkill,"AL_HEAL","PR_LEXAETERNA",1,1000;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5225,'Marcher_Hat','Parade Hat',4,20,NULL,200,NULL,2,NULL,1,0xFFFFFFFF,7,2,256,NULL,10,1,269,'bonus bMdef,2; bonus bStr,2; bonus3 bAutoSpellWhenHit,"AL_ANGELUS",5,30; bonus4 bAutoSpellWhenHit,"HP_ASSUMPTIO",1,1,0; bonus2 bResEff,Eff_Stun,1000; if(BaseClass==Job_Acolyte) bonus4 bAutoSpellOnSkill,"AL_HEAL","PR_LEXAETERNA",1,1000;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5226,'Mini_Propeller_','Mini Propeller',4,20,NULL,200,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,270,'bonus bAgi,2; bonus bDex,1; bonus bFlee,10; bonus bCastrate,-getrefine();',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5227,'Red_Deviruchi_Cap','Red Deviruchi Hat',4,20,NULL,800,NULL,2,NULL,0,0xFFFFFFFE,7,2,256,NULL,64,1,271,'bonus bStr,1; bonus bInt,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5228,'White_Deviruchi_Cap','Gray Deviruchi Hat',4,20,NULL,800,NULL,2,NULL,0,0xFFFFFFFE,7,2,256,NULL,64,1,272,'bonus bStr,1; bonus bInt,1;',NULL,NULL);
@@ -2543,7 +2543,7 @@ REPLACE INTO `item_db` VALUES (5320,'Champion_Wreath','Champion Wreath',4,20,NUL
 REPLACE INTO `item_db` VALUES (5321,'Indonesian_Bandana','Bandana Merah Putih',4,20,NULL,500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,342,NULL,NULL,NULL);
 REPLACE INTO `item_db` VALUES (5322,'Scarf','Kerchief',4,20,NULL,100,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,24,1,343,'bonus bMdef,2; bonus bFlee,5;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5323,'Misstrance_Crown','Misstrance Crown',4,20,NULL,0,NULL,10,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,0,165,'bonus bAllStats,2;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5324,'Little_Angel_Doll','Little Angel Doll',4,20,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,10,1,344,'bonus bDex,3; bonus4 bAutoSpellWhenHit,"CR_GRANDCROSS",3,30,0;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5324,'Little_Angel_Doll','Little Angel Doll',4,20,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,10,1,344,'bonus bDex,3; bonus3 bAutoSpellWhenHit,"CR_GRANDCROSS",3,30;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5325,'Robo_Eye','Robo Eye',4,20,NULL,200,NULL,2,NULL,0,0xFFFFFFFF,7,2,512,NULL,10,0,345,'bonus2 bAddClass,Class_All,2; bonus bMatkRate,2; bonus bDex,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5326,'Masquerade_C','Masquerade C',4,1,NULL,0,NULL,1,NULL,0,0xFFFFFFFF,7,2,512,NULL,0,0,78,'bonus2 bAddRace,RC_DemiHuman,7;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5327,'Orc_Hero_Helm_C','Refined Helmet of Orc Hero',4,1,NULL,0,NULL,10,NULL,0,0xFFFFFFFE,7,2,768,NULL,0,0,178,'bonus bStr,5; bonus bVit,3;',NULL,NULL);
@@ -2552,7 +2552,7 @@ REPLACE INTO `item_db` VALUES (5329,'Dark_Blindfold_C','Dark Blindfold C',4,1,NU
 REPLACE INTO `item_db` VALUES (5330,'kRO_Drooping_Kitty_C','kRO Drooping Kitty C',4,1,NULL,0,NULL,6,NULL,0,0xFFFFFFFE,7,2,256,NULL,0,0,142,'bonus bMdef,15; bonus2 bResEff,Eff_Curse,4000; bonus2 bResEff,Eff_Curse,1000;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5331,'Corsair_C','Corsair C',4,1,NULL,0,NULL,10,NULL,0,0xFFFFFFFE,7,2,256,NULL,0,0,105,'bonus bVit,3; bonus bInt,3;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5332,'Loki_Mask','Loki Mask',4,0,NULL,200,NULL,0,NULL,0,0xFFFFFFFF,7,2,513,NULL,20,0,346,'bonus bFlee2,3;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5333,'Radio_Antenna','Radio Antenna',4,0,NULL,1500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,50,1,347,'bonus bMdef,5; bonus bCritical,5; bonus bFlee,5; skill "MG_LIGHTNINGBOLT",1; bonus4 bAutoSpellWhenHit,"MG_THUNDERSTORM",5,30,1;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5333,'Radio_Antenna','Radio Antenna',4,0,NULL,1500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,50,1,347,'bonus bMdef,5; bonus bCritical,5; bonus bFlee,5; skill "MG_LIGHTNINGBOLT",1; bonus3 bAutoSpellWhenHit,"MG_THUNDERSTORM",5,30;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5334,'Angeling_Wanna_Fly','Flapping Angeling',4,0,NULL,700,NULL,0,NULL,0,0xFFFFFFFF,7,2,256,NULL,38,0,348,'bonus bLuk,2; bonus bMdef,2;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5335,'Jumping_Poring','Jumping Poring',4,0,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,0,349,'bonus bLuk,1; bonus bUnbreakableHelm,0;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5336,'Guildsman_Recruiter','Guildsman Recruiter Hat',4,NULL,NULL,0,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,10,1,350,NULL,NULL,NULL);
@@ -2623,7 +2623,7 @@ REPLACE INTO `item_db` VALUES (5400,'Fox_Hat','Fox Hat',4,20,NULL,200,NULL,0,NUL
 REPLACE INTO `item_db` VALUES (5401,'Black_Glasses','Black Frame Glasses',4,20,NULL,200,NULL,1,NULL,0,0xFFFFFFFF,7,2,512,NULL,70,0,404,'bonus bInt,1; bonus bMdef,2; bonus bUnbreakableHelm,0;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5402,'Mischievous_Fairy','Mischievous Fairy',4,10,NULL,200,NULL,1,NULL,0,0xFFFFFFFF,7,2,512,NULL,70,0,405,'bonus bUnbreakableHelm,0; bonus bFlee2,3;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5403,'Fish_In_Mouth','Fish In Mouth',4,10,NULL,200,NULL,0,NULL,0,0xFFFFFFFF,7,2,1,NULL,30,0,406,'bonus2 bAddMonsterDropItem,579,500; bonus2 bAddItemHealRate,579,25;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5404,'Blue_Ribbon','Blue Ribbon',4,10,NULL,100,NULL,1,NULL,1,0xFFFFFFFF,7,2,256,NULL,45,1,407,'bonus4 bAutoSpellWhenHit,"AC_CONCENTRATION",2,7,0;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5404,'Blue_Ribbon','Blue Ribbon',4,10,NULL,100,NULL,1,NULL,1,0xFFFFFFFF,7,2,256,NULL,45,1,407,'bonus3 bAutoSpellWhenHit,"AC_CONCENTRATION",2,7;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5405,'Filir_Hat','Filir Hat',4,10,NULL,200,NULL,0,NULL,0,0xFFFFFFFF,7,2,256,NULL,80,0,408,'bonus bShortWeaponDamageReturn,1;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5406,'Academy_Freshman_Hat','Academy Freshman Hat',4,0,NULL,500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,409,'bonus bMaxHP,80; bonus bMaxSP,10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5407,'Academy_Graduating_Cap','Academy Completion Hat',4,0,NULL,200,NULL,2,NULL,1,0xFFFFFFFF,7,2,256,NULL,0,1,410,'bonus bMaxSP,30;',NULL,NULL);
@@ -2633,7 +2633,7 @@ REPLACE INTO `item_db` VALUES (5410,'Bread_Bag2','Brown Paperbag Hat',4,20,NULL,
 REPLACE INTO `item_db` VALUES (5411,'White_Snake_Hat','White Snake Hat',4,20,NULL,500,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,1,413,'bonus bDex,2;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5412,'Sweet_Candy','Sweet Candy',4,20,NULL,100,NULL,1,NULL,0,0xFFFFFFFF,7,2,1,NULL,0,0,414,'bonus bUnbreakableHelm,0;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5413,'Popcorn_Hat','Pop Corn Hat',4,20,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,0,415,'bonus2 bSubEle,Ele_Wind,10;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (5414,'Campfire_Hat','Camp Fire Hat',4,20,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,0,416,'bonus2 bSubEle,Ele_Fire,10; bonus4 bAutoSpellWhenHit,"MG_FIREBALL",5,100,1;',NULL,NULL);
+REPLACE INTO `item_db` VALUES (5414,'Campfire_Hat','Camp Fire Hat',4,20,NULL,300,NULL,2,NULL,0,0xFFFFFFFF,7,2,256,NULL,0,0,416,'bonus2 bSubEle,Ele_Fire,10; bonus3 bAutoSpellWhenHit,"MG_FIREBALL",5,100;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5415,'Poring_Cake_Cap','Poring Cake Hat',4,20,NULL,1000,NULL,5,NULL,0,0xFFFFFFFF,7,2,256,NULL,40,1,417,'bonus bMdef,5; bonus bCritical,5; bonus bFlee,5; bonus bFlee2,5; bonus bAspdRate,5; bonus bCastrate,-5; bonus bDelayrate,-5;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5416,'Beer_Cap','Beer Hat',4,20,NULL,600,NULL,2,NULL,0,0xFFFFFFFE,7,2,256,NULL,18,1,418,'bonus bFlee2,5; skill "SM_RECOVERY",3; skill "MG_SRECOVERY",3;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (5417,'Crown_Parrot','Crown Parrots',4,20,NULL,200,NULL,1,NULL,1,0xFFFFFFFF,7,2,256,NULL,0,0,419,'bonus bInt,1; bonus2 bResEff,Eff_Silence,10000; bonus3 bAutoSpell,"DC_SCREAM",1,50;',NULL,NULL);
