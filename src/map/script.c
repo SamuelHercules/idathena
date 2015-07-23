@@ -17106,11 +17106,8 @@ BUILDIN_FUNC(unitstopwalk)
 	unit_id = script_getnum(st,2);
 	bl = map_id2bl(unit_id);
 
-	if( bl != NULL ) {
+	if( bl != NULL )
 		unit_stop_walking(bl,4);
-		if( bl->type == BL_MOB )
-			((TBL_MOB *)bl)->target_id = 0;
-	}
 
 	return SCRIPT_CMD_SUCCESS;
 }
