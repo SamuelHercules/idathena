@@ -2962,6 +2962,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 		case LG_CANNONSPEAR:
 		case LG_MOONSLASHER:
 		case SR_TIGERCANNON:
+		case GN_SPORE_EXPLOSION:
 		case RL_HAMMER_OF_GOD:
 		case EL_CIRCLE_OF_FIRE:
 		case EL_FIRE_MANTLE:
@@ -2973,7 +2974,7 @@ int skill_attack(int attack_type, struct block_list *src, struct block_list *dsr
 			dmg.dmotion = clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, NV_BASIC, -1, DMG_SPLASH);
 			break;
 		case EL_STONE_RAIN:
-			dmg.dmotion = clif_damage(bl, bl, tick, 0, 0, damage, dmg.div_, (flag&1) ? DMG_MULTI_HIT : DMG_NORMAL, 0);
+			dmg.dmotion = clif_damage(bl, bl, tick, 0, 0, damage, dmg.div_, (flag&1 ? DMG_MULTI_HIT : DMG_NORMAL), 0);
 			break;
 		case WL_HELLINFERNO:
 			dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skill_id, -2, DMG_SKILL);
@@ -3732,6 +3733,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					}
 					break;
 				case GN_SPORE_EXPLOSION:
+					clif_skill_damage(src,target,tick,status_get_amotion(src),0,-30000,1,skl->skill_id,skl->skill_lv,DMG_SKILL);
 					map_foreachinrange(skill_area_sub,target,skill_get_splash(skl->skill_id,skl->skill_lv),BL_CHAR,
 						src,skl->skill_id,skl->skill_lv,0,skl->flag|BCT_ENEMY|1,skill_castend_damage_id);
 					break;
@@ -5152,7 +5154,7 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			if (flag&1)
 				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			else {
-				clif_skill_nodamage(src,bl,skill_id,0,1);
+				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				skill_addtimerskill(src,tick + skill_get_time(skill_id,skill_lv),bl->id,0,0,skill_id,skill_lv,0,0);
 			}
 			break;
@@ -13116,7 +13118,7 @@ static int skill_unit_onplace(struct skill_unit *unit, struct block_list *bl, un
 
 		case UNT_KINGS_GRACE:
 			if( !map_flag_gvg2(src->m) )
-				group->target_flag &= ~BCT_GUILD;
+				group->target_flag &= ~(BCT_NEUTRAL|BCT_GUILD);
 			if( !sce && battle_check_target(&unit->bl,bl,group->target_flag) > 0 )
 				sc_start(src,bl,type,100,skill_lv,group->limit);
 			break;
@@ -14060,7 +14062,6 @@ int skill_unit_onleft(uint16 skill_id, struct block_list *bl, unsigned int tick)
 		case EL_WATER_BARRIER:
 		case EL_ZEPHYR:
 		case EL_POWER_OF_GAIA:
-		case LG_KINGS_GRACE:
 			if (sce)
 				status_change_end(bl, type, INVALID_TIMER);
 			break;
