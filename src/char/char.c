@@ -282,7 +282,7 @@ int loginif_isconnected();
  */
 static DBData create_online_char_data(DBKey key, va_list args)
 {
-	struct online_char_data* character;
+	struct online_char_data *character;
 	CREATE(character, struct online_char_data, 1);
 	character->account_id = key.i;
 	character->char_id = -1;
@@ -294,9 +294,9 @@ static DBData create_online_char_data(DBKey key, va_list args)
 
 void set_char_charselect(int account_id)
 {
-	struct online_char_data* character;
+	struct online_char_data *character;
 
-	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = (struct online_char_data *)idb_ensure(online_char_db, account_id, create_online_char_data);
 
 	if( character->server > -1 )
 		if( server[character->server].users > 0 ) // Prevent this value from going negative.
@@ -321,7 +321,7 @@ void set_char_charselect(int account_id)
 
 void set_char_online(int map_id, int char_id, int account_id)
 {
-	struct online_char_data* character;
+	struct online_char_data *character;
 	struct mmo_charstatus *cp;
 
 	//Update DB
@@ -329,7 +329,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 		Sql_ShowDebug(sql_handle);
 
 	//Check to see for online conflicts
-	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = (struct online_char_data *)idb_ensure(online_char_db, account_id, create_online_char_data);
 	if( character->char_id != -1 && character->server > -1 && character->server != map_id ) {
 		ShowNotice("set_char_online: Character %d:%d marked in map server %d, but map server %d claims to have (%d:%d) online!\n",
 			character->account_id, character->char_id, character->server, map_id, account_id, char_id);
@@ -364,7 +364,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 
 void set_char_offline(int char_id, int account_id)
 {
-	struct online_char_data* character;
+	struct online_char_data *character;
 
 	if( char_id == -1 ) {
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `online`='0' WHERE `account_id`='%d'", char_db, account_id) )
@@ -379,7 +379,7 @@ void set_char_offline(int char_id, int account_id)
 			Sql_ShowDebug(sql_handle);
 	}
 
-	if( (character = (struct online_char_data*)idb_get(online_char_db, account_id)) != NULL ) {
+	if( (character = (struct online_char_data *)idb_get(online_char_db, account_id)) != NULL ) {
 		//We don't free yet to avoid aCalloc/aFree spamming during char change. [Skotlex]
 		if( character->server > -1 )
 			if( server[character->server].users > 0 ) // Prevent this value from going negative.
@@ -414,7 +414,7 @@ void set_char_offline(int char_id, int account_id)
  */
 static int char_db_setoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = (struct online_char_data*)db_data2ptr(data);
+	struct online_char_data *character = (struct online_char_data *)db_data2ptr(data);
 	int server = va_arg(ap, int);
 	if( server == -1 ) {
 		character->char_id = -1;
@@ -433,7 +433,7 @@ static int char_db_setoffline(DBKey key, DBData *data, va_list ap)
  */
 static int char_db_kickoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = (struct online_char_data*)db_data2ptr(data);
+	struct online_char_data *character = (struct online_char_data *)db_data2ptr(data);
 	int server_id = va_arg(ap, int);
 
 	if( server_id > -1 && character->server != server_id )
@@ -2188,9 +2188,9 @@ void set_session_flag_(int account_id, int val, bool set)
 
 static void char_auth_ok(int fd, struct char_session_data *sd)
 {
-	struct online_char_data* character;
+	struct online_char_data *character;
 
-	if ((character = (struct online_char_data*)idb_get(online_char_db, sd->account_id)) != NULL) {
+	if ((character = (struct online_char_data *)idb_get(online_char_db, sd->account_id)) != NULL) {
 		//Check if character is not online already. [Skotlex]
 		if (character->server > -1) { //Character already online. KICK KICK KICK
 			mapif_disconnectplayer(server[character->server].fd, character->account_id, character->char_id, 2);
@@ -2359,7 +2359,7 @@ int loginif_parse_reqpincode(int fd, struct char_session_data *sd) {
 				pincode_sendstate(fd, sd, PINCODE_PASSED);
 		} else {
 			if( !pincode_changetime || (sd->pincode_change + pincode_changetime) > time(NULL) ) {
-				struct online_char_data* node = (struct online_char_data*)idb_get(online_char_db, sd->account_id);
+				struct online_char_data *node = (struct online_char_data *)idb_get(online_char_db, sd->account_id);
 
 				if( node != NULL && node->pincode_success ) // User has already passed the check                    
 					pincode_sendstate(fd, sd, PINCODE_PASSED);
@@ -2645,7 +2645,7 @@ int parse_fromlogin(int fd) {
 					return 0;
 				{
 					int aid = RFIFOL(fd,2);
-					struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, aid);
+					struct online_char_data *character = (struct online_char_data *)idb_get(online_char_db, aid);
 
 					RFIFOSKIP(fd,6);
 					if( character != NULL ) { // Account is already marked as online!
@@ -3344,7 +3344,7 @@ int parse_frommap(int fd)
 					for( i = 0; i < server[id].users; i++ ) {
 						int aid = RFIFOL(fd,6 + i * 8);
 						int cid = RFIFOL(fd,6 + i * 8 + 4);
-						struct online_char_data* character = idb_ensure(online_char_db, aid, create_online_char_data);
+						struct online_char_data *character = idb_ensure(online_char_db, aid, create_online_char_data);
 
 						if( character->server > -1 && character->server != id ) {
 							ShowNotice("Set map user: Character (%d:%d) marked on map server %d, but map server %d claims to have (%d:%d) online!\n",
@@ -3364,7 +3364,7 @@ int parse_frommap(int fd)
 					return 0;
 				{
 					int aid = RFIFOL(fd,4), cid = RFIFOL(fd,8), size = RFIFOW(fd,2);
-					struct online_char_data* character;
+					struct online_char_data *character;
 
 					if( size - 13 != sizeof(struct mmo_charstatus) ) {
 						ShowError("parse_from_map (save-char): Size mismatch! %d != %d\n", size - 13, sizeof(struct mmo_charstatus));
@@ -3373,7 +3373,7 @@ int parse_frommap(int fd)
 					}
 					//Check account only if this ain't final save. Final-save goes through because of the char-map reconnect
 					if( RFIFOB(fd,12) || RFIFOB(fd,13) || (
-						(character = (struct online_char_data*)idb_get(online_char_db, aid)) != NULL &&
+						(character = (struct online_char_data *)idb_get(online_char_db, aid)) != NULL &&
 						character->char_id == cid) )
 					{
 						struct mmo_charstatus char_dat;
@@ -3464,7 +3464,7 @@ int parse_frommap(int fd)
 						session_isActive(map_fd) &&
 						char_data )
 					{ //Send the map server the auth of this player
-						struct online_char_data* data;
+						struct online_char_data *data;
 						struct auth_node *node;
 
 						//Update the "last map" as this is where the player must be spawned on the new map server
@@ -4085,7 +4085,7 @@ static void char_delete2_req(int fd, struct char_session_data *sd)
 
 static void char_delete2_accept(int fd, struct char_session_data *sd)
 { // CH: <0829>.W <char id>.L <birth date:YYMMDD>.6B
-	char birthdate[8+1];
+	char birthdate[8 + 1];
 	int char_id, i;
 	unsigned int base_level;
 	char *data;
@@ -4193,7 +4193,7 @@ int parse_char(int fd)
 
 	if( session[fd]->flag.eof ) {
 		if( sd != NULL && sd->auth ) { //Already authed client
-			struct online_char_data *data = (struct online_char_data*)idb_get(online_char_db,sd->account_id);
+			struct online_char_data *data = (struct online_char_data *)idb_get(online_char_db,sd->account_id);
 
 			if( data != NULL && data->fd == fd)
 				data->fd = -1;
@@ -4520,7 +4520,7 @@ int parse_char(int fd)
 
 					ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%d (%d)"CL_RESET"\n",sd->account_id,cid);
 					memcpy(email,RFIFOP(fd,6),40);
-					RFIFOSKIP(fd,(cmd == 0x68) ? 46 : 56);
+					RFIFOSKIP(fd,(cmd == 0x68 ? 46 : 56));
 
 					//Check if e-mail is correct
 					if( (strcmpi(email,sd->email) && //Email does not matches and
@@ -4911,7 +4911,7 @@ int broadcast_user_count(int tid, unsigned int tick, int id, intptr_t data)
  */
 static int send_accounts_tologin_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = db_data2ptr(data);
+	struct online_char_data *character = db_data2ptr(data);
 	int *i = va_arg(ap, int*);
 
 	if( character->server > -1 ) {

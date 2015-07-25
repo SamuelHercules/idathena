@@ -376,7 +376,7 @@
 2945,499,100	// TE_WoE_Rage_Ring
 2946,499,100	// TE_WoE_Defiance_Ring
 2950,507,100	// Rune_Ring
-2981,467,100	// Warrior's_Ring
+2981,467,100	// Heroic_Ring
 2997,475,100	// RWC_Gold_Brooch
 2999,475,100	// RWC_Brooch
 5106,467,100	// Cone_Hat_INA

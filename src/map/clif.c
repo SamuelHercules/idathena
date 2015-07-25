@@ -1617,7 +1617,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	WBUFW(buf,45) = status->mdef;
 #endif
 	WBUFW(buf,47) = status->flee;
-	WBUFW(buf,49) = (flag) ? 0 : status->amotion;
+	WBUFW(buf,49) = (flag ? 0 : status->amotion);
 	if (status->max_hp > INT16_MAX) {
 		WBUFW(buf,51) = status->hp / (status->max_hp / 100);
 		WBUFW(buf,53) = 100;

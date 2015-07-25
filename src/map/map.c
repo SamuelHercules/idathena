@@ -1778,21 +1778,20 @@ void map_deliddb(struct block_list *bl)
 int map_quit(struct map_session_data *sd) {
 	int i;
 
-	if (!sd->state.active) { //Removing a player that is not active.
+	if (!sd->state.active) { //Removing a player that is not active
 		struct auth_node *node = chrif_search(sd->status.account_id);
 
-		if (node && node->char_id == sd->status.char_id &&
-			node->state != ST_LOGOUT)
-			//Except when logging out, clear the auth-connect data immediately.
+		//Except when logging out, clear the auth-connect data immediately
+		if (node && node->char_id == sd->status.char_id && node->state != ST_LOGOUT)
 			chrif_auth_delete(node->account_id,node->char_id,node->state);
-		//Non-active players should not have loaded any data yet (or it was cleared already) so no additional cleanups are needed.
+		//Non-active players should not have loaded any data yet (or it was cleared already) so no additional cleanups are needed
 		return 0;
 	}
 
 	if (sd->expiration_tid != INVALID_TIMER)
 		delete_timer(sd->expiration_tid,pc_expiration_timer);
 
-	if (sd->npc_timer_id != INVALID_TIMER) //Cancel the event timer.
+	if (sd->npc_timer_id != INVALID_TIMER) //Cancel the event timer
 		npc_timerevent_quit(sd);
 
 	if (sd->autotrade_tid != INVALID_TIMER)

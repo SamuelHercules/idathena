@@ -164,13 +164,13 @@ int pet_target_check(struct pet_data *pd, struct block_list *bl, int type)
 		if(pd->petDB->defence_attack_rate > 0 && rate <= 0)
 			rate = 1;
 	}
-	if(rnd()%10000 < rate) {
-		if(pd->target_id == 0 || rnd()%10000 < pd->petDB->change_target_rate)
-			pd->target_id = bl->id;
-	}
+
+	if(rnd()%10000 < rate && (pd->target_id == 0 || rnd()%10000 < pd->petDB->change_target_rate))
+		pd->target_id = bl->id;
 
 	return 0;
 }
+
 /*==========================================
  * Pet SC Check [Skotlex]
  *------------------------------------------*/

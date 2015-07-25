@@ -3795,7 +3795,7 @@ static bool mob_parse_dbrow(char **str)
 	i = atoi(str[28]);
 	status->amotion = cap_value(i, battle_config.monster_max_aspd, 2000);
 	//If the attack animation is longer than the delay, the client crops the attack animation!
-	//On aegis there is no real visible effect of having a recharge-time less than amotion anyway.
+	//On Aegis there is no real visible effect of having a recharge-time less than amotion anyway
 	if (status->adelay < status->amotion)
 		status->adelay = status->amotion;
 	status->dmotion = atoi(str[29]);
