@@ -423,7 +423,7 @@ struct item_data {
 		unsigned trade_restriction : 9;	//Item trade restrictions mask (@see enum ItemTradeRestrictions)
 		unsigned autoequip: 1;
 		unsigned buyingstore : 1;
-		unsigned dead_branch : 1; //As dead branch item. Logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
+		unsigned dead_branch : 1; //As dead branch item, logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
 		unsigned group : 1; //As item group container [Cydh]
 		unsigned guid : 1; //This item always be attached with GUID and make it as bound item! [Cydh]
 		bool bindOnEquip; //Set item as bound when equipped

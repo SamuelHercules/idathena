@@ -10,6 +10,7 @@
 
 // Logged as Dead Branch item
 604,1 //Branch_Of_Dead_Tree
+609,1 //Amulet
 12103,1 //Bloody_Dead_Branch
 12109,1 //Poring_Box
 12024,1 //Red_Pouch_Of_Surprise

@@ -2408,7 +2408,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 	hitrate += sstatus->hit - flee;
 
 	//Fogwall's hit penalty is only for normal ranged attacks
-	if(!skill_id && (wd.flag&(BF_LONG|BF_WEAPON)) == (BF_LONG|BF_WEAPON) && tsc && tsc->data[SC_FOGWALL])
+	if(tsc && tsc->data[SC_FOGWALL] && !skill_id && (wd.flag&(BF_LONG|BF_WEAPON)) == (BF_LONG|BF_WEAPON))
 		hitrate -= 50;
 
 	if(sd && is_skill_using_arrow(src,skill_id))
@@ -4809,12 +4809,12 @@ struct Damage battle_calc_attack_gvg_bg(struct Damage wd, struct block_list *src
 				if( rdamage > 0 ) { //Item reflect gets calculated before any mapflag reducing is applicated
 					struct block_list *d_bl = battle_check_devotion(src);
 
-					rdelay = clif_damage(src, (!d_bl) ? src : d_bl, tick, wd.amotion, sstatus->dmotion, rdamage, 1, DMG_ENDURE, 0);
+					rdelay = clif_damage(src, (!d_bl ? src : d_bl), tick, wd.amotion, sstatus->dmotion, rdamage, 1, DMG_ENDURE, 0);
 					if( tsd )
 						battle_drain(tsd, src, rdamage, rdamage, sstatus->race, sstatus->class_);
 					//Use Reflect Shield to signal this kind of skill trigger [Skotlex]
-					battle_delay_damage(tick, wd.amotion, target, (!d_bl) ? src : d_bl, 0, CR_REFLECTSHIELD, 0, rdamage, ATK_DEF, rdelay, true);
-					skill_additional_effect(target, (!d_bl) ? src : d_bl, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL, ATK_DEF, tick);
+					battle_delay_damage(tick, wd.amotion, target, (!d_bl ? src : d_bl), 0, CR_REFLECTSHIELD, 0, rdamage, ATK_DEF, rdelay, true);
+					skill_additional_effect(target, (!d_bl ? src : d_bl), CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL, ATK_DEF, tick);
 				}
 		}
 		if( !wd.damage2 ) {
