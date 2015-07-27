@@ -3959,7 +3959,7 @@ int log_sql_init(void)
 void map_add_questinfo(int m, struct questinfo *qi) {
 	unsigned short i;
 
-	/* Duplicate, override */
+	//Duplicate, override
 	for( i = 0; i < map[m].qi_count; i++ )
 		if( map[m].qi_data[i].nd == qi->nd )
 			break;

@@ -5358,8 +5358,8 @@ char pc_setpos(struct map_session_data *sd, unsigned short mapindex, int x, int 
 	else
 		sd->count_rewarp = 0;
 
-	/* Given autotrades have no clients you have to trigger this manually
-	 * Otherwise they get stuck in memory limbo bugreport:7495 */
+	//Given autotrades have no clients you have to trigger this manually
+	//Otherwise they get stuck in memory limbo bugreport:7495
 	if( battle_config.feature_autotrade_move && sd->state.autotrade && (sd->vender_id || sd->buyer_id) )
 		clif_parse_LoadEndAck(0, sd);
 
