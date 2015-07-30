@@ -2545,10 +2545,9 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 				id->name, nameid, filepath, strline(buffer, start - buffer));
 		}
 
-		if( type == NPCTYPE_SHOP && value * 0.75 < id->value_sell * 1.24 ) { //Exploit possible: you can buy and sell back with profit
+		if( type == NPCTYPE_SHOP && value * 0.75 < id->value_sell * 1.24 ) //Exploit possible: you can buy and sell back with profit
 			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) in file '%s', line '%d'.\n",
 				id->name, nameid, value, (int)(value * 0.75), id->value_sell, (int)(id->value_sell * 1.24), filepath, strline(buffer, start - buffer));
-		}
 
 		if( type == NPCTYPE_MARKETSHOP && (!qty || qty > UINT16_MAX) ) {
 			ShowWarning("npc_parse_shop: Item %s [%hu] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",

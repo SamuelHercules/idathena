@@ -173,7 +173,7 @@ static void itemdb_pc_get_itemgroup_sub(struct map_session_data *sd, struct s_it
 	memset(&tmp, 0, sizeof(tmp));
 
 	tmp.nameid = data->nameid;
-	tmp.amount = (itemdb_isstackable(data->nameid)) ? data->amount : 1;
+	tmp.amount = (itemdb_isstackable(data->nameid) ? data->amount : 1);
 	tmp.bound = data->bound;
 	tmp.identify = 1;
 	tmp.expire_time = (data->duration) ? (unsigned int)(time(NULL) + data->duration * 60) : 0;
@@ -908,7 +908,7 @@ static bool itemdb_read_flag(char *fields[], int columns, int current) {
 	}
 
 	flag = abs(atoi(fields[1]));
-	set = atoi(fields[1]) > 0;
+	set = (atoi(fields[1]) > 0);
 
 	if( flag&1 )
 		id->flag.dead_branch = (set ? 1 : 0);
@@ -934,12 +934,10 @@ static int itemdb_combo_split_atoi(char *str, int *val) {
 	int i;
 
 	for (i = 0; i < MAX_ITEMS_PER_COMBO; i++) {
-		if (!str) break;
-
+		if (!str)
+			break;
 		val[i] = atoi(str);
-
 		str = strchr(str,':');
-
 		if (str)
 			*str++ = 0;
 	}
@@ -949,6 +947,7 @@ static int itemdb_combo_split_atoi(char *str, int *val) {
 
 	return i;
 }
+
 /**
  * <combo{:combo{:combo:{..}}}>,<{ script }>
  */
@@ -976,9 +975,7 @@ static void itemdb_read_combos() {
 			continue;
 
 		memset(str, 0, sizeof(str));
-
 		p = line;
-
 		p = trim(p);
 
 		if (*p == '\0')
@@ -1032,7 +1029,6 @@ static void itemdb_read_combos() {
 				continue;
 
 			id = itemdb_exists(items[0]);
-
 			idx = id->combos_count;
 
 			// First entry, create
@@ -1043,12 +1039,12 @@ static void itemdb_read_combos() {
 				RECREATE(id->combos, struct item_combo*, ++id->combos_count);
 
 			CREATE(id->combos[idx],struct item_combo,1);
-
 			id->combos[idx]->nameid = aMalloc(retcount * sizeof(unsigned short));
 			id->combos[idx]->count = retcount;
 			id->combos[idx]->script = parse_script(str[1], path, lines, 0);
 			id->combos[idx]->id = count;
 			id->combos[idx]->isRef = false;
+
 			// Populate ->nameid field
 			for (v = 0; v < retcount; v++)
 				id->combos[idx]->nameid[v] = items[v];
@@ -1059,7 +1055,6 @@ static void itemdb_read_combos() {
 				int index;
 
 				it = itemdb_exists(items[v]);
-
 				index = it->combos_count;
 
 				if (it->combos == NULL) {
@@ -1069,7 +1064,6 @@ static void itemdb_read_combos() {
 					RECREATE(it->combos, struct item_combo*, ++it->combos_count);
 
 				CREATE(it->combos[index],struct item_combo,1);
-
 				// We copy previously alloc'd pointers and just set it to reference
 				memcpy(it->combos[index],id->combos[idx],sizeof(struct item_combo));
 				// We flag this way to ensure we don't double-dealloc same data
@@ -1081,10 +1075,7 @@ static void itemdb_read_combos() {
 	}
 
 	fclose(fp);
-
 	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"item_combo_db"CL_RESET"'.\n", count);
-
-	return;
 }
 
 /*======================================

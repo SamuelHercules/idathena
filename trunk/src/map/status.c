@@ -4571,7 +4571,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( bl->type&BL_HOM ) {
 #ifdef RENEWAL_ASPD
 			amotion = ((TBL_HOM *)bl)->homunculusDB->baseASPD;
-			amotion -= amotion * status_get_homdex(bl) / 1000 - status_get_homagi(bl) * amotion / 250;
+			amotion -= amotion * status_get_homdex(bl) / 1000 + status_get_homagi(bl) * amotion / 250;
 			amotion = (amotion * status_calc_aspd(bl, sc, 1) + status_calc_aspd(bl, sc, 2)) / -100 + amotion;
 #else
 			amotion = (1000 - 4 * status->agi - status->dex) * ((TBL_HOM *)bl)->homunculusDB->baseASPD / 1000;

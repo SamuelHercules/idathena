@@ -9491,7 +9491,6 @@ ACMD_FUNC(cloneequip) {
 				continue;
 			if (pc_is_same_equip_index((enum equip_index) i, pl_sd->equip_index, idx))
 				continue;
-
 			tmp_item = pl_sd->status.inventory[idx];
 			if (itemdb_isspecial(tmp_item.card[0]))
 				memset(tmp_item.card, 0, sizeof(tmp_item.card));
@@ -9500,7 +9499,6 @@ ACMD_FUNC(cloneequip) {
 			tmp_item.unique_id = 0;
 			tmp_item.favorite = 0;
 			tmp_item.amount = 1;
-
 			if ((flag = pc_additem(sd, &tmp_item, 1, LOG_TYPE_COMMAND)))
 				clif_additem(sd, 0, 0, flag);
 			else
