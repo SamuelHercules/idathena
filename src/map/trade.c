@@ -260,7 +260,7 @@ int trade_check(struct map_session_data *sd, struct map_session_data *tsd)
 			
 			data = itemdb_search(inventory[n].nameid);
 			i = MAX_INVENTORY;
-			if (itemdb_isstackable2(data)) { //Stackable item.
+			if (itemdb_isstackable2(data)) { //Stackable item
 				for (i = 0; i < MAX_INVENTORY; i++)
 					if (inventory2[i].nameid == inventory[n].nameid &&
 						inventory2[i].card[0] == inventory[n].card[0] && inventory2[i].card[1] == inventory[n].card[1] &&

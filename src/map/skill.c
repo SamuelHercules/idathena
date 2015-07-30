@@ -6495,7 +6495,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case HVAN_EXPLOSION:
 			//Self Destruction hits everyone in range (allies + enemies)
 			//Except for Summoned Marine spheres on non-versus maps, where it's just enemy [orn]
-			i = ((!md || md->special_state.ai == AI_SPHERE) && !map_flag_vs(src->m)) ? BCT_ENEMY : BCT_ALL;
+			i = ((!md || md->special_state.ai == AI_SPHERE) && !map_flag_vs(src->m) ? BCT_ENEMY : BCT_ALL);
 			clif_skill_nodamage(src,src,skill_id,-1,1);
 			map_delblock(src); //Required to prevent chain-self-destructions hitting back
 			map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,
@@ -7685,8 +7685,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sc_start(src,bl,type,100,100,skill_get_time(skill_id,skill_lv)));
 			break;
 
-		case NPC_INVISIBLE:
-			//Have val4 passed as 6 is for "infinite cloak" (do not end on attack/skill use).
+		case NPC_INVISIBLE: //Have val4 passed as 6 is for "infinite cloak" (do not end on attack/skill use)
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,
 				sc_start4(src,bl,type,100,skill_lv,0,0,6,skill_get_time(skill_id,skill_lv)));
 			break;
@@ -7699,7 +7698,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if (sd) {
 				if (status_get_hp(src) > status_get_max_hp(src) / 10) {
 					int hp_rate = (!skill_lv) ? 0 : skill_get_hp_rate(skill_id, skill_lv);
-					//The earned is the same % of the target HP than it costed the caster. [Skotlex]
+					//The earned is the same % of the target HP than it costed the caster [Skotlex]
 					int gain_hp = tstatus->max_hp * abs(hp_rate) / 100;
 
 					clif_skill_nodamage(src,bl,skill_id,status_heal(bl,gain_hp,0,0),1);
@@ -7711,7 +7710,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			if (sd) {
 				if (status_get_sp(src) > status_get_max_sp(src) / 10) {
 					int sp_rate = (!skill_lv) ? 0 : skill_get_sp_rate(skill_id, skill_lv);
-					//The earned is the same % of the target SP than it costed the caster. [Skotlex]
+					//The earned is the same % of the target SP than it costed the caster [Skotlex]
 					int gain_sp = tstatus->max_sp * abs(sp_rate) / 100;
 
 					clif_skill_nodamage(src,bl,skill_id,status_heal(bl,0,gain_sp,0),1);
@@ -9166,7 +9165,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case NC_REPAIR:
 			if( sd ) {
-				uint8 percent;
+				uint8 percent = 0;
 				int heal;
 
 				switch( skill_lv ) {
@@ -9645,13 +9644,17 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case WM_VOICEOFSIREN:
 			if( flag&1 ) {
+				if( bl->id == src->id )
+					break;
 				tick = status_get_lv(bl) / 12 + (dstsd ? dstsd->status.job_level / 12 : 0);
 				sc_start2(src,bl,type,100,skill_lv,src->id,skill_get_time(skill_id,skill_lv) - (1000 * tick));
 			} else if( sd ) {
 				rate = 6 * skill_lv + 2 * pc_checkskill(sd,WM_LESSON) + min(50,sd->status.job_level) / 2;
 				if( rnd()%100 < rate ) {
+					int sflag = (map_flag_vs(src->m) ? BCT_ENEMY : BCT_ALL);
+
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_CHAR|BL_SKILL,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_CHAR|BL_SKILL,src,skill_id,skill_lv,tick,flag|sflag|1,skill_castend_nodamage_id);
 				}
 			}
 			break;
@@ -11938,7 +11941,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 
 		case GN_FIRE_EXPANSION: {
 				struct skill_unit_group *sg;
-				uint16 lv;
+				uint16 lv = 0;
 
 				if( (sg = skill_locate_element_field(src)) != NULL ) {
 					if( sg->skill_id == GN_DEMONIC_FIRE &&
@@ -14550,7 +14553,7 @@ bool skill_check_condition_castbegin(struct map_session_data *sd, uint16 skill_i
 		sd->itemid = sd->itemindex = -1;
 		if( skill_id == WZ_EARTHSPIKE && sc && sc->data[SC_EARTHSCROLL] && rnd()%100 > sc->data[SC_EARTHSCROLL]->val2 ) //[marquis007]
 			; //Do not consume item
-		else if( sd->status.inventory[i].expire_time == 0 )
+		else if( !sd->status.inventory[i].expire_time )
 			pc_delitem(sd,i,1,0,0,LOG_TYPE_CONSUME); //Rental usable items are not consumed until expiration
 		return true;
 	}
@@ -19036,7 +19039,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 							int val, amt;
 
 							amt = tmp_item.amount = qty * skill_changematerial_db[i].qty[j];
-							if( !itemdb_isstackable2(itemdb_search(nameid)) )
+							if( !itemdb_isstackable(nameid) )
 								amt = 1;
 							for( val = 0; val < tmp_item.amount; val += amt ) {
 								if( (flag = pc_additem(sd,&tmp_item,amt,LOG_TYPE_PRODUCE)) ) {

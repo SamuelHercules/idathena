@@ -1477,7 +1477,7 @@ void pc_reg_received(struct map_session_data *sd)
 	if (!chrif_auth_finished(sd))
 		ShowError("pc_reg_received: Failed to properly remove player %d:%d from logging db!\n", sd->status.account_id, sd->status.char_id);
 
-	pc_check_available_item(sd); //Check for invalid(ated) items.
+	pc_check_available_item(sd); //Check for invalid(ated) items
 	pc_load_combo(sd);
 
 	status_calc_pc(sd, (enum e_status_calc_opt)(SCO_FIRST|SCO_FORCE));
@@ -4288,7 +4288,7 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 	nullpo_retr(1, sd);
 	nullpo_retr(1, item);
 
-	if( !(item->nameid) || amount <= 0 )
+	if( !item->nameid || amount <= 0 )
 		return ADDITEM_INVALID;
 
 	if( amount > MAX_AMOUNT )
@@ -4309,11 +4309,11 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 		item->unique_id = pc_generate_unique_id(sd);
 #endif
 
-	if( itemdb_isstackable2(id) && item->expire_time == 0 ) { //Stackable | Non Rental
+	if( itemdb_isstackable2(id) && !item->expire_time ) { //Stackable | Non Rental
 		for( i = 0; i < MAX_INVENTORY; i++ ) {
 			if( sd->status.inventory[i].nameid == item->nameid &&
 				sd->status.inventory[i].bound == item->bound &&
-				sd->status.inventory[i].expire_time == 0 &&
+				!sd->status.inventory[i].expire_time &&
 #ifdef ENABLE_ITEM_GUID
 				sd->status.inventory[i].unique_id == item->unique_id &&
 #endif
@@ -4336,8 +4336,8 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 		i = pc_search_inventory(sd, 0);
 		if( i == INDEX_NOT_FOUND )
 			return ADDITEM_OVERITEM;
-		//Clear equip and favorite fields first, just in case
 		memcpy(&sd->status.inventory[i], item, sizeof(sd->status.inventory[0]));
+		//Clear equip and favorite fields first, just in case
 		if( item->equip )
 			sd->status.inventory[i].equip = 0;
 		if( item->favorite )
@@ -4809,7 +4809,7 @@ int pc_useitem(struct map_session_data *sd, int n)
 	if( id->flag.delay_consume )
 		clif_useitemack(sd,n,amount,true);
 	else {
-		if( item.expire_time == 0 && nameid != ITEMID_BOARDING_HALTER ) {
+		if( !item.expire_time && nameid != ITEMID_BOARDING_HALTER ) {
 			clif_useitemack(sd,n,amount - 1,true);
 			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME); //Rental Usable Items are not deleted until expiration
 		} else
