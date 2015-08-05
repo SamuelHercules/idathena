@@ -513,9 +513,9 @@ iz_int04,96,73,0	duplicate(toIzlude)	#izlude_d	WARPNPC,2,2
 						cutin "",255;
 						end;
 					}
-					set Zeny,Zeny-2800;
 					mes "[Carocc]";
 					mes "Let us travel with the wind in our hair.";
+					set Zeny,Zeny-2800;
 					close2;
 					warp "cmd_fild07",92,129;
 					end;
@@ -560,9 +560,9 @@ iz_int04,96,73,0	duplicate(toIzlude)	#izlude_d	WARPNPC,2,2
 			cutin "",255;
 			end;
 		}
-		Zeny -= 2800;
 		mes "[Carocc]";
 		mes "Let us travel with the wind in our hairs.";
+		set Zeny,Zeny-2800;
 		close2;
 		warp "cmd_fild07",92,129;
 		end;
@@ -3608,7 +3608,7 @@ izlude_d,97,138,5	duplicate(RomanticFemale)	Romantic Female#iz_d	4_F_SITDOWN
 	close;
 }
 
-izlude,99,138,3	duplicate(RomanticMale)	Romantic Male#0	4_M_SITDOWN
+izlude,99,138,3	duplicate(RomanticMale)	Romantic Male#iz	4_M_SITDOWN
 izlude_a,99,138,3	duplicate(RomanticMale)	Romantic Male#iz_a	4_M_SITDOWN
 izlude_b,99,138,3	duplicate(RomanticMale)	Romantic Male#iz_b	4_M_SITDOWN
 izlude_c,99,138,3	duplicate(RomanticMale)	Romantic Male#iz_c	4_M_SITDOWN
@@ -4461,7 +4461,7 @@ iz_ac01_d,100,39,5	duplicate(AcademyReceptionist)	Academy Receptionist#1_d	4_F_0
 						mes "It's already done. Easy huh?";
 						next;
 						mes "[Kafra Guide Trainer]";
-						mes "Now, when you use a Butterfly Wing, it will send you to the last saved location.";
+						mes "Now, when you use a ^007a02Butterfly Wing^000000, it will send you to the last saved location.";
 					}
 					next;
 					break;
