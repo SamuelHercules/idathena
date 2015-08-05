@@ -1173,7 +1173,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 		return false;
 	}
 
-	//Set the map-server used job id. [Skotlex]
+	//Set the map-server used job id [Skotlex]
 	i = pc_jobid2mapid(sd->status.class_);
 	if (i == -1) { //Invalid class?
 		ShowError("pc_authok: Invalid class %d for player %s (%d:%d). Class was changed to novice.\n", sd->status.class_, sd->status.name, sd->status.account_id, sd->status.char_id);
@@ -8020,7 +8020,7 @@ static int jobchange_killclone(struct block_list *bl, va_list ap)
  * @param upper 1 - JOBL_UPPER; 2 - JOBL_BABY
  * @return True if success, false if failed
  */
-bool pc_jobchange(struct map_session_data *sd,int job, char upper)
+bool pc_jobchange(struct map_session_data *sd, int job, char upper)
 {
 	int i, fame_flag = 0;
 	int b_class;
@@ -8030,7 +8030,7 @@ bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 	if (job < 0)
 		return false;
 
-	//Normalize job.
+	//Normalize job
 	b_class = pc_jobid2mapid(job);
 	if (b_class == -1)
 		return false;

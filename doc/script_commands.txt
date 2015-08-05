@@ -616,10 +616,10 @@ the expression, while the post- ones will be executed after. For example:
     @x = 1;
     @y = @x++; // After this line is executed, @y will be 1, @x will be 2
 
-Note: The pre-increment/pre-decrement operators are, by design, faster (or at
+NOTE: The pre-increment/pre-decrement operators are, by design, faster (or at
 least not slower) than their respective post- equivalent.
 
-Note:
+NOTE:
 
  !! Currently the scripting engine does not support directly copying array variables.
  !! In order to copy arrays between variables the use of 'copyarray' function is still
@@ -804,7 +804,7 @@ Logical bitwise operators work only on numbers, and they are the following:
 		example 1010 & 0010, only the 2^1 bit is active (1) in both. Resulting in the bit
 		0010, which is 2.
 	- Basic example of creating and using a bit-mask:
-		set @options,2|4|16; //(note: this is the same as 2+4+16, or 22)
+		set @options,2|4|16; //(NOTE: this is the same as 2+4+16, or 22)
 		if (@options & 1)	mes "Option 1 is activated";
 		if (@options & 2) mes "Option 2 is activated";
 		if (@options & 4) mes "Option 3 is activated";
@@ -1381,7 +1381,7 @@ Examples:
 //This will set the .var variable of TargetNPC to 1.
 	set getvariableofnpc(.var,"TargetNPC"), 1;
 
-Note: even though function objects can have .variables, 
+NOTE: even though function objects can have .variables, 
 getvariableofnpc will not work on them.
 
 ---------------------------------------
@@ -1680,7 +1680,7 @@ may be called directly without the use of the 'callfunc' script command.
 		close;
 	}
 
-Note:
+NOTE:
 
  !! A user-defined function must be declared /before/ a script attempts to
  !! call it. That is to say, any functions should be placed above scripts or NPCs
@@ -3432,7 +3432,7 @@ Valid types are listed in 'db/const.txt':
 	MOB_MODE	22
 	MOB_MVPEXP	23
 
-Note: MOB_ELEMENT doesn't return the element level, only the element ID.
+NOTE: MOB_ELEMENT doesn't return the element level, only the element ID.
 For more details, see the sample in 'doc/sample/getmonsterinfo.txt'.
 
 ---------------------------------------
@@ -3670,7 +3670,7 @@ If <type> is 0 this command will remove the cart from the character.
 Otherwise it gives the invoking character a cart. The cart given will be 
 cart number <type> and will work regardless of whether the character is a 
 merchant class or not.
-Note: the character needs to have the skill MC_PUSHCART to gain a cart
+NOTE: the character needs to have the skill MC_PUSHCART to gain a cart
 
 The accompanying function will return 1 if the invoking character has a cart 
 (any kind of cart) and 0 if they don't.
@@ -3686,7 +3686,7 @@ If <flag> is 0 this command will remove the falcon from the character.
 Otherwise it gives the invoking character a falcon. The falcon will be there 
 regardless of whether the character is a hunter or not. It will (probably) not 
 have any useful effects for non-hunters though.
-Note: the character needs to have the skill HT_FALCON to gain a falcon
+NOTE: the character needs to have the skill HT_FALCON to gain a falcon
 
 The accompanying function will return 1 if the invoking character has a falcon 
 and 0 if they don't.
@@ -3703,7 +3703,7 @@ Otherwise it gives the invoking character a PecoPeco (if they are a Knight
 series class), a GrandPeco (if they are a Crusader series class), or
 a Gryphon (if they are a Royal Guard). Unlike 'setfalcon' and 'setcart'
 this will not work at all if they aren't of a class which can ride.
-Note: the character needs to have the skill KN_RIDING to gain a mount
+NOTE: the character needs to have the skill KN_RIDING to gain a mount
 
 The accompanying function will return 1 if the invoking character is riding a 
 bird and 0 if they aren't.
@@ -3725,7 +3725,7 @@ The available colors are:
  4 - Blue Dragon
  5 - Red Dragon
 
-Note: the character must be a Rune Knight and have the skill RK_DRAGONTRAINING to gain a mount
+NOTE: the character must be a Rune Knight and have the skill RK_DRAGONTRAINING to gain a mount
 
 The accompanying function will return 1 if the invoking character is riding a 
 dragon and 0 if they aren't.
@@ -3749,7 +3749,7 @@ Mado and 0 if they don't.
 The 'setmounting' function toggles cash mount for the invoking character.
 It will return 1 if successful, 0 otherwise.
 
-Note: Character must not be mounting a non-cash mount (eg. dragon, peco, wug, etc.)
+NOTE: Character must not be mounting a non-cash mount (eg. dragon, peco, wug, etc.)
 
 The accompanying function will return 1 if the invoking character has a
 cash mount and 0 if they don't.
@@ -3946,10 +3946,10 @@ invoking RID. It returns 1 if successful and 0 upon failure.
 
 *rid2name(<rid>)
 
-Converts rid to name. Note: The player/monster/NPC must be online/enabled.
+Converts rid to name. NOTE: The player/monster/NPC must be online/enabled.
 Good for PCKillEvent where you can convert 'killedrid' to the name of the player.
 
-Note: rid2name may not produce correct character names since rid = account id.
+NOTE: rid2name may not produce correct character names since rid = account id.
       It will return the current online character of the account only.
 
 ---------------------------------------
@@ -4210,7 +4210,7 @@ list of job names and the numbers they correspond to can be found in
 
 'upper flag' can alternatively be used to specify the type of job one changes
 to. For example, jobchange Job_Swordman,1; will change the character to a high
-swordsman. The upper values are:
+swordman. The upper values are:
 -1 (or when omitted): preserves the current job type.
 0: Normal/standard classes
 1: High/Advanced classes
@@ -4670,7 +4670,7 @@ also receive warning messages in their chat window before the item disappears.
 
 This command can not be used to rent stackable items. Rental items cannot be 
 dropped, traded, sold to NPCs, or placed in guild storage. (i.e. trade mask 75)
-Note: 'delitem' in an NPC script can still remove rental items.
+NOTE: 'delitem' in an NPC script can still remove rental items.
 
 ---------------------------------------
 
@@ -5376,7 +5376,7 @@ Examples:
 	// This will end the Freezing status for the invoking character.
 	sc_end SC_FREEZE;
 
-Note: to use SC_NOCHAT you should alter Manner
+NOTE: to use SC_NOCHAT you should alter Manner
 	set Manner, -5;	// Will mute a user for 5 minutes
 	set Manner, 0;	// Will unmute a user
 	set Manner, 5;	// Will unmute a user and prevent the next use of 'Manner'
@@ -5416,13 +5416,13 @@ displaying the skill's effect.
     mes "Be blessed!";
     // Heal of 2000 HP
     heal 2000,0;
-    skilleffect 28,2000;
+    skilleffect "AL_HEAL",2000;
     // Blessing Level 10
-    sc_start 10,240000,10;
-    skilleffect 34,0;
+    sc_start SC_BLESSING,240000,10;
+    skilleffect "AL_BLESSING",0;
     // Increase AGI Level 5
-    sc_start 12,140000,5;
-    skilleffect 29,0;
+    sc_start SC_INCREASEAGI,140000,5;
+    skilleffect "AL_INCAGI",0;
 
 This will heal the character with 2000 HP, buff it with Blessing Lv 10 and
 Increase AGI Lv 5, and display appropriate effects.
@@ -6438,7 +6438,7 @@ The label "OnSellItem" sets the following arrays:
 	@sold_card3      - card slot 3
 	@sold_card4      - card slot 4
 
-Note: These labels will only be triggered if an npcshop* command is executed because these
+NOTE: These labels will only be triggered if an npcshop* command is executed because these
 commands set a special data on the shop NPC, named master_nd in the source. The above labels
 are triggered in the NPC whose master_nd is given in the shop.
 
@@ -7346,15 +7346,15 @@ Parameters (indexes) for monsters are:
 
 	0 - size (big, small, normal)	7  - y				14 - hair style		21 - weapon		28 - LUK
 	1 - level			8  - speed			15 - hair color		22 - looking dir	29 - for slave to copy master's mode
-	2 - HP				9  - mode 			16 - head gear bottom	23 - STR		30 - immune from attacks state
-	3 - max HP			10 - special AI state	 	17 - head gear middle	24 - AGI
+	2 - HP				9  - mode 			16 - head gear bottom	23 - STR		30 - immune to attacks state
+	3 - max HP			10 - special AI state	 	17 - head gear middle	24 - AGI		31 - immune to normal melee attacks
 	4 - master AID			11 - SC option			18 - head gear top	25 - VIT
 	5 - map ID			12 - sex			19 - cloth color	26 - INT
 	6 - x				13 - class (Monster ID, Job ID)	20 - shield		27 - DEX
 
 Parameter (indexes) for homunculus are:
 
-	0 - size (big, small, normal)	7  - map ID		14 - canmove_tick	21 - immune from attacks state
+	0 - size (big, small, normal)	7  - map ID		14 - canmove_tick	21 - immune to attacks state
 	1 - level			8  - x			15 - STR
 	2 - HP				9  - y			16 - AGI
 	3 - max HP			10 - hunger		17 - VIT
@@ -7369,7 +7369,7 @@ Parameter (indexes) for pets are:
 	2 - HP				9  - intimacy		16 - INT
 	3 - max HP			10 - speed		17 - DEX
 	4 - master AID			11 - looking dir	18 - LUK
-	5 - map ID			12 - canmove_tick	19 - immune from attacks state
+	5 - map ID			12 - canmove_tick	19 - immune to attacks state
 	6 - x				13 - STR
 
 Parameter (indexes) for mercenaries are:
@@ -7378,7 +7378,7 @@ Parameter (indexes) for mercenaries are:
 	1 - HP				8  - life time		15 - INT
 	2 - max HP			9  - speed 		16 - DEX
 	3 - master Character ID		10 - looking dir	17 - LUK
-	4 - map ID			11 - canmove_tick	18 - immune from attacks state
+	4 - map ID			11 - canmove_tick	18 - immune to attacks state
 	5 - x				12 - STR
 	6 - y				13 - AGI
 
@@ -7390,7 +7390,7 @@ Parameter (indexes) for elementals are:
 	3 - SP				10 - mode		17 - INT
 	4 - max SP			11 - speed		18 - DEX
 	5 - master Character ID		12 - looking dir	19 - LUK
-	6 - map ID			13 - canmove_tick	20 - immune from attacks state
+	6 - map ID			13 - canmove_tick	20 - immune to attacks state
 
 Parameter (indexes) for NPCs are:
 
@@ -7571,7 +7571,7 @@ Example:
 
 Returns log base 10 of the number.
 
-Note: The value is truncated to integer.
+NOTE: The value is truncated to integer.
 
 Example:
 	.@i = log10(100); // .@i will be 2
@@ -7582,7 +7582,7 @@ Example:
 
 Returns the square-root of a number.
 
-Note: The value is truncated to integer.
+NOTE: The value is truncated to integer.
 
 Example:
 	.@i = sqrt(25); // .@i will be 5
@@ -7593,7 +7593,7 @@ Example:
 
 Returns distance between 2 points.
 
-Note: When server is configured to use circular areas, the Euclidean distance
+NOTE: When server is configured to use circular areas, the Euclidean distance
 is returned, otherwise the Chebyshev distance. The value is truncated to
 integer.
 
@@ -8195,11 +8195,10 @@ Example:
 =========================
 ---------------------------------------
 
-*questinfo <Quest ID>,<Icon>{,<Map Mark Color>{,<Job Class>}};
+questinfo <Icon>,<Quest ID>,<State ID>{,<Quest ID2>{,<State ID2>{,<Map Mark Color>{,<Job Mask>{,<Job Number>}}}}};
 
-This is esentially a combination of checkquest and showevent. Use this only
-in an OnInit label. For the Quest ID, specify the quest ID that you want
-checked if it has been started yet.
+This is esentially a combination of 'isbegin_quest', 'showevent', 'eaclass'. Use this only
+in an OnInit label.
 
 For Icon, use one of the following:
 
@@ -8213,6 +8212,13 @@ No Icon    : QTYPE_NONE
 Warg    : QTYPE_WARG
 Warg Face  : QTYPE_WARG2 (Only for packetver >= 20120410)
 
+For the quest ID and state ID, they will determine how the quest bubble will show up.
+
+State of the quest value: 
+	 0 = Quest not started (not in quest log)
+	 1 = Quest has been given (state is either "inactive" or "active")
+	 2 = Quest completed
+
 Map Mark Color, when used, creates a mark in the user's mini map on the position of the NPC,
 the available color values are:
 
@@ -8221,21 +8227,65 @@ the available color values are:
 2 - Green Marker
 3 - Purple Marker
 
-When a user shows up on a map, each NPC is checked for questinfo that has been set.
-If questinfo is present, it will check if the quest has been started, if it has not, the bubble will appear.
+Each NPC is checked to update the attached questinfo, everytime a user shows up on a map.
 
-Optionally, you can also specify a Job Class if the quest bubble should only appear for a certain class.
+Optionally, you can also specify for appearing quest bubble to a certain class.
 
-Example:
-izlude,100,100,4	script	Test	844,{
-	mes "[Test]";
-	mes "Hello World.";
-	close;
+Example 1:
+	izlude,100,100,4	script	Test	844,{
+		mes "[Test]";
+		mes "Hello World.";
+		close;
 
-OnInit:
-	questinfo 1001, QTYPE_QUEST, 0, Job_Novice;
-	end;
-}
+	OnInit:
+		questinfo QTYPE_QUEST,1001,1,1002,1,0,0,EAJ_SWORDMAN;
+		end;
+	}
+
+Example 1 above will show a quest bubble without map mark when a Swordman class
+that showed up on the map already had quest ID 1001 and quest ID 1002.
+
+Example 2:
+	izlude,100,100,4	script	Test	844,{
+		mes "[Test]";
+		mes "Hello World.";
+		close;
+
+	OnInit:
+		questinfo QTYPE_QUEST,1001,1,1002,1,1,EAJ_BASEMASK,EAJ_SWORDMAN;
+		end;
+	}
+
+Example 2 above will show a quest bubble with map mark when a character with base job Swordman
+that showed up on the map and already had quest ID 1001 and quest ID 1002.
+
+Example 3:
+	izlude,100,100,4	script	Test	844,{
+		mes "[Test]";
+		mes "Hello World.";
+		close;
+
+	OnInit:
+		questinfo QTYPE_QUEST,1001,1,1002,1,0,EAJL_UPPER;
+		end;
+	}
+
+Example 3 above will show a quest bubble without map mark when a rebirth job character
+that showed up on the map and already had quest ID 1001 and quest ID 1002.
+
+Example 4:
+	izlude,100,100,4	script	Test	844,{
+		mes "[Test]";
+		mes "Hello World.";
+		close;
+
+	OnInit:
+		questinfo QTYPE_QUEST,1001,1,1002,1,1,EAJ_UPPERMASK,EAJ_SWORDMAN;
+		end;
+	}
+
+Example 4 above will show a quest bubble with map mark when a Swordman/High Swordman/Baby Swordman class
+that showed up on the map and already had quest ID 1001 and quest ID 1002.
 
 ---------------------------------------
 
@@ -8243,7 +8293,7 @@ OnInit:
 
 Place quest of <ID> in the users quest log, the state of which is "active".
 
-If *questinfo is set, and the same ID is specified here, the icon will be cleared when the quest is set.
+Update the 'questinfo' status if there's any being attached to the user.
 
 ---------------------------------------
 
@@ -8251,11 +8301,15 @@ If *questinfo is set, and the same ID is specified here, the icon will be cleare
 
 Change the state for the given quest <ID> to "complete" and remove from the users quest log.
 
+Update the 'questinfo' status if there's any being attached to the user.
+
 ---------------------------------------
 
 *erasequest <ID>{,<char_id>};
 
 Remove the quest of the given <ID> from the user's quest log.
+
+Update the 'questinfo' status if there's any being attached to the user.
 
 ---------------------------------------
 
@@ -8264,36 +8318,38 @@ Remove the quest of the given <ID> from the user's quest log.
 Remove quest of the given <ID> from the user's quest log.
 Add quest of the <ID2> to the the quest log, and the state is "active".
 
+Update the 'questinfo' status if there's any being attached to the user.
+
 ---------------------------------------
 
 *checkquest(<ID>{,PLAYTIME|HUNTING{,<char_id>}})
 
 If no additional argument supplied, return the state of the quest: 
 	-1 = Quest not started (not in quest log)
-	0  = Quest has been given, but the state is "inactive"
-	1  = Quest has been given, and the state is "active"
-	2  = Quest completed
+	 0 = Quest has been given, but the state is "inactive"
+	 1 = Quest has been given, and the state is "active"
+	 2 = Quest completed
 
 If parameter "PLAYTIME" is supplied:
 	-1 = Quest not started (not in quest log)
-	0  = the time limit has not yet been reached
-	1  = the time limit has not been reached but the quest is marked as complete
-	2  = the time limit has been reached
+	 0 = the time limit has not yet been reached
+	 1 = the time limit has not been reached but the quest is marked as complete
+	 2 = the time limit has been reached
 
 If parameter "HUNTING" is supplied:
 	-1 = Quest not started (not in quest log)
-	0  = you haven't killed all of the target monsters and the time limit has not been reached.
-	1  = you haven't killed all of the target monsters but the time limit has been reached.
-	2  = you've killed all of the target monsters
+	 0 = you haven't killed all of the target monsters and the time limit has not been reached.
+	 1 = you haven't killed all of the target monsters but the time limit has been reached.
+	 2 = you've killed all of the target monsters
 
 ---------------------------------------
 
 *isbegin_quest(<ID>{,<char_id>})
 
 Return the state of the quest: 
-	0  = Quest not started (not in quest log)
-	1  = Quest has been given (state is either "inactive" or "active")
-	2  = Quest completed
+	 0 = Quest not started (not in quest log)
+	 1 = Quest has been given (state is either "inactive" or "active")
+	 2 = Quest completed
 
 ---------------------------------------
 

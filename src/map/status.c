@@ -3500,8 +3500,7 @@ int status_calc_pc_(struct map_session_data *sd, enum e_status_calc_opt opt)
 		status->hp = status->max_hp;
 		status->sp = status->max_sp;
 	} else {
-		if((sd->class_&MAPID_BASEMASK) == MAPID_NOVICE && !(sd->class_&JOBL_2) &&
-			battle_config.restart_hp_rate < 50)
+		if((sd->class_&MAPID_BASEMASK) == MAPID_NOVICE && !(sd->class_&JOBL_2) && battle_config.restart_hp_rate < 50)
 			status->hp = status->max_hp>>1;
 		else
 			status->hp = (int64)status->max_hp * battle_config.restart_hp_rate / 100;
@@ -4585,7 +4584,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		} else if( bl->type&BL_PC ) {
 			uint16 lv;
 			int val = 0;
-			float temp;
+			float temp = 0;
 
 			amotion = status_base_amotion_pc(sd, status);
 #ifndef RENEWAL_ASPD

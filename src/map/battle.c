@@ -7640,8 +7640,12 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 		case BL_MOB: {
 				struct mob_data *md = ((TBL_MOB *)target);
 
-				if( ud && ud->immune_attack )
-					return 0;
+				if( ud ) {
+					if( ud->immune_attack )
+						return 0;
+					if( ud->immune_attack2 && !battle_getcurrentskill(s_bl) && battle_check_range(s_bl, target, 2) )
+						return 0;
+				}
 				if( ((md->special_state.ai == AI_SPHERE || //Marine Sphere
 					(md->special_state.ai == AI_FLORA && battle_config.summon_flora&1) || //Flora
 					(md->special_state.ai == AI_ZANZOU && map_flag_vs(md->bl.m)) || //Zanzou

@@ -1226,7 +1226,7 @@ static bool itemdb_parse_dbrow(char **str, const char *source, int line, int scr
 
 	id->flag.available = 1;
 	id->view_id = 0;
-	id->sex = itemdb_gendercheck(id); //Apply gender filtering.
+	id->sex = itemdb_gendercheck(id); //Apply gender filtering
 
 	if (id->script) {
 		script_free_code(id->script);

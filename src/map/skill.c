@@ -7924,8 +7924,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case CR_SLIMPITCHER: //Slim Pitcher
-			//Updated to block Slim Pitcher from working on barricades and guardian stones
-			if (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || (dstmd->mob_id >= MOBID_BARRICADE1 && dstmd->mob_id <= MOBID_GUARDIAN_STONE2)))
+			//Updated to block Slim Pitcher from working on gvg monsters
+			if (dstmd && mob_is_gvg(dstmd))
 				break;
 			if (potion_hp || potion_sp) {
 				int hp = potion_hp, sp = potion_sp;
@@ -7996,7 +7996,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				int count = -1;
 
 				if (rnd()%100 > skill_lv * 8 || (tsc && tsc->data[SC_BASILICA]) ||
-					(dstmd && ((dstmd->guardian_data && dstmd->mob_id == MOBID_EMPERIUM) || mob_is_battleground(dstmd)))) {
+					(dstmd && (dstmd->mob_id == MOBID_EMPERIUM || mob_is_battleground(dstmd)))) {
 					if (sd)
 						clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 
@@ -9554,6 +9554,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case SR_GENTLETOUCH_CURE: {
 				int heal = 120 * skill_lv + status_get_max_hp(bl) * skill_lv / 100;
 
+#ifdef RENEWAL
+				if( dstmd && dstmd->mob_id == MOBID_EMPERIUM )
+					break;
+#endif
 				if( tsc && tsc->opt1 && rnd()%100 < skill_lv * 5 +
 					(status_get_dex(src) + status_get_lv(src)) / 4 - rnd_value(1,10) ) {
 					status_change_end(bl,SC_STONE,INVALID_TIMER);
@@ -10160,7 +10164,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				sd->skill_lv_old = skill_lv;
 				if( skill_id != GN_S_PHARMACY && skill_lv > 1 )
 					qty = 10;
-				clif_cooking_list(sd,(skill_id - GN_MIX_COOKING) + 27,skill_id,qty,skill_id == GN_MAKEBOMB ? 5 : 6);
+				clif_cooking_list(sd,(skill_id - GN_MIX_COOKING) + 27,skill_id,qty,(skill_id == GN_S_PHARMACY ? 6 : (skill_id == GN_MAKEBOMB ? 5 : 4)));
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			}
 			break;
@@ -19020,12 +19024,10 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 					clif_produceeffect(sd,4,nameid);
 					clif_misceffect(&sd->bl,5);
 					break;
-				default: //Those that don't require a skill?
-					if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 ) { //Cooking items
-						clif_specialeffect(&sd->bl,608,AREA);
-						if( sd->cook_mastery < 1999 )
-							pc_setglobalreg(sd,"COOK_MASTERY",sd->cook_mastery + (1<<((skill_produce_db[idx].itemlv - 11) / 2)) * 5);
-					}
+				default: //Cooking items
+					if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 && sd->cook_mastery < 1999 )
+						pc_setglobalreg(sd,"COOK_MASTERY",sd->cook_mastery + (1<<((skill_produce_db[idx].itemlv - 11) / 2)) * 5);
+					clif_specialeffect(&sd->bl,608,AREA);
 					break;
 			}
 		}
@@ -19137,12 +19139,10 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 				clif_misceffect(&sd->bl,6);
 				clif_msg_skill(sd,skill_id,ITEM_PRODUCE_FAIL);
 				break;
-			default:
-				if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 ) { //Cooking items
-					clif_specialeffect(&sd->bl,609,AREA);
-					if( sd->cook_mastery > 0 )
-						pc_setglobalreg(sd,"COOK_MASTERY",sd->cook_mastery - (1<<((skill_produce_db[idx].itemlv - 11) / 2)) - (((1<<((skill_produce_db[idx].itemlv - 11) / 2))>>1) * 3));
-				}
+			default: //Cooking items
+				if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 && sd->cook_mastery > 0 )
+					pc_setglobalreg(sd,"COOK_MASTERY",sd->cook_mastery - (1<<((skill_produce_db[idx].itemlv - 11) / 2)) - (((1<<((skill_produce_db[idx].itemlv - 11) / 2))>>1) * 3));
+				clif_specialeffect(&sd->bl,609,AREA);
 				break;
 		}
 	}
