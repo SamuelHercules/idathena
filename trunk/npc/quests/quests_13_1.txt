@@ -82,8 +82,12 @@ function	script	Promotional_Staff	{
 	}
 }
 
-prontera,163,53,3	script	Promotional Staff#prt	100,{
+prontera,163,53,3	script	Promotional Staff#prt	100,3,3,{
 	callfunc "Promotional_Staff";
+	end;
+
+OnTouch:
+	emotion e_what,1;
 	end;
 }
 
@@ -353,7 +357,7 @@ prt_castle,83,67,5	script	Recruiter for the Brave	109,{
 	}
 }
 
-aldebaran,127,138,3	script	Promotional Staff#alde	100,{
+aldebaran,127,138,3	script	Promotional Staff#alde	100,3,3,{
 	if (ep13_ryu > 3) {
 		mes "[Promotional Staff]";
 		mes "Did you try out for the test, or are you already enjoying your adventures?";
@@ -451,9 +455,13 @@ aldebaran,127,138,3	script	Promotional Staff#alde	100,{
 	}
 	callfunc "Promotional_Staff";
 	end;
+
+OnTouch:
+	emotion e_what,1;
+	end;
 }
 
-geffen,90,67,3	script	Promotional Staff#gef	100,{
+geffen,90,67,3	script	Promotional Staff#gef	100,3,3,{
 	if (ep13_ryu > 6) {
 		mes "[Promotional Staff]";
 		mes "Did you take the test?";
@@ -566,6 +574,10 @@ geffen,90,67,3	script	Promotional Staff#gef	100,{
 		close;
 	}
 	callfunc "Promotional_Staff";
+	end;
+
+OnTouch:
+	emotion e_what,1;
 	end;
 }
 
@@ -699,6 +711,10 @@ geffen,90,67,3	script	Promotional Staff#gef	100,{
 		}
 	}
 	callfunc "Promotional_Staff";
+	end;
+
+OnTouch:
+	emotion e_what,1;
 	end;
 }
 

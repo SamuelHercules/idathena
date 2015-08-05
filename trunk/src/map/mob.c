@@ -1165,6 +1165,8 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 		(battle_config.monster_loot_search_type && md->target_id > bl->id) ||
 		(!battle_config.monster_loot_search_type && !check_distance_bl(&md->bl,*target,dist)))) //New target closer than previous one
 	{
+		if(!(status_get_mode(&md->bl)&MD_CANMOVE) && unit_can_move(&md->bl) && dist)
+			return 0;
 		(*target) = bl;
 		md->target_id = bl->id;
 		md->min_chase = md->db->range3;
@@ -1398,8 +1400,7 @@ int mob_warpchase(struct mob_data *md, struct block_list *target)
 static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 {
 	struct block_list *tbl = NULL, *abl = NULL;
-	int mode;
-	int view_range, chase_range, can_move;
+	int mode, view_range, chase_range, can_move;
 
 	if(md->bl.prev == NULL || md->status.hp == 0)
 		return false;
@@ -1513,7 +1514,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		return true; //Processing of slave monster
 
 	//Scan area for targets and items to loot, avoid trying to loot if the mob is full and can't consume the items
-	if(!tbl && can_move && (mode&MD_LOOTER) && md->lootitem && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
+	if(!tbl && (mode&MD_LOOTER) && md->lootitem && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
 		(md->lootitem_count < LOOTITEM_SIZE || battle_config.monster_loot_type != 1))
 		map_foreachinshootrange(mob_ai_sub_hard_lootsearch, &md->bl, view_range, BL_ITEM, md, &tbl);
 
@@ -2048,8 +2049,7 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 
 #if PACKETVER >= 20120404
 #ifndef VISIBLE_MONSTER_HP
-	if( !(md->spawn && md->spawn->state.boss) &&
-		!(mob_is_battleground(md) || mob_is_gvg(md) || mob_is_treasure(md) || mob_is_guardian(md->mob_id)) )
+	if( !(md->status.mode&MD_BOSS) )
 #endif
 	{
 		int i;
@@ -2364,7 +2364,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			//Increase drop rate if user has SC_ITEMBOOST
 			if(sd && sd->sc.data[SC_ITEMBOOST]) //Now rig the drop rate to never be over 90% unless it is originally > 90%
 				drop_rate = max(drop_rate, (int)cap_value(0.5 + drop_rate * sd->sc.data[SC_ITEMBOOST]->val1 / 100., 0, 9000));
-			//Increase item drop rate for VIP.
+			//Increase item drop rate for VIP
 			if(battle_config.vip_drop_increase && (sd && pc_isvip(sd))) {
 				drop_rate += (int)(0.5 + (drop_rate * battle_config.vip_drop_increase) / 10000.);
 				drop_rate = min(drop_rate, 10000); //Cap it to 100%
@@ -2618,9 +2618,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		delete_timer(md->deletetimer, mob_timer_delete);
 		md->deletetimer = INVALID_TIMER;
 	}
-	/**
-	 * Only loops if necessary (e.g. a poring would never need to loop)
-	 */
+
+	//Only loops if necessary (e.g. a poring would never need to loop)
 	if(md->can_summon)
 		mob_deleteslave(md);
 
@@ -2632,16 +2631,14 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			clif_clearunit_area(&md->bl, CLR_DEAD);
 			clif_clearunit_delayed(&md->bl, CLR_OUTSIGHT, tick + 3000);
 		}
-		/**
-		 * We give the client some time to breath and this allows it to display anything it'd like with the dead corpose
-		 * For example, this delay allows it to display soul drain effect
-		 */
+		//We give the client some time to breath and this allows it to display anything it'd like with the dead corpose
+		//For example, this delay allows it to display soul drain effect
 		else
 			clif_clearunit_delayed(&md->bl, CLR_DEAD, tick + 250);
 	}
 
 	if(!md->spawn) //Tell status_damage to remove it from memory
-		return 5; //NOTE: Actually, it's 4. Oh well
+		return 5; //NOTE: Actually, it's 4
 
 	//MvP tomb [GreenBox]
 	if(battle_config.mvp_tomb_enabled && md->spawn->state.boss && map[md->bl.m].flag.notomb != 1)
@@ -2805,22 +2802,21 @@ int mob_class_change(struct mob_data *md, int mob_id)
  *------------------------------------------*/
 void mob_heal(struct mob_data *md, unsigned int heal)
 {
-	if (battle_config.show_mob_info&3)
+	if( battle_config.show_mob_info&3 )
 		clif_charnameack(0,&md->bl);
 
 #if PACKETVER >= 20120404
 #ifndef VISIBLE_MONSTER_HP
-	if (!(md->spawn && md->spawn->state.boss) &&
-		!(mob_is_battleground(md) || mob_is_gvg(md) || mob_is_treasure(md) || mob_is_guardian(md->mob_id)))
+	if( !(md->status.mode&MD_BOSS) )
 #endif
 	{
 		int i;
 
-		for (i = 0; i < DAMAGELOG_SIZE; i++) { //Must show hp bar to all char who already hit the mob
-			if (md->dmglog[i].id) {
+		for( i = 0; i < DAMAGELOG_SIZE; i++ ) { //Must show hp bar to all char who already hit the mob
+			if( md->dmglog[i].id ) {
 				struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
 
-				if (sd && check_distance_bl(&md->bl,&sd->bl,AREA_SIZE)) //Check if in range
+				if( sd && check_distance_bl(&md->bl,&sd->bl,AREA_SIZE) ) //Check if in range
 					clif_monster_hp_bar(md,sd->fd);
 			}
 		}

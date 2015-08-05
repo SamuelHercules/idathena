@@ -7981,13 +7981,13 @@ BUILDIN_FUNC(successrefitem)
 		sd->status.inventory[i].refine = cap_value(sd->status.inventory[i].refine,0,MAX_REFINE);
 		pc_unequipitem(sd,i,2); //Status calc will happen in pc_equipitem() below
 
-		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
 		clif_delitem(sd,i,1,3);
+		clif_inventorylist(sd);
+		clif_refine(sd->fd,0,i,sd->status.inventory[i].refine);
 
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick_pc(sd,LOG_TYPE_SCRIPT,1,&sd->status.inventory[i]);
 
-		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,3);
 		if(sd->status.inventory[i].refine == 10 &&
@@ -8076,17 +8076,17 @@ BUILDIN_FUNC(downrefitem)
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick_pc(sd,LOG_TYPE_SCRIPT,-1,&sd->status.inventory[i]);
 
-		pc_unequipitem(sd,i,2); //Status calc will happen in pc_equipitem() below
 		sd->status.inventory[i].refine -= down;
 		sd->status.inventory[i].refine = cap_value(sd->status.inventory[i].refine,0,MAX_REFINE);
+		pc_unequipitem(sd,i,2); //Status calc will happen in pc_equipitem() below
 
-		clif_refine(sd->fd,2,i,sd->status.inventory[i].refine);
 		clif_delitem(sd,i,1,3);
+		clif_inventorylist(sd);
+		clif_refine(sd->fd,2,i,sd->status.inventory[i].refine);
 
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick_pc(sd,LOG_TYPE_SCRIPT,1,&sd->status.inventory[i]);
 
-		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,2);
 		script_pushint(st,sd->status.inventory[i].refine);
@@ -10628,10 +10628,10 @@ BUILDIN_FUNC(roclass)
 	else {
 		TBL_PC *sd;
 
-		if (st->rid && (sd = script_rid2sd(st)))
+		if( st->rid && (sd = script_rid2sd(st)) )
 			sex = sd->status.sex;
 		else
-			sex = 1; //Just use male when not found.
+			sex = 1; //Just use male when not found
 	}
 	script_pushint(st,pc_mapid2jobid(class_,sex));
 	return SCRIPT_CMD_SUCCESS;
@@ -16486,6 +16486,7 @@ BUILDIN_FUNC(getunitdata)
 			getunitdata_sub(28,md->status.luk);
 			getunitdata_sub(29,md->state.copy_master_mode);
 			getunitdata_sub(30,md->ud.immune_attack);
+			getunitdata_sub(30,md->ud.immune_attack2);
 			break;
 		case BL_HOM:
 			if( !hd ) {
@@ -16689,11 +16690,11 @@ BUILDIN_FUNC(setunitdata)
 				case 2: status_set_hp(bl, (unsigned int)value, 0); break;
 				case 3: status_set_maxhp(bl, (unsigned int)value, 0); break;
 				case 4: md->master_id = value; break;
-				case 5: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 5: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 6: if( !unit_walktoxy(bl, (short)value, md->bl.y, 2) ) unit_movepos(bl, (short)value, md->bl.y, 0, false); break;
 				case 7: if( !unit_walktoxy(bl, md->bl.x, (short)value, 2) ) unit_movepos(bl, md->bl.x, (short)value, 0, false); break;
-				case 8: md->status.speed = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 9: md->status.mode = (enum e_mode)value; status_calc_bl(bl, SCB_MODE); break;
+				case 8: md->status.speed = (unsigned short)value; break;
+				case 9: md->status.mode = (enum e_mode)value; break;
 				case 10: md->special_state.ai = (enum mob_ai)value; break;
 				case 11: md->sc.option = (unsigned short)value; break;
 				case 12: md->vd->sex = (char)value; break;
@@ -16713,8 +16714,9 @@ BUILDIN_FUNC(setunitdata)
 				case 26: md->status.int_ = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
 				case 27: md->status.dex = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
 				case 28: md->status.luk = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
-				case 29: md->state.copy_master_mode = (value > 0 ? 1 : 0); status_calc_bl(bl, SCB_MODE); break;
+				case 29: md->state.copy_master_mode = (value > 0 ? 1 : 0); break;
 				case 30: md->ud.immune_attack = (value > 0 ? true : false); break;
+				case 31: md->ud.immune_attack2 = (value > 0 ? true : false); break;
 				default:
 					ShowError("buildin_setunitdata: Unknown data identifier %d for BL_MOB.\n", type);
 					return 1;
@@ -16733,12 +16735,12 @@ BUILDIN_FUNC(setunitdata)
 				case 4: status_set_sp(bl, (unsigned int)value, 0); break;
 				case 5: status_set_maxsp(bl, (unsigned int)value, 0); break;
 				case 6: hd->homunculus.char_id = (uint32)value; break;
-				case 7: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 7: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 8: if( !unit_walktoxy(bl, (short)value, hd->bl.y, 2) ) unit_movepos(bl, (short)value, hd->bl.y, 0, false); break;
 				case 9: if( !unit_walktoxy(bl, hd->bl.x, (short)value, 2) ) unit_movepos(bl, hd->bl.x, (short)value, 0, false); break;
 				case 10: hd->homunculus.hunger = (short)value; clif_send_homdata(map_charid2sd(hd->homunculus.char_id), SP_HUNGRY, hd->homunculus.hunger); break;
 				case 11: hom_increase_intimacy(hd, (unsigned int)value); clif_send_homdata(map_charid2sd(hd->homunculus.char_id), SP_INTIMATE, hd->homunculus.intimacy / 100); break;
-				case 12: hd->base_status.speed = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 12: hd->base_status.speed = (unsigned short)value; break;
 				case 13: unit_setdir(bl, (uint8)value); break;
 				case 14: hd->ud.canmove_tick = (value > 0 ? 1 : 0); break;
 				case 15: hd->base_status.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
@@ -16764,12 +16766,12 @@ BUILDIN_FUNC(setunitdata)
 				case 2: status_set_hp(bl, (unsigned int)value, 0); break;
 				case 3: status_set_maxhp(bl, (unsigned int)value, 0); break;
 				case 4: pd->pet.account_id = (unsigned int)value; break;
-				case 5: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 5: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 6: if( !unit_walktoxy(bl, (short)value, pd->bl.y, 2) ) unit_movepos(bl, (short)value, md->bl.y, 0, false); break;
 				case 7: if( !unit_walktoxy(bl, pd->bl.x, (short)value, 2) ) unit_movepos(bl, pd->bl.x, (short)value, 0, false); break;
 				case 8: pd->pet.hungry = (short)value; clif_send_petdata(map_id2sd(pd->pet.account_id), pd, 2, pd->pet.hungry); break;
 				case 9: pet_set_intimate(pd, (unsigned int)value); clif_send_petdata(map_id2sd(pd->pet.account_id), pd, 1, pd->pet.intimate); break;
-				case 10: pd->status.speed = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 10: pd->status.speed = (unsigned short)value; break;
 				case 11: unit_setdir(bl, (uint8)value); break;
 				case 12: pd->ud.canmove_tick = (value > 0 ? 1 : 0); break;
 				case 13: pd->status.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
@@ -16794,12 +16796,12 @@ BUILDIN_FUNC(setunitdata)
 				case 1: status_set_hp(bl, (unsigned int)value, 0); break;
 				case 2: status_set_maxhp(bl, (unsigned int)value, 0); break;
 				case 3: mc->mercenary.char_id = (uint32)value; break;
-				case 4: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 4: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 5: if( !unit_walktoxy(bl, (short)value, mc->bl.y, 2) ) unit_movepos(bl, (short)value, mc->bl.y, 0, false); break;
 				case 6: if( !unit_walktoxy(bl, mc->bl.x, (short)value, 2) ) unit_movepos(bl, mc->bl.x, (short)value, 0, false); break;
 				case 7: mc->mercenary.kill_count = (unsigned int)value; break;
 				case 8: mc->mercenary.life_time = (unsigned int)value; break;
-				case 9: mc->base_status.speed = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 9: mc->base_status.speed = (unsigned short)value; break;
 				case 10: unit_setdir(bl, (uint8)value); break;
 				case 11: mc->ud.canmove_tick = (value > 0 ? 1 : 0); break;
 				case 12: mc->base_status.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
@@ -16826,12 +16828,12 @@ BUILDIN_FUNC(setunitdata)
 				case 3: status_set_sp(bl, (unsigned int)value, 0); break;
 				case 4: status_set_maxsp(bl, (unsigned int)value, 0); break;
 				case 5: ed->elemental.char_id = (uint32)value; break;
-				case 6: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 6: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 7: if( !unit_walktoxy(bl, (short)value, ed->bl.y, 2) ) unit_movepos(bl, (short)value, ed->bl.y, 0, false); break;
 				case 8: if( !unit_walktoxy(bl, ed->bl.x, (short)value, 2) ) unit_movepos(bl, ed->bl.x, (short)value, 0, false); break;
 				case 9: ed->elemental.life_time = (unsigned int)value; break;
-				case 10: ed->elemental.mode = (unsigned int)value; status_calc_bl(bl, SCB_MODE); break;
-				case 11: ed->base_status.speed = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
+				case 10: ed->elemental.mode = (unsigned int)value; break;
+				case 11: ed->base_status.speed = (unsigned short)value; break;
 				case 12: unit_setdir(bl, (uint8)value); break;
 				case 13: ed->ud.canmove_tick = (value > 0 ? 1 : 0); break;
 				case 14: ed->base_status.str = (unsigned short)value; status_calc_bl(bl, SCB_ALL); break;
@@ -16856,7 +16858,7 @@ BUILDIN_FUNC(setunitdata)
 				case 1: nd->level = (unsigned int)value; break;
 				case 2: status_set_hp(bl, (unsigned int)value, 0); break;
 				case 3: status_set_maxhp(bl, (unsigned int)value, 0); break;
-				case 4: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, 3); break;
+				case 4: if( mapname ) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 				case 5: if( !unit_walktoxy(bl, (short)value, nd->bl.y, 2) ) unit_movepos(bl, (short)value, nd->bl.x, 0, false); break;
 				case 6: if( !unit_walktoxy(bl, nd->bl.x, (short)value, 2) ) unit_movepos(bl, nd->bl.x, (short)value, 0, false); break;
 				case 7: unit_setdir(bl, (uint8)value); break;
@@ -17711,25 +17713,26 @@ BUILDIN_FUNC(readbook)
 
 /// Questlog script commands
 /**
- * questinfo <Quest ID>,<Icon>{,<Map Mark Color>{,<Job Class>}};
+ * questinfo <Icon>,<Quest ID>,<State ID>{,<Quest ID2>{,<State ID2>{,<Map Mark Color>{,<Job Mask>{,<Job Number>}}}}};
  */
 BUILDIN_FUNC(questinfo)
 {
 	struct npc_data *nd = map_id2nd(st->oid);
-	int quest, icon;
+	int icon;
+	unsigned char color;
 	struct questinfo qi;
 
-	if( nd == NULL || nd->bl.m == -1 ) {
+	if( nd == NULL ) {
 		ShowError("buildin_questinfo: No NPC attached.\n");
 		return 1;
 	}
 
-	quest = script_getnum(st,2);
-	icon = script_getnum(st,3);
+	qi.nd = nd;
+	icon = script_getnum(st,2);
 
 #if PACKETVER >= 20120410
 	if( icon < 0 || (icon > 8 && icon != 9999) || icon == 7 )
-		icon = 9999; // Default to nothing if icon id is invalid.
+		icon = 9999; // Default to nothing if icon id is invalid
 #else
 	if( icon < 0 || icon > 7 )
 		icon = 0;
@@ -17737,36 +17740,39 @@ BUILDIN_FUNC(questinfo)
 		icon = icon + 1;
 #endif
 
-	qi.quest_id = quest;
-	qi.icon = (unsigned char)icon;
-	qi.nd = nd;
+	qi.icon = (unsigned short)icon;
+	qi.id1 = script_getnum(st,3);
+	qi.state1 = script_getnum(st,4);
+	qi.id2 = (script_hasdata(st,5) ? script_getnum(st,5) : 0);
+	qi.state2 = (script_hasdata(st,6) ? script_getnum(st,6) : 0);
+	color = (script_hasdata(st,7) ? script_getnum(st,7) : 0);
 
-	if( script_hasdata(st,4) ) {
-		int color = script_getnum(st,4);
-
-		if( color < 0 || color > 3 ) {
-			ShowWarning("buildin_questinfo: invalid color '%d', changing to 0\n",color);
-			script_reportfunc(st);
-			color = 0;
-		}
-		qi.color = (unsigned char)color;
+	if( color < 0 || color > 3 ) {
+		ShowWarning("buildin_questinfo: invalid color '%d', changing to 0\n", color);
+		script_reportfunc(st);
+		color = 0;
 	}
 
+	qi.color = color;
 	qi.hasJob = false;
+	qi.class_ = -1;
 
-	if( script_hasdata(st,5) ) {
-		int job = script_getnum(st,5);
+	if( script_hasdata(st,8) ) {
+		int mask = script_getnum(st,8);
 
-		if( !pcdb_checkid(job) )
-			ShowError("buildin_questinfo: Nonexistant Job Class.\n");
-		else {
-			qi.hasJob = true;
-			qi.job = (unsigned short)job;
+		qi.hasJob = true;
+		qi.mask = mask;
+	}
+
+	if( qi.hasJob ) {
+		if( script_hasdata(st,9) ) {
+			int class_ = script_getnum(st,9);
+
+			qi.class_ = class_;
 		}
 	}
 
-	map_add_questinfo(nd->bl.m,&qi);
-
+	map_add_questinfo(nd->bl.m, &qi);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -17776,28 +17782,12 @@ BUILDIN_FUNC(questinfo)
 BUILDIN_FUNC(setquest)
 {
 	struct map_session_data *sd;
-	unsigned short i;
-	int quest_id;
 
 	if( !script_charid2sd(3,sd) )
 		return 1;
 
-	quest_id = script_getnum(st,2);
-	quest_add(sd, quest_id);
-
-	// If questinfo is set, remove quest bubble once quest is set.
-	for( i = 0; i < map[sd->bl.m].qi_count; i++ ) {
-		struct questinfo *qi = &map[sd->bl.m].qi_data[i];
-
-		if( qi->quest_id == quest_id ) {
-#if PACKETVER >= 20120410
-			clif_quest_show_event(sd, &qi->nd->bl, 9999, 0);
-#else
-			clif_quest_show_event(sd, &qi->nd->bl, 0, 0);
-#endif
-		}
-	}
-
+	quest_add(sd, script_getnum(st,2));
+	questinfo_update_status(sd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -17812,6 +17802,7 @@ BUILDIN_FUNC(erasequest)
 		return 1;
 
 	quest_delete(sd, script_getnum(st,2));
+	questinfo_update_status(sd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -17826,6 +17817,7 @@ BUILDIN_FUNC(completequest)
 		return 1;
 
 	quest_update_status(sd, script_getnum(st,2), Q_COMPLETE);
+	questinfo_update_status(sd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -17840,6 +17832,7 @@ BUILDIN_FUNC(changequest)
 		return 1;
 
 	quest_change(sd, script_getnum(st,2), script_getnum(st,3));
+	questinfo_update_status(sd);
 	return SCRIPT_CMD_SUCCESS;
 }
 
@@ -19742,8 +19735,6 @@ BUILDIN_FUNC(montransform) {
 		val4 = script_getnum(st,8);
 
 	if( tick != 0 ) {
-		struct mob_db *monster =  mob_db(mob_id);
-
 		if( battle_config.mon_trans_disable_in_gvg && map_flag_gvg2(sd->bl.m) ) {
 			clif_displaymessage(sd->fd,msg_txt(1493)); // Transforming into monster is not allowed in Guild Wars.
 			return 0;
@@ -20790,7 +20781,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unbindatcmd,"s"),
 	BUILDIN_DEF(useatcmd,"s"),
 	//Quest Log System [Inkfish]
-	BUILDIN_DEF(questinfo,"ii??"),
+	BUILDIN_DEF(questinfo,"iii?????"),
 	BUILDIN_DEF(setquest,"i?"),
 	BUILDIN_DEF(erasequest,"i?"),
 	BUILDIN_DEF(completequest,"i?"),

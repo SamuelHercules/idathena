@@ -1159,7 +1159,7 @@ int chrif_updatefamelist(struct map_session_data *sd) {
 
 	chrif_check(-1);
 
-	switch(sd->class_ & MAPID_UPPERMASK) {
+	switch(sd->class_&MAPID_UPPERMASK) {
 		case MAPID_BLACKSMITH: type = 1; break;
 		case MAPID_ALCHEMIST:  type = 2; break;
 		case MAPID_TAEKWON:    type = 3; break;

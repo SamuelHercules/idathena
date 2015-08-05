@@ -10,10 +10,8 @@
 //= Bulletin Boards for beginners.
 //===== Additional Comments: =================================
 //= 1.0 Moved Izlude NPCs to Pre-RE/RE paths.
-//=     Disabled until proper coordinates are found.
 //============================================================
 
-/*
 -	script	::BulletinBoard_iz	-1,{
 	mes "[Izlude: The Satellite City]";
 	mes "Welcome to Izlude, the satellite of Prontera. Izlude was built to support Prontera's defense and to accomodate its burgeoning population.";
@@ -32,9 +30,8 @@
 	close;
 }
 
-izlude,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5	837
-izlude_a,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_a	837
-izlude_b,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_b	837
-izlude_c,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_c	837
-izlude_d,25,103,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_d	837
-*/
+izlude,131,116,0	duplicate(BulletinBoard_iz)	Bulletin Board#5	837
+izlude_a,131,116,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_a	837
+izlude_b,131,116,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_b	837
+izlude_c,131,116,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_c	837
+izlude_d,131,116,0	duplicate(BulletinBoard_iz)	Bulletin Board#5_d	837

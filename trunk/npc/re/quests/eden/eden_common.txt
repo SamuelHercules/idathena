@@ -55,6 +55,29 @@ moc_para01,27,35,5	script	Secretary Lime Evenor	952,{
 			next;
 			break;
 		case 2:
+			if (isbegin_quest(60457) == 1) {
+				mes "[Lime Evenor]";
+				mes "I'm glad our Novice outreach program has guided you here.";
+				mes "Here are some Helpful items to get you started on your Journey.";
+				next;
+				mes "[Lime Evenor]";
+				mes "The Agility Scrolls help you move faster, and the Blessing Scrolls will make you stronger temporarily.";
+				next;
+				mes "[Lime Evenor]";
+				mes "The wings will let you select a city to travel to instantly, and finally the Battle Manual will multiply the EXP you get from monsters and quests!";
+				next;
+				mes "[Lime Evenor]";
+				mes "If you like those, you can get more of them from Cash Shop, or from buying from other players!";
+				next;
+				mes "[Lime Evenor]";
+				mes "So now back to business!";
+				completequest 60457;
+				getitem 12208,2; //Battle_Manual
+				getitem 12215,15; //Blessing_10_Scroll
+				getitem 12216,15; //Inc_Agi_10_Scroll
+				getitem 14582,5; //WOB_Rune
+				next;
+			}
 			if (countitem(6219) < 1) {
 				mes "[Lime Evenor]";
 				mes "You can be a Eden's member by simply registering with me.";
@@ -286,10 +309,15 @@ OnTouch:
 		case 27: warp "brasilis",190,220; end;
 		case 28: warp "dewata",192,182; end;
 		case 29: warp "morocc",161,97; end;
-		case 30: warp "izlude",134,118; end;	// Old coordinates: (127,142)
+		case 30: warp "izlude",131,93; end;	// Old coordinates: (127,142)
 		case 31: warp "umbala",94,154; end;
 		case 32: warp "malaya",234,199; end;
 		case 33: warp "eclage",110,38; end;
+		case 34: warp "iz_ac01",99,29; end;
+		case 35: warp "iz_ac01_a",99,29; end;
+		case 36: warp "iz_ac01_b",99,29; end;
+		case 37: warp "iz_ac01_c",99,29; end;
+		case 38: warp "iz_ac01_d",99,29; end;
 		default: warp "prontera",116,72; end;
 	}
 	end;

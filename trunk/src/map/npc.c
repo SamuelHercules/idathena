@@ -4152,6 +4152,7 @@ int npc_parsesrcfile(const char *filepath, bool runOnInit)
 int npc_script_event(struct map_session_data *sd, enum npce_event type)
 {
 	int i;
+
 	if (type == NPCE_MAX)
 		return 0;
 	if (!sd) {

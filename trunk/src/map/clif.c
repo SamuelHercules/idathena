@@ -2719,7 +2719,6 @@ void clif_inventorylist(struct map_session_data *sd) {
 	for( i = 0, n = 0, ne = 0; i < MAX_INVENTORY; i++ ) {
 		if( sd->status.inventory[i].nameid <= 0 || sd->inventory_data[i] == NULL )
 			continue;
-
 		if( !itemdb_isstackable2(sd->inventory_data[i]) ) { //Non-stackable (Equippable)
 			clif_item_sub(bufe, ne * se + 4, i + 2, &sd->status.inventory[i], sd->inventory_data[i], pc_equippoint(sd, i));
 			ne++;
@@ -2792,7 +2791,6 @@ void clif_equiplist(struct map_session_data *sd)
 	for( i = 0, n = 0; i < MAX_INVENTORY; i++ ) {
 		if( sd->status.inventory[i].nameid <= 0 || sd->inventory_data[i] == NULL )
 			continue;
-
 		if( itemdb_isstackable2(sd->inventory_data[i]) )
 			continue;
 		//Equippable
@@ -4551,17 +4549,15 @@ void clif_getareachar_unit(struct map_session_data *sd,struct block_list *bl)
 				}
 #if PACKETVER >= 20120404
 #ifndef VISIBLE_MONSTER_HP
-				if (!(md->spawn && md->spawn->state.boss) &&
-					!(mob_is_battleground(md) || mob_is_gvg(md) || mob_is_treasure(md) || mob_is_guardian(md->mob_id)))
+				if (!(md->status.mode&MD_BOSS))
 #endif
 				{
 					int i;
 
 					for (i = 0; i < DAMAGELOG_SIZE; i++) { //Must show hp bar to all char who already hit the mob
-						if (md->dmglog[i].id == sd->status.char_id) {
-							clif_monster_hp_bar(md,sd->fd);
-							break;
-						}
+						if (md->dmglog[i].id != sd->status.char_id)
+							continue;
+						clif_monster_hp_bar(md,sd->fd);
 					}
 				}
 #endif
@@ -5839,7 +5835,11 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, uint16 skill_id
 		c++;
 	}
 
-	if( c > 0 || skill_id == AM_PHARMACY ) {
+	if( c || skill_id == AM_PHARMACY ) {
+		if( !c ) {
+			clif_menuskill_clear(sd);
+			return;
+		}
 		sd->menuskill_id = skill_id;
 		sd->menuskill_val = trigger;
 		sd->menuskill_val2 = qty; //Amount
@@ -9938,20 +9938,17 @@ void clif_parse_WantToConnection(int fd, struct map_session_data *sd)
 /// Notification from the client, that it has finished map loading and is about to display player's character (CZ_NOTIFY_ACTORINIT).
 /// 007d
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd) {
-#if PACKETVER >= 20090218
-	int i;
-#endif
 	bool first_time = false;
 
 	if(sd->bl.prev != NULL)
 		return;
 
 	if(!sd->state.active) { //Character loading is not complete yet!
-		sd->state.connect_new = 0; //Let pc_reg_received reinvoke this when ready.
+		sd->state.connect_new = 0; //Let pc_reg_received reinvoke this when ready
 		return;
 	}
 
-	if(sd->state.rewarp) { //Rewarp player.
+	if(sd->state.rewarp) { //Rewarp player
 		sd->state.rewarp = 0;
 		clif_changemap(sd,sd->bl.m,sd->bl.x,sd->bl.y);
 		return;
@@ -10298,20 +10295,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd) {
 	if(!battle_config.pc_invincible_time)
 		skill_unit_move(&sd->bl,gettick(),1); //Trigger skill effects if you appear standing on them
 
-	//NPC Quest/Event Icon Check [Kisuka]
-#if PACKETVER >= 20090218
-	for(i = 0; i < map[sd->bl.m].qi_count; i++) {
-		struct questinfo *qi = &map[sd->bl.m].qi_data[i];
-
-		if(quest_check(sd,qi->quest_id,HAVEQUEST) == -1) { //Check if quest is not started
-			if(qi->hasJob) { //Check if quest is job-specific, check is user is said job class
-				if(sd->class_ == qi->job)
-					clif_quest_show_event(sd,&qi->nd->bl,qi->icon,qi->color);
-			} else
-				clif_quest_show_event(sd,&qi->nd->bl,qi->icon,qi->color);
-		}
-	}
-#endif
+	questinfo_update_status(sd);
 }
 
 

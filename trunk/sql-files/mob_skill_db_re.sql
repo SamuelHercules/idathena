@@ -10036,6 +10036,9 @@ REPLACE INTO `mob_skill_db_re` VALUES (2923,'Owl Marquees@SA_DISPELL','attack',2
 REPLACE INTO `mob_skill_db_re` VALUES (2923,'Owl Marquees@NPC_EMOTION','chase',197,1,200,0,5000,'yes','self','always','0',19,0xA1,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2923,'Owl Marquees@NPC_EMOTION','idle',197,1,2000,0,5000,'yes','self','always','0',6,0x37B5,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (2923,'Owl Marquees@NPC_SUMMONSLAVE','idle',196,2,10000,2000,60000,'no','self','slavele','0',2921,NULL,NULL,NULL,NULL,NULL,NULL);
+
+REPLACE INTO `mob_skill_db_re` VALUES (3029,'Reaper Yanku@NPC_DARKCROSS','attack',338,5,2000,1500,10000,'no','target','always',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+
 REPLACE INTO `mob_skill_db_re` VALUES (3074,'Timeholder@AL_TELEPORT','idle',26,1,10000,0,0,'yes','self','rudeattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (3074,'Timeholder@AL_TELEPORT','idle',26,1,5000,0,5000,'yes','self','rudeattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `mob_skill_db_re` VALUES (3074,'Timeholder@AL_TELEPORT','walk',26,1,5000,0,5000,'yes','self','rudeattacked',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);

@@ -570,9 +570,10 @@ struct questinfo {
 	struct npc_data *nd;
 	unsigned short icon;
 	unsigned char color;
-	int quest_id;
+	int id1, id2;
+	uint8 state1, state2;
 	bool hasJob;
-	unsigned short job; /* Perhaps a mapid mask would be most flexible? */
+	int mask, class_;
 };
 
 struct map_data {
@@ -582,8 +583,8 @@ struct map_data {
 	struct block_list **block;
 	struct block_list **block_mob;
 	int16 m;
-	int16 xs,ys; // map dimensions (in cells)
-	int16 bxs,bys; // map dimensions (in blocks)
+	int16 xs,ys; // Map dimensions (in cells)
+	int16 bxs,bys; // Map dimensions (in blocks)
 	int16 bgscore_lion, bgscore_eagle; // Battleground ScoreBoard
 	int npc_num;
 	int users;

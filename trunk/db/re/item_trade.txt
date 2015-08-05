@@ -778,7 +778,7 @@
 //6585,475,100	//
 //6585,475,100	//
 //6586,507,100	//
-6593,499,100	// Cryptura_Hair_Coupon
+6593,499,100	// Criatura_Hair_Coupon
 6625,467,100	// High_Purity_Energy_Xtal
 6654,499,100	// Needle_And_Thread
 6655,499,100	// Firm_Pumpkin
