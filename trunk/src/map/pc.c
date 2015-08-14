@@ -6285,14 +6285,12 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 			bonus += (sd->sc.data[SC_EXPBOOST]->val1 / battle_config.vip_bm_increase);
 	}
 
-	*base_exp = (unsigned int)cap_value(*base_exp + (double)*base_exp * (bonus + vip_bonus_base) / 100., 1, UINT_MAX);
+	*base_exp = (unsigned int)cap_value(*base_exp + (double)*base_exp * (bonus + vip_bonus_base) / 100., 0, UINT_MAX);
 
 	if (sd->sc.data[SC_JEXPBOOST])
 		bonus += sd->sc.data[SC_JEXPBOOST]->val1;
 
-	*job_exp = (unsigned int)cap_value(*job_exp + (double)*job_exp * (bonus + vip_bonus_job) / 100., 1, UINT_MAX);
-
-	return;
+	*job_exp = (unsigned int)cap_value(*job_exp + (double)*job_exp * (bonus + vip_bonus_job) / 100., 0, UINT_MAX);
 }
 
 /**
@@ -6301,7 +6299,7 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
  * @param is_quest Used to let client know that the EXP was from a quest (clif->displayexp) PACKETVER >= 20091027
  * @return true success
  */
-bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp, unsigned int job_exp, bool quest)
+bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp, unsigned int job_exp, bool is_quest)
 {
 	float nextbp = 0, nextjp = 0;
 	unsigned int nextb = 0, nextj = 0;
@@ -6321,7 +6319,7 @@ bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned in
 
 	nextb = pc_nextbaseexp(sd);
 	nextj = pc_nextjobexp(sd);
-		
+
 	if (sd->state.showexp || battle_config.max_exp_gain_rate) {
 		if (nextb > 0)
 			nextbp = (float)base_exp / (float)nextb;
@@ -6330,7 +6328,7 @@ bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned in
 		if (battle_config.max_exp_gain_rate) {
 			if (nextbp > battle_config.max_exp_gain_rate / 1000.) {
 				//Note that this value should never be greater than the original
-				//base_exp, therefore no overflow checks are needed. [Skotlex]
+				//base_exp, therefore no overflow checks are needed [Skotlex]
 				base_exp = (unsigned int)(battle_config.max_exp_gain_rate / 1000. * nextb);
 				if (sd->state.showexp)
 					nextbp = (float)base_exp / (float)nextb;
@@ -6344,12 +6342,13 @@ bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned in
 	}
 
 	//Cap exp to the level up requirement of the previous level when you are at max level,
-	//otherwise cap at UINT_MAX (this is required for some S. Novice bonuses). [Skotlex]
+	//otherwise cap at UINT_MAX (this is required for some S. Novice bonuses) [Skotlex]
 	if (base_exp) {
 		nextb = (nextb ? UINT_MAX : pc_thisbaseexp(sd));
-		if (sd->status.base_exp > nextb - base_exp)
+		if (sd->status.base_exp > nextb - base_exp) {
 			sd->status.base_exp = nextb;
-		else
+			nextb = 0;
+		} else
 			sd->status.base_exp += base_exp;
 		pc_checkbaselevelup(sd);
 		clif_updatestatus(sd,SP_BASEEXP);
@@ -6357,25 +6356,25 @@ bool pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned in
 
 	if (job_exp) {
 		nextj = (nextj ? UINT_MAX : pc_thisjobexp(sd));
-		if (sd->status.job_exp > nextj - job_exp)
+		if (sd->status.job_exp > nextj - job_exp) {
 			sd->status.job_exp = nextj;
-		else
+			nextj = 0;
+		} else
 			sd->status.job_exp += job_exp;
 		pc_checkjoblevelup(sd);
 		clif_updatestatus(sd,SP_JOBEXP);
 	}
 
 	if (base_exp)
-		clif_displayexp(sd,base_exp,SP_BASEEXP,quest);
+		clif_displayexp(sd,(nextb ? base_exp : 0),SP_BASEEXP,is_quest);
 
 	if (job_exp)
-		clif_displayexp(sd,job_exp,SP_JOBEXP,quest);
+		clif_displayexp(sd,(nextj ? job_exp : 0),SP_JOBEXP,is_quest);
 
 	if (sd->state.showexp) {
 		char output[256];
 
-		sprintf(output,
-			"Experience Gained Base:%u (%.2f%%) Job:%u (%.2f%%)",base_exp,nextbp * (float)100,job_exp,nextjp * (float)100);
+		sprintf(output,"Experience Gained Base:%u (%.2f%%) Job:%u (%.2f%%)",base_exp,nextbp * (float)100,job_exp,nextjp * (float)100);
 		clif_disp_onlyself(sd,output,strlen(output));
 	}
 

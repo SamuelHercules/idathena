@@ -5500,51 +5500,6 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				return 0;
 			}
 			break;
-		case SO_ELEMENTAL_SHIELD: {
-				struct party_data *p;
-				int x0, y0, x1, y1, range;
-				uint8 ele_bonus = 0;
-
-				if(sd == NULL || !sd->ed)
-					break;
-				switch(sd->ed->db->class_) {
-					case ELEMENTALID_AGNI_M:
-					case ELEMENTALID_AQUA_M:
-					case ELEMENTALID_VENTUS_M:
-					case ELEMENTALID_TERA_M:
-						ele_bonus = 2;
-						break;
-					case ELEMENTALID_AGNI_L:
-					case ELEMENTALID_AQUA_L:
-					case ELEMENTALID_VENTUS_L:
-					case ELEMENTALID_TERA_L:
-						ele_bonus = 4;
-						break;
-				}
-				range = skill_get_splash(skill_id,skill_lv);
-				x0 = sd->bl.x - range;
-				y0 = sd->bl.y - range;
-				x1 = sd->bl.x + range;
-				y1 = sd->bl.y + range;
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				elemental_delete(sd->ed,0);
-				skill_unitsetting(src,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,ele_bonus);
-				skill_unitsetting(src,AL_PNEUMA,1,src->x,src->y,0);
-				if((p = party_search(sd->status.party_id))) {
-					for(i = 0; i < MAX_PARTY; i++) {
-						struct map_session_data *psd = p->data[i].sd;
-
-						if(!psd || psd->bl.m != sd->bl.m || !psd->bl.prev || psd->bl.id == sd->bl.id)
-							continue;
-						if(range && (psd->bl.x < x0 || psd->bl.y < y0 || psd->bl.x > x1 || psd->bl.y > y1))
-							continue;
-						skill_unitsetting(&psd->bl,MG_SAFETYWALL,skill_lv + 5,psd->bl.x,psd->bl.y,ele_bonus);
-						skill_unitsetting(&psd->bl,AL_PNEUMA,1,psd->bl.x,psd->bl.y,0);
-					}
-				}
-				return 0;
-			}
-			break;
 		case NPC_SMOKING: //Since it is a self skill, this one ends here rather than in damage_id [Skotlex]
 			return skill_castend_damage_id(src,bl,skill_id,skill_lv,tick,flag);
 		default:
@@ -6512,7 +6467,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case CASH_BLESSING:
 		case CASH_INCAGI:
 		case CASH_ASSUMPTIO:
-			if (sd == NULL || !sd->status.party_id || (flag&1))
+			if (!sd || !sd->status.party_id || (flag&1))
 				clif_skill_nodamage(bl,bl,skill_id,skill_lv,sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
 			else if (sd)
 				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
@@ -6532,7 +6487,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case BS_ADRENALINE2:
 		case BS_WEAPONPERFECT:
 		case BS_OVERTHRUST:
-			if (sd == NULL || !sd->status.party_id || (flag&1))
+			if (!sd || !sd->status.party_id || (flag&1))
 				clif_skill_nodamage(bl,bl,skill_id,skill_lv,sc_start2(src,bl,type,100,skill_lv,(bl->id == src->id ? 1 : 0),skill_get_time(skill_id,skill_lv)));
 			else if (sd)
 				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
@@ -8512,10 +8467,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case RK_LUXANIMA:
-			if( sd == NULL || !sd->status.party_id || flag&1 ) {
+			if( !sd || !sd->status.party_id || (flag&1) ) {
 				if( bl->id == src->id )
 					break;
-				clif_skill_nodamage(bl,bl,skill_id,skill_lv,1);
 				if( skill_area_temp[5]&0x10 ) {
 					i = rnd()%100 + 1;
 					if( i >= 1 && i <= 20 )
@@ -8563,9 +8517,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					else if( tsc->data[SC_ABUNDANCE] )
 						skill_area_temp[5] = 0x200;
 				}
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
+			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			break;
 
 		case GC_ROLLINGCUTTER: {
@@ -8655,7 +8609,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case AB_CANTO:
 			if( sd )
 				i = (skill_id == AB_CLEMENTIA ? pc_checkskill(sd,AL_BLESSING) : pc_checkskill(sd,AL_INCAGI));
-			if( sd == NULL || !sd->status.party_id || flag&1 )
+			if( !sd || !sd->status.party_id || (flag&1) )
 				clif_skill_nodamage(bl,bl,skill_id,-1,sc_start(src,bl,type,100,i + (sd ? sd->status.job_level / 10 : 0),skill_get_time(skill_id,skill_lv)));
 			else if( sd ) {
 				if( !i )
@@ -8666,14 +8620,14 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case AB_PRAEFATIO:
-			if( sd == NULL || !sd->status.party_id || flag&1 )
+			if( !sd || !sd->status.party_id || (flag&1) )
 				clif_skill_nodamage(bl,bl,skill_id,-1,sc_start4(src,bl,type,100,skill_lv,0,0,partybonus,skill_get_time(skill_id,skill_lv)));
 			else if( sd )
 				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			break;
 
 		case AB_CHEAL:
-			if( sd == NULL || !sd->status.party_id || flag&1 ) {
+			if( !sd || !sd->status.party_id || (flag&1) ) {
 				if( sd && !battle_check_undead(tstatus->race,tstatus->def_ele) &&
 					!(tsc && (tsc->data[SC_BERSERK] || tsc->data[SC_SATURDAYNIGHTFEVER])) ) {
 					i = skill_calc_heal(src,bl,AL_HEAL,pc_checkskill(sd,AL_HEAL),true);
@@ -8703,7 +8657,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case AB_LAUDAAGNUS:
-			if( sd == NULL || !sd->status.party_id || flag&1 ) {
+			if( !sd || !sd->status.party_id || (flag&1) ) {
 				if( tsc && (tsc->data[SC_FREEZE] || tsc->data[SC_STONE] || tsc->data[SC_BLIND] ||
 					tsc->data[SC_BURNING] || tsc->data[SC_FREEZING] || tsc->data[SC_CRYSTALIZE])) {
 					//Success Chance: (40 + 10 * Skill Level)%
@@ -8722,7 +8676,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case AB_LAUDARAMUS:
-			if( sd == NULL || !sd->status.party_id || flag&1 ) {
+			if( !sd || !sd->status.party_id || (flag&1) ) {
 				if( tsc && (tsc->data[SC_SLEEP] || tsc->data[SC_STUN] ||
 					tsc->data[SC_MANDRAGORA] || tsc->data[SC_SILENCE] || tsc->data[SC_DEEPSLEEP]) ) {
 					if( rnd()%100 > 40 + 10 * skill_lv )
@@ -9594,14 +9548,11 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case WA_MOONLIT_SERENADE:
 		case MI_RUSH_WINDMILL:
 		case MI_ECHOSONG:
-			if( flag&1 )
+			if( !sd || !sd->status.party_id || (flag&1) )
 				sc_start2(src,bl,type,100,skill_lv,(sd ? pc_checkskill(sd,WM_LESSON) : 1),skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				if( !sd->status.party_id )
-					sc_start2(src,bl,type,100,skill_lv,(sd ? pc_checkskill(sd,WM_LESSON) : 1),skill_get_time(skill_id,skill_lv));
-				else
-					party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9808,14 +9759,14 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case WM_FRIGG_SONG:
-			if( flag&1 )
+			if( !sd || !sd->status.party_id || (flag&1) )
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 			else if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				if( map_flag_vs(bl->m) )
 					party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 				else
-					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_ALL|1,skill_castend_nodamage_id);
+					map_foreachinrange(skill_area_sub,src,skill_get_splash(skill_id,skill_lv),BL_PC,src,skill_id,skill_lv,tick,flag|BCT_NOENEMY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9989,6 +9940,34 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				e_sp = ed->battle_status.max_sp * 10 / 100;
 				status_heal(&ed->bl,e_hp,e_sp,1);
 				clif_skill_nodamage(src,&ed->bl,skill_id,skill_lv,1);
+			}
+			break;
+
+		case SO_ELEMENTAL_SHIELD:
+			if( !sd || !sd->status.party_id || (flag&1) ) {
+				skill_unitsetting(bl,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,skill_area_temp[5]);
+				skill_unitsetting(bl,AL_PNEUMA,1,src->x,src->y,0);
+			} else if( sd ) {
+				skill_area_temp[5] = 0;
+				if( !sd->ed )
+					break;
+				switch( sd->ed->db->class_ ) {
+					case ELEMENTALID_AGNI_M:
+					case ELEMENTALID_AQUA_M:
+					case ELEMENTALID_VENTUS_M:
+					case ELEMENTALID_TERA_M:
+						skill_area_temp[5] = 2;
+						break;
+					case ELEMENTALID_AGNI_L:
+					case ELEMENTALID_AQUA_L:
+					case ELEMENTALID_VENTUS_L:
+					case ELEMENTALID_TERA_L:
+						skill_area_temp[5] = 4;
+						break;
+				}
+				elemental_delete(sd->ed,0);
+				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			}
 			break;
 
