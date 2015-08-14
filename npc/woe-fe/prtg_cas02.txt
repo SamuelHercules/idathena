@@ -68,10 +68,10 @@ OnRecvCastlePt02:
 	end;
 }
 
-prt_gld,244,126,8	duplicate(OutsideFlagsPR2)	Swanhild#1-2	722
-prt_gld,244,128,8	duplicate(OutsideFlagsPR2)	Swanhild#2	722
-prt_gld,236,126,8	duplicate(OutsideFlagsPR2)	Swanhild#3	722
-prt_gld,236,128,8	duplicate(OutsideFlagsPR2)	Swanhild#4	722
+prt_gld,244,126,0	duplicate(OutsideFlagsPR2)	Swanhild#1-2	722
+prt_gld,244,128,0	duplicate(OutsideFlagsPR2)	Swanhild#2	722
+prt_gld,236,126,0	duplicate(OutsideFlagsPR2)	Swanhild#3	722
+prt_gld,236,128,0	duplicate(OutsideFlagsPR2)	Swanhild#4	722
 
 // Guild Flags (Inside Castle)
 //============================================================
@@ -89,10 +89,10 @@ prtg_cas02,11,219,4	duplicate(InsideFlagsPR2)	Swanhild#7	722
 prtg_cas02,11,214,4	duplicate(InsideFlagsPR2)	Swanhild#8	722
 prtg_cas02,20,219,4	duplicate(InsideFlagsPR2)	Swanhild#9	722
 prtg_cas02,20,214,4	duplicate(InsideFlagsPR2)	Swanhild#10	722
-prtg_cas02,79,227,8	duplicate(InsideFlagsPR2)	Swanhild#11	722
-prtg_cas02,70,227,8	duplicate(InsideFlagsPR2)	Swanhild#12	722
-prtg_cas02,38,189,8	duplicate(InsideFlagsPR2)	Swanhild#13	722
-prtg_cas02,34,189,8	duplicate(InsideFlagsPR2)	Swanhild#14	722
+prtg_cas02,79,227,0	duplicate(InsideFlagsPR2)	Swanhild#11	722
+prtg_cas02,70,227,0	duplicate(InsideFlagsPR2)	Swanhild#12	722
+prtg_cas02,38,189,0	duplicate(InsideFlagsPR2)	Swanhild#13	722
+prtg_cas02,34,189,0	duplicate(InsideFlagsPR2)	Swanhild#14	722
 prtg_cas02,153,161,4	duplicate(InsideFlagsPR2)	Swanhild#15	722
 prtg_cas02,162,161,4	duplicate(InsideFlagsPR2)	Swanhild#16	722
 

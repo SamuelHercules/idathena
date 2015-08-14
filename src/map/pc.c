@@ -717,13 +717,14 @@ void pc_setnewpc(struct map_session_data *sd, int account_id, int char_id, int l
 	sd->status.char_id      = char_id;
 	sd->status.sex   = sex;
 	sd->login_id1    = login_id1;
-	sd->login_id2    = 0; // at this point, we can not know the value :(
+	sd->login_id2    = 0; //At this point, we can not know the value
 	sd->client_tick  = client_tick;
-	sd->state.active = 0; //to be set to 1 after player is fully authed and loaded.
+	sd->state.active = 0; //To be set to 1 after player is fully authed and loaded
 	sd->bl.type      = BL_PC;
 	sd->canlog_tick  = gettick();
-	//Required to prevent homunculus copuing a base speed of 0.
+	//Required to prevent homunculus copuing a base speed of 0
 	sd->battle_status.speed = sd->base_status.speed = DEFAULT_WALK_SPEED;
+	sd->state.warp_clean = 1;
 }
 
 /**
@@ -3913,54 +3914,104 @@ int pc_skill(TBL_PC *sd, int id, int level, int flag)
 	}
 	return 1;
 }
+
+/**
+ * Checks if the given card can be inserted into the given equipment piece.
+ *
+ * @param sd        The current character.
+ * @param idx_card  The card's inventory index (note: it must be a valid index and can be checked by pc_can_insert_card)
+ * @param idx_equip The target equipment's inventory index.
+ * @retval true if the card can be inserted.
+ */
+bool pc_can_insert_card_into(struct map_session_data* sd, int idx_card, int idx_equip)
+{
+	int i;
+
+	nullpo_ret(sd);
+
+	if( idx_equip < 0 || idx_equip >= MAX_INVENTORY || sd->inventory_data[idx_equip] == NULL )
+		return false; //Invalid item index
+
+	if( sd->status.inventory[idx_equip].nameid <= 0 || sd->status.inventory[idx_equip].amount < 1 )
+		return false; //Target item missing
+
+	if( sd->inventory_data[idx_equip]->type != IT_WEAPON && sd->inventory_data[idx_equip]->type != IT_ARMOR )
+		return false; //Only weapons and armor are allowed
+
+	if( sd->status.inventory[idx_equip].identify == 0 )
+		return false; //Target must be identified
+
+	if( itemdb_isspecial(sd->status.inventory[idx_equip].card[0]) )
+		return false; //Card slots reserved for other purposes
+
+	if( sd->status.inventory[idx_equip].equip != 0 )
+		return false; //Item must be unequipped
+
+	if( (sd->inventory_data[idx_equip]->equip & sd->inventory_data[idx_card]->equip) == 0 )
+		return false; //Card cannot be compounded on this item type
+
+	if( sd->inventory_data[idx_equip]->type == IT_WEAPON && sd->inventory_data[idx_card]->equip == EQP_SHIELD )
+		return false; //Attempted to place shield card on left-hand weapon
+
+	ARR_FIND(0, sd->inventory_data[idx_equip]->slot, i, sd->status.inventory[idx_equip].card[i] == 0);
+	if( i == sd->inventory_data[idx_equip]->slot )
+		return false; //No free slots
+	return true;
+}
+
+/**
+ * Checks if the given item is card and it can be inserted into some equipment.
+ *
+ * @param sd        The current character.
+ * @param idx_card  The card's inventory index.
+ * @retval true if the card can be inserted.
+ */
+bool pc_can_insert_card(struct map_session_data* sd, int idx_card)
+{
+	nullpo_ret(sd);
+
+	if( idx_card < 0 || idx_card >= MAX_INVENTORY || sd->inventory_data[idx_card] == NULL )
+		return false; //Invalid card index
+
+	if( sd->status.inventory[idx_card].nameid <= 0 || sd->status.inventory[idx_card].amount < 1 )
+		return false; //Target card missing
+
+	if( sd->inventory_data[idx_card]->type != IT_CARD )
+		return false; //Must be a card
+	return true;
+}
+
 /*==========================================
  * Append a card to an item ?
  *------------------------------------------*/
 int pc_insert_card(struct map_session_data *sd, int idx_card, int idx_equip)
 {
-	int i;
 	unsigned short nameid;
 
 	nullpo_ret(sd);
 
-	if( idx_equip < 0 || idx_equip >= MAX_INVENTORY || sd->inventory_data[idx_equip] == NULL )
-		return 0; //Invalid item index.
-	if( idx_card < 0 || idx_card >= MAX_INVENTORY || sd->inventory_data[idx_card] == NULL )
-		return 0; //Invalid card index.
-	if( sd->status.inventory[idx_equip].nameid <= 0 || sd->status.inventory[idx_equip].amount < 1 )
-		return 0; //Target item missing
-	if( sd->status.inventory[idx_card].nameid <= 0 || sd->status.inventory[idx_card].amount < 1 )
-		return 0; //Target card missing
-	if( sd->inventory_data[idx_equip]->type != IT_WEAPON && sd->inventory_data[idx_equip]->type != IT_ARMOR )
-		return 0; //Only weapons and armor are allowed
-	if( sd->inventory_data[idx_card]->type != IT_CARD )
-		return 0; //Must be a card
-	if( sd->status.inventory[idx_equip].identify == 0 )
-		return 0; //Target must be identified
-	if( itemdb_isspecial(sd->status.inventory[idx_equip].card[0]) )
-		return 0; //Card slots reserved for other purposes
-	if( (sd->inventory_data[idx_equip]->equip & sd->inventory_data[idx_card]->equip) == 0 )
-		return 0; //Card cannot be compounded on this item type
-	if( sd->inventory_data[idx_equip]->type == IT_WEAPON && sd->inventory_data[idx_card]->equip == EQP_SHIELD )
-		return 0; //Attempted to place shield card on left-hand weapon
-	if( sd->status.inventory[idx_equip].equip != 0 )
-		return 0; //Item must be unequipped
+	if( sd->state.trading != 0 )
+		return 0;
 
-	ARR_FIND(0, sd->inventory_data[idx_equip]->slot, i, sd->status.inventory[idx_equip].card[i] == 0);
-	if( i == sd->inventory_data[idx_equip]->slot )
-		return 0; //No free slots
+	if( !pc_can_insert_card(sd, idx_card) || !pc_can_insert_card_into(sd, idx_card, idx_equip) )
+		return 0;
 
 	//Remember the card id to insert
 	nameid = sd->status.inventory[idx_card].nameid;
-	if( pc_delitem(sd,idx_card,1,1,0,LOG_TYPE_OTHER) == 1 ) //Failed
-		clif_insert_card(sd,idx_equip,idx_card,1);
+
+	if( pc_delitem(sd,idx_card, 1, 1, 0, LOG_TYPE_OTHER) == 1 ) //Failed
+		clif_insert_card(sd, idx_equip, idx_card, 1);
 	else { //Success
+		int i;
+
+		ARR_FIND(0, sd->inventory_data[idx_equip]->slot, i, sd->status.inventory[idx_equip].card[i] == 0);
+		if( i == sd->inventory_data[idx_equip]->slot )
+			return 0; //No free slots
 		log_pick_pc(sd, LOG_TYPE_OTHER, -1, &sd->status.inventory[idx_equip]);
 		sd->status.inventory[idx_equip].card[i] = nameid;
 		log_pick_pc(sd, LOG_TYPE_OTHER,  1, &sd->status.inventory[idx_equip]);
-		clif_insert_card(sd,idx_equip,idx_card,0);
+		clif_insert_card(sd, idx_equip, idx_card, 0);
 	}
-
 	return 0;
 }
 
