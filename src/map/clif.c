@@ -16559,7 +16559,7 @@ void clif_party_show_picker(struct map_session_data *sd, struct item * item_data
 /// exp type:
 ///     0 = normal exp gain/loss
 ///     1 = quest exp gain/loss
-void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest)
+void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool is_quest)
 {
 	int fd;
 
@@ -16572,7 +16572,7 @@ void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, b
 	WFIFOL(fd,2) = sd->bl.id;
 	WFIFOL(fd,6) = exp;
 	WFIFOW(fd,10) = type;
-	WFIFOW(fd,12) = quest?1:0;// Normal exp is shown in yellow, quest exp is shown in purple.
+	WFIFOW(fd,12) = (is_quest && type == SP_BASEEXP ? 1 : 0); //Normal exp and quest job exp is shown in yellow, quest base exp is shown in purple
 	WFIFOSET(fd,packet_len(0x7f6));
 }
 

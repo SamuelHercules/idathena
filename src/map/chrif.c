@@ -287,7 +287,7 @@ int chrif_save(struct map_session_data *sd, int flag) {
 			chrif_save_scdata(sd);
 			chrif_skillcooldown_save(sd);
 		}
-		if (flag != 3 && !chrif_auth_logout(sd, flag == 1 ? ST_LOGOUT : ST_MAPCHANGE))
+		if (flag != 3 && !chrif_auth_logout(sd, (flag == 1 ? ST_LOGOUT : ST_MAPCHANGE)))
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
 	}
 
@@ -553,16 +553,16 @@ void chrif_on_ready(void) {
 
 	chrif_check_shutdown();
 
-	//If there are players online, send them to the char-server. [Skotlex]
+	//If there are players online, send them to the char-server [Skotlex]
 	send_users_tochar();
 
 	//Auth db reconnect handling
 	auth_db->foreach(auth_db,chrif_reconnect);
 
-	//Re-save any storages that were modified in the disconnection time. [Skotlex]
+	//Re-save any storages that were modified in the disconnection time [Skotlex]
 	do_reconnect_storage();
 
-	//Re-save any guild castles that were modified in the disconnection time.
+	//Re-save any guild castles that were modified in the disconnection time
 	guild_castle_reconnect(-1, 0, 0);
 
 	//Charserver is ready for loading autotrader
@@ -1262,7 +1262,7 @@ int chrif_save_scdata(struct map_session_data *sd) {
 	chrif_check(-1);
 	tick = gettick();
 
-	WFIFOHEAD(char_fd, 14 + SC_MAX * sizeof(struct status_change_data));
+	WFIFOHEAD(char_fd,14 + SC_MAX * sizeof(struct status_change_data));
 	WFIFOW(char_fd,0) = 0x2b1c;
 	WFIFOL(char_fd,4) = sd->status.account_id;
 	WFIFOL(char_fd,8) = sd->status.char_id;
@@ -1279,21 +1279,24 @@ int chrif_save_scdata(struct map_session_data *sd) {
 			else
 				data.tick = 0; //Negative tick does not necessarily mean that sc has expired
 		} else
-			data.tick = -1; //Infinite duration
+			data.tick = INVALID_TIMER; //Infinite duration
 		data.type = i;
 		data.val1 = sc->data[i]->val1;
 		data.val2 = sc->data[i]->val2;
 		data.val3 = sc->data[i]->val3;
 		data.val4 = sc->data[i]->val4;
-		memcpy(WFIFOP(char_fd,14 + count * sizeof(struct status_change_data)),
-			&data, sizeof(struct status_change_data));
+		memcpy(WFIFOP(char_fd,14 + count * sizeof(struct status_change_data)), &data, sizeof(struct status_change_data));
 		count++;
 	}
+
+	if (count == 0)
+		return 0; //Nothing to save or everything was as successful as if there was something to save
 
 	WFIFOW(char_fd,12) = count;
 	WFIFOW(char_fd,2) = 14 + count * sizeof(struct status_change_data); //Total packet size
 	WFIFOSET(char_fd,WFIFOW(char_fd,2));
 #endif
+
 	return 0;
 }
 
@@ -1310,22 +1313,21 @@ int chrif_skillcooldown_save(struct map_session_data *sd) {
 	WFIFOW(char_fd,0) = 0x2b15;
 	WFIFOL(char_fd,4) = sd->status.account_id;
 	WFIFOL(char_fd,8) = sd->status.char_id;
+
 	for (i = 0; i < MAX_SKILLCOOLDOWN; i++) {
 		if (!sd->scd[i])
 			continue;
-
 		if (!battle_config.guild_skill_relog_delay && (sd->scd[i]->skill_id >= GD_BATTLEORDER && sd->scd[i]->skill_id <= GD_EMERGENCYCALL))
 			continue;
-
 		timer = get_timer(sd->scd[i]->timer);
 		if (timer == NULL || timer->func != skill_blockpc_end || DIFF_TICK(timer->tick, tick) < 0)
 			continue;
-
 		data.tick = DIFF_TICK(timer->tick, tick);
 		data.skill_id = sd->scd[i]->skill_id;
 		memcpy(WFIFOP(char_fd,14 + count * sizeof (struct skill_cooldown_data)), &data, sizeof (struct skill_cooldown_data));
 		count++;
 	}
+
 	if (count == 0)
 		return 0;
 

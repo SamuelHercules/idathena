@@ -145,6 +145,7 @@
 2137:2353:5124,{ set .@r,getequiprefinerycnt(EQI_HAND_L); set .@i,getequiprefinerycnt(EQI_HEAD_TOP); bonus bDef,2-.@r-.@i; bonus bMdef,5+.@r+.@i; }
 2153:28372,{ set .@r,getequiprefinerycnt(EQI_HAND_L); bonus2 bSkillAtk,"LG_SHIELDPRESS",(.@r>=6?(.@r-5)*8:0); }
 2157:2905,{ bonus2 bSubRace,RC_Insect,10; }
+2158:2598,{ set .@r,getequiprefinerycnt(EQI_GARMENT); bonus2 bSubRace,RC_Undead,.@r; bonus2 bSubRace,RC_DemiHuman,.@r; }
 2160:19021,{ bonus2 bSubSize,Size_Large,5+getequiprefinerycnt(EQI_HAND_L)*2; }
 2169:2491:2590:15051,{ bonus2 bAddDefMonster,2311,30; bonus2 bAddDefMonster,2312,30; bonus2 bAddDefMonster,2320,30; bonus2 bAddDefMonster,2321,30; bonus2 bAddDefMonster,2322,30; bonus2 bAddDefMonster,2317,30; bonus2 bAddDefMonster,2318,30; bonus2 bAddDefMonster,2327,30; bonus2 bAddDefMonster,2319,30; bonus2 bAddDefMonster,2330,30; bonus2 bAddDefMonster,2329,30; bonus2 bAddDefMonster,2333,30; bonus2 bAddDefMonster,2332,30; bonus2 bAddDefMonster,2309,30; bonus2 bAddDefMonster,2310,30; bonus2 bAddDefMonster,2315,30; bonus2 bAddDefMonster,2316,30; bonus2 bAddDefMonster,2314,30; bonus2 bAddDefMonster,2313,30; bonus bMaxHPrate,20; bonus bMaxSPrate,10; }
 2171:15053,{ bonus bAgi,2; }

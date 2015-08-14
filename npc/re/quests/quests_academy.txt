@@ -177,7 +177,7 @@ iz_int04,91,81,3	duplicate(Lumin)	Lumin#iz_int04	4_M_NOV_RUMIN
 	end;
 
 OnTouch:
-	savepoint strnpcinfo(2),129,97;
+	areasavepoint strnpcinfo(2),127,97,129,99;
 	warp strnpcinfo(2),195,209;
 	end;
 }
@@ -2800,7 +2800,7 @@ izlude_d,153,126,1	duplicate(RefineryOwnerHan)	Refinery Owner Han#iz_d	4_M_02
 	setarray .@position$[1],"Head","Body","Left hand","Right hand","Robe","Shoes","Accessory 1","Accessory 2","Head 2","Head 3";
 	set .@menu$,"";
 	for(set .@i,1; .@i<=10; set .@i,.@i+1)
-		set .@menu$,.@menu$+(getequipisequiped(.@i)?getequipname(.@i):.@position$[.@i]+" - [Unarmed]")+":";
+		set .@menu$,.@menu$+(getequipisequiped(.@i)?getequipname(.@i):.@position$[.@i]+"-[Unarmed]")+":";
 	set .@part,select(.@menu$);
 	if(!getequipisequiped(.@part)) {
 		mes "[Refining Machine Wagjak]";
@@ -2813,13 +2813,13 @@ izlude_d,153,126,1	duplicate(RefineryOwnerHan)	Refinery Owner Han#iz_d	4_M_02
 	next;
 	if(!getequipisenableref(.@part)) {
 		mes "[Refining Machine Wagjak]";
-		mes "^ff0000Error number 000"+.@part+"1 -^000000";
+		mes "^ff0000- Error number 000"+.@part+"1 -^000000";
 		mes "This equipment is impossible to refine.";
 		close;
 	}
 	if(getequiprefinerycnt(.@part) >= 10) { //Custom text
 		mes "[Refining Machine Wagjak]";
-		mes "^ff0000Error number 000"+.@part+"2 -^000000";
+		mes "^ff0000- Error number 000"+.@part+"2 -^000000";
 		mes "Item can't be refined anymore.";
 		close;
 	}
@@ -2866,12 +2866,12 @@ izlude_d,153,126,1	duplicate(RefineryOwnerHan)	Refinery Owner Han#iz_d	4_M_02
 	set .@count,1;
 	if(VIP_SCRIPT && !vip_status(1)) {
 		switch(getequipweaponlv(.@part)) {
-			case 0: set .@price, .@price * 10; break;
-			case 1: set .@price, .@price * 40; break;
-			case 2: set .@price, .@price * 50; break;
-			case 3: set .@price, .@price * 2; break;
-			case 4: set .@price, .@price * 2; break;
-			case 5: set .@price, .@price * 10; break;
+			case 0: set .@price,.@price * 10; break;
+			case 1: set .@price,.@price * 40; break;
+			case 2: set .@price,.@price * 50; break;
+			case 3: set .@price,.@price * 2; break;
+			case 4: set .@price,.@price * 2; break;
+			case 5: set .@price,.@price * 10; break;
 		}
 	}
 	mes "[Refining Machine Wagjak]";
@@ -3245,7 +3245,7 @@ izlude_d,145,122,7	duplicate(Tadde)	Tadde#iz_d	4_M_04
 								case 1:
 									set .@price,50;
 									if(VIP_SCRIPT && !vip_status(1))
-										set .@price, .@price * 40;
+										set .@price,.@price * 40;
 									mes "[Locas]";
 									mes "Refining of level 1 weapons requires ^4d4fffPhracon and "+.@price+" zeny^000000.";
 									next;
@@ -3256,7 +3256,7 @@ izlude_d,145,122,7	duplicate(Tadde)	Tadde#iz_d	4_M_04
 								case 2:
 									set .@price,200;
 									if(VIP_SCRIPT && !vip_status(1))
-										set .@price, .@price * 50;
+										set .@price,.@price * 50;
 									mes "[Locas]";
 									mes "Refining of level 2 weapons requires ^4d4fffEmveretarcon and "+.@price+" zeny^000000.";
 									next;
@@ -3267,7 +3267,7 @@ izlude_d,145,122,7	duplicate(Tadde)	Tadde#iz_d	4_M_04
 								case 3:
 									set .@price,5000;
 									if(VIP_SCRIPT && !vip_status(1))
-										set .@price, .@price * 2;
+										set .@price,.@price * 2;
 									mes "[Locas]";
 									mes "Refining of level 3 weapons requires ^4d4fffOridecon and "+(.@price>=10000?callfunc("F_InsertComma",.@price,3):.@price)+" zeny^000000.";
 									next;
@@ -3281,7 +3281,7 @@ izlude_d,145,122,7	duplicate(Tadde)	Tadde#iz_d	4_M_04
 								case 4:
 									set .@price,20000;
 									if(VIP_SCRIPT && !vip_status(1))
-										set .@price, .@price * 2;
+										set .@price,.@price * 2;
 									mes "[Locas]";
 									mes "Refining of level 4 weapons requires ^4d4fffOridecon and "+callfunc("F_InsertComma",.@price,3)+" zeny^000000.";
 									next;
@@ -3292,7 +3292,7 @@ izlude_d,145,122,7	duplicate(Tadde)	Tadde#iz_d	4_M_04
 								case 5:
 									set .@price,2000;
 									if(VIP_SCRIPT && !vip_status(1))
-										set .@price, .@price * 10;
+										set .@price,.@price * 10;
 									mes "[Locas]";
 									mes "Refining the Armor requires ^4d4fffElunium and "+(.@price>=10000?callfunc("F_InsertComma",.@price,3):.@price)+" zeny^000000.";
 									next;
@@ -4455,7 +4455,7 @@ iz_ac01_d,100,39,5	duplicate(AcademyReceptionist)	Academy Receptionist#1_d	4_F_0
 						next;
 						mes "[Kafra Guide Trainer]";
 						mes "Voila~!";
-						savepoint "izlude"+substr(strnpcinfo(4),7,8),128,98;
+						areasavepoint "izlude"+substr(strnpcinfo(4),7,8),127,97,129,99;
 						next;
 						mes "[Kafra Guide Trainer]";
 						mes "It's already done. Easy huh?";
@@ -7671,13 +7671,14 @@ OnTimer60000:
 	stopnpctimer;
 	set .@rnd,rand(1,4);
 	if(.@rnd == 1)
-		npctalk "Red Potion.. Is it delicious? Herb does not look delicious.. I bet that is bitter.";
+		set .@talk$,"Red Potion.. Is it delicious? Herb does not look delicious.. I bet that is bitter.";
 	else if(.@rnd == 2)
-		npctalk "Ha. You are lucky for having me.";
+		set .@talk$,"Ha. You are lucky for having me.";
 	else if(.@rnd == 3)
-		npctalk "Isn't the floor cold? Well.. For me.. Undead is more familiar.";
+		set .@talk$,"Isn't the floor cold? Well.. For me.. Undead is more familiar.";
 	else
-		npctalk "Yawn~ I am so bored!";
+		set .@talk$,"Yawn~ I am so bored!";
+	npctalk .@talk$;
 	//Fall through
 OnInit:
 	initnpctimer;
@@ -9355,7 +9356,7 @@ iz_ac02_d,142,85,5	duplicate(Lusa)	Lusa#2ac_d	4_F_GUNSLINGER
 		} else if(.@rnd == 4) {
 			mes "[Quite Trainee]";
 			mes "Mrs. Lusa really looks pretty.";
-		} else if(.@rnd == 5) {
+		} else {
 			mes "[Quite Trainee]";
 			mes "Are you coming to take the lesson for gunslinger?";
 		}
@@ -9783,7 +9784,7 @@ iz_ac02_d,109,110,3	duplicate(ac_board)	[Mage Classroom]#2ac_d	2_BULLETIN_BOARD
 							mes "Wall of Fire~!!";
 							mes "^007a02Fire Wall^000000!!!!";
 							specialeffect2 EF_FIREWALL;
-						} else if(.@rnd == 6) {
+						} else {
 							mes "[Mage Chuck]";
 							mes "Get lost in the storm!";
 							mes "^007a02Thunder Storm^000000!!!!";
