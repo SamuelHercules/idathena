@@ -8051,7 +8051,7 @@ moc_ruins,90,67,3	script	Suspicious Man#1	4W_M_03,4,4,{
 			callsub S_Quest;
 		else {
 			mes "[Suspicious Man]";
-			if (atoi( strnpcinfo(2) ) == 1) {
+			if (strnpcinfo(2) == "1") {
 				mes "...............................";
 				mes "...............................";
 				mes "............................... ";
@@ -8169,7 +8169,7 @@ moc_ruins,90,67,3	script	Suspicious Man#1	4W_M_03,4,4,{
 		}
 	}
 	else if (zdan_edq < 9) {
-		if (atoi( strnpcinfo(2) ) == 1)
+		if (strnpcinfo(2) == "1")
 			mes "[Suspicious Man]";
 		else
 			mes "[Thug]";
@@ -8194,7 +8194,7 @@ moc_ruins,90,67,3	script	Suspicious Man#1	4W_M_03,4,4,{
 		mes "that sort of deal.";
 	}
 	else {
-		if (atoi( strnpcinfo(2) ) == 1)
+		if (strnpcinfo(2) == "1")
 			mes "[Suspicious Man]";
 		else
 			mes "[Thug]";
@@ -8234,8 +8234,14 @@ S_Quest:
 	mes "Y-you're stronger";
 	mes "than I thought!";
 	mes "Run awaaaaay!";
-	hideoffnpc "Suspicious Man#2";
-	hideonnpc "Suspicious Man#1";
+	if (strnpcinfo(2) == "1") {
+		hideonnpc "Suspicious Man#1";
+		hideoffnpc "Suspicious Man#2";
+	}
+	else {
+		hideonnpc "Suspicious Man#2";
+		hideoffnpc "Suspicious Man#1";
+	}
 	set $@zdan,0;
 	stopnpctimer;
 	next;

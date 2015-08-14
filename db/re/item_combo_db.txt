@@ -111,6 +111,7 @@
 1745:18541,{ if(getequiprefinerycnt(EQI_HAND_R)>9) bonus2 bVariableCastRate,"SN_SHARPSHOOTING",-50; }
 1746:1773,{ bonus bLongAtkRate,50; }
 1764:18541,{ bonus bCritAtkRate,5; if(getequiprefinerycnt(EQI_HEAD_TOP)>6) bonus bCritAtkRate,5; }
+1767:18125,{ bonus bLongAtkRate,50; }
 1775:18114,{ bonus bLongAtkRate,70; }
 1776:18114,{ bonus bLongAtkRate,40; }
 1935:2988,{ bonus2 bSkillAtk,"CG_ARROWVULCAN",200; bonus2 bSkillUseSP,"CG_ARROWVULCAN",50; }
@@ -240,9 +241,13 @@
 2484:2586:15047,{ bonus bDex,5; bonus2 bSubRace,RC_DemiHuman,15; }
 2485:2587:15048,{ bonus bInt,5; bonus bMdef,10; bonus2 bSubRace,RC_DemiHuman,15; }
 2495:15061:18728:20700,{ bonus bAllstats,1; bonus2 bSubEle,Ele_Water,20; }
+2507:15146,{ set .@r,getequiprefinerycnt(EQI_ARMOR); bonus bMaxSPrate,10+.@r; bonus bFlee,10+.@r; }
+2509:15146,{ set .@r,getequiprefinerycnt(EQI_ARMOR); bonus bMaxHPrate,10+.@r; bonus bMatkRate,2+.@r; }
 2518:2648:2649:5126,{ bonus bInt,5; bonus bMdef,11; bonus bMaxSPrate,20; bonus bNoCastCancel,0; bonus bVariableCastrate,25; }
 2519:2650:2651:5127,{ bonus bStr,2; bonus bLuk,9; bonus bCritical,13; bonus bBaseAtk,18; bonus bFlee2,13; }
 2519:2900:2901:19044,{ bonus bStr,2; bonus bLuk,9; bonus bCritical,13; bonus bBaseAtk,18; bonus bFlee2,13; }
+2519:15147,{ set .@r,getequiprefinerycnt(EQI_ARMOR); bonus2 bIgnoreDefRaceRate,RC_DemiHuman,15; bonus2 bIgnoreDefRaceRate,RC_Demon,15; bonus2 bIgnoreDefRaceRate,RC_Undead,15; bonus bLuk,3+.@r; bonus bCritical,10+.@r; }
+2524:15147,{ set .@r,getequiprefinerycnt(EQI_ARMOR); bonus2 bIgnoreDefRaceRate,RC_DemiHuman,15; bonus2 bIgnoreDefRaceRate,RC_Demon,15; bonus2 bIgnoreDefRaceRate,RC_Undead,15; bonus bMaxHPrate,10+.@r; bonus bAtkRate,2+.@r; }
 2527:5467:13001,{ bonus2 bAddRace,RC_Dragon,25; }
 2527:5467:13030,{ bonus2 bAddRace,RC_Dragon,25; }
 2527:13001,{ bonus2 bAddRace,RC_Dragon,5; }
