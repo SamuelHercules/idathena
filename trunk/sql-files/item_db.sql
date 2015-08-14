@@ -2117,7 +2117,7 @@ REPLACE INTO `item_db` VALUES (4436,'Ragged_Zombie_Card','Ragged Zombie Card',6,
 REPLACE INTO `item_db` VALUES (4437,'Hell_Poodle_Card','Hell Poodle Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,136,NULL,NULL,NULL,NULL,'bonus bHit,1; bonus2 bAddItemHealRate,517,100; bonus3 bAddEff,Eff_Bleeding,50,ATF_SHORT;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (4438,'Banshee_Card','Banshee Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,769,NULL,NULL,NULL,NULL,'if(BaseClass==Job_Mage) { bonus bMaxSP,100; bonus bMaxHP,-100; bonus2 bSkillAtk,"MG_NAPALMBEAT",20; bonus2 bSkillAtk,"MG_SOULSTRIKE",20; bonus2 bSkillAtk,"HW_NAPALMVULCAN",20; }',NULL,NULL);
 REPLACE INTO `item_db` VALUES (4439,'Flame_Skull_Card','Flame Skull Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,32,NULL,NULL,NULL,NULL,'bonus2 bResEff,Eff_Blind,3000; bonus2 bResEff,Eff_Stun,3000; bonus2 bResEff,Eff_Curse,3000; bonus2 bResEff,Eff_Stone,3000; bonus2 bAddEffWhenHit,Eff_Blind,500; bonus2 bAddEffWhenHit,Eff_Stun,500; bonus2 bAddEffWhenHit,Eff_Curse,500; bonus2 bAddEffWhenHit,Eff_Stone,500;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (4440,'Necromancer_Card','Necromancer Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,NULL,'if(getiteminfo(getequipid(EQI_HAND_R),11)==10) { bonus bInt,1; bonus2 bIgnoreMdefClassRate,Class_Normal,2; bonus2 bIgnoreMdefClassRate,Class_Boss,2; }',NULL,NULL);
+REPLACE INTO `item_db` VALUES (4440,'Necromancer_Card','Necromancer Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,NULL,'set .@i,getiteminfo(getequipid(EQI_HAND_R),11); if(.@i==10||.@i==23) { bonus bInt,1; bonus2 bIgnoreMdefClassRate,Class_Normal,2; bonus2 bIgnoreMdefClassRate,Class_Boss,2; }',NULL,NULL);
 REPLACE INTO `item_db` VALUES (4441,'Fallen_Bishop_Card','Fallen Bishop Hibram Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,64,NULL,NULL,NULL,NULL,'bonus bMatkRate,10; bonus bMaxSPrate,-50; bonus2 bMagicAddRace,RC_Angel,50; bonus2 bMagicAddRace,RC_DemiHuman,50;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (4442,'Tatacho_Card','Tatacho Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,32,NULL,NULL,NULL,NULL,'bonus2 bSubDefEle,Ele_Neutral,20; bonus2 bAddDefEle,Ele_Neutral,5;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (4443,'Aqua_Elemental_Card','Aqua Elemental Card',6,20,NULL,10,NULL,NULL,NULL,NULL,NULL,NULL,NULL,32,NULL,NULL,NULL,NULL,'bonus2 bSubDefEle,Ele_Water,20; bonus2 bAddDefEle,Ele_Water,5;',NULL,NULL);
@@ -5518,6 +5518,8 @@ REPLACE INTO `item_db` VALUES (13287,'Siroma_Icetea_To_Throw','Throwing Siroma I
 REPLACE INTO `item_db` VALUES (13288,'Drocera_Stew_To_Throw','Throwing Drosera Herb Salad',10,100,NULL,50,0,NULL,NULL,NULL,0x00040000,8,2,32768,NULL,99,NULL,9,NULL,NULL,NULL);
 REPLACE INTO `item_db` VALUES (13289,'Petti_Noodle_To_Throw','Throwing Petite Tail Soup',10,100,NULL,50,0,NULL,NULL,NULL,0x00040000,8,2,32768,NULL,99,NULL,9,NULL,NULL,NULL);
 REPLACE INTO `item_db` VALUES (13290,'Black_Thing_To_Throw','Throwing Black Thing',10,100,NULL,50,0,NULL,NULL,NULL,0x00040000,8,2,32768,NULL,99,NULL,9,NULL,NULL,NULL);
+# More Shurikens & Kunais
+#===================================================================
 REPLACE INTO `item_db` VALUES (13294,'Explosive_Kunai','Explosive Kunai',10,100,NULL,30,50,NULL,NULL,NULL,0x22000000,7,2,32768,NULL,100,NULL,7,NULL,NULL,NULL);
 # Ninja Fuuma Shurikens
 #===================================================================
@@ -6467,7 +6469,7 @@ REPLACE INTO `item_db` VALUES (14587,'Repair_Scroll_','Equipment Repair Spell Bo
 REPLACE INTO `item_db` VALUES (14588,'Pty_Blessing_Scroll','Party Blessing 10 Scroll',11,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'itemskill "CASH_BLESSING",10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (14589,'Pty_Inc_Agi_Scroll','Party Increase Agi 10 Scroll',11,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'itemskill "CASH_INCAGI",10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (14590,'Pty_Assumptio_Scroll','Party Assumptio 5 Scroll',11,10,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'itemskill "CASH_ASSUMPTIO",5;',NULL,NULL);
-REPLACE INTO `item_db` VALUES (14591,'Siege_Teleport_Scroll','WoE Teleport Scroll',2,0,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'callfunc "F_CashSeigeTele";',NULL,NULL);
+REPLACE INTO `item_db` VALUES (14591,'Siege_Teleport_Scroll','WoE Teleport Scroll',2,0,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'callfunc "F_CashSiegeTele";',NULL,NULL);
 REPLACE INTO `item_db` VALUES (14592,'Job_Manual50','JOB Battle Manual',2,0,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_JEXPBOOST,1800000,50;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (14593,'Magic_Power_Scroll','Mystical Amplification Scroll',11,0,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'itemskill "HW_MAGICPOWER",10;',NULL,NULL);
 REPLACE INTO `item_db` VALUES (14594,'Quagmire_Scroll','Quagmire Scroll',11,0,NULL,10,NULL,NULL,NULL,NULL,0xFFFFFFFF,7,2,NULL,NULL,NULL,NULL,NULL,'itemskill "WZ_QUAGMIRE",5;',NULL,NULL);

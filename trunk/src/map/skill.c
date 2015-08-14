@@ -9944,9 +9944,9 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 
 		case SO_ELEMENTAL_SHIELD:
-			if( !sd || !sd->status.party_id || (flag&1) ) {
-				skill_unitsetting(bl,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,skill_area_temp[5]);
-				skill_unitsetting(bl,AL_PNEUMA,1,src->x,src->y,0);
+			if( flag&1 ) {
+				skill_unitsetting(bl,MG_SAFETYWALL,skill_lv + 5,bl->x,bl->y,skill_area_temp[5]);
+				skill_unitsetting(bl,AL_PNEUMA,1,bl->x,bl->y,0);
 			} else if( sd ) {
 				skill_area_temp[5] = 0;
 				if( !sd->ed )
@@ -9967,7 +9967,12 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				}
 				elemental_delete(sd->ed,0);
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+				if( sd->status.party_id )
+					party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skill_id,skill_lv),src,skill_id,skill_lv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+				else {
+					skill_unitsetting(src,MG_SAFETYWALL,skill_lv + 5,src->x,src->y,skill_area_temp[5]);
+					skill_unitsetting(src,AL_PNEUMA,1,src->x,src->y,0);
+				}
 			}
 			break;
 
