@@ -6331,41 +6331,25 @@ void clif_solved_charname(int fd, int charid, const char *name)
 /// 017b <packet len>.W { <name id>.W }*
 void clif_use_card(struct map_session_data *sd, int idx)
 {
-	int i, c, ep;
-	int fd = sd->fd;
+	int i, c;
+	int fd;
 
 	nullpo_retv(sd);
-	if (idx < 0 || idx >= MAX_INVENTORY) //Crash-fix from bad packets
+
+	fd = sd->fd;
+
+	if (sd->state.trading != 0)
 		return;
 
-	if (!sd->inventory_data[idx] || sd->inventory_data[idx]->type != IT_CARD)
-		return; //Avoid parsing invalid item indexes (no card/no item)
+	if (!pc_can_insert_card(sd,idx))
+		return;
 
-	ep = sd->inventory_data[idx]->equip;
 	WFIFOHEAD(fd,MAX_INVENTORY * 2 + 4);
 	WFIFOW(fd,0) = 0x17b;
 
 	for (i = c = 0; i < MAX_INVENTORY; i++) {
-		int j;
-
-		if (sd->inventory_data[i] == NULL)
+		if (!pc_can_insert_card_into(sd,idx,i))
 			continue;
-		if (sd->inventory_data[i]->type != IT_WEAPON && sd->inventory_data[i]->type != IT_ARMOR)
-			continue;
-		if (itemdb_isspecial(sd->status.inventory[i].card[0])) //Can't slot it
-			continue;
-		if (sd->status.inventory[i].identify == 0) //Not identified
-			continue;
-		if ((sd->inventory_data[i]->equip&ep) == 0) //Not equippable on this part.
-			continue;
-		if (sd->inventory_data[i]->type == IT_WEAPON && ep == EQP_SHIELD) //Shield card won't go on left weapon
-			continue;
-		ARR_FIND(0,sd->inventory_data[i]->slot,j,sd->status.inventory[i].card[j] == 0);
-		if (j == sd->inventory_data[i]->slot) //No room
-			continue;
-		if (sd->status.inventory[i].equip > 0) //Do not check items that are already equipped
-			continue;
-
 		WFIFOW(fd,4 + c * 2) = i + 2;
 		c++;
 	}
@@ -10162,13 +10146,14 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd) {
 		clif_updatestatus(sd,SP_DEX);
 		clif_updatestatus(sd,SP_LUK);
 
-		//Abort currently running script
-		sd->state.using_fake_npc = 0;
-		sd->state.menu_or_input = 0;
-		sd->npc_menu = 0;
-
-		if(sd->npc_id)
-			npc_event_dequeue(sd);
+		if(sd->state.warp_clean) { //Abort currently running script
+			sd->state.using_fake_npc = 0;
+			sd->state.menu_or_input = 0;
+			sd->npc_menu = 0;
+			if(sd->npc_id)
+				npc_event_dequeue(sd);
+		} else
+			sd->state.warp_clean = 1;
 
 		if(sd->guild && (battle_config.guild_notice_changemap == 2 || (battle_config.guild_notice_changemap == 1 && sd->state.changemap)))
 			clif_guild_notice(sd,sd->guild);
@@ -12261,8 +12246,6 @@ void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
 /// 017a <card index>.W
 void clif_parse_UseCard(int fd,struct map_session_data *sd)
 {
-	if (sd->state.trading != 0)
-		return;
 	clif_use_card(sd,RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0])-2);
 }
 
@@ -12272,8 +12255,7 @@ void clif_parse_UseCard(int fd,struct map_session_data *sd)
 void clif_parse_InsertCard(int fd,struct map_session_data *sd)
 {
 	struct s_packet_db *info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	if (sd->state.trading != 0)
-		return;
+
 	pc_insert_card(sd,RFIFOW(fd,info->pos[0])-2,RFIFOW(fd,info->pos[1])-2);
 }
 

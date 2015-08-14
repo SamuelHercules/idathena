@@ -8336,7 +8336,7 @@ spl_fild02,321,169,0	duplicate(Fishinghole)	School of Fish#2	844
 spl_fild02,326,171,0	duplicate(Fishinghole)	School of Fish#3	844
 mid_camp,75,135,0	duplicate(Fishinghole)	School of Fish#4	844
 
-mid_camp,66,122,55	script	Henry Clifford	712,{
+mid_camp,66,122,7	script	Henry Clifford	712,{
 	if (countitem(6049) > 0) {
 		mes "[Henry Clifford]";
 		mes "Congratulations, you've caught a precious Marlin.";
@@ -8386,7 +8386,7 @@ mid_camp,66,122,55	script	Henry Clifford	712,{
 	}
 }
 
-mid_camp,88,100,55	script	Cat Hand Mining Agent	876,{
+mid_camp,88,100,7	script	Cat Hand Mining Agent	876,{
 	if (checkquest(12062,PLAYTIME) == -1) {
 		if ((countitem(6048) > 2) && (ep13_yong1 > 9)) {
 			mes "[Cat Hand Mining Agent]";

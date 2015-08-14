@@ -68,8 +68,8 @@ OnRecvCastleA01:
 
 alde_gld,61,87,6	duplicate(OutsideFlagsA1)	Neuschwanstein#1-2	722
 alde_gld,61,79,6	duplicate(OutsideFlagsA1)	Neuschwanstein#2	722
-alde_gld,45,87,8	duplicate(OutsideFlagsA1)	Neuschwanstein#3	722
-alde_gld,51,87,8	duplicate(OutsideFlagsA1)	Neuschwanstein#4	722
+alde_gld,45,87,0	duplicate(OutsideFlagsA1)	Neuschwanstein#3	722
+alde_gld,51,87,0	duplicate(OutsideFlagsA1)	Neuschwanstein#4	722
 
 // Guild Flags (Inside Castle)
 //============================================================

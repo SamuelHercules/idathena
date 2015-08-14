@@ -7157,10 +7157,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 				int splash = skill_get_splash(skill_id,skill_lv);
 
 				if( flag&1 || splash < 1 ) {
-					//Outside PvP it should only affect party members and no skill fail message
-					if( sd && dstsd && !map_flag_vs(sd->bl.m) &&
-						(!sd->status.party_id || sd->status.party_id != dstsd->status.party_id) )
-						break;
+					if( sd && dstsd && !map_flag_vs(sd->bl.m) && !sd->duel_group && (!sd->status.party_id || sd->status.party_id != dstsd->status.party_id) )
+						break; //Outside PvP it should only affect party members and no skill fail message
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 					if( (dstsd && (dstsd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER) || //Soul Linkers are naturally immune
 						(tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SL_ROGUE) || //Rogue's spirit defends against dispel

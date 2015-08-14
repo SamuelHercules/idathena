@@ -7799,7 +7799,7 @@ int battle_check_target(struct block_list *src, struct block_list *target, int f
 						(!battle_config.duel_allow_gvg && map_flag_gvg2(m))) ) {
 						if( t_bl->type == BL_PC && (sd->duel_group == ((TBL_PC *)t_bl)->duel_group) )
 							return (flag&BCT_ENEMY) ? 1 : -1; //Duel targets can ONLY be your enemy, nothing else
-						else if( src->type != BL_SKILL || (flag&BCT_ENEMY) )
+						else if( src->type != BL_SKILL || (flag&BCT_ALL) != BCT_ALL )
 							return 0;
 					}
 				}

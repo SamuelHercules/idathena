@@ -9054,8 +9054,12 @@ iz_ac02_d,98,80,5	duplicate(ac_board)	[Taekwon Classroom]#2_d	2_BULLETIN_BOARD
 				sc_start SC_STUN,10000,0;
 				percentheal -99,0;
 				close2;
-				warp "iz_ac"+strnpcinfo(2),53,49;
-				end;
+				warp "iz_ac"+strnpcinfo(2),53,49,0;
+				sleep2 500;
+				mes "As I can't recall, I feel the shock that something hit me on my head.";
+				mes "^ff0000I should look for somebody to heal me nearby.^000000";
+				erasequest 13102;
+				close;
 			}
 			mes "[Arang]";
 			mes "Is that so!? You are!? Yaho! Now I am a teacher! Now, ask me whatever!";
@@ -9089,32 +9093,6 @@ iz_ac02_a,70,85,5	duplicate(Arang)	Arang#01_a	4_F_TAEKWON
 iz_ac02_b,70,85,5	duplicate(Arang)	Arang#01_b	4_F_TAEKWON
 iz_ac02_c,70,85,5	duplicate(Arang)	Arang#01_c	4_F_TAEKWON
 iz_ac02_d,70,85,5	duplicate(Arang)	Arang#01_d	4_F_TAEKWON
-
--	script	::ArangKick	-1,{
-	end;
-
-OnTouch:
-	if(isbegin_quest(13102) == 1) {
-		mes "As I can't recall, I feel the shock that something hit me on my head.";
-		mes "^ff0000I should look for somebody to heal me nearby.^000000";
-		erasequest 13102;
-		close;
-	}
-	end;
-OnInit:
-	hideonnpc "Arang#2ac";
-	hideonnpc "Arang#2ac_a";
-	hideonnpc "Arang#2ac_b";
-	hideonnpc "Arang#2ac_c";
-	hideonnpc "Arang#2ac_d";
-	end;
-}
-
-iz_ac01,53,49,0	duplicate(ArangKick)	Arang#2ac	4_F_TAEKWON,1,1
-iz_ac01_a,53,49,0	duplicate(ArangKick)	Arang#2ac_a	4_F_TAEKWON,1,1
-iz_ac01_b,53,49,0	duplicate(ArangKick)	Arang#2ac_b	4_F_TAEKWON,1,1
-iz_ac01_c,53,49,0	duplicate(ArangKick)	Arang#2ac_c	4_F_TAEKWON,1,1
-iz_ac01_d,53,49,0	duplicate(ArangKick)	Arang#2ac_d	4_F_TAEKWON,1,1
 
 iz_ac02,109,80,3	duplicate(ac_board)	[Gunslinger Classroom]#0	2_BULLETIN_BOARD
 iz_ac02_a,109,80,3	duplicate(ac_board)	[Gunslinger Classroom]#a	2_BULLETIN_BOARD

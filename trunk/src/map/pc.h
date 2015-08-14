@@ -238,6 +238,7 @@ struct map_session_data {
 		unsigned int banking : 1; //When 1, we using the banking system, when 0, closed
 		unsigned disable_atcommand_on_npc : 1; //Prevent to use atcommand while talking with NPC [Kichi]
 		uint8 isBoundTrading; //Player is currently add bound item to trade list [Cydh]
+		unsigned int warp_clean : 1;
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -924,7 +925,9 @@ void pc_bonus4(struct map_session_data *sd, int type, int type2, int type3, int 
 void pc_bonus5(struct map_session_data *sd, int type, int type2, int type3, int type4, int type5, int val);
 int pc_skill(TBL_PC *sd, int id, int level, int flag);
 
-int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
+bool pc_can_insert_card_into(struct map_session_data* sd, int idx_card, int idx_equip);
+bool pc_can_insert_card(struct map_session_data* sd, int idx_card);
+int pc_insert_card(struct map_session_data *sd, int idx_card, int idx_equip);
 
 int pc_steal_item(struct map_session_data *sd, struct block_list *bl, uint16 skill_lv);
 int pc_steal_coin(struct map_session_data *sd, struct block_list *bl);
