@@ -5135,6 +5135,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 
 	if(sc && !sc->count)
 		sc = NULL; //Skip checking as there are no status changes active
+
 	if(tsc && !tsc->count)
 		tsc = NULL; //Skip checking as there are no status changes active
 
@@ -5289,7 +5290,7 @@ struct Damage battle_calc_weapon_attack(struct block_list *src, struct block_lis
 					case 2: case 5: case 8: i = 2; break;
 					default: i = 0; break;
 				}
-				ATK_ADD(wd.damage, wd.damage2, 10 * lv - i); //Non-Miss Damage (Kick skills)
+				ATK_ADD(wd.damage, wd.damage2, 10 * lv - i); //No miss damage (Kick skills)
 			}
 			break;
 		case HW_MAGICCRASHER:

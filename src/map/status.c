@@ -1009,6 +1009,24 @@ void initChangeTables(void) {
 	StatusIconChangeTable[SC_MTF_MSP] = SI_MTF_MSP;
 	StatusIconChangeTable[SC_MTF_PUMPKIN] = SI_MTF_PUMPKIN;
 	StatusIconChangeTable[SC_NORECOVER_STATE] = SI_HANDICAPSTATE_NORECOVER;
+	StatusIconChangeTable[SC_ATTHASTE_CASH] = SI_ATTHASTE_CASH;
+	StatusIconChangeTable[SC_REUSE_LIMIT_A] = SI_REUSE_LIMIT_A;
+	StatusIconChangeTable[SC_REUSE_LIMIT_B] = SI_REUSE_LIMIT_B;
+	StatusIconChangeTable[SC_REUSE_LIMIT_C] = SI_REUSE_LIMIT_C;
+	StatusIconChangeTable[SC_REUSE_LIMIT_D] = SI_REUSE_LIMIT_D;
+	StatusIconChangeTable[SC_REUSE_LIMIT_E] = SI_REUSE_LIMIT_E;
+	StatusIconChangeTable[SC_REUSE_LIMIT_F] = SI_REUSE_LIMIT_F;
+	StatusIconChangeTable[SC_REUSE_LIMIT_G] = SI_REUSE_LIMIT_G;
+	StatusIconChangeTable[SC_REUSE_LIMIT_H] = SI_REUSE_LIMIT_H;
+	StatusIconChangeTable[SC_REUSE_MILLENNIUMSHIELD] = SI_REUSE_MILLENNIUMSHIELD;
+	StatusIconChangeTable[SC_REUSE_CRUSHSTRIKE] = SI_REUSE_CRUSHSTRIKE;
+	StatusIconChangeTable[SC_REUSE_REFRESH] = SI_REUSE_REFRESH;
+	StatusIconChangeTable[SC_REUSE_STORMBLAST] = SI_REUSE_STORMBLAST;
+	StatusIconChangeTable[SC_ALL_RIDING_REUSE_LIMIT] = SI_ALL_RIDING_REUSE_LIMIT;
+	StatusIconChangeTable[SC_REUSE_LIMIT_MTF] = SI_REUSE_LIMIT_MTF;
+	StatusIconChangeTable[SC_REUSE_LIMIT_ECL] = SI_REUSE_LIMIT_ECL;
+	StatusIconChangeTable[SC_REUSE_LIMIT_RECALL] = SI_REUSE_LIMIT_RECALL;
+	StatusIconChangeTable[SC_REUSE_LIMIT_ASPD_POTION] = SI_REUSE_LIMIT_ASPD_POTION;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -1120,6 +1138,7 @@ void initChangeTables(void) {
 	StatusChangeFlagTable[SC_MTF_HITFLEE] |= SCB_HIT|SCB_FLEE;
 	StatusChangeFlagTable[SC_MTF_MHP] |= SCB_MAXHP;
 	StatusChangeFlagTable[SC_MTF_MSP] |= SCB_MAXSP;
+	StatusChangeFlagTable[SC_ATTHASTE_CASH] |= SCB_ASPD;
 
 	//StatusDisplayType Table [Ind]
 	StatusDisplayType[SC_ALL_RIDING]	  = true;
@@ -6073,6 +6092,8 @@ static short status_calc_aspd(struct block_list *bl, struct status_change *sc, s
 		sc->data[i = SC_ASPDPOTION1] ||
 		sc->data[i = SC_ASPDPOTION0])
 		pots += sc->data[i]->val1;
+	if(sc->data[SC_ATTHASTE_CASH])
+		pots += sc->data[SC_ATTHASTE_CASH]->val1;
 	if(!sc->data[SC_QUAGMIRE]) {
 		struct status_change_entry *sce;
 
@@ -6285,6 +6306,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		sc->data[i = SC_ASPDPOTION1] ||
 		sc->data[i = SC_ASPDPOTION0])
 		aspd_rate -= sc->data[i]->val2;
+	if(sc->data[SC_ATTHASTE_CASH])
+		aspd_rate -= sc->data[SC_ATTHASTE_CASH]->val2;
 	if(sc->data[SC_GT_CHANGE])
 		aspd_rate -= 10 * sc->data[SC_GT_CHANGE]->val3;
 	if(sc->data[SC_BOOST500])
@@ -8246,6 +8269,23 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_DEFSET:
 			case SC_MDEFSET:
 			case SC_NORECOVER_STATE:
+			case SC_REUSE_LIMIT_A:
+			case SC_REUSE_LIMIT_B:
+			case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:
+			case SC_REUSE_LIMIT_E:
+			case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:
+			case SC_REUSE_LIMIT_H:
+			case SC_REUSE_MILLENNIUMSHIELD:
+			case SC_REUSE_CRUSHSTRIKE:
+			case SC_REUSE_REFRESH:
+			case SC_REUSE_STORMBLAST:
+			case SC_ALL_RIDING_REUSE_LIMIT:
+			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ECL:
+			case SC_REUSE_LIMIT_RECALL:
+			case SC_REUSE_LIMIT_ASPD_POTION:
 				return 0;
 			case SC_COMBO:
 			case SC_DANCING:
@@ -8259,6 +8299,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_ENCHANTARMS:
 			case SC_ARMOR_ELEMENT:
 			case SC_ARMOR_RESIST:
+			case SC_ATTHASTE_CASH:
 				break;
 			case SC_GOSPEL:
 				if( sce->val4 == BCT_SELF )
@@ -8544,6 +8585,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_ASPDPOTION2:
 			case SC_ASPDPOTION3:
 				val2 = 50 * (2 + type - SC_ASPDPOTION0);
+				break;
+			case SC_ATTHASTE_CASH:
+				val2 = 50 * val1; //Pre-re customize
 				break;
 			case SC_NOCHAT:
 				//A hardcoded interval of 60 seconds is expected, as the time that SC_NOCHAT uses is defined by
@@ -10520,6 +10564,24 @@ int status_change_clear(struct block_list *bl,int type)
 				case SC_QUEST_BUFF3:
 				case SC_2011RWC_SCROLL:
 				case SC_JP_EVENT04:
+				case SC_ATTHASTE_CASH:
+				case SC_REUSE_LIMIT_A:
+				case SC_REUSE_LIMIT_B:
+				case SC_REUSE_LIMIT_C:
+				case SC_REUSE_LIMIT_D:
+				case SC_REUSE_LIMIT_E:
+				case SC_REUSE_LIMIT_F:
+				case SC_REUSE_LIMIT_G:
+				case SC_REUSE_LIMIT_H:
+				case SC_REUSE_MILLENNIUMSHIELD:
+				case SC_REUSE_CRUSHSTRIKE:
+				case SC_REUSE_REFRESH:
+				case SC_REUSE_STORMBLAST:
+				case SC_ALL_RIDING_REUSE_LIMIT:
+				case SC_REUSE_LIMIT_MTF:
+				case SC_REUSE_LIMIT_ECL:
+				case SC_REUSE_LIMIT_RECALL:
+				case SC_REUSE_LIMIT_ASPD_POTION:
 					continue;
 			}
 		}
@@ -11148,7 +11210,7 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 				it.nameid = skill_get_itemid(RL_H_MINE,0);
 				it.amount = max(skill_get_itemqty(RL_H_MINE,0),1);
 				it.identify = 1;
-				map_addflooritem(&it,it.amount,bl->m,bl->x,bl->y,sd->status.char_id,0,0,4);
+				map_addflooritem(&it,it.amount,bl->m,bl->x,bl->y,sd->status.char_id,0,0,4,0);
 			}
 			break;
 		case SC_ALL_RIDING:
@@ -12577,6 +12639,24 @@ void status_change_clear_buffs(struct block_list *bl, int type)
 			case SC_MTF_MSP:
 			case SC_MTF_PUMPKIN:
 			case SC_MTF_HITFLEE:
+			case SC_ATTHASTE_CASH:
+			case SC_REUSE_LIMIT_A:
+			case SC_REUSE_LIMIT_B:
+			case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:
+			case SC_REUSE_LIMIT_E:
+			case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:
+			case SC_REUSE_LIMIT_H:
+			case SC_REUSE_MILLENNIUMSHIELD:
+			case SC_REUSE_CRUSHSTRIKE:
+			case SC_REUSE_REFRESH:
+			case SC_REUSE_STORMBLAST:
+			case SC_ALL_RIDING_REUSE_LIMIT:
+			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ECL:
+			case SC_REUSE_LIMIT_RECALL:
+			case SC_REUSE_LIMIT_ASPD_POTION:
 				continue;
 			//Debuffs that can be removed
 			case SC_FEAR:

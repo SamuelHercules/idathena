@@ -301,7 +301,7 @@ struct mob_data *mob_spawn_dataset(struct spawn_data *data)
 	if (data->eventname[0] && strlen(data->eventname) >= 4)
 		memcpy(md->npc_event, data->eventname, 50);
 	if (md->db->status.mode&MD_LOOTER)
-		md->lootitem = (struct item *)aCalloc(LOOTITEM_SIZE,sizeof(struct item));
+		md->lootitem = (struct s_mob_lootitem *)aCalloc(LOOTITEM_SIZE,sizeof(struct s_mob_lootitem));
 	md->spawn_timer = INVALID_TIMER;
 	md->deletetimer = INVALID_TIMER;
 	md->skill_idx = -1;
@@ -1576,18 +1576,23 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		log_pick_mob(md, LOG_TYPE_LOOT, fitem->item.amount, &fitem->item);
 
 		if(md->lootitem_count < LOOTITEM_SIZE) {
-			memcpy (&md->lootitem[md->lootitem_count++], &fitem->item, sizeof(md->lootitem[0]));
+			memcpy (&md->lootitem[md->lootitem_count].item, &fitem->item, sizeof(md->lootitem[0].item));
+			md->lootitem[md->lootitem_count].mob_id = fitem->mob_id;
+			md->lootitem_count++;
 		} else { //Destroy first looted item
-			if(md->lootitem[0].card[0] == CARD0_PET)
-				intif_delete_petdata(MakeDWord(md->lootitem[0].card[1],md->lootitem[0].card[2]));
+			if(md->lootitem[0].item.card[0] == CARD0_PET)
+				intif_delete_petdata(MakeDWord(md->lootitem[0].item.card[1],md->lootitem[0].item.card[2]));
 			memmove(&md->lootitem[0], &md->lootitem[1], (LOOTITEM_SIZE - 1) * sizeof(md->lootitem[0]));
-			memcpy(&md->lootitem[LOOTITEM_SIZE - 1], &fitem->item, sizeof(md->lootitem[0]));
+			memcpy(&md->lootitem[LOOTITEM_SIZE - 1].item, &fitem->item, sizeof(md->lootitem[0].item));
+			md->lootitem[LOOTITEM_SIZE - 1].mob_id = fitem->mob_id;
 		}
+
 		if(pcdb_checkid(md->vd->class_)) { //Give them walk act/delay to properly mimic players [Skotlex]
 			clif_takeitem(&md->bl, tbl);
 			md->ud.canact_tick = tick + md->status.amotion;
 			unit_set_walkdelay(&md->bl, tick, md->status.amotion, 1);
 		}
+
 		//Clear item
 		map_clearflooritem(tbl);
 		mob_unlocktarget(md, tick);
@@ -1760,7 +1765,7 @@ static int mob_ai_hard(int tid, unsigned int tick, int id, intptr_t data)
 /*==========================================
  * Initializes the delay drop structure for mob-dropped items.
  *------------------------------------------*/
-static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
+static struct item_drop *mob_setdropitem(unsigned short nameid, int qty, unsigned short mob_id)
 {
 	struct item_drop *drop = ers_alloc(item_drop_ers, struct item_drop);
 
@@ -1768,6 +1773,7 @@ static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
 	drop->item_data.nameid = nameid;
 	drop->item_data.amount = qty;
 	drop->item_data.identify = itemdb_isidentified(nameid);
+	drop->mob_id = mob_id;
 	drop->next = NULL;
 	return drop;
 }
@@ -1775,11 +1781,19 @@ static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
 /*==========================================
  * Initializes the delay drop structure for mob-looted items.
  *------------------------------------------*/
-static struct item_drop* mob_setlootitem(struct item *item)
+static struct item_drop *mob_setlootitem(struct s_mob_lootitem *item, unsigned short mob_id)
 {
 	struct item_drop *drop = ers_alloc(item_drop_ers, struct item_drop);
 
 	memcpy(&drop->item_data, item, sizeof(struct item));
+
+	/**
+	 * Conditions for lotted item, so it can be announced when player pick it up
+	 * 1. Not-dropped other than monster. (This will be done later on pc_takeitem/party_share_loot)
+	 * 2. The mob_id is become the last lootter, instead of the real monster who drop it.
+	 */
+	drop->mob_id = item->mob_id;
+
 	drop->next = NULL;
 	return drop;
 }
@@ -1794,16 +1808,18 @@ static int mob_delay_item_drop(int tid, unsigned int tick, int id, intptr_t data
 
 	list = (struct item_drop_list *)data;
 	ditem = list->item;
+
 	while (ditem) {
 		struct item_drop *ditem_prev;
 
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_charid,list->second_charid,list->third_charid,4);
+			list->first_charid,list->second_charid,list->third_charid,4,ditem->mob_id);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);
 	}
+
 	ers_free(item_drop_list_ers, list);
 	return 0;
 }
@@ -1832,13 +1848,16 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 		&& sd->bl.m == md->bl.m
 		&& check_distance_blxy(&sd->bl, dlist->x, dlist->y, AUTOLOOT_DISTANCE)
 #endif
-	) {	//Autoloot.
-		if( party_share_loot(party_search(sd->status.party_id),
-			sd, &ditem->item_data, sd->status.char_id) == 0 )
-		{
+	) {	//Autoloot
+		struct party_data *p = party_search(sd->status.party_id);
+
+		if( party_share_loot(party_search(sd->status.party_id), sd, &ditem->item_data, sd->status.char_id) == 0 ) {
 			ers_free(item_drop_ers, ditem);
 			return;
 		}
+		//Somehow, if party's pickup distribution is 'Even Share', no announcement
+		if( (itemdb_search(ditem->item_data.nameid))->flag.broadcast && (!p || !(p->party.item&2)) )
+			intif_broadcast_obtain_special_item(sd, ditem->item_data.nameid, md->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);
 	}
 	ditem->next = dlist->item;
 	dlist->item = ditem;
@@ -2386,7 +2405,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				continue;
 			}
 
-			ditem = mob_setdropitem(md->db->dropitem[i].nameid, 1);
+			ditem = mob_setdropitem(md->db->dropitem[i].nameid, 1, md->mob_id);
 
 			//A Rare Drop Global Announce by Lupus
 			if(mvp_sd && drop_rate <= battle_config.rare_drop_announce) {
@@ -2402,7 +2421,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		//Ore Discovery [Celest]
 		if(sd == mvp_sd && pc_checkskill(sd,BS_FINDINGORE) > 0 && battle_config.finding_ore_rate / 10 >= rnd()%10000) {
-			ditem = mob_setdropitem(itemdb_searchrandomid(IG_FINDINGORE, 1), 1);
+			ditem = mob_setdropitem(itemdb_searchrandomid(IG_FINDINGORE, 1), 1, md->mob_id);
 			mob_item_drop(md, dlist, ditem, 0, battle_config.finding_ore_rate / 10, homkillonly);
 		}
 
@@ -2426,7 +2445,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					if(rnd()%10000 >= drop_rate)
 						continue;
 					dropid = (sd->add_drop[i].nameid > 0 ? sd->add_drop[i].nameid : itemdb_searchrandomid(sd->add_drop[i].group, 1));
-					mob_item_drop(md, dlist, mob_setdropitem(dropid,1), 0, drop_rate, homkillonly);
+					mob_item_drop(md, dlist, mob_setdropitem(dropid, 1, md->mob_id), 0, drop_rate, homkillonly);
 				}
 			}
 
@@ -2442,7 +2461,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		//Process items looted by the mob
 		if(md->lootitem)
 			for(i = 0; i < md->lootitem_count; i++)
-				mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000, homkillonly);
+				mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i], md->mob_id), 1, 10000, homkillonly);
 
 		if(dlist->item) //There are drop items.
 			add_timer(tick + (!battle_config.delay_battle_damage ? 500 : 0), mob_delay_item_drop, 0, (intptr_t)dlist);
@@ -2459,7 +2478,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		dlist->third_charid = (third_sd ? third_sd->status.char_id : 0);
 		dlist->item = NULL;
 		for(i = 0; i < md->lootitem_count; i++)
-			mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000, homkillonly);
+			mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i], md->mob_id), 1, 10000, homkillonly);
 		add_timer(tick + (!battle_config.delay_battle_damage ? 500 : 0), mob_delay_item_drop, 0, (intptr_t)dlist);
 	}
 
@@ -2519,6 +2538,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 
 			for(i = 0; i < MAX_MVP_DROP; i++) {
+				struct item_data *i_data;
+
 				if(mdrop_id[i] <= 0 || !itemdb_exists(mdrop_id[i]))
 					continue;
 				temp = mdrop_p[i];
@@ -2533,19 +2554,20 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				item.identify = itemdb_isidentified(item.nameid);
 				clif_mvp_item(mvp_sd, item.nameid);
 				log_mvp[0] = item.nameid;
+				i_data = itemdb_exists(item.nameid);
 				//A Rare MVP Drop Global Announce by Lupus
 				if(temp <= battle_config.rare_drop_announce) {
-					struct item_data *i_data;
 					char message[128];
 
-					i_data = itemdb_exists(item.nameid);
 					sprintf (message, msg_txt(541), mvp_sd->status.name, md->name, i_data->jname, temp / 100.);
 					intif_broadcast(message, strlen(message) + 1, BC_DEFAULT); // "'%s' won %s's %s (chance: %0.02f%%)"
 				}
 				if((temp = pc_additem(mvp_sd, &item, 1, LOG_TYPE_PICKDROP_PLAYER)) != 0) {
 					clif_additem(mvp_sd, 0, 0, temp);
-					map_addflooritem(&item, 1, mvp_sd->bl.m, mvp_sd->bl.x, mvp_sd->bl.y, mvp_sd->status.char_id, (second_sd ? second_sd->status.char_id : 0), (third_sd ? third_sd->status.char_id : 0), 1);
+					map_addflooritem(&item, 1, mvp_sd->bl.m, mvp_sd->bl.x, mvp_sd->bl.y, mvp_sd->status.char_id, (second_sd ? second_sd->status.char_id : 0), (third_sd ? third_sd->status.char_id : 0), 1, 0);
 				}
+				if(i_data->flag.broadcast)
+					intif_broadcast_obtain_special_item(mvp_sd, item.nameid, md->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);
 				//Logs items, MVP prizes [Lupus]
 				log_pick_mob(md, LOG_TYPE_MVP, -1, &item);
 				//If item_drop_mvp_mode is not 2, then only one item should be granted
@@ -2786,7 +2808,7 @@ int mob_class_change(struct mob_data *md, int mob_id)
 		md->skilldelay[i] = c;
 
 	if( md->lootitem == NULL && md->db->status.mode&MD_LOOTER )
-		md->lootitem = (struct item *)aCalloc(LOOTITEM_SIZE,sizeof(struct item));
+		md->lootitem = (struct s_mob_lootitem *)aCalloc(LOOTITEM_SIZE,sizeof(struct s_mob_lootitem));
 
 	//Targets should be cleared no morph
 	md->target_id = md->attacked_id = 0;

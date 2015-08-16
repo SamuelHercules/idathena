@@ -426,6 +426,7 @@ struct item_data {
 		unsigned dead_branch : 1; //As dead branch item, logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
 		unsigned group : 1; //As item group container [Cydh]
 		unsigned guid : 1; //This item always be attached with GUID and make it as bound item! [Cydh]
+		unsigned broadcast : 1; //Will be broadcasted if someone obtain the item [Cydh]
 		bool bindOnEquip; //Set item as bound when equipped
 	} flag;
 	struct { //Item stacking limitation
@@ -440,9 +441,10 @@ struct item_data {
 		unsigned short override;
 	} item_usage;
 	short gm_lv_trade_override; //GM-level to override trade_restriction
-	/* bugreport:309 */
+	//bugreport:309
 	struct item_combo **combos;
 	unsigned char combos_count;
+	short delay_sc; //Use delay group if any instead using player's item_delay data [Cydh]
 };
 
 struct item_data *itemdb_searchname(const char *name);
