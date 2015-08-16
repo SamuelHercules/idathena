@@ -239,7 +239,7 @@ bool cashshop_buylist( struct map_session_data *sd, uint32 kafrapoints, int n, u
 		if( j == cash_shop_items[tab].count || !itemdb_exists( nameid ) ){
 			clif_cashshop_result( sd, nameid, CASHSHOP_RESULT_ERROR_UNKNOWN_ITEM );
 			return false;
-		}else if( !itemdb_isstackable( nameid ) && quantity > 1 ){
+		}else if( ( !itemdb_isstackable( nameid ) || ( itemdb_search( nameid ) )->flag.guid ) && quantity > 1 ){
 			stackflag[i] = 1;
 			/*uint32 *quantity_ptr = (uint32 *)(item_list + i * 5 + 2);
 			ShowWarning( "Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable cash item %hu!\n", sd->status.name, sd->status.account_id, sd->status.char_id, quantity, nameid );
@@ -362,7 +362,7 @@ bool cashshop_buylist( struct map_session_data *sd, uint32 kafrapoints, int n, u
 	return true;
 }
 
-/*
+/**
  * Reloads cashshop database by destroying it and reading it again.
  */
 void cashshop_reloaddb( void ){

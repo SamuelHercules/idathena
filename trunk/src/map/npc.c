@@ -1406,21 +1406,18 @@ int npc_cashshop_buylist(struct map_session_data *sd, int points, int count, uns
 
 	// Validating Process ----------------------------------------------------
 	for( i = 0; i < count; i++ ) {
-		nameid = item_list[i*2+1];
-		amount = item_list[i*2+0];
+		nameid = item_list[i * 2 + 1];
+		amount = item_list[i * 2 + 0];
 
 		if( !itemdb_exists(nameid) || amount <= 0 )
 			return 5;
-
 		ARR_FIND(0,nd->u.shop.count,j,nd->u.shop.shop_item[j].nameid == nameid);
 		if( j == nd->u.shop.count || nd->u.shop.shop_item[j].value <= 0 )
 			return 5;
-
 		if( !itemdb_isstackable(nameid) && amount > 1 ) {
 			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n", sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
-			amount = item_list[i*2+0] = 1;
+			amount = item_list[i * 2 + 0] = 1;
 		}
-
 		switch( pc_checkadditem(sd,nameid,amount) ) {
 			case CHKADDITEM_NEW:
 				new_++;
@@ -1428,36 +1425,41 @@ int npc_cashshop_buylist(struct map_session_data *sd, int points, int count, uns
 			case CHKADDITEM_OVERAMOUNT:
 				return 3;
 		}
-
 		vt += nd->u.shop.shop_item[j].value * amount;
 		w += itemdb_weight(nameid) * amount;
 	}
 
 	if( w + sd->weight > sd->max_weight )
 		return 3;
+
 	if( pc_inventoryblank(sd) < new_ )
 		return 3;
+
 	if( points > vt )
 		points = vt;
 
 	// Payment Process ----------------------------------------------------
 	if( sd->kafraPoints < points || sd->cashPoints < (vt - points) )
 		return 6;
+
 	pc_paycash(sd,vt,points,LOG_TYPE_NPC);
 
 	// Delivery Process ----------------------------------------------------
 	for( i = 0; i < count; i++ ) {
-		struct item item_tmp;
-
-		nameid = item_list[i*2+1];
-		amount = item_list[i*2+0];
-
-		memset(&item_tmp,0,sizeof(item_tmp));
+		nameid = item_list[i * 2 + 1];
+		amount = item_list[i * 2 + 0];
 
 		if( !pet_create_egg(sd,nameid) ) {
+			struct item item_tmp;
+			unsigned short get_amt = amount;
+
+			memset(&item_tmp,0,sizeof(item_tmp));
 			item_tmp.nameid = nameid;
 			item_tmp.identify = 1;
-			pc_additem(sd,&item_tmp,amount,LOG_TYPE_NPC);
+			if( (itemdb_search(nameid))->flag.guid )
+				get_amt = 1;
+			for( j = 0; j < amount; j += get_amt )
+				pc_additem(sd,&item_tmp,get_amt,LOG_TYPE_NPC);
 		}
 	}
 
@@ -1517,17 +1519,17 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 		return 4;
 
 	if( (item = itemdb_exists(nameid)) == NULL )
-		return 5; // Invalid Item
+		return 5; //Invalid item
 
 	ARR_FIND(0, nd->u.shop.count, i, nd->u.shop.shop_item[i].nameid == nameid || itemdb_viewid(nd->u.shop.shop_item[i].nameid) == nameid);
 	if( i == nd->u.shop.count )
 		return 5;
+
 	if( nd->u.shop.shop_item[i].value <= 0 )
 		return 5;
 
 	nameid = nd->u.shop.shop_item[i].nameid; //item_avail replacement
-
-	if(!itemdb_isstackable(nameid) && amount > 1) {
+	if( !itemdb_isstackable(nameid) && amount > 1 ) {
 		ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n",
 			sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 		amount = 1;
@@ -1564,11 +1566,15 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 
 	if( !pet_create_egg(sd, nameid) ) {
 		struct item item_tmp;
-		memset(&item_tmp, 0, sizeof(struct item));
+		unsigned short get_amt = amount, j;
+
+		memset(&item_tmp, 0, sizeof(item_tmp));
 		item_tmp.nameid = nameid;
 		item_tmp.identify = 1;
-
-		pc_additem(sd,&item_tmp, amount, LOG_TYPE_NPC);
+		if( item->flag.guid )
+			get_amt = 1;
+		for( j = 0; j < amount; j += get_amt )
+			pc_additem(sd, &item_tmp, get_amt, LOG_TYPE_NPC);
 	}
 
 	return 0;
@@ -1594,12 +1600,14 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 	nullpo_retr(3, sd);
 	nullpo_retr(3, item_list);
 
-	nd = npc_checknear(sd,map_id2bl(sd->npc_shopid));
+	nd = npc_checknear(sd, map_id2bl(sd->npc_shopid));
 	if( nd == NULL )
 		return 3;
+
 	if( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_ITEMSHOP &&
 		nd->subtype != NPCTYPE_POINTSHOP && nd->subtype != NPCTYPE_MARKETSHOP )
 		return 3;
+
 	if( !item_list || !n )
 		return 3;
 
@@ -1645,10 +1653,10 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 			amount = item_list[i].qty = 1;
 		}
 
-		if( nd->master_nd ) // Script-controlled shops decide by themselves, what can be bought and for what price
+		if( nd->master_nd ) //Script-controlled shops decide by themselves, what can be bought and for what price
 			continue;
 
-		switch( pc_checkadditem(sd,nameid,amount) ) {
+		switch( pc_checkadditem(sd, nameid, amount) ) {
 			case CHKADDITEM_EXIST:
 				break;
 			case CHKADDITEM_NEW:
@@ -1658,21 +1666,21 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 				return 2;
 		}
 
-		if( npc_shop_discount(nd->subtype,nd->u.shop.discount) )
-			value = pc_modifybuyvalue(sd,value);
+		if( npc_shop_discount(nd->subtype, nd->u.shop.discount) )
+			value = pc_modifybuyvalue(sd, value);
 
 		z += (double)value * amount;
 		w += itemdb_weight(nameid) * amount;
 	}
 
 	if( nd->master_nd ) //Script-based shops
-		return npc_buylist_sub(sd,n,item_list,nd->master_nd);
+		return npc_buylist_sub(sd, n, item_list, nd->master_nd);
 
 	switch( nd->subtype ) {
 		case NPCTYPE_SHOP:
 		case NPCTYPE_MARKETSHOP:
 			if( z > (double)sd->status.zeny )
-				return 1; // Not enough Zeny
+				return 1; //Not enough Zeny
 			break;
 		case NPCTYPE_ITEMSHOP:
 			for( k = 0; k < MAX_INVENTORY; k++ ) {
@@ -1682,25 +1690,26 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 			if( z > (double)count ) {
 				struct item_data *id = itemdb_exists(nd->u.shop.itemshop_nameid);
 
-				sprintf(output,msg_txt(712),id->jname,id->nameid); // You do not have enough %s %d.
-				clif_colormes(sd,color_table[COLOR_RED],output);
+				sprintf(output, msg_txt(712), id->jname, id->nameid); // You do not have enough %s %d.
+				clif_colormes(sd, color_table[COLOR_RED], output);
 				return 1;
 			}
 			break;
 		case NPCTYPE_POINTSHOP:
-			count = pc_readreg2(sd,nd->u.shop.pointshop_str);
+			count = pc_readreg2(sd, nd->u.shop.pointshop_str);
 			if( z > (double)count ) {
-				sprintf(output,msg_txt(713),nd->u.shop.pointshop_str); // You do not have enough '%s'.
-				clif_colormes(sd,color_table[COLOR_RED],output);
+				sprintf(output, msg_txt(713), nd->u.shop.pointshop_str); // You do not have enough '%s'.
+				clif_colormes(sd, color_table[COLOR_RED], output);
 				return 1;
 			}
 			break;
 	}
 
 	if( w + sd->weight > sd->max_weight )
-		return 2; // Too heavy
+		return 2; //Too heavy
+
 	if( pc_inventoryblank(sd) < new_ )
-		return 3; // Not enough space to store items
+		return 3; //Not enough space to store items
 
 	switch( nd->subtype ) {
 		case NPCTYPE_SHOP:
@@ -1718,7 +1727,6 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 	for( i = 0; i < n; ++i ) {
 		unsigned short nameid = item_list[i].nameid;
 		unsigned short amount = item_list[i].qty;
-		struct item item_tmp;
 
 #if PACKETVER >= 20131223
 		if( nd->subtype == NPCTYPE_MARKETSHOP ) {
@@ -1733,16 +1741,24 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 		if( itemdb_type(nameid) == IT_PETEGG )
 			pet_create_egg(sd, nameid);
 		else {
-			memset(&item_tmp,0,sizeof(item_tmp));
-			item_tmp.nameid = nameid;
-			item_tmp.identify = 1;
+			unsigned short get_amt = amount;
 
-			pc_additem(sd,&item_tmp,amount,LOG_TYPE_NPC);
+			if( (itemdb_search(nameid))->flag.guid )
+				get_amt = 1;
+
+			for( k = 0; k < amount; k += get_amt ) {
+				struct item item_tmp;
+
+				memset(&item_tmp, 0, sizeof(item_tmp));
+				item_tmp.nameid = nameid;
+				item_tmp.identify = 1;
+				pc_additem(sd, &item_tmp, get_amt, LOG_TYPE_NPC);
+			}
 		}
 	}
 
 	//Custom merchant shop exp bonus
-	if( battle_config.shop_exp > 0 && z > 0 && (lv = pc_checkskill(sd,MC_DISCOUNT)) > 0 ) {
+	if( battle_config.shop_exp > 0 && z > 0 && (lv = pc_checkskill(sd, MC_DISCOUNT)) > 0 ) {
 		if( sd->status.skill[MC_DISCOUNT].flag >= SKILL_FLAG_REPLACED_LV_0 )
 			lv = sd->status.skill[MC_DISCOUNT].flag - SKILL_FLAG_REPLACED_LV_0;
 
@@ -1750,13 +1766,13 @@ uint8 npc_buylist(struct map_session_data *sd, uint16 n, struct s_npc_buy_list *
 			z = z * (double)lv * (double)battle_config.shop_exp / 10000.;
 			if( z < 1 )
 				z = 1;
-			pc_gainexp(sd,NULL,0,(int)z, false);
+			pc_gainexp(sd, NULL, 0, (int)z, false);
 		}
 	}
 
 	if( nd->subtype == NPCTYPE_POINTSHOP ) {
-		sprintf(output,msg_txt(716),nd->u.shop.pointshop_str,count - (int)z); // Your '%s' now: %d
-		clif_disp_onlyself(sd,output,strlen(output) + 1);
+		sprintf(output, msg_txt(716), nd->u.shop.pointshop_str, count - (int)z); // Your '%s' now: %d
+		clif_disp_onlyself(sd, output, strlen(output) + 1);
 	}
 
 	return 0;

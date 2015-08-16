@@ -76,6 +76,7 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_CASH:             return '$';  // Cash
 		case LOG_TYPE_BANK:             return 'K';  // Ban(K) Transactions
 		case LOG_TYPE_BOUND_REMOVAL:    return 'F';  // Removed bound items when guild/party is broken
+		case LOG_TYPE_MERGE_ITEM:		return 'Z';  // Merged Item
 	}
 
 	// Should not get here, fallback

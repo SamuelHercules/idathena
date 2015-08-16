@@ -1208,7 +1208,6 @@ ACMD_FUNC(item)
 	char item_name[100];
 	int number = 0, bound = BOUND_NONE;
 	char flag = 0;
-	struct item item_tmp;
 	struct item_data *item_data[10];
 	int get_count, i, j = 0;
 	char *itemlist;
@@ -1238,6 +1237,7 @@ ACMD_FUNC(item)
 		clif_displaymessage(fd, msg_txt(983)); //Please enter an item name or ID (usage: @item <item name/ID> <quantity>).
 		return -1;
 	}
+
 	itemlist = strtok(item_name, ":");
 	while (itemlist != NULL && j < 10) {
 		if ((item_data[j] = itemdb_searchname(itemlist)) == NULL &&
@@ -1254,15 +1254,17 @@ ACMD_FUNC(item)
 	get_count = number;
 
 	for (j--; j >= 0; j--) { //Produce items in list
-		unsigned short item_id = item_data[j]->nameid;
+		unsigned short nameid = item_data[j]->nameid;
 
 		//Check if it's stackable
-		if (!itemdb_isstackable2(item_data[j]))
+		if (!itemdb_isstackable2(item_data[j]) || item_data[j]->flag.guid)
 			get_count = 1;
 		for (i = 0; i < number; i += get_count) {
-			if (!pet_create_egg(sd, item_id)) { //If not pet egg
+			if (!pet_create_egg(sd, nameid)) { //If not pet egg
+				struct item item_tmp;
+
 				memset(&item_tmp, 0, sizeof(item_tmp));
-				item_tmp.nameid = item_id;
+				item_tmp.nameid = nameid;
 				item_tmp.identify = 1;
 				item_tmp.bound = bound;
 				if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
@@ -1284,7 +1286,7 @@ ACMD_FUNC(item2)
 	struct item item_tmp;
 	struct item_data *item_data;
 	char item_name[100];
-	unsigned short item_id;
+	unsigned short nameid;
 	int number = 0, bound = BOUND_NONE;
 	int identify = 0, refine = 0, attr = 0;
 	int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
@@ -1320,19 +1322,21 @@ ACMD_FUNC(item2)
 	if (number <= 0)
 		number = 1;
 
-	item_id = 0;
+	nameid = 0;
 	if ((item_data = itemdb_searchname(item_name)) != NULL ||
 	    (item_data = itemdb_exists(atoi(item_name))) != NULL)
-		item_id = item_data->nameid;
+		nameid = item_data->nameid;
 
-	if (item_id > 500) {
+	if (nameid > 500) {
 		int loop, get_count, i;
 		char flag = 0;
 
 		loop = 1;
 		get_count = number;
 		if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR ||
-			item_data->type == IT_PETEGG || item_data->type == IT_PETARMOR) {
+			item_data->type == IT_PETEGG || item_data->type == IT_PETARMOR ||
+			item_data->flag.guid)
+		{
 			loop = number;
 			get_count = 1;
 			if (item_data->type == IT_PETEGG) {
@@ -1349,7 +1353,7 @@ ACMD_FUNC(item2)
 		}
 		for (i = 0; i < loop; i++) {
 			memset(&item_tmp, 0, sizeof(item_tmp));
-			item_tmp.nameid = item_id;
+			item_tmp.nameid = nameid;
 			item_tmp.identify = identify;
 			item_tmp.refine = refine;
 			item_tmp.attribute = attr;
@@ -1361,7 +1365,6 @@ ACMD_FUNC(item2)
 			if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
 				clif_additem(sd, 0, 0, flag);
 		}
-
 		if (flag == 0)
 			clif_displaymessage(fd, msg_txt(18)); // Item created.
 	} else {
@@ -5583,7 +5586,7 @@ void getring(struct map_session_data *sd)
 
 	if((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_COMMAND))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0);
 	}
 }
 

@@ -45,7 +45,7 @@ unsigned int party_share_level = 10;
 
 // Recv. packet list
 int inter_recv_packet_length[] = {
-	-1,-1, 7,-1, -1,13,36, (2 + 4 + 4 + 4 + NAME_LENGTH),  0, 0, 0, 0,  0, 0,  0, 0, // 3000-
+	-1,-1, 7,-1, -1,13,36, (2 + 4 + 4 + 4 + NAME_LENGTH), 0, -1, 0, 0, 0, 0, 0, 0, // 3000-
 	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0, // 3010-
 	-1,10,-1,14, 14,19, 6,-1, 14,14, 6, 0,  0, 0,  0, 0, // 3020- Party
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 18,19,186,-1, // 3030-
@@ -926,8 +926,7 @@ int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
 //Request to kick char from a certain map server. [Skotlex]
 int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason)
 {
-	if (fd >= 0)
-	{
+	if (fd >= 0) {
 		WFIFOHEAD(fd,7);
 		WFIFOW(fd,0) = 0x2b1f;
 		WFIFOL(fd,2) = account_id;
@@ -978,66 +977,77 @@ int check_ttl_wisdata(void)
 
 //--------------------------------------------------------
 
-// broadcast sending
+// Broadcast sending
 int mapif_parse_broadcast(int fd)
 {
 	mapif_broadcast(RFIFOP(fd,16), RFIFOW(fd,2), RFIFOL(fd,4), RFIFOW(fd,8), RFIFOW(fd,10), RFIFOW(fd,12), RFIFOW(fd,14), fd);
 	return 0;
 }
 
+/**
+ * Parse received item broadcast and sends it to all connected map-serves
+ * ZI 3009 <cmd>.W <len>.W <nameid>.W <source>.W <type>.B <name>.24B <srcname>.24B
+ * IZ 3809 <cmd>.W <len>.W <nameid>.W <source>.W <type>.B <name>.24B <srcname>.24B
+ * @param fd
+ * @return
+ */
+int mapif_parse_broadcast_item(int fd)
+{
+	unsigned char buf[9 + NAME_LENGTH * 2];
+
+	memcpy(WBUFP(buf,0), RFIFOP(fd,0), RFIFOW(fd,2));
+	WBUFW(buf,0) = 0x3809;
+	mapif_sendallwos(fd, buf, RFIFOW(fd,2));
+	return 0;
+}
 
 // Wisp/page request to send
 int mapif_parse_WisRequest(int fd)
 {
 	struct WisData* wd;
 	char name[NAME_LENGTH];
-	char esc_name[NAME_LENGTH*2+1];// escaped name
+	char esc_name[NAME_LENGTH * 2 + 1]; // Escaped name
 	char *data;
 	size_t len;
 
+	if (fd <= 0)
+		return 0; // Check if we have a valid fd
 
-	if ( fd <= 0 ) {return 0;} // check if we have a valid fd
-
-	if (RFIFOW(fd,2)-52 >= sizeof(wd->msg)) {
+	if (RFIFOW(fd,2) - 52 >= sizeof(wd->msg)) {
 		ShowWarning("inter: Wis message size too long.\n");
 		return 0;
-	} else if (RFIFOW(fd,2)-52 <= 0) { // normaly, impossible, but who knows...
+	} else if (RFIFOW(fd,2) - 52 <= 0) { // Normaly, impossible, but who knows
 		ShowError("inter: Wis message doesn't exist.\n");
 		return 0;
 	}
 
-	safestrncpy(name, (char *)RFIFOP(fd,28), NAME_LENGTH); //Received name may be too large and not contain \0! [Skotlex]
+	safestrncpy(name, (char *)RFIFOP(fd,28), NAME_LENGTH); // Received name may be too large and not contain \0! [Skotlex]
 
 	Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `name` FROM `%s` WHERE `name`='%s'", char_db, esc_name) )
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `name` FROM `%s` WHERE `name`='%s'", char_db, esc_name))
 		Sql_ShowDebug(sql_handle);
 
-	// search if character exists before to ask all map-servers
-	if( SQL_SUCCESS != Sql_NextRow(sql_handle) )
-	{
+	// Search if character exists before to ask all map-servers
+	if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
 		unsigned char buf[27];
-		WBUFW(buf, 0) = 0x3802;
-		memcpy(WBUFP(buf, 2), RFIFOP(fd, 4), NAME_LENGTH);
-		WBUFB(buf,26) = 1; // flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
+
+		WBUFW(buf,0) = 0x3802;
+		memcpy(WBUFP(buf,2), RFIFOP(fd,4), NAME_LENGTH);
+		WBUFB(buf,26) = 1; // Flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
 		mapif_send(fd, buf, 27);
-	}
-	else
-	{// Character exists. So, ask all map-servers
-		// to be sure of the correct name, rewrite it
+	} else { // Character exists. So, ask all map-servers to be sure of the correct name, rewrite it
 		Sql_GetData(sql_handle, 0, &data, &len);
 		memset(name, 0, NAME_LENGTH);
 		memcpy(name, data, min(len, NAME_LENGTH));
-		// if source is destination, don't ask other servers.
-		if( strncmp((const char *)RFIFOP(fd,4), name, NAME_LENGTH) == 0 )
-		{
+		// If source is destination, don't ask other servers.
+		if (strncmp((const char *)RFIFOP(fd,4), name, NAME_LENGTH) == 0) {
 			uint8 buf[27];
-			WBUFW(buf, 0) = 0x3802;
-			memcpy(WBUFP(buf, 2), RFIFOP(fd, 4), NAME_LENGTH);
-			WBUFB(buf,26) = 1; // flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
+
+			WBUFW(buf,0) = 0x3802;
+			memcpy(WBUFP(buf,2), RFIFOP(fd,4), NAME_LENGTH);
+			WBUFB(buf,26) = 1; // Flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
 			mapif_send(fd, buf, 27);
-		}
-		else
-		{
+		} else {
 			static int wisid = 0;
 
 			CREATE(wd, struct WisData, 1);
@@ -1047,8 +1057,8 @@ int mapif_parse_WisRequest(int fd)
 
 			wd->id = ++wisid;
 			wd->fd = fd;
-			wd->len= RFIFOW(fd,2)-52;
-			memcpy(wd->src, RFIFOP(fd, 4), NAME_LENGTH);
+			wd->len = RFIFOW(fd,2) - 52;
+			memcpy(wd->src, RFIFOP(fd,4), NAME_LENGTH);
 			memcpy(wd->dst, RFIFOP(fd,28), NAME_LENGTH);
 			memcpy(wd->msg, RFIFOP(fd,52), wd->len);
 			wd->tick = gettick();
@@ -1075,7 +1085,7 @@ int mapif_parse_WisReply(int fd)
 		return 0;	// This wisp was probably suppress before, because it was timeout of because of target was found on another map-server
 
 	if ((--wd->count) <= 0 || flag != 1) {
-		mapif_wis_end(wd, flag); // flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
+		mapif_wis_end(wd, flag); // Flag: 0: success to send wisper, 1: target character is not loged in?, 2: ignored by target
 		idb_remove(wis_db, id);
 	}
 
@@ -1224,31 +1234,32 @@ int inter_parse_frommap(int fd)
 		return 2;
 
 	switch(cmd) {
-	case 0x3000: mapif_parse_broadcast(fd); break;
-	case 0x3001: mapif_parse_WisRequest(fd); break;
-	case 0x3002: mapif_parse_WisReply(fd); break;
-	case 0x3003: mapif_parse_WisToGM(fd); break;
-	case 0x3004: mapif_parse_Registry(fd); break;
-	case 0x3005: mapif_parse_RegistryRequest(fd); break;
-	case 0x3006: mapif_parse_NameChangeRequest(fd); break;
-	case 0x3007: mapif_parse_accinfo(fd); break;
-	/* 0x3008 is used by the report stuff */
-	default:
-		if(  inter_party_parse_frommap(fd)
-		  || inter_guild_parse_frommap(fd)
-		  || inter_storage_parse_frommap(fd)
-		  || inter_pet_parse_frommap(fd)
-		  || inter_homunculus_parse_frommap(fd)
-		  || inter_mercenary_parse_frommap(fd)
-		  || inter_elemental_parse_frommap(fd)
-		  || inter_mail_parse_frommap(fd)
-		  || inter_auction_parse_frommap(fd)
-		  || inter_quest_parse_frommap(fd) )
-			break;
-		else
-			return 0;
+		case 0x3000: mapif_parse_broadcast(fd); break;
+		case 0x3001: mapif_parse_WisRequest(fd); break;
+		case 0x3002: mapif_parse_WisReply(fd); break;
+		case 0x3003: mapif_parse_WisToGM(fd); break;
+		case 0x3004: mapif_parse_Registry(fd); break;
+		case 0x3005: mapif_parse_RegistryRequest(fd); break;
+		case 0x3006: mapif_parse_NameChangeRequest(fd); break;
+		case 0x3007: mapif_parse_accinfo(fd); break;
+		// 0x3008 is used by the report stuff
+		case 0x3009: mapif_parse_broadcast_item(fd); break;
+		default:
+			if(inter_party_parse_frommap(fd) ||
+				inter_guild_parse_frommap(fd) ||
+				inter_storage_parse_frommap(fd) ||
+				inter_pet_parse_frommap(fd) ||
+				inter_homunculus_parse_frommap(fd) ||
+				inter_mercenary_parse_frommap(fd) ||
+				inter_elemental_parse_frommap(fd) ||
+				inter_mail_parse_frommap(fd) ||
+				inter_auction_parse_frommap(fd) ||
+				inter_quest_parse_frommap(fd))
+				break;
+			else
+				return 0;
 	}
 
-	RFIFOSKIP(fd, len);
+	RFIFOSKIP(fd,len);
 	return 1;
 }

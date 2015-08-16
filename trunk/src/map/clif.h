@@ -50,6 +50,9 @@ enum e_packet_ack {
 	ZC_C_MARKERINFO,
 	ZC_NOTIFY_BIND_ON_EQUIP,
 	ZC_WEAR_EQUIP_ACK,
+	ZC_MERGE_ITEM_OPEN,
+	ZC_ACK_MERGE_ITEM,
+	ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN,
 	// Add other here
 	MAX_ACK_FUNC // Auto upd len
 };
@@ -66,6 +69,18 @@ struct s_packet_db {
 		unsigned int keys[3]; // 3-Keys
 	};
 #endif
+
+enum MERGE_ITEM_ACK {
+	MERGE_ITEM_SUCCESS = 0x0,
+	MERGE_ITEM_FAILED_NOT_MERGE = 0x1,
+	MERGE_ITEM_FAILED_MAX_COUNT = 0x2,
+};
+
+enum BROADCASTING_SPECIAL_ITEM_OBTAIN {
+	ITEMOBTAIN_TYPE_BOXITEM =  0x0,
+	ITEMOBTAIN_TYPE_MONSTER_ITEM =  0x1,
+	ITEMOBTAIN_TYPE_NPC =  0x2,
+};
 
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
@@ -387,8 +402,10 @@ enum clif_messages {
 	ITEM_UNIDENTIFIED = 0x62d,
 	ITEM_CANT_EQUIP_NEED_LEVEL = 0x6ed,
 	ITEM_CANT_USE_NEED_LEVEL = 0x6ee,
+	ITEM_REUSE_LIMIT = 0x746,
 	USAGE_FAIL = 0x783,
 	ITEM_NEED_REINS_OF_MOUNT = 0x78c,
+	MERGE_ITEM_NOT_AVAILABLE = 0x887,
 };
 
 enum e_BANKING_DEPOSIT_ACK {
@@ -857,12 +874,6 @@ void clif_cashshop_open(struct map_session_data *sd);
 
 void clif_display_pinfo(struct map_session_data *sd, int type);
 
-/**
- * 3CeAM
- */
-void clif_msgtable(int fd, int line);
-void clif_msgtable_num(int fd, int line, int num);
-
 int clif_elementalconverter_list(struct map_session_data *sd);
 
 void clif_millenniumshield(struct block_list *bl, short shields);
@@ -916,5 +927,9 @@ void clif_crimson_marker_single(struct map_session_data *sd, struct block_list *
 
 void clif_ShowScript(struct block_list *bl, const char *message);
 void clif_notify_bindOnEquip(struct map_session_data *sd, int n);
+
+void clif_merge_item_open(struct map_session_data *sd);
+
+void clif_broadcast_obtain_special_item(const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname);
 
 #endif /* _CLIF_H_ */

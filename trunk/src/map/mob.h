@@ -154,6 +154,12 @@ struct spawn_info {
 	unsigned short mapindex;
 	unsigned short qty;
 };
+
+/// Loooitem struct
+struct s_mob_lootitem {
+	struct item item; //Item info
+	unsigned short mob_id; //ID of monster that dropped the item
+};
  
 struct mob_db {
 	char sprite[NAME_LENGTH],name[NAME_LENGTH],jname[NAME_LENGTH];
@@ -216,7 +222,7 @@ struct mob_data {
 	} dmglog[DAMAGELOG_SIZE];
 	struct spawn_data *spawn; //Spawn data.
 	int spawn_timer; //Required for Convex Mirror
-	struct item *lootitem;
+	struct s_mob_lootitem *lootitem;
 	short mob_id;
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
@@ -229,7 +235,7 @@ struct mob_data {
 	short lootitem_count;
 	short min_chase;
 	unsigned char walktoxy_fail_count; //Pathfinding succeeds but the actual walking failed (e.g. Icewall lock)
-	
+
 	int deletetimer;
 	int master_id,master_dist;
 
@@ -291,12 +297,15 @@ enum {
 //The data structures for storing delayed item drops
 struct item_drop {
 	struct item item_data;
-	struct item_drop* next;
+	unsigned short mob_id;
+	enum bl_type src_type;
+	struct item_drop *next;
 };
+
 struct item_drop_list {
 	int16 m, x, y; //Coordinates
 	int first_charid, second_charid, third_charid; //charid's of players with higher pickup priority
-	struct item_drop* item; //Linked list of drops
+	struct item_drop *item; //Linked list of drops
 };
 
 struct mob_db* mob_db(int mob_id);

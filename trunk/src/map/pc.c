@@ -4355,19 +4355,15 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 
 	i = MAX_INVENTORY;
 
-#ifdef ENABLE_ITEM_GUID
 	if( id->flag.guid && !item->unique_id )
 		item->unique_id = pc_generate_unique_id(sd);
-#endif
 
 	if( itemdb_isstackable2(id) && !item->expire_time ) { //Stackable | Non Rental
 		for( i = 0; i < MAX_INVENTORY; i++ ) {
 			if( sd->status.inventory[i].nameid == item->nameid &&
 				sd->status.inventory[i].bound == item->bound &&
 				!sd->status.inventory[i].expire_time &&
-#ifdef ENABLE_ITEM_GUID
 				sd->status.inventory[i].unique_id == item->unique_id &&
-#endif
 				memcmp(&sd->status.inventory[i].card, &item->card, sizeof(item->card)) == 0 )
 			{
 				if( amount > MAX_AMOUNT - sd->status.inventory[i].amount ||
@@ -4379,9 +4375,6 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 			}
 		}
 	}
-
-	if( !item->unique_id && !itemdb_isstackable2(id) )
-		item->unique_id = pc_generate_unique_id(sd);
 
 	if( i >= MAX_INVENTORY ) {
 		i = pc_search_inventory(sd, 0);
@@ -4396,6 +4389,8 @@ char pc_additem(struct map_session_data *sd,struct item *item,int amount,e_log_p
 		sd->status.inventory[i].amount = amount;
 		sd->inventory_data[i] = id;
 		sd->last_addeditem_index = i;
+		if( !itemdb_isstackable2(id) || id->flag.guid )
+			sd->status.inventory[i].unique_id = (item->unique_id ? item->unique_id : pc_generate_unique_id(sd));
 		clif_additem(sd, i, amount, 0);
 	}
 
@@ -4490,7 +4485,7 @@ bool pc_dropitem(struct map_session_data *sd, int n, int amount)
 		return false;
 	}
 
-	if(!map_addflooritem(&sd->status.inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2))
+	if(!map_addflooritem(&sd->status.inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2, 0))
 		return false;
 
 	pc_delitem(sd, n, amount, 1, 0, LOG_TYPE_PICKDROP_PLAYER);
@@ -4561,6 +4556,10 @@ bool pc_takeitem(struct map_session_data *sd, struct flooritem_data *fitem)
 	pc_stop_attack(sd);
 	clif_takeitem(&sd->bl,&fitem->bl);
 	map_clearflooritem(&fitem->bl);
+
+	//Somehow, if party's pickup distribution is 'Even Share', no announcement
+	if(fitem->mob_id && (itemdb_search(fitem->item.nameid))->flag.broadcast && (!p || !(p->party.item&2)))
+		intif_broadcast_obtain_special_item(sd, fitem->item.nameid, fitem->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);
 	return true;
 }
 
@@ -4802,41 +4801,8 @@ int pc_useitem(struct map_session_data *sd, int n)
 	if( id->flag.delay_consume && (sd->ud.skilltimer != INVALID_TIMER /*|| !status_check_skilluse(&sd->bl, &sd->bl, ALL_RESURRECTION, 0)*/) )
 		return 0;
 
-	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) ) {
-		int i;
-
-		ARR_FIND(0, MAX_ITEMDELAYS, i, sd->item_delay[i].nameid == nameid );
-			if( i == MAX_ITEMDELAYS ) //Item not found. try first empty now
-				ARR_FIND(0, MAX_ITEMDELAYS, i, !sd->item_delay[i].nameid);
-		if( i < MAX_ITEMDELAYS ) {
-			if( sd->item_delay[i].nameid ) { //Found
-				if( DIFF_TICK(sd->item_delay[i].tick, tick) > 0 ) {
-					int e_tick = DIFF_TICK(sd->item_delay[i].tick, tick) / 1000;
-					char e_msg[100];
-
-					if( e_tick > 99 )
-						sprintf(e_msg,msg_txt(379), // Able to use %.1f min later.
-							(double)e_tick / 60);
-					else
-						sprintf(e_msg,msg_txt(380), // Able to use %d sec later.
-							e_tick + 1);
-					clif_colormes(sd,color_table[COLOR_YELLOW],e_msg);
-					return 0; //Delay has not expired yet
-				}
-			} else //Not yet used item (all slots are initially empty)
-				sd->item_delay[i].nameid = nameid;
-			if( !(nameid == ITEMID_BOARDING_HALTER && sd->sc.option&(OPTION_WUGRIDER|OPTION_RIDING|OPTION_DRAGON|OPTION_MADOGEAR)) )
-				sd->item_delay[i].tick = tick + id->delay;
-		} else //Should not happen
-			ShowError("pc_useitem: Exceeded item delay array capacity! (nameid=%hu, char_id=%d)\n", nameid, sd->status.char_id);
-		//Clean up used delays so we can give room for more
-		for( i = 0; i < MAX_ITEMDELAYS; i++ ) {
-			if( DIFF_TICK(sd->item_delay[i].tick, tick) <= 0 ) {
-				sd->item_delay[i].tick = 0;
-				sd->item_delay[i].nameid = 0;
-			}
-		}
-	}
+	if( id->delay > 0 && !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && pc_itemcd_check(sd,id,tick,n) )
+		return 0;
 
 	//On restricted maps the item is consumed but the effect is not used
 	if( !pc_has_permission(sd,PC_PERM_ITEM_UNCONDITIONAL) && itemdb_isNoEquip(id,sd->bl.m) ) {
@@ -4921,9 +4887,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd, struct item *item, in
 		for( i = 0; i < MAX_CART; i++ ) {
 			if( sd->status.cart[i].nameid == item->nameid &&
 				sd->status.cart[i].bound == item->bound &&
-#ifdef ENABLE_ITEM_GUID
 				sd->status.cart[i].unique_id == item->unique_id &&
-#endif
 				memcmp(sd->status.cart[i].card, item->card, sizeof(item->card)) == 0 )
 				break;
 		}
@@ -7414,7 +7378,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		item_tmp.card[1] = 0;
 		item_tmp.card[2] = GetWord(sd->status.char_id,0); //CharId
 		item_tmp.card[3] = GetWord(sd->status.char_id,1);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 	}
 
 	//Remove bonus_script when dead
@@ -10953,7 +10917,7 @@ void pc_itemcd_do(struct map_session_data *sd, bool load) {
 
 	if( load ) {
 		if( !(cd = idb_get(itemcd_db, sd->status.char_id)) )
-			return; //No skill cooldown is associated with this character
+			return; //No item cooldown is associated with this character
 		for( i = 0; i < MAX_ITEMDELAYS; i++ ) {
 			if( cd->nameid[i] && DIFF_TICK(gettick(),cd->tick[i]) < 0 ) {
 				sd->item_delay[cursor].tick = cd->tick[i];
@@ -10975,6 +10939,81 @@ void pc_itemcd_do(struct map_session_data *sd, bool load) {
 			}
 		}
 	}
+}
+
+/**
+ * Add item delay to player's item delay data
+ * @param sd Player
+ * @param id Item data
+ * @param tick Current tick
+ * @param n Item index in inventory
+ * @return 0: No delay, can consume item.
+ *         1: Has delay, cancel consumption.
+ */
+uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, unsigned int tick, unsigned short n) {
+	int i;
+
+	ARR_FIND(0, MAX_ITEMDELAYS, i, sd->item_delay[i].nameid == id->nameid );
+	if( i == MAX_ITEMDELAYS ) //Item not found. try first empty now
+		ARR_FIND(0, MAX_ITEMDELAYS, i, !sd->item_delay[i].nameid);
+	if( i < MAX_ITEMDELAYS ) {
+		if( sd->item_delay[i].nameid ) { //Found
+			if( DIFF_TICK(sd->item_delay[i].tick, tick) > 0 ) {
+				int e_tick = DIFF_TICK(sd->item_delay[i].tick, tick) / 1000;
+				char e_msg[100];
+
+				if( e_tick > 99 )
+					sprintf(e_msg,msg_txt(379), (double)e_tick / 60); // Able to use %.1f min later.
+				else
+					sprintf(e_msg,msg_txt(380), e_tick + 1); // Able to use %d sec later.
+				clif_colormes(sd,color_table[COLOR_YELLOW],e_msg);
+				return 1; //Delay has not expired yet
+			}
+		} else //Not yet used item (all slots are initially empty)
+			sd->item_delay[i].nameid = id->nameid;
+		if( !(id->nameid == ITEMID_BOARDING_HALTER && sd->sc.option&(OPTION_WUGRIDER|OPTION_RIDING|OPTION_DRAGON|OPTION_MADOGEAR)) )
+			sd->item_delay[i].tick = tick + id->delay;
+	} else //Should not happen
+		ShowError("pc_itemcd_add: Exceeded item delay array capacity! (nameid=%hu, char_id=%d)\n", id->nameid, sd->status.char_id);
+	//Clean up used delays so we can give room for more
+	for( i = 0; i < MAX_ITEMDELAYS; i++ ) {
+		if( DIFF_TICK(sd->item_delay[i].tick, tick) <= 0 ) {
+			sd->item_delay[i].tick = 0;
+			sd->item_delay[i].nameid = 0;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Check if player has delay to reuse item
+ * @param sd Player
+ * @param id Item data
+ * @param tick Current tick
+ * @param n Item index in inventory
+ * @return 0: No delay, can consume item.
+ *         1: Has delay, cancel consumption.
+ */
+uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, unsigned int tick, unsigned short n) {
+	struct status_change *sc = NULL;
+
+	nullpo_retr(0, sd);
+	nullpo_retr(0, id);
+
+	//Do normal delay assignment
+	if( id->delay_sc <= SC_NONE || id->delay_sc >= SC_MAX || !(sc = &sd->sc) )
+		return pc_itemcd_add(sd, id, tick, n);
+
+	//Send reply of delay remains
+	if( sc->data[id->delay_sc] ) {
+		const struct TimerData *timer = get_timer(sc->data[id->delay_sc]->timer);
+
+		clif_msg_value(sd, ITEM_REUSE_LIMIT, (timer ? DIFF_TICK(timer->tick, tick) / 1000 : 99));
+		return 1;
+	}
+
+	sc_start(&sd->bl, &sd->bl, (sc_type)id->delay_sc, 100, id->nameid, id->delay);
+	return 0;
 }
 
 /**

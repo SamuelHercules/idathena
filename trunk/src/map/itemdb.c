@@ -165,15 +165,16 @@ unsigned short itemdb_searchrandomid(uint16 group_id, uint8 sub_group) {
  * @param *group: struct s_item_group from itemgroup_db[group_id].random[idx] or itemgroup_db[group_id].must[sub_group][idx]
  */
 static void itemdb_pc_get_itemgroup_sub(struct map_session_data *sd, struct s_item_group_entry *data) {
-	uint16 i;
+	uint16 i, get_amt = 0;
 	struct item tmp;
+	struct item_data *id = NULL;
 
 	nullpo_retv(data);
 
 	memset(&tmp, 0, sizeof(tmp));
+	id = itemdb_search(data->nameid);
 
 	tmp.nameid = data->nameid;
-	tmp.amount = (itemdb_isstackable(data->nameid) ? data->amount : 1);
 	tmp.bound = data->bound;
 	tmp.identify = 1;
 	tmp.expire_time = (data->duration) ? (unsigned int)(time(NULL) + data->duration * 60) : 0;
@@ -183,24 +184,23 @@ static void itemdb_pc_get_itemgroup_sub(struct map_session_data *sd, struct s_it
 		tmp.card[2] = GetWord(sd->status.char_id, 0);
 		tmp.card[3] = GetWord(sd->status.char_id, 1);
 	}
+
+	if (!itemdb_isstackable(data->nameid))
+		get_amt = 1;
+	else
+		get_amt = data->amount;
+
 	//Do loop for non-stackable item
-	for (i = 0; i < data->amount; i++) {
+	for (i = 0; i < data->amount; i += get_amt) {
 		char flag = 0;
 
-#ifdef ENABLE_ITEM_GUID
-		tmp.unique_id = (data->GUID ? pc_generate_unique_id(sd) : 0); //Generate UID
-#endif
-		if ((flag = pc_additem(sd, &tmp, tmp.amount, LOG_TYPE_SCRIPT)))
+		tmp.unique_id = (data->GUID ? pc_generate_unique_id(sd) : 0); //Generate GUID
+		if ((flag = pc_additem(sd, &tmp, get_amt, LOG_TYPE_SCRIPT))) {
 			clif_additem(sd, 0, 0, flag);
-		else if (!flag && data->isAnnounced) {
-			char output[CHAT_SIZE_MAX];
-
-			sprintf(output, msg_txt(717), sd->status.name, itemdb_jname(data->nameid), itemdb_jname(sd->itemid));
-			//@TODO: Move this broadcast to proper packet
-			intif_broadcast(output, strlen(output) + 1, BC_DEFAULT);
-		}
-		if (itemdb_isstackable(data->nameid))
-			break;
+			if (pc_candrop(sd, &tmp))
+				map_addflooritem(&tmp, tmp.amount, sd->bl.m, sd->bl.x,sd->bl.y, 0, 0, 0, 0, 0);
+		} else if (!flag && data->isAnnounced)
+			intif_broadcast_obtain_special_item(sd, data->nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM);
 	}
 }
 
@@ -497,7 +497,7 @@ bool itemdb_isrestricted(struct item *item, int gmlv, int gmlv2, bool (*func)(st
 	if(!func(item_data, gmlv, gmlv2))
 		return false;
 
-	if(item_data->slot == 0 || itemdb_isspecial(item->card[0]))
+	if(!item_data->slot || itemdb_isspecial(item->card[0]))
 		return true;
 
 	for(i = 0; i < item_data->slot; i++) {
@@ -666,10 +666,8 @@ static void itemdb_read_itemgroup_sub(const char *filename)
 			entry.isAnnounced = atoi(str[5]);
 		if( str[6] != NULL )
 			entry.duration = cap_value(atoi(str[6]), 0, UINT16_MAX);
-#ifdef ENABLE_ITEM_GUID
 		if( str[7] != NULL )
 			entry.GUID = atoi(str[7]);
-#endif
 		if( str[8] != NULL )
 			entry.bound = cap_value(atoi(str[8]), BOUND_NONE, BOUND_MAX - 1);
 		if( str[9] != NULL )
@@ -801,6 +799,11 @@ static bool itemdb_read_itemdelay(char *str[], int columns, int current)
 
 	id->delay = delay;
 
+	if( columns == 2 )
+		id->delay_sc = SC_NONE;
+	else
+		id->delay_sc = atoi(str[2]);
+
 	return true;
 }
 
@@ -916,13 +919,14 @@ static bool itemdb_read_flag(char *fields[], int columns, int current) {
 	if( flag&2 )
 		id->flag.group = (set ? 1 : 0);
 
-#ifdef ENABLE_ITEM_GUID
 	if( flag&4 && itemdb_isstackable2(id) )
 		id->flag.guid = (set ? 1 : 0);
-#endif
 
 	if( flag&8 )
 		id->flag.bindOnEquip = true;
+
+	if( flag&16 )
+		id->flag.broadcast = 1;
 
 	return true;
 }
@@ -1499,7 +1503,7 @@ static void itemdb_read(void) {
 	itemdb_read_itemgroup();
 	sv_readdb(db_path, "item_avail.txt",         ',', 2, 2, -1, &itemdb_read_itemavail);
 	sv_readdb(db_path, DBPATH"item_buyingstore.txt",   ',', 1, 1, -1, &itemdb_read_buyingstore);
-	sv_readdb(db_path, DBPATH"item_delay.txt",   ',', 2, 2, -1, &itemdb_read_itemdelay);
+	sv_readdb(db_path, DBPATH"item_delay.txt",   ',', 2, 3, -1, &itemdb_read_itemdelay);
 	sv_readdb(db_path, DBPATH"item_flag.txt",    ',', 2, 2, -1, &itemdb_read_flag);
 	sv_readdb(db_path, DBPATH"item_noequip.txt", ',', 2, 2, -1, &itemdb_read_noequip);
 	sv_readdb(db_path, "item_nouse.txt",         ',', 3, 3, -1, &itemdb_read_nouse);

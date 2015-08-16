@@ -6432,7 +6432,7 @@ BUILDIN_FUNC(getitem)
 			if( (flag = pc_additem(sd,&it,get_count,LOG_TYPE_SCRIPT)) ) {
 				clif_additem(sd,0,0,flag);
 				if( pc_candrop(sd,&it) )
-					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 	}
@@ -6549,7 +6549,7 @@ BUILDIN_FUNC(getitem2)
 				if( (flag = pc_additem(sd,&item_tmp,get_count,LOG_TYPE_SCRIPT)) ) {
 					clif_additem(sd,0,0,flag);
 					if( pc_candrop(sd,&item_tmp) )
-						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 				}
 			}
 		}
@@ -6828,7 +6828,7 @@ BUILDIN_FUNC(makeitem)
 		else
 			item_tmp.identify = itemdb_isidentified(nameid);
 
-		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4);
+		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	}
 	return SCRIPT_CMD_SUCCESS;
 }
@@ -6902,7 +6902,7 @@ BUILDIN_FUNC(makeitem2) {
 		item_tmp.card[2] = script_getnum(st,12);
 		item_tmp.card[3] = script_getnum(st,13);
 
-		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4);
+		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	} else
 		return 1;
 	return SCRIPT_CMD_SUCCESS;
@@ -10363,25 +10363,19 @@ BUILDIN_FUNC(sc_end)
 			return 0;
 
 		switch( type ) {
-			case SC_WEIGHT50:
-			case SC_WEIGHT90:
-			case SC_NOCHAT:
-			case SC_PUSH_CART:
-			case SC_ALL_RIDING:
-			case SC_STYLE_CHANGE:
-			case SC_MONSTER_TRANSFORM:
-			case SC_MTF_ASPD:
-			case SC_MTF_RANGEATK:
-			case SC_MTF_MATK:
-			case SC_MTF_MLEATKED:
-			case SC_MTF_CRIDAMAGE:
-			case SC_MTF_ASPD2:
-			case SC_MTF_RANGEATK2:
-			case SC_MTF_MATK2:
-			case SC_MTF_MHP:
-			case SC_MTF_MSP:
-			case SC_MTF_PUMPKIN:
-			case SC_MTF_HITFLEE:
+			case SC_WEIGHT50:			case SC_WEIGHT90:		case SC_NOCHAT:
+			case SC_PUSH_CART:			case SC_ALL_RIDING:		case SC_STYLE_CHANGE:
+			case SC_MONSTER_TRANSFORM:		case SC_MTF_ASPD:		case SC_MTF_RANGEATK:
+			case SC_MTF_MATK:			case SC_MTF_MLEATKED:		case SC_MTF_CRIDAMAGE:
+			case SC_MTF_ASPD2:			case SC_MTF_RANGEATK2:		case SC_MTF_MATK2:
+			case SC_MTF_MHP:			case SC_MTF_MSP:		case SC_MTF_PUMPKIN:
+			case SC_MTF_HITFLEE:			case SC_ATTHASTE_CASH:		case SC_ALL_RIDING_REUSE_LIMIT:
+			case SC_REUSE_LIMIT_A:			case SC_REUSE_LIMIT_B:		case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:			case SC_REUSE_LIMIT_E:		case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:			case SC_REUSE_LIMIT_H:		case SC_REUSE_MILLENNIUMSHIELD:
+			case SC_REUSE_CRUSHSTRIKE:		case SC_REUSE_REFRESH:		case SC_REUSE_STORMBLAST:
+			case SC_REUSE_LIMIT_MTF:		case SC_REUSE_LIMIT_ECL:	case SC_REUSE_LIMIT_RECALL:
+			case SC_REUSE_LIMIT_ASPD_POTION:
 				return 0;
 			default:
 				break;
@@ -12034,7 +12028,7 @@ BUILDIN_FUNC(successremovecards) {
 
 			if ((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))) { // Get back the cart in inventory
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 	}
@@ -12058,7 +12052,7 @@ BUILDIN_FUNC(successremovecards) {
 		pc_delitem(sd,i,1,0,3,LOG_TYPE_SCRIPT);
 		if ((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))) { // Check if can be spawn in inventory otherwise put on floor
 			clif_additem(sd,0,0,flag);
-			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 		}
 
 		clif_misceffect(&sd->bl,3);
@@ -12105,7 +12099,7 @@ BUILDIN_FUNC(failedremovecards) {
 
 				if ((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))) {
 					clif_additem(sd,0,0,flag);
-					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 				}
 			}
 		}
@@ -12135,7 +12129,7 @@ BUILDIN_FUNC(failedremovecards) {
 
 			if ((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))) {
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 		clif_misceffect(&sd->bl,2);
@@ -19190,7 +19184,7 @@ BUILDIN_FUNC(getrandgroupitem) {
 			if( (flag = pc_additem(sd,&item_tmp,item_tmp.amount,LOG_TYPE_SCRIPT)) ) {
 				clif_additem(sd,0,0,flag);
 				if( pc_candrop(sd,&item_tmp) )
-					map_addflooritem(&item_tmp,item_tmp.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+					map_addflooritem(&item_tmp,item_tmp.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 	}
@@ -20097,12 +20091,27 @@ BUILDIN_FUNC(countspiritball) {
 }
 
 /** Merges separated stackable items because of guid
- * mergeitem {<item_id>,{<char_id>}};
- * mergeitem {"<item name>",{<char_id>}};
- * @param item Item ID/Name for merging specific item (Optional)
+ * mergeitem {<char_id>};
+ * @param char_id Char ID (Optional)
  * @author [Cydh]
  */
 BUILDIN_FUNC(mergeitem) {
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(2,sd))
+		return 1;
+
+	clif_merge_item_open(sd);
+	return SCRIPT_CMD_SUCCESS;
+}
+
+/** Merges separated stackable items because of guid (Unofficial)
+ * mergeitem2 {<item_id>,{<char_id>}};
+ * mergeitem2 {"<item name>",{<char_id>}};
+ * @param item Item ID/Name for merging specific item (Optional)
+ * @author [Cydh]
+ */
+BUILDIN_FUNC(mergeitem2) {
 	struct map_session_data *sd;
 	struct item *items = NULL;
 	uint16 i, count = 0;
@@ -20120,7 +20129,7 @@ BUILDIN_FUNC(mergeitem) {
 			const char *name = conv_str(st,data);
 
 			if (!(id = itemdb_searchname(name))) {
-				ShowError("buildin_mergeitem: Nonexistant item %s requested.\n",name);
+				ShowError("buildin_mergeitem2: Nonexistant item %s requested.\n",name);
 				script_pushint(st,count);
 				return SCRIPT_CMD_FAILURE;
 			}
@@ -20128,7 +20137,7 @@ BUILDIN_FUNC(mergeitem) {
 		} else if (data_isint(data)) { //<item id>
 			nameid = conv_num(st,data);
 			if (!(id = itemdb_exists(nameid))) {
-				ShowError("buildin_mergeitem: Nonexistant item %d requested.\n",nameid);
+				ShowError("buildin_mergeitem2: Nonexistant item %d requested.\n",nameid);
 				script_pushint(st, count);
 				return SCRIPT_CMD_FAILURE;
 			}
@@ -20864,7 +20873,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(addspiritball,"ii?"),
 	BUILDIN_DEF(delspiritball,"i?"),
 	BUILDIN_DEF(countspiritball,"?"),
-	BUILDIN_DEF(mergeitem,"??"),
+	BUILDIN_DEF(mergeitem,"?"),
+	BUILDIN_DEF(mergeitem2,"??"),
 	BUILDIN_DEF(npcshopupdate,"sii?"),
 	BUILDIN_DEF(getattachedrid,""),
 	BUILDIN_DEF(getvar,"vi"),
