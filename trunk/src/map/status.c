@@ -7883,6 +7883,7 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			case SC_PYREXIA:
 			case SC_OBLIVIONCURSE:
 			case SC_LEECHESEND:
+			case SC_BANDING_DEFENCE:
 			case SC__MANHOLE:
 			case SC__ENERVATION:
 			case SC__GROOMY:
