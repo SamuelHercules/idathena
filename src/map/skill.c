@@ -10934,8 +10934,7 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			if( !battle_check_undead(tstatus->race,tstatus->def_ele) )
 				break;
 		}
-		if( ud->skill_id == RA_WUGSTRIKE &&
-			!path_search(NULL,src->m,src->x,src->y,target->x,target->y,1,CELL_CHKNOREACH) )
+		if( ud->skill_id == RA_WUGSTRIKE && !path_search(NULL,src->m,src->x,src->y,target->x,target->y,1,CELL_CHKNOREACH) )
 			break;
 		if( ud->skill_id == PR_LEXDIVINA || ud->skill_id == MER_LEXDIVINA ) {
 			//If it's not an enemy, and not silenced, you can't use the skill on them [Skotlex]
@@ -11259,7 +11258,7 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 		status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
 		if( sd && sd->skillitem != AL_WARP ) //Warp-Portal through items will clear data in skill_castend_map [Inkfish]
 			sd->skillitem = sd->skillitemlv = 0;
-		if( ud->skill_id == NJ_SHADOWJUMP )
+		if( ud->skill_id == NJ_SHADOWJUMP || ud->skill_id == GN_WALLOFTHORN )
 			unit_setdir(src,ud->dir);
 		else if( !(skill_get_inf(ud->skill_id)&INF_SELF_SKILL) )
 			unit_setdir(src,map_calc_dir(src,ud->skillx,ud->skilly));
@@ -11886,9 +11885,9 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 
 		case LG_BANDING:
 			if( sce )
-				status_change_end(src,SC_BANDING,INVALID_TIMER);
+				status_change_end(src,type,INVALID_TIMER);
 			else if( (sg = skill_unitsetting(src,skill_id,skill_lv,src->x,src->y,0)) != NULL ) {
-				sc_start4(src,src,SC_BANDING,100,skill_lv,0,0,sg->group_id,skill_get_time(skill_id,skill_lv));
+				sc_start4(src,src,type,100,skill_lv,0,0,sg->group_id,skill_get_time(skill_id,skill_lv));
 				if( sd )
 					pc_banding(sd,skill_lv);
 			}
@@ -11897,8 +11896,8 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 		case LG_RAYOFGENESIS:
 			if( status_charge(src,status_get_max_hp(src) * 3 * skill_lv / 100,0) ) {
 				i = skill_get_splash(skill_id,skill_lv);
-				map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,splash_target(src),
-					src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+				map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,splash_target(src),src,
+					skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
 			} else if( sd )
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL,0,0);
 			break;
@@ -13841,14 +13840,11 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 				sc_start4(src,bl,type,100,skill_lv,group->group_id,(group->val1<<16)|(group->val2),++group->val3 * 500,(group->limit - DIFF_TICK(tick,group->tick)));
 			break;
 
-		case UNT_BANDING: {
-				int rate = 0;
+		case UNT_BANDING:
+			if (!(tsc && tsc->data[SC_BANDING_DEFENCE]) && battle_check_target(src,bl,BCT_ENEMY) > 0) {
+				uint8 rate = status_get_lv(src) / 5 + 5 * skill_lv - tstatus->agi / 10;
 
-				if (battle_check_target(src,bl,BCT_ENEMY) > 0 &&
-					!(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE])) {
-					rate = status_get_lv(src) / 5 + 5 * skill_lv - tstatus->agi / 10;
-					sc_start(src,bl,SC_BANDING_DEFENCE,rate,90,skill_get_time2(skill_id,skill_lv));
-				}
+				sc_start(src,bl,SC_BANDING_DEFENCE,rate,90,skill_get_time2(skill_id,skill_lv));
 			}
 			break;
 
