@@ -2367,6 +2367,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 
 	if(!first_call)
 		return (wd.dmg_lv != ATK_FLEE);
+
 	if(is_attack_critical(wd,src,target,skill_id,skill_lv,false))
 		return true;
 	else if(sd && sd->bonus.perfect_hit > 0 && rnd()%100 < sd->bonus.perfect_hit)
@@ -2382,7 +2383,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 	else if(nk&NK_IGNORE_FLEE)
 		return true;
 
-	if(sc && (sc->data[SC_NEUTRALBARRIER] || sc->data[SC_NEUTRALBARRIER_MASTER]) && (wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG)
+	if(sc && sc->data[SC_NEUTRALBARRIER] && (wd.flag&(BF_LONG|BF_MAGIC)) == BF_LONG)
 		return false;
 
 	flee = tstatus->flee;

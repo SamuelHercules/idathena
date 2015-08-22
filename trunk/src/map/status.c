@@ -5618,7 +5618,7 @@ defType status_calc_def(struct block_list *bl, struct status_change *sc, int def
 			def <<= 1; //only eDEF is doubled
 #endif
 		if(sc->data[SC_NEUTRALBARRIER])
-			def += def * (10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1) / 100;
+			def += def * sc->data[SC_NEUTRALBARRIER]->val2 / 100;
 		if(sc->data[SC_FORCEOFVANGUARD])
 			def += def * 2 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
 		if(sc->data[SC_CAMOUFLAGE])
@@ -5745,7 +5745,7 @@ short status_calc_def2(struct block_list *bl, struct status_change *sc, int def2
 		def2 += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 #endif
 	if(sc->data[SC_ANGELUS])
-#ifdef RENEWAL //In renewal only the VIT stat bonus is boosted by angelus
+#ifdef RENEWAL //In renewal, only the VIT stat bonus is boosted by angelus
 		def2 += status_get_vit(bl) / 2 * sc->data[SC_ANGELUS]->val2 / 100;
 #else
 		def2 += def2 * sc->data[SC_ANGELUS]->val2 / 100;
@@ -5796,7 +5796,7 @@ defType status_calc_mdef(struct block_list *bl, struct status_change *sc, int md
 			mdef <<= 1; //Only eMDEF is doubled
 #endif
 		if(sc->data[SC_NEUTRALBARRIER])
-			mdef += mdef * (10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1) / 100;
+			mdef += mdef * sc->data[SC_NEUTRALBARRIER]->val2 / 100;
 		return (defType)cap_value(mdef,DEFTYPE_MIN,DEFTYPE_MAX);
 	}
 
@@ -9311,6 +9311,9 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 					case 3: val2 = ELE_WIND; break;
 					case 4: val2 = ELE_WATER; break;
 				}
+				break;
+			case SC_NEUTRALBARRIER:
+				val2 = 10 + 5 * val1; //DEF/MDEF increase
 				break;
 			case SC_STEALTHFIELD_MASTER:
 				tick_time = val2 = 2000 + 1000 * val1;

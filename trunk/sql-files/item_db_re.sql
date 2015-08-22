@@ -6873,7 +6873,7 @@ REPLACE INTO `item_db_re` VALUES (12883,'Almighty','Almighty',2,20,NULL,10,NULL,
 REPLACE INTO `item_db_re` VALUES (12884,'Infinite_Concentration_Potion','Infinite Concentration Potion',11,10,NULL,0,NULL,NULL,NULL,0,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ASPDPOTION0,1800000,4;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (12885,'Infinite_Awakening_Potion','Infinite Awakening Potion',11,10,NULL,0,NULL,NULL,NULL,0,0xFFF7FEEF,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ASPDPOTION1,1800000,6;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (12886,'Infinite_Berserk_Potion','Infinite Berserk Potion',11,10,NULL,0,NULL,NULL,NULL,0,0x01E646A6,63,2,NULL,NULL,NULL,NULL,NULL,'sc_start SC_ASPDPOTION2,1800000,9;',NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (12887,'C_Wing_Of_Fly','Infinite Flywing',11,0,NULL,0,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'itemskill "AL_TELEPORT",1;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (12887,'C_Wing_Of_Fly','Infinite Flywing',11,0,NULL,0,NULL,NULL,NULL,NULL,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,'unitskilluseid getcharid(3),"AL_TELEPORT",1;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (12889,'Weapon_Box(Spear)','Weapon Box(Spear)',2,10,NULL,200,NULL,NULL,NULL,0,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (12890,'Weapon_Box(Mace)','Weapon Box(Mace)',2,10,NULL,200,NULL,NULL,NULL,0,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (12891,'Weapon_Box(Dagger)','Weapon Box(Dagger)',2,10,NULL,200,NULL,NULL,NULL,0,0xFFFFFFFF,63,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
@@ -8497,7 +8497,7 @@ REPLACE INTO `item_db_re` VALUES (16035,'Half_BF_Morning_Star1','Half BF Morning
 REPLACE INTO `item_db_re` VALUES (16036,'Ru_Blue_Mace','Ru_Blue Mace',5,20,NULL,1500,'170',NULL,1,1,0x00008000,56,2,2,3,'100',1,8,'bonus bVit,5; bonus bInt,5; /* Gold PC Room: bonus2 bAddClass,Class_All,20; bonus bVariableCastrate,-10; */',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (16037,'Ru_Gold_Mace','Ru Gold Mace',5,20,NULL,1500,'170',NULL,1,2,0x00008000,56,2,2,3,'120',1,8,'bonus bVit,8; bonus bInt,8;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (16038,'Infinity_Mace','Infinity Mace',5,20,NULL,500,'155',NULL,1,1,0x00000032,63,2,2,4,'100',1,8,NULL,NULL,NULL);
-REPLACE INTO `item_db_re` VALUES (16039,'Spoon','Spoon',5,20,NULL,100,'80',NULL,1,1,0x0004C5B3,63,2,2,3,'40',1,8,'bonus bAspd,10; bonus2 bAddEff,Eff_Curse,1000;',NULL,NULL);
+REPLACE INTO `item_db_re` VALUES (16039,'Spoon','Spoon',5,20,NULL,1000,'80',NULL,1,1,0x0004C5B3,63,2,2,3,'40',1,8,'bonus bAspd,10; bonus2 bAddEff,Eff_Curse,1000;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (16040,'Crimson_Mace','Crimson Mace',5,20,NULL,800,'80',NULL,1,2,0x0004C5B3,63,2,2,3,'70',1,8,'set .@r,getrefine(); bonus bBaseAtk,pow((.@r>15?15:.@r),2); if(BaseLevel>70) bonus bBaseAtk,((BaseLevel-70)/10)*5; bonus bUnbreakableWeapon,0;',NULL,NULL);
 REPLACE INTO `item_db_re` VALUES (16041,'Mace_Of_Vicious_Mind','Mace of Vicious Mind',5,20,NULL,1300,'130',NULL,1,1,0x0004C5B3,63,2,2,4,'160',1,8,'set .@r,getrefine(); bonus bBaseAtk,pow((.@r>15?15:.@r),2); bonus bUnbreakableWeapon,0;',NULL,NULL);
 # More Rental Boxes
