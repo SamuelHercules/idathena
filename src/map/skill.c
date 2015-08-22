@@ -1612,7 +1612,8 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 	if( sd && !status_isdead(bl) && sd->autospell[0].id ) {
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skill_lv, type;
+		short id_, lv_;
+		int i, type;
 
 		for( i = 0; i < ARRAYLENGTH(sd->autospell) && sd->autospell[i].id; i++ ) {
 			if( !(((sd->autospell[i].flag)&attack_type)&BF_WEAPONMASK &&
@@ -1620,17 +1621,17 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 				 ((sd->autospell[i].flag)&attack_type)&BF_SKILLMASK) )
 				continue; //One or more trigger conditions were not fulfilled
 
-			id = (sd->autospell[i].id > 0) ? sd->autospell[i].id : -sd->autospell[i].id;
+			id_ = (sd->autospell[i].id > 0 ? sd->autospell[i].id : -sd->autospell[i].id);
 			sd->state.autocast = 1;
 
-			if( skill_isNotOk(id,sd) )
+			if( skill_isNotOk(id_,sd) )
 				continue;
 
 			sd->state.autocast = 0;
-			skill_lv = (sd->autospell[i].lv) ? sd->autospell[i].lv : 1;
+			lv_ = (sd->autospell[i].lv ? sd->autospell[i].lv : 1);
 
-			if( skill_lv < 0 )
-				skill_lv = 1 + rnd()%(-skill_lv);
+			if( lv_ < 0 )
+				lv_ = 1 + rnd()%(-lv_);
 
 			rate = sd->autospell[i].rate;
 
@@ -1640,25 +1641,25 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			if( rnd()%1000 >= rate )
 				continue;
 
-			tbl = (sd->autospell[i].id < 0) ? src : bl;
+			tbl = (sd->autospell[i].id < 0 ? src : bl);
 
-			if( (type = skill_get_casttype(id)) == CAST_GROUND ) {
+			if( (type = skill_get_casttype(id_)) == CAST_GROUND ) {
 				int maxcount = 0;
 
 				if( !(BL_PC&battle_config.skill_reiteration) &&
-					skill_get_unit_flag(id)&UF_NOREITERATION &&
-					skill_check_unit_range(src,tbl->x,tbl->y,id,skill_lv) )
+					skill_get_unit_flag(id_)&UF_NOREITERATION &&
+					skill_check_unit_range(src,tbl->x,tbl->y,id_,lv_) )
 					continue;
 				if( BL_PC&battle_config.skill_nofootset &&
-					skill_get_unit_flag(id)&UF_NOFOOTSET &&
-					skill_check_unit_range2(src,tbl->x,tbl->y,id,skill_lv,false) )
+					skill_get_unit_flag(id_)&UF_NOFOOTSET &&
+					skill_check_unit_range2(src,tbl->x,tbl->y,id_,lv_,false) )
 					continue;
 				if( BL_PC&battle_config.land_skill_limit &&
-					(maxcount = skill_get_maxcount(id,skill_lv)) > 0 ) {
+					(maxcount = skill_get_maxcount(id_,lv_)) > 0 ) {
 					int v;
 
 					for( v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; v++ )
-						if( sd->ud.skillunit[v]->skill_id == id )
+						if( sd->ud.skillunit[v]->skill_id == id_ )
 							maxcount--;
 					if( maxcount == 0 )
 						continue;
@@ -1666,27 +1667,27 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			}
 
 			if( battle_config.autospell_check_range &&
-				!battle_check_range(src,tbl,skill_get_range2(src,id,skill_lv) + (id == RG_CLOSECONFINE ? 0 : 1)) )
+				!battle_check_range(src,tbl,skill_get_range2(src,id_,lv_) + (id_ == RG_CLOSECONFINE ? 0 : 1)) )
 				continue;
 
-			if( id == AS_SONICBLOW )
+			if( id_ == AS_SONICBLOW )
 				pc_stop_attack(sd); //Special case, Sonic Blow autospell should stop the player attacking
-			else if( id == PF_SPIDERWEB ) //Special case, due to its nature of coding
+			else if( id_ == PF_SPIDERWEB ) //Special case, due to its nature of coding
 				type = CAST_GROUND;
 
 			sd->state.autocast = 1;
-			skill_consume_requirement(sd,id,skill_lv,1);
-			skill_toggle_magicpower(src,id);
+			skill_consume_requirement(sd,id_,lv_,1);
+			skill_toggle_magicpower(src,id_);
 
 			switch( type ) {
 				case CAST_GROUND:
-					skill_castend_pos2(src,tbl->x,tbl->y,id,skill_lv,tick,0);
+					skill_castend_pos2(src,tbl->x,tbl->y,id_,lv_,tick,0);
 					break;
 				case CAST_NODAMAGE:
-					skill_castend_nodamage_id(src,tbl,id,skill_lv,tick,0);
+					skill_castend_nodamage_id(src,tbl,id_,lv_,tick,0);
 					break;
 				case CAST_DAMAGE:
-					skill_castend_damage_id(src,tbl,id,skill_lv,tick,0);
+					skill_castend_damage_id(src,tbl,id_,lv_,tick,0);
 					break;
 			}
 
@@ -1694,7 +1695,7 @@ int skill_additional_effect(struct block_list *src, struct block_list *bl, uint1
 			ud = unit_bl2ud(src);
 
 			if( ud ) {
-				rate = skill_delayfix(src,id,skill_lv);
+				rate = skill_delayfix(src,id_,lv_);
 				if( DIFF_TICK(ud->canact_tick,tick + rate) < 0 ) {
 					ud->canact_tick = tick + rate;
 					if( battle_config.display_status_timers )
@@ -1749,8 +1750,7 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, uint1
 		return 0;
 
 	for( i = 0; i < ARRAYLENGTH(sd->autospell3) && sd->autospell3[i].flag; i++ ) {
-		uint16 id;
-		uint16 lv;
+		short id, lv;
 		int type;
 
 		if( sd->autospell3[i].flag != skill_id )
@@ -1895,9 +1895,9 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 				sc_flag = SCFLAG_FIXEDTICK;
 			}
 			if(dstsd->addeff2[i].flag&ATF_TARGET)
-				status_change_start(src,src,type,rate,7,(type == SC_BURNING) ? 1000 : 0,(type == SC_BURNING) ? src->id : 0,0,time,sc_flag);
+				status_change_start(src,src,type,rate,7,(type == SC_BURNING) ? 1000 : 0,(type == SC_BURNING ? src->id : 0),0,time,sc_flag);
 			if(dstsd->addeff2[i].flag&ATF_SELF && !status_isdead(bl))
-				status_change_start(src,bl,type,rate,7,(type == SC_BURNING) ? 1000 : 0,(type == SC_BURNING) ? src->id : 0,0,time,sc_flag);
+				status_change_start(src,bl,type,rate,7,(type == SC_BURNING) ? 1000 : 0,(type == SC_BURNING ? src->id : 0),0,time,sc_flag);
 		}
 	}
 
@@ -1976,7 +1976,8 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 	if(dstsd && !status_isdead(bl) && dstsd->autospell2[0].id && !(skill_id && skill_get_nk(skill_id)&NK_NO_DAMAGE)) {
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skill_id, skill_lv, rate, type;
+		int i, rate, type;
+		short id, lv;
 
 		for(i = 0; i < ARRAYLENGTH(dstsd->autospell2) && dstsd->autospell2[i].id; i++) {
 			if(!(((dstsd->autospell2[i].flag)&attack_type)&BF_WEAPONMASK &&
@@ -1984,17 +1985,17 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 				 ((dstsd->autospell2[i].flag)&attack_type)&BF_SKILLMASK))
 				continue; //One or more trigger conditions were not fulfilled
 
-			skill_id = (dstsd->autospell2[i].id > 0) ? dstsd->autospell2[i].id : -dstsd->autospell2[i].id;
+			id = (dstsd->autospell2[i].id > 0 ? dstsd->autospell2[i].id : -dstsd->autospell2[i].id);
 			dstsd->state.autocast = 1;
 
-			if(skill_isNotOk(skill_id,dstsd))
+			if(skill_isNotOk(id,dstsd))
 				continue;
 
 			dstsd->state.autocast = 0;
-			skill_lv = (dstsd->autospell2[i].lv) ? dstsd->autospell2[i].lv : 1;
+			lv = (dstsd->autospell2[i].lv ? dstsd->autospell2[i].lv : 1);
 
-			if(skill_lv < 0)
-				skill_lv = 1 + rnd()%(-skill_lv);
+			if(lv < 0)
+				lv = 1 + rnd()%(-lv);
 
 			rate = dstsd->autospell2[i].rate;
 
@@ -2004,25 +2005,25 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 			if(rnd()%1000 >= rate)
 				continue;
 
-			tbl = (dstsd->autospell2[i].id < 0) ? bl : src;
+			tbl = (dstsd->autospell2[i].id < 0 ? bl : src);
 
-			if((type = skill_get_casttype(skill_id)) == CAST_GROUND) {
+			if((type = skill_get_casttype(id)) == CAST_GROUND) {
 				int maxcount = 0;
 
 				if(!(BL_PC&battle_config.skill_reiteration) &&
-					skill_get_unit_flag(skill_id)&UF_NOREITERATION &&
-					skill_check_unit_range(bl,tbl->x,tbl->y,skill_id,skill_lv))
+					skill_get_unit_flag(id)&UF_NOREITERATION &&
+					skill_check_unit_range(bl,tbl->x,tbl->y,id,lv))
 					continue;
 				if(BL_PC&battle_config.skill_nofootset &&
-					skill_get_unit_flag(skill_id)&UF_NOFOOTSET &&
-					skill_check_unit_range2(bl,tbl->x,tbl->y,skill_id,skill_lv,false))
+					skill_get_unit_flag(id)&UF_NOFOOTSET &&
+					skill_check_unit_range2(bl,tbl->x,tbl->y,id,lv,false))
 					continue;
 				if(BL_PC&battle_config.land_skill_limit &&
-					(maxcount = skill_get_maxcount(skill_id,skill_lv)) > 0) {
+					(maxcount = skill_get_maxcount(id,lv)) > 0) {
 					int v;
 
 					for(v = 0; v < MAX_SKILLUNITGROUP && dstsd->ud.skillunit[v] && maxcount; v++) {
-						if(dstsd->ud.skillunit[v]->skill_id == skill_id)
+						if(dstsd->ud.skillunit[v]->skill_id == id)
 							maxcount--;
 					}
 					if(maxcount == 0)
@@ -2030,22 +2031,22 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 				}
 			}
 
-			if(!battle_check_range(src,tbl,skill_get_range2(src,skill_id,skill_lv) + (skill_id == RG_CLOSECONFINE ? 0 : 1)) &&
+			if(!battle_check_range(src,tbl,skill_get_range2(src,id,lv) + (id == RG_CLOSECONFINE ? 0 : 1)) &&
 				battle_config.autospell_check_range)
 				continue;
 
 			dstsd->state.autocast = 1;
-			skill_consume_requirement(dstsd,skill_id,skill_lv,1);
+			skill_consume_requirement(dstsd,id,lv,1);
 
 			switch(type) {
 				case CAST_GROUND:
-					skill_castend_pos2(bl,tbl->x,tbl->y,skill_id,skill_lv,tick,0);
+					skill_castend_pos2(bl,tbl->x,tbl->y,id,lv,tick,0);
 					break;
 				case CAST_NODAMAGE:
-					skill_castend_nodamage_id(bl,tbl,skill_id,skill_lv,tick,0);
+					skill_castend_nodamage_id(bl,tbl,id,lv,tick,0);
 					break;
 				case CAST_DAMAGE:
-					skill_castend_damage_id(bl,tbl,skill_id,skill_lv,tick,0);
+					skill_castend_damage_id(bl,tbl,id,lv,tick,0);
 					break;
 			}
 
@@ -2053,7 +2054,7 @@ int skill_counter_additional_effect(struct block_list *src, struct block_list *b
 			ud = unit_bl2ud(bl);
 
 			if(ud) {
-				rate = skill_delayfix(bl, skill_id, skill_lv);
+				rate = skill_delayfix(bl,id,lv);
 				if(DIFF_TICK(ud->canact_tick, tick + rate) < 0) {
 					ud->canact_tick = tick + rate;
 					if(battle_config.display_status_timers)
@@ -4791,9 +4792,13 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			status_change_end(src,SC_ROLLINGCUTTER,INVALID_TIMER);
 			break;
 
-		case GC_PHANTOMMENACE:
-			if (flag&1 && tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK))) //Only Hits Invisible Targets
+		case GC_PHANTOMMENACE: //Only hits invisible targets
+			if (flag&1 && tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK)) ||
+				tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM])) {
+				status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
+				status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
 				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
+			}
 			break;
 
 		case WL_CHAINLIGHTNING:
@@ -4977,9 +4982,11 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 
 		case RA_SENSITIVEKEEN:
 			if (bl->type != BL_SKILL) { //Only hits invisible targets
-				if (tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK))) {
-					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
+				if (tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK)) ||
+					tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM])) {
 					status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
+					status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
+					skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 				}
 			} else {
 				struct skill_unit *su = BL_CAST(BL_SKILL,bl);
@@ -5002,11 +5009,13 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			break;
 
 		case NC_INFRAREDSCAN:
-			if (flag&1) { //@TODO: Need a confirmation if the other type of hidden status is included to be scanned [Jobbie]
+			if (flag&1) {
 				sc_start(src,bl,SC_INFRAREDSCAN,100,skill_lv,skill_get_time(skill_id,skill_lv));
 				status_change_end(bl,SC_HIDING,INVALID_TIMER);
 				status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
-				status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER); //Need confirm it
+				status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
+				status_change_end(bl,SC_CAMOUFLAGE,INVALID_TIMER);
+				status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
 			}
 			break;
 
@@ -5082,10 +5091,10 @@ int skill_castend_damage_id(struct block_list *src, struct block_list *bl, uint1
 			break;
 
 		case SR_EARTHSHAKER:
-			if (flag&1) { //By default cloaking skills are remove by aoe skills so no more checking/removing except hiding and cloaking exceed
-				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
-				status_change_end(bl,SC_HIDING,INVALID_TIMER);
+			if (flag&1) { //By default hidden targets will be revealed by aoe skills so no more checking except cloaking exceed and shadow form
 				status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
+				status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
+				skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
 			} else {
 				clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skill_id,skill_lv,DMG_SKILL);
 				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),splash_target(src),src,
@@ -7119,8 +7128,7 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 		case AM_TWILIGHT1:
 			if( sd ) {
 				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-				//Prepare 200 White Potions
-				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_POTION,0,0,0,0,200) )
+				if( !skill_produce_mix(sd,skill_id,ITEMID_WHITE_POTION,0,0,0,0,200) ) //Prepare 200 White Potions
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			}
 			break;
@@ -7134,11 +7142,32 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 			break;
 		case AM_TWILIGHT3:
 			if( sd ) {
-				int ebottle = pc_search_inventory(sd,ITEMID_EMPTY_BOTTLE);
+				short
+#ifdef RENEWAL
+					balcohol = pc_search_inventory(sd,ITEMID_ALCOL_CREATE_BOOK),
+					bgrenade = pc_search_inventory(sd,ITEMID_FIREBOTTLE_CREATE_BOOK),
+					bacid = pc_search_inventory(sd,ITEMID_ACID_CREATE_BOOK),
+#endif
+					ebottle = pc_search_inventory(sd,ITEMID_EMPTY_BOTTLE);
 
+				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				if( ebottle != INDEX_NOT_FOUND )
 					ebottle = sd->status.inventory[ebottle].amount;
-				//Check if you can produce all three, if not, then fail:
+#ifdef RENEWAL
+				//In renewal, as long as have all three books and 200 Empty Bottle, can do any combination except "Fire Bottle without Alcohol" [exneval]
+				if( balcohol != INDEX_NOT_FOUND && bgrenade != INDEX_NOT_FOUND && bacid != INDEX_NOT_FOUND && ebottle >= 200 ) {
+					if( skill_can_produce_mix(sd,ITEMID_ALCOHOL,0,-1,100) ) {  //100 Alcohol
+						if( skill_produce_mix(sd,skill_id,ITEMID_ALCOHOL,0,0,0,0,100) &&
+							skill_can_produce_mix(sd,ITEMID_FIRE_BOTTLE,0,-1,50) ) //50 Fire Bottle
+							skill_produce_mix(sd,skill_id,ITEMID_FIRE_BOTTLE,0,0,0,0,50);
+					}
+					if( skill_can_produce_mix(sd,ITEMID_ACID_BOTTLE,0,-1,50) ) //50 Acid Bottle
+						skill_produce_mix(sd,skill_id,ITEMID_ACID_BOTTLE,0,0,0,0,50);
+					break;
+				}
+				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
+#else
+				//Check if you can produce all three, if not, then fail
 				if( !skill_can_produce_mix(sd,ITEMID_ALCOHOL,0,-1,100) || //100 Alcohol
 					!skill_can_produce_mix(sd,ITEMID_ACID_BOTTLE,0,-1,50) || //50 Acid Bottle
 					!skill_can_produce_mix(sd,ITEMID_FIRE_BOTTLE,0,-1,50) || //50 Flame Bottle
@@ -7147,10 +7176,10 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					break;
 				}
-				clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 				skill_produce_mix(sd,skill_id,ITEMID_ALCOHOL,0,0,0,0,100);
 				skill_produce_mix(sd,skill_id,ITEMID_ACID_BOTTLE,0,0,0,0,50);
 				skill_produce_mix(sd,skill_id,ITEMID_FIRE_BOTTLE,0,0,0,0,50);
+#endif
 			}
 			break;
 		case SA_DISPELL: {
@@ -9183,17 +9212,20 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case SC_BODYPAINT:
 			if( flag&1 ) {
-				if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED]) ) {
+				if( tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK)) ||
+					tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM]) ) {
+					sc_start(src,bl,type,20 + 5 * skill_lv,skill_lv,skill_get_time(skill_id,skill_lv));
+					sc_start(src,bl,SC_BLIND,53 + 2 * skill_lv,skill_lv,skill_get_time2(skill_id,skill_lv));
 					status_change_end(bl,SC_HIDING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
-					sc_start(src,bl,type,20 + 5 * skill_lv,skill_lv,skill_get_time(skill_id,skill_lv));
+					status_change_end(bl,SC_CAMOUFLAGE,INVALID_TIMER);
+					status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
 				}
-				sc_start(src,bl,SC_BLIND,53 + 2 * skill_lv,skill_lv,skill_get_time2(skill_id,skill_lv));
 			} else {
 				clif_skill_nodamage(src,bl,skill_id,0,1);
-				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),BL_CHAR,
-					src,skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
+				map_foreachinrange(skill_area_sub,bl,skill_get_splash(skill_id,skill_lv),BL_CHAR,src,
+					skill_id,skill_lv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 			}
 			break;
 
@@ -9677,7 +9709,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case WM_SATURDAY_NIGHT_FEVER:
 			if( flag&1 ) {
-				if( tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK)) )
+				if( tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK)) ||
+					tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM]) )
 					break;
 				sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 				if( skill_area_temp[5] > 7 )
@@ -10359,9 +10392,8 @@ int skill_castend_nodamage_id(struct block_list *src, struct block_list *bl, uin
 
 		case KG_KAGEHUMI:
 			if( flag&1 ) {
-				if( tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK)) || tsc->data[SC_CAMOUFLAGE] ||
-					tsc->data[SC__SHADOWFORM]) )
-				{
+				if( tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK)) ||
+					tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM]) ) {
 						sc_start(src,src,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 						sc_start(src,bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
 						status_change_end(bl,SC_HIDING,INVALID_TIMER);
@@ -11361,7 +11393,7 @@ int skill_castend_pos2(struct block_list *src, int x, int y, uint16 skill_id, ui
 
 		case HT_DETECTING:
 			i = skill_get_splash(skill_id,skill_lv);
-			map_foreachinarea(status_change_timer_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR,src,NULL,SC_SIGHT,tick);
+			map_foreachinarea(status_change_timer_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR,src,NULL,SC_CONCENTRATE,tick);
 			if( battle_config.traps_setting&1 )
 				map_foreachinarea(skill_reveal_trap,src->m,x-i,y-i,x+i,y+i,BL_SKILL);
 			break;
@@ -13719,9 +13751,9 @@ static int skill_unit_onplace_timer(struct skill_unit *unit, struct block_list *
 				if (++group->val2%5 == 0) { //Un-hides players every 5 seconds
 					status_change_end(bl,SC_HIDING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
-					status_change_end(bl,SC_CHASEWALK,INVALID_TIMER);
-					status_change_end(bl,SC_CAMOUFLAGE,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKINGEXCEED,INVALID_TIMER);
+					status_change_end(bl,SC_CAMOUFLAGE,INVALID_TIMER);
+					status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
 				}
 				sc_start(src,bl,type,100,skill_lv,group->interval + 100);
 			}
@@ -15344,7 +15376,7 @@ bool skill_check_condition_castend(struct map_session_data *sd, uint16 skill_id,
 		return true;
 	}
 
-	switch( sd->menuskill_id ) { //Cast start or cast end??
+	switch( sd->menuskill_id ) { //Cast start or cast end?
 		case AM_PHARMACY:
 			switch( skill_id ) {
 				case AM_PHARMACY:
@@ -17476,8 +17508,7 @@ bool skill_check_shadowform(struct block_list *bl, int64 damage, int hit)
 		}
 
 		if( src && (status_isdead(src) || battle_check_target(bl, src, BCT_ENEMY) <= 0) ) {
-			//FIXME: An official video didn't show this behavior [exneval]
-			//status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+			//status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER); //FIXME: An official video didn't show this behavior [exneval]
 			if( src->type == BL_PC )
 				((TBL_PC *)src)->shadowform_id = 0;
 			return false;
@@ -17488,8 +17519,7 @@ bool skill_check_shadowform(struct block_list *bl, int64 damage, int hit)
 
 			status_damage(src, bl, (damage / hit) * (hit - temp), 0, 0, 0);
 			status_damage(bl, src, (damage / hit) * (hit - (hit - temp)), 0,
-				clif_damage(src, src, gettick(), status_get_amotion(src), status_get_dmotion(src),
-					damage, hit, (hit > 1 ? DMG_MULTI_HIT : DMG_NORMAL), 0), 0);
+				clif_damage(src, src, gettick(), status_get_amotion(src), status_get_dmotion(src), damage, hit, (hit > 1 ? DMG_MULTI_HIT : DMG_NORMAL), 0), 0);
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			if( src->type == BL_PC )
 				((TBL_PC *)src)->shadowform_id = 0;
@@ -18868,7 +18898,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 				if( sd->menuskill_id ==	AM_PHARMACY && sd->menuskill_val > 10 && sd->menuskill_val <= 20 ) { //Assume Cooking Dish
 					if( sd->menuskill_val >= 15 ) //Legendary Cooking Set
 						make_per = 10000; //100% Success
-					else
+					else {
 						make_per = 1200 * (sd->menuskill_val - 10)
 							+ 20  * (sd->status.base_level + 1)
 							+ 20  * (status->dex + 1)
@@ -18877,6 +18907,7 @@ bool skill_produce_mix(struct map_session_data *sd, uint16 skill_id, unsigned sh
 							- 10  * (100 - status->luk + 1)
 							- 500 * (num - 1)
 							- 100 * (rnd()%4 + 1);
+					}
 					break;
 				}
 				make_per = 5000;

@@ -1746,7 +1746,7 @@ static bool read_homunculus_skilldb_sub(char *split[], int columns, int current)
 	hskill_tree[class_idx][j].need_level = atoi(split[3]);
 
 	for (i = 0; i < MAX_PC_SKILL_REQUIRE; i++) {
-		uint16 id = atoi(split[4+i*2]), idx = 0;
+		uint16 id = atoi(split[4 + i * 2]), idx = 0;
 
 		if (!id)
 			continue;

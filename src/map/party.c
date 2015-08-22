@@ -32,7 +32,7 @@
 
 
 static DBMap *party_db; // int party_id -> struct party_data *(releases data)
-static DBMap *party_booking_db; // int char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
+static DBMap *party_booking_db; // int char_id -> struct party_booking_ad_info *(releases data) // Party Booking [Spiria]
 static unsigned long party_booking_nextid = 1;
 
 int party_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data);
@@ -42,7 +42,7 @@ int party_create_byscript;
  * Fills the given party_member structure according to the sd provided.
  * Used when creating/adding people to a party. [Skotlex]
  *------------------------------------------*/
-static void party_fill_member(struct party_member* member, struct map_session_data *sd, unsigned int leader)
+static void party_fill_member(struct party_member *member, struct map_session_data *sd, unsigned int leader)
 {
   	member->account_id = sd->status.account_id;
 	member->char_id    = sd->status.char_id;
@@ -128,7 +128,7 @@ struct party_data *party_search(int party_id)
 {
 	if(!party_id)
 		return NULL;
-	return (struct party_data*)idb_get(party_db,party_id);
+	return (struct party_data *)idb_get(party_db,party_id);
 }
 
 /// Party data lookup using party name.
@@ -234,14 +234,15 @@ int party_recv_noinfo(int party_id, int char_id)
 
 static void party_check_state(struct party_data *p)
 {
+	struct map_session_data *p_sd;
 	int i;
 
 	memset(&p->state, 0, sizeof(p->state));
-	for (i = 0; i < MAX_PARTY; i ++) {
-		if (!p->party.member[i].online)
+	for (i = 0; i < MAX_PARTY; i++) {
+		if ((p_sd = p->data[i].sd) == NULL)
 			continue;
-		// Those not online shouldn't aport to skill usage and all that.
-		switch (p->party.member[i].class_) {
+		// Those not online shouldn't aport to skill usage and all that
+		switch (p_sd->status.class_) {
 			case JOB_MONK:
 			case JOB_BABY_MONK:
 			case JOB_CHAMPION:
@@ -263,10 +264,10 @@ static void party_check_state(struct party_data *p)
 	}
 }
 
-int party_recv_info(struct party* sp, int char_id)
+int party_recv_info(struct party *sp, int char_id)
 {
 	struct party_data *p;
-	struct party_member* member;
+	struct party_member *member;
 	struct map_session_data *sd;
 	int removed[MAX_PARTY]; // Member_id in old data
 	int removed_count = 0;
@@ -276,7 +277,7 @@ int party_recv_info(struct party* sp, int char_id)
 	
 	nullpo_ret(sp);
 
-	p = (struct party_data*)idb_get(party_db, sp->party_id);
+	p = (struct party_data *)idb_get(party_db, sp->party_id);
 	if( p != NULL ) { // Diff members
 		int i;
 
@@ -319,7 +320,7 @@ int party_recv_info(struct party* sp, int char_id)
 	memset(&p->data, 0, sizeof(p->data));
 	for( member_id = 0; member_id < MAX_PARTY; member_id++ ) {
 		member = &p->party.member[member_id];
-		if ( member->char_id == 0 )
+		if( member->char_id == 0 )
 			continue; // Empty
 		p->data[member_id].sd = party_sd_check(sp->party_id, member->account_id, member->char_id);
 	}
@@ -770,7 +771,7 @@ int party_changeleader(struct map_session_data *sd, struct map_session_data *tsd
 /// - gains a level (disabled)
 int party_recv_movemap(int party_id, int account_id, int char_id, unsigned short map, int online, int lv)
 {
-	struct party_member* m;
+	struct party_member *m;
 	struct party_data *p;
 	int i;
 
@@ -810,6 +811,7 @@ void party_send_movemap(struct map_session_data *sd)
 
 	//Note that this works because this function is invoked before connect_new is cleared
 	if( sd->state.connect_new ) {
+		party_check_state(p);
 		clif_party_option(p,sd,0x100);
 		clif_party_info(p,sd);
 		clif_party_member_info(p,sd);
@@ -819,16 +821,15 @@ void party_send_movemap(struct map_session_data *sd)
 		int i;
 
 		for( i = 0; i < MAX_PARTY; i++ ) {
-			if (p->data[i].sd &&
+			if( p->data[i].sd &&
 				p->data[i].sd != sd &&
-				p->data[i].sd->bl.m == sd->bl.m)
+				p->data[i].sd->bl.m == sd->bl.m )
 			{
 				clif_party_xy_single(sd->fd,p->data[i].sd);
 				clif_party_xy_single(p->data[i].sd->fd,sd);
 			}
 		}
 	}
-	return;
 }
 
 void party_send_levelup(struct map_session_data *sd)
@@ -889,6 +890,7 @@ int party_skill_check(struct map_session_data *sd, int party_id, uint16 skill_id
 
 	if( !party_id || (p = party_search(party_id)) == NULL )
 		return 0;
+
 	switch( skill_id ) {
 		case TK_COUNTER: //Increase Triple Attack rate of Monks
 			if( !p->state.monk )
@@ -898,14 +900,14 @@ int party_skill_check(struct map_session_data *sd, int party_id, uint16 skill_id
 			if( !p->state.sg )
 				return 0;
 			break;
-		case AM_TWILIGHT2: //Twilight Pharmacy, requires Super Novice
+		case AM_TWILIGHT2: //Twilight Alchemy, requires Super Novice
 			return p->state.snovice;
-		case AM_TWILIGHT3: //Twilight Pharmacy, Requires Taekwon
+		case AM_TWILIGHT3: //Twilight Alchemy, requires Taekwon
 			return p->state.tk;
 		default:
-			return 0; //Unknown case?
+			return 0;
 	}
-	
+
 	for( i = 0; i < MAX_PARTY; i++ ) {
 		if( (p_sd = p->data[i].sd) == NULL )
 			continue;
@@ -1220,7 +1222,7 @@ int party_calc_chorusbonus(struct map_session_data *sd, uint8 flag) {
  * Party Booking in KRO [Spiria]
  *------------------------------------------*/
 
-static struct party_booking_ad_info* create_party_booking_data(void)
+static struct party_booking_ad_info *create_party_booking_data(void)
 {
 	struct party_booking_ad_info *pb_ad;
 
@@ -1282,7 +1284,7 @@ void party_booking_search(struct map_session_data *sd, short level, short mapid,
 {
 	struct party_booking_ad_info *pb_ad;
 	int i, count = 0;
-	struct party_booking_ad_info* result_list[PARTY_BOOKING_RESULTS];
+	struct party_booking_ad_info *result_list[PARTY_BOOKING_RESULTS];
 	bool more_result = false;
 	DBIterator *iter = db_iterator(party_booking_db);
 
@@ -1314,7 +1316,7 @@ void party_booking_search(struct map_session_data *sd, short level, short mapid,
 
 bool party_booking_delete(struct map_session_data *sd)
 {
-	struct party_booking_ad_info* pb_ad;
+	struct party_booking_ad_info *pb_ad;
 
 	if ((pb_ad = (struct party_booking_ad_info*)idb_get(party_booking_db, sd->status.char_id)) != NULL) {
 		clif_PartyBookingDeleteNotify(sd, pb_ad->index);

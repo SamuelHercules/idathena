@@ -167,19 +167,17 @@ unsigned short itemdb_searchrandomid(uint16 group_id, uint8 sub_group) {
 static void itemdb_pc_get_itemgroup_sub(struct map_session_data *sd, struct s_item_group_entry *data) {
 	uint16 i, get_amt = 0;
 	struct item tmp;
-	struct item_data *id = NULL;
 
 	nullpo_retv(data);
 
 	memset(&tmp, 0, sizeof(tmp));
-	id = itemdb_search(data->nameid);
 
 	tmp.nameid = data->nameid;
 	tmp.bound = data->bound;
 	tmp.identify = 1;
 	tmp.expire_time = (data->duration) ? (unsigned int)(time(NULL) + data->duration * 60) : 0;
 	if (data->isNamed) {
-		tmp.card[0] = itemdb_isequip(data->nameid) ? CARD0_FORGE : CARD0_CREATE;
+		tmp.card[0] = (itemdb_isequip(data->nameid) ? CARD0_FORGE : CARD0_CREATE);
 		tmp.card[1] = 0;
 		tmp.card[2] = GetWord(sd->status.char_id, 0);
 		tmp.card[3] = GetWord(sd->status.char_id, 1);

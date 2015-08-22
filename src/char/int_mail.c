@@ -104,7 +104,7 @@ static int mail_fromsql(int char_id, struct mail_data* md)
 int mail_savemessage(struct mail_message* msg)
 {
 	StringBuf buf;
-	SqlStmt* stmt;
+	SqlStmt *stmt;
 	int j;
 
 	// Build message save query

@@ -26,7 +26,7 @@ struct party_data {
 };
 
 static struct party_data *party_pt;
-static DBMap *party_db_; // int party_id -> struct party_data*
+static DBMap *party_db_; // int party_id -> struct party_data *
 
 int mapif_party_broken(int party_id,int flag);
 int party_check_empty(struct party_data *p);
@@ -199,7 +199,7 @@ struct party_data *inter_party_fromsql(int party_id)
 	int leader_id = 0;
 	int leader_char = 0;
 	struct party_data *p;
-	struct party_member* m;
+	struct party_member *m;
 	char *data;
 	size_t len;
 	int i;
@@ -211,7 +211,7 @@ struct party_data *inter_party_fromsql(int party_id)
 		return NULL;
 	
 	//Load from memory
-	p = (struct party_data*)idb_get(party_db_, party_id);
+	p = (struct party_data *)idb_get(party_db_, party_id);
 	if( p != NULL )
 		return p;
 
@@ -270,7 +270,7 @@ int inter_party_sql_init(void)
 {
 	//memory alloc
 	party_db_ = idb_alloc(DB_OPT_RELEASE_DATA);
-	party_pt = (struct party_data*)aCalloc(sizeof(struct party_data), 1);
+	party_pt = (struct party_data *)aCalloc(sizeof(struct party_data), 1);
 	if (!party_pt) {
 		ShowFatalError("inter_party_sql_init: Out of Memory!\n");
 		exit(EXIT_FAILURE);
@@ -370,7 +370,7 @@ static void mapif_party_noinfo(int fd, int party_id, int char_id)
 }
 
 //Digest party information
-static void mapif_party_info(int fd, struct party* p, int char_id)
+static void mapif_party_info(int fd, struct party *p, int char_id)
 {
 	unsigned char buf[8 + sizeof(struct party)];
 	WBUFW(buf,0) = 0x3821;
@@ -500,7 +500,7 @@ int mapif_parse_CreateParty(int fd, char *name, int item, int item2, struct part
 			}
 	}
 
-	p = (struct party_data*)aCalloc(1, sizeof(struct party_data));
+	p = (struct party_data *)aCalloc(1, sizeof(struct party_data));
 
 	memcpy(p->party.name,name,NAME_LENGTH);
 	p->party.exp=0;

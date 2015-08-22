@@ -139,7 +139,7 @@ static void script_load_mapreg(void) {
 	   | varname | index | value |
 	   +-------------------------+
 	                                */
-	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
+	SqlStmt *stmt = SqlStmt_Malloc(mmysql_handle);
 	char varname[32+1];
 	int index;
 	char value[255+1];

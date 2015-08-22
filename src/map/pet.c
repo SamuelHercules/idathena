@@ -155,12 +155,12 @@ int pet_target_check(struct pet_data *pd, struct block_list *bl, int type)
 
 	if(!type) {
 		rate = pd->petDB->attack_rate;
-		rate = rate * pd->rate_fix/1000;
+		rate = rate * pd->rate_fix / 1000;
 		if(pd->petDB->attack_rate > 0 && rate <= 0)
 			rate = 1;
 	} else {
 		rate = pd->petDB->defence_attack_rate;
-		rate = rate * pd->rate_fix/1000;
+		rate = rate * pd->rate_fix / 1000;
 		if(pd->petDB->defence_attack_rate > 0 && rate <= 0)
 			rate = 1;
 	}

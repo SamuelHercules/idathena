@@ -2763,9 +2763,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 		struct map_session_data *sd = pd->master;
 		int lv;
 
-		lv = sd->status.base_level * battle_config.pet_lv_rate / 100;
-		if (lv < 0)
-			lv = 1;
+		lv = max(sd->status.base_level * battle_config.pet_lv_rate / 100, 1);
 		if (lv != pd->pet.level || (opt&SCO_FIRST)) {
 			struct status_data *bstat = &pd->db->status, *status = &pd->status;
 
@@ -2801,8 +2799,8 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 			pd->pet.level = pd->db->lv;
 	}
 
-	pd->rate_fix = min(1000 * (pd->pet.intimate - battle_config.pet_support_min_friendly) / (1000 - battle_config.pet_support_min_friendly) + 500, USHRT_MAX);
-	pd->rate_fix = min(apply_rate(pd->rate_fix, battle_config.pet_support_rate), USHRT_MAX);
+	pd->rate_fix = min(1000 * (pd->pet.intimate - battle_config.pet_support_min_friendly) / (1000 - battle_config.pet_support_min_friendly) + 500, UINT_MAX);
+	pd->rate_fix = min(apply_rate(pd->rate_fix, battle_config.pet_support_rate), UINT_MAX);
 }
 
 /** [Cydh]
@@ -10098,6 +10096,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 		case SC_CHASEWALK:
 		case SC_CLOAKINGEXCEED:
 		case SC_CAMOUFLAGE:
+		case SC_STEALTHFIELD:
+		case SC__INVISIBILITY:
 		case SC_VOICEOFSIREN:
 		case SC_ALL_RIDING:
 		case SC_HEAT_BARREL_AFTER:
@@ -10302,6 +10302,8 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 			sc->option |= OPTION_CLOAK;
 		//Fall through
 		case SC_CAMOUFLAGE:
+		case SC_STEALTHFIELD:
+		case SC__SHADOWFORM:
 			opt_flag = 2;
 			break;
 		case SC_CHASEWALK:
@@ -11358,6 +11360,8 @@ int status_change_end_(struct block_list *bl, enum sc_type type, int tid, const 
 			sc->option &= ~OPTION_CLOAK;
 		//Fall through
 		case SC_CAMOUFLAGE:
+		case SC_STEALTHFIELD:
+		case SC__SHADOWFORM:
 			opt_flag |= 2;
 			break;
 		case SC_CHASEWALK:
@@ -12475,20 +12479,25 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 			status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 			status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
+			if( type == SC_CONCENTRATE )
+				status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			break;
 		case SC_RUWACH: //Un-hides targets on 5*5 range and deals little damages
 			if( tsc ) {
-				if( tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_CLOAKINGEXCEED] ) {
+				if( tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_CAMOUFLAGE] ) {
 					status_change_end(bl, SC_HIDING, INVALID_TIMER);
 					status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
-					status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 					status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
+					status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 					if( battle_check_target(src, bl, BCT_ENEMY) > 0 )
 						skill_attack(BF_MAGIC, src, src, bl, status_sc2skill(type), 1, tick, 0);
 				}
 				if( tsc->data[SC__SHADOWFORM] && (sce && sce->val4 > 0 && sce->val4%2000 == 0) &&
-					rnd()%100 < 100 - tsc->data[SC__SHADOWFORM]->val1 * 10 )
+					rnd()%100 < 100 - tsc->data[SC__SHADOWFORM]->val1 * 10 ) {
 					status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+					if( battle_check_target(src, bl, BCT_ENEMY) > 0 )
+						skill_attack(BF_MAGIC, src, src, bl, status_sc2skill(type), 1, tick, 0);
+				}
 			}
 			break;
 		case SC_SIGHTBLASTER:
@@ -12496,9 +12505,8 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 				struct skill_unit *su = (struct skill_unit *)bl;
 
 				if( sce ) {
-					//The hit is not counted if it's against a trap
 					if( skill_attack(BF_MAGIC, src, src, bl, status_sc2skill(type), sce->val1, tick, 0x1000) &&
-						(!su || !su->group || !(skill_get_inf2(su->group->skill_id)&INF2_TRAP)) )
+						(!su || !su->group || !(skill_get_inf2(su->group->skill_id)&INF2_TRAP)) ) //The hit is not counted if it's against a trap
 						sce->val2 = 0; //This signals it to end
 					else if( (bl->type&BL_SKILL) && sce->val4%2 == 0 )
 						sce->val4++;
@@ -12523,7 +12531,7 @@ int status_change_timer_sub(struct block_list *bl, va_list ap) {
 				}
 			}
 			break;
-		}
+	}
 	return 0;
 }
 

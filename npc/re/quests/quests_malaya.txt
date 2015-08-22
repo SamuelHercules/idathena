@@ -7599,8 +7599,6 @@ malaya,64,78,4	script	Village Woman#mab	583,{
 		mes "I don't know.";
 		mes "I haven't given it a thought.";
 		mes "It is strange to have a new nurse coming to a closed hospital.";
-		set malaya_bang,6;
-		changequest 11287,11288;
 		close;
 	} else {
 		mes "[Village Woman]";

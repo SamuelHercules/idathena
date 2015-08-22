@@ -3852,10 +3852,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd,struct block_list *sr
 			RE_LVL_DMOD(100);
 			break;
 		case SR_EARTHSHAKER:
-			if(tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] ||
-				tsc->data[SC_CHASEWALK] || tsc->data[SC_CLOAKINGEXCEED] ||
-				tsc->data[SC__INVISIBILITY]))
-			{ //[(Skill Level x 150) x (Caster's Base Level / 100) + (Caster's INT x 3)] %
+			//[(Skill Level x 150) x (Caster's Base Level / 100) + (Caster's INT x 3)] %
+			if(tsc && ((tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK)) ||
+				tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_STEALTHFIELD] || tsc->data[SC__SHADOWFORM])) {
 				skillratio += -100 + 150 * skill_lv;
 				RE_LVL_DMOD(100);
 				skillratio += sstatus->int_ * 3;
@@ -5031,8 +5030,8 @@ static struct Damage initialize_weapon_data(struct block_list *src, struct block
 					wd.flag = ((wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC);
 				break;
 
-			//The number of hits is set to 3 by default for use in Inspiration status.
-			//When in banding, the number of hits is equal to the number of Royal Guards in banding.
+			//The number of hits is set to 3 by default for use in Inspiration status
+			//When in banding, the number of hits is equal to the number of Royal Guards in banding
 			case LG_HESPERUSLIT: {
 					struct status_change *sc = status_get_sc(src);
 
@@ -8082,7 +8081,7 @@ static const struct _battle_data {
 	{ "max_heal_lv",                        &battle_config.max_heal_lv,                     11,     1,      INT_MAX,        },
 	{ "max_heal",                           &battle_config.max_heal,                        9999,   0,      INT_MAX,        },
 	{ "combo_delay_rate",                   &battle_config.combo_delay_rate,                100,    0,      INT_MAX,        },
-	{ "item_check",                         &battle_config.item_check,                      0,      0,      7,              },
+	{ "item_check",                         &battle_config.item_check,                      0x0,    0x0,    0x7,            },
 	{ "item_use_interval",                  &battle_config.item_use_interval,               100,    0,      INT_MAX,        },
 	{ "cashfood_use_interval",              &battle_config.cashfood_use_interval,           60000,  0,      INT_MAX,        },
 	{ "wedding_modifydisplay",              &battle_config.wedding_modifydisplay,           0,      0,      1,              },
