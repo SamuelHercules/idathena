@@ -207,7 +207,6 @@ struct map_session_data {
 		unsigned int monster_ignore : 1; //For monsters to ignore a character [Valaris] [zzo]
 		unsigned int size : 2; //For tiny/large types
 		unsigned int night : 1; //Holds whether or not the player currently has the SI_NIGHT effect on [Skotlex]
-		unsigned int blockedmove : 1;
 		unsigned int using_fake_npc : 1;
 		unsigned int rewarp : 1; //Signals that a player should warp as soon as he is done loading a map [Skotlex]
 		unsigned int killer : 1;
@@ -239,6 +238,7 @@ struct map_session_data {
 		unsigned disable_atcommand_on_npc : 1; //Prevent to use atcommand while talking with NPC [Kichi]
 		uint8 isBoundTrading; //Player is currently add bound item to trade list [Cydh]
 		unsigned int warp_clean : 1;
+		bool ignoretimeout; //Prevent the SECURE_NPCTIMEOUT function from closing current script
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;

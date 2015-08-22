@@ -150,7 +150,7 @@
 87,9,6,2,1,0x1,0,10,1,yes,0,0,0,magic,0,0,	WZ_ICEWALL,Ice Wall
 88,0,6,4,1,0x2,2,10,1,yes,0,0,0,magic,0,0x20,	WZ_FROSTNOVA,Frost Nova
 89,9,6,2,1,0,0,10,1,yes,0,0,0,magic,2,0x20,	WZ_STORMGUST,Storm Gust
-90,9,8,1,2,0,0,5,1:2:3:4:5,yes,0,0,0,magic,0,0x20,	WZ_EARTHSPIKE,Earth Spike
+90,9,8,1,2,0,0,5,1:2:3:4:5,yes,0,0,0,magic,0,0x22,	WZ_EARTHSPIKE,Earth Spike
 91,9,8,2,2,0,0,5,1:2:3:4:5,yes,0,0,0,magic,0,0x22,	WZ_HEAVENDRIVE,Heaven's Drive
 92,9,6,2,2,0x1,0,5,1,yes,0,0,3,magic,0,0x2,	WZ_QUAGMIRE,Quagmire
 93,9,6,1,0,0x1,0,1,1,yes,0,0,0,magic,0,0,	WZ_ESTIMATION,Sense

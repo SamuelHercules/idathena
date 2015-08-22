@@ -117,7 +117,7 @@ bool mapif_homunculus_save(struct s_homunculus* hd)
 		}
 		else
 		{
-			SqlStmt* stmt;
+			SqlStmt *stmt;
 			int i;
 
 			stmt = SqlStmt_Malloc(sql_handle);

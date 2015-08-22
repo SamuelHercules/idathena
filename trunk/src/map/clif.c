@@ -2688,7 +2688,7 @@ void clif_item_sub(unsigned char *buf, int n, int idx, struct item *it, struct i
 
 
 void clif_favorite_item(struct map_session_data *sd, unsigned short index);
-//Unified inventory function which sends all of the inventory (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
+//Unified inventory function which sends all of the inventory (requires two packets, one for equipable items and one for stackable ones [Skotlex]
 void clif_inventorylist(struct map_session_data *sd) {
 	int i, n, ne, arrow = -1;
 	unsigned char *buf;
@@ -7154,7 +7154,7 @@ void clif_party_info(struct party_data *p, struct map_session_data *sd)
 	WBUFW(buf,0) = 0xfb;
 	memcpy(WBUFP(buf,4), p->party.name, NAME_LENGTH);
 	for(i = 0, c = 0; i < MAX_PARTY; i++) {
-		struct party_member* m = &p->party.member[i];
+		struct party_member *m = &p->party.member[i];
 
 		if(!m->account_id)
 			continue;
@@ -7212,14 +7212,14 @@ void clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	nullpo_retv(sd);
 	nullpo_retv(tsd);
 
-	fd=tsd->fd;
+	fd = tsd->fd;
 
-	if( (p=party_search(sd->status.party_id))==NULL )
+	if( (p = party_search(sd->status.party_id)) == NULL )
 		return;
 
 	WFIFOHEAD(fd,packet_len(cmd));
-	WFIFOW(fd,0)=cmd;
-	WFIFOL(fd,2)=sd->status.party_id;
+	WFIFOW(fd,0) = cmd;
+	WFIFOL(fd,2) = sd->status.party_id;
 	memcpy(WFIFOP(fd,6),p->party.name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(cmd));
 }
@@ -10004,7 +10004,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd) {
 	}
 
 	if(sd->bg_id)
-		clif_bg_hp(sd); //BattleGround System
+		clif_bg_hp(sd); //Battleground System
 
 	if(map[sd->bl.m].flag.pvp && !(sd->sc.option&OPTION_INVISIBLE)) {
 		if(!battle_config.pk_mode) { //Remove pvp stuff for pk_mode [Valaris]
@@ -10460,8 +10460,7 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 	//Rovert's prevent logout option fixed [Valaris]
 	//int type = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
 	if( !sd->sc.data[SC_CLOAKING] && !sd->sc.data[SC_HIDING] && !sd->sc.data[SC_CHASEWALK] && !sd->sc.data[SC_CLOAKINGEXCEED] &&
-		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
-	{
+		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) ) {
 		set_eof(fd);
 		pc_damage_log_clear(sd, 0);
 		clif_disconnect_ack(sd, 0);
@@ -12805,7 +12804,7 @@ void clif_parse_PartyBookingUpdateReq(int fd, struct map_session_data *sd)
 
 /// Notification about new party booking advertisment (ZC_PARTY_BOOKING_NOTIFY_INSERT).
 /// 0809 <index>.L <char name>.24B <expire time>.L <level>.W <map id>.W { <job>.W }*6
-void clif_PartyBookingInsertNotify(struct map_session_data *sd, struct party_booking_ad_info* pb_ad)
+void clif_PartyBookingInsertNotify(struct map_session_data *sd, struct party_booking_ad_info *pb_ad)
 {
 	int i;
 	uint8 buf[38 + PARTY_BOOKING_JOBS * 2];
@@ -12827,7 +12826,7 @@ void clif_PartyBookingInsertNotify(struct map_session_data *sd, struct party_boo
 
 /// Notification about updated party booking advertisment (ZC_PARTY_BOOKING_NOTIFY_UPDATE).
 /// 080a <index>.L { <job>.W }*6
-void clif_PartyBookingUpdateNotify(struct map_session_data *sd, struct party_booking_ad_info* pb_ad)
+void clif_PartyBookingUpdateNotify(struct map_session_data *sd, struct party_booking_ad_info *pb_ad)
 {
 	int i;
 	uint8 buf[6 + PARTY_BOOKING_JOBS * 2];
@@ -18222,7 +18221,7 @@ void clif_parse_merge_item_cancel(int fd, struct map_session_data *sd) {
  */
 void clif_broadcast_obtain_special_item(const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname) {
 	unsigned char buf[9 + NAME_LENGTH * 2];
-	unsigned short pos = 0, cmd = 0;
+	unsigned short cmd = 0;
 	struct s_packet_db *info = NULL;
 
 	if( !(cmd = packet_db_ack[clif_config.packet_db_ver][ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN]) )

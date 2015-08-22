@@ -963,7 +963,7 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 		return 0;
 	}
 
-	if(sd->state.connect_new) { //Note that this works because it is invoked in parse_LoadEndAck before connect_new is cleared.
+	if(sd->state.connect_new) { //Note that this works because it is invoked in parse_LoadEndAck before connect_new is cleared
 		clif_guild_belonginfo(sd,g);
 		sd->guild_emblem_id = g->emblem_id;
 	}

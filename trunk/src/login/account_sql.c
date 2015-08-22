@@ -587,7 +587,7 @@ static bool mmo_auth_fromsql(AccountDB_SQL *db, struct mmo_account* acc, int acc
 static bool mmo_auth_tosql(AccountDB_SQL *db, const struct mmo_account* acc, bool is_new)
 {
 	Sql *sql_handle = db->accounts;
-	SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+	SqlStmt *stmt = SqlStmt_Malloc(sql_handle);
 	bool result = false;
 	int i;
 

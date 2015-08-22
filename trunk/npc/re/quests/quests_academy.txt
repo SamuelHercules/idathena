@@ -5461,6 +5461,7 @@ OnTouch:
 		end;
 	initnpctimer;
 	emotion e_gasp,1;
+	//Fall through
 OnDisable:
 	specialeffect EF_STEAL;
 	emotion e_heh,0,"Academy Student#"+strnpcinfo(2);

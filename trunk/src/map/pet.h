@@ -95,8 +95,8 @@ struct pet_data {
 		unsigned skillbonus : 1;
 	} state;
 	int move_fail_count;
-	unsigned int next_walktime,last_thinktime;
-	unsigned short rate_fix; //Support rate as modified by intimacy (1000 = 100%) [Skotlex]
+	unsigned int next_walktime, last_thinktime,
+		rate_fix; //Support rate as modified by intimacy (1000 = 100%) [Skotlex]
 
 	struct pet_recovery *recovery;
 	struct pet_bonus *bonus;

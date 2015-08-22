@@ -282,7 +282,7 @@ static void mapif_itembound_store2gstorage(int fd, int guild_id, struct item ite
 int mapif_parse_itembound_retrieve(int fd)
 {
 	StringBuf buf;
-	SqlStmt* stmt;
+	SqlStmt *stmt;
 	unsigned short i = 0, count = 0;
 	struct item item, items[MAX_INVENTORY];
 	int j, guild_id = RFIFOW(fd,10);

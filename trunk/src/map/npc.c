@@ -274,9 +274,10 @@ int npc_rr_secure_timeout_timer(int tid, unsigned int tick, int id, intptr_t dat
 	unsigned int timeout = NPC_SECURE_TIMEOUT_NEXT;
 	int cur_tick = gettick(); //Ensure we are on last tick
 
-	if( (sd = map_id2sd(id)) == NULL || !sd->npc_id ) {
-		if( sd ) sd->npc_idle_timer = INVALID_TIMER;
-		return 0; //Not logged in anymore OR no longer attached to a npc
+	if( (sd = map_id2sd(id)) == NULL || !sd->npc_id || sd->state.ignoretimeout ) {
+		if( sd )
+			sd->npc_idle_timer = INVALID_TIMER;
+		return 0; //Not logged in anymore or no longer attached to a NPC or using 'ignoretimeout' script command
 	}
 
 	switch( sd->npc_idle_type ) {
@@ -954,7 +955,7 @@ int npc_touch_areanpc(struct map_session_data *sd, int16 m, int16 x, int16 y)
 	}
 	switch( map[m].npc[i]->subtype ) {
 		case NPCTYPE_WARP:
-			if( pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]) || pc_isdead(sd) )
+			if( pc_ishiding(sd) || (sd->sc.count && (sd->sc.data[SC_CAMOUFLAGE] || sd->sc.data[SC_STEALTHFIELD] || sd->sc.data[SC__SHADOWFORM])) || pc_isdead(sd) )
 				break; //Hidden or dead chars cannot use warps
 			if( sd->count_rewarp > 10 ) {
 				ShowWarning("Prevented infinite warp loop for player (%d:%d). Please fix NPC: '%s', path: '%s'\n",sd->status.account_id,sd->status.char_id,map[m].npc[i]->exname,map[m].npc[i]->path);
@@ -970,7 +971,7 @@ int npc_touch_areanpc(struct map_session_data *sd, int16 m, int16 x, int16 y)
 
 				if( (sd->bl.x >= (map[m].npc[j]->bl.x - map[m].npc[j]->u.warp.xs) && sd->bl.x <= (map[m].npc[j]->bl.x + map[m].npc[j]->u.warp.xs)) &&
 					(sd->bl.y >= (map[m].npc[j]->bl.y - map[m].npc[j]->u.warp.ys) && sd->bl.y <= (map[m].npc[j]->bl.y + map[m].npc[j]->u.warp.ys)) ) {
-						if( pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]) || pc_isdead(sd) )
+						if( pc_ishiding(sd) || (sd->sc.count && (sd->sc.data[SC_CAMOUFLAGE] || sd->sc.data[SC_STEALTHFIELD] || sd->sc.data[SC__SHADOWFORM])) || pc_isdead(sd) )
 							break; //Hidden or dead chars cannot use warps
 					pc_setpos(sd,map[m].npc[j]->u.warp.mapindex,map[m].npc[j]->u.warp.x,map[m].npc[j]->u.warp.y,CLR_OUTSIGHT);
 					found_warp = 1;
@@ -2518,8 +2519,8 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 	nd = npc_create_npc(m, x, y);
 	nd->u.shop.count = 0;
 	while( p ) {
-		unsigned short nameid, qty = 0;
-		int value;
+		unsigned short nameid;
+		int value, qty = 0;
 		struct item_data *id;
 		bool skip = false;
 

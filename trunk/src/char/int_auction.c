@@ -42,7 +42,7 @@ void auction_save(struct auction_data *auction)
 {
 	int j;
 	StringBuf buf;
-	SqlStmt* stmt;
+	SqlStmt *stmt;
 
 	if( !auction )
 		return;
@@ -72,7 +72,7 @@ unsigned int auction_create(struct auction_data *auction)
 {
 	int j;
 	StringBuf buf;
-	SqlStmt* stmt;
+	SqlStmt *stmt;
 
 	if( !auction )
 		return false;
