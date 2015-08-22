@@ -2653,10 +2653,18 @@ int status_calc_mob_(struct mob_data *md, enum e_status_calc_opt opt)
 		gc = guild_mapname2gc(map[md->bl.m].name);
 		if (!gc)
 			ShowError("status_calc_mob: No castle set at map %s\n", map[md->bl.m].name);
-		else if (gc->castle_id < 24 || md->mob_id == MOBID_EMPERIUM) {
+		else if (gc->castle_id < 24
+#ifndef RENEWAL
+			|| md->mob_id == MOBID_EMPERIUM
+#endif
+			) {
 #ifdef RENEWAL
-			status->max_hp += 50 * gc->defense;
-			status->max_sp += 70 * gc->defense;
+			if (md->mob_id != MOBID_EMPERIUM) { //In renewal, castle defense has no effect on the emperium [exneval]
+				status->max_hp += 50 * gc->defense;
+				status->max_sp += 70 * gc->defense;
+				status->def += (gc->defense + 2) / 3;
+				status->mdef += (gc->defense + 2) / 3;
+			}
 #else
 			status->max_hp += 1000 * gc->defense;
 			status->max_sp += 200 * gc->defense;
