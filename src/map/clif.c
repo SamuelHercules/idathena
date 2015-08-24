@@ -4858,11 +4858,11 @@ void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, 
 
 	nullpo_retv(bl);
 
-	if( !unit || !unit->group )
-		return;
-
 	if( bl->type == BL_PC )
 		fd = ((TBL_PC *)bl)->fd;
+
+	if( !unit || !unit->group )
+		return;
 
 	if( unit->group->state.guildaura )
 		return;

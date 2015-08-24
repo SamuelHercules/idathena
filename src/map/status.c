@@ -5251,9 +5251,6 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += batk * sc->data[SC_FLEET]->val3 / 100;
 	if(sc->data[SC_CURSE])
 		batk -= batk * 25 / 100;
-	//Curse shouldn't effect on this? <- Curse/Bleeding?
-	//if(sc->data[SC_BLEEDING])
-		//batk -= batk * 25 / 100;
 #ifdef RENEWAL
 	if(sc->data[SC_STRIPWEAPON] && bl->type != BL_PC)
 		batk -= batk * sc->data[SC_STRIPWEAPON]->val2 / 100;
@@ -7923,9 +7920,12 @@ int status_change_start(struct block_list *src, struct block_list *bl, enum sc_t
 	switch( type ) { //Before overlapping fail, one must check for status cured
 		case SC_BLESSING:
 			if( (!undead_flag && status->race != RC_DEMON) || bl->type == BL_PC ) {
-				status_change_end(bl,SC_CURSE,INVALID_TIMER);
 				if( sc->data[SC_STONE] && sc->opt1 == OPT1_STONE )
 					status_change_end(bl,SC_STONE,INVALID_TIMER);
+				if( sc->data[SC_CURSE] ) {
+					status_change_end(bl,SC_CURSE,INVALID_TIMER);
+					return 1;
+				}
 			}
 			if( sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH )
 				status_change_end(bl,SC_SPIRIT,INVALID_TIMER);
