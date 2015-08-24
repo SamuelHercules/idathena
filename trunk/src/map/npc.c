@@ -2469,11 +2469,11 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 		type = NPCTYPE_SHOP;
 
 	p = strchr(w4,',');
-	memset(point_str,'\0',sizeof(point_str));
+	memset(point_str, '\0', sizeof(point_str));
 
 	switch( type ) {
 		case NPCTYPE_ITEMSHOP: {
-				if( sscanf(p,",%hu:%d,",&nameid,&is_discount) < 1 ) {
+				if( sscanf(p, ",%hu:%d,", &nameid, &is_discount) < 1 ) {
 					ShowError("npc_parse_shop: Invalid item cost definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
 					return strchr(start,'\n'); //Skip and continue
 				}
@@ -2485,7 +2485,7 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 			}
 			break;
 		case NPCTYPE_POINTSHOP: {
-				if( sscanf(p, ",%32[^,:]:%d,",point_str,&is_discount) < 1 ) {
+				if( sscanf(p, ",%32[^,:]:%d,", point_str, &is_discount) < 1 ) {
 					ShowError("npc_parse_shop: Invalid item cost definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
 					return strchr(start,'\n'); //Skip and continue
 				}
@@ -2519,8 +2519,8 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 	nd = npc_create_npc(m, x, y);
 	nd->u.shop.count = 0;
 	while( p ) {
-		unsigned short nameid;
-		int value, qty = 0;
+		unsigned short nameid, qty = 0;
+		int value;
 		struct item_data *id;
 		bool skip = false;
 
@@ -2570,8 +2570,8 @@ static const char *npc_parse_shop(char *w1, char *w2, char *w3, char *w4, const 
 			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) in file '%s', line '%d'.\n",
 				id->name, nameid, value, (int)(value * 0.75), id->value_sell, (int)(id->value_sell * 1.24), filepath, strline(buffer, start - buffer));
 
-		if( type == NPCTYPE_MARKETSHOP && (!qty || qty > UINT16_MAX) ) {
-			ShowWarning("npc_parse_shop: Item %s [%hu] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",
+		if( type == NPCTYPE_MARKETSHOP && !qty ) {
+			ShowWarning("npc_parse_shop: Item %s [%hu] is stocked with invalid value %hu, changed to 1. File '%s', line '%d'.\n",
 				id->name, nameid, qty, filepath, strline(buffer, start - buffer));
 			qty = 1;
 		}
